@@ -7,12 +7,12 @@ import ChatWidgetMount from "@/components/ChatWidget";
 const geist = Geist({
   variable: "--font-sans",
   subsets: ["latin", "latin-ext"],
-  weight: ["300", "400", "500", "600", "700"],
+  weight: ["400", "500", "600"],
   display: "swap",
 });
 
 export const viewport: Viewport = {
-  themeColor: "#0a0a0a",
+  themeColor: "#ffffff",
   width: "device-width",
   initialScale: 1,
 };
@@ -51,20 +51,11 @@ export const metadata: Metadata = {
     siteName: BUSINESS.name,
     title: `${BUSINESS.name} · Sapanca Yeni Mahalle Bakkalı`,
     description: BUSINESS.shortDescription,
-    images: [
-      {
-        url: "/og.png",
-        width: 1200,
-        height: 630,
-        alt: BUSINESS.name,
-      },
-    ],
   },
   twitter: {
     card: "summary_large_image",
     title: BUSINESS.name,
     description: BUSINESS.shortDescription,
-    images: ["/og.png"],
   },
   robots: {
     index: true,

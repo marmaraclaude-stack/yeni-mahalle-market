@@ -16,7 +16,7 @@ const categories = [
 
 function IconClockMini() {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
       <circle cx="12" cy="12" r="9" />
       <path d="M12 7v5l3 2" />
     </svg>
@@ -25,7 +25,7 @@ function IconClockMini() {
 
 function IconScooterMini() {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
       <circle cx="6" cy="18" r="3" />
       <circle cx="18" cy="18" r="3" />
       <path d="M9 18h6M6 18l3-9h4l3 9M13 9V5h3" />
@@ -35,7 +35,7 @@ function IconScooterMini() {
 
 function IconLeafMini() {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
       <path d="M19 4c-7 0-13 6-13 13a6 6 0 0 0 6 6c7 0 13-6 13-13V4h-6z" />
       <path d="M6 17c4-4 8-6 13-7" />
     </svg>
@@ -45,14 +45,15 @@ function IconLeafMini() {
 export default function Home() {
   return (
     <>
-      <div className="topbar" role="banner" aria-label="Durum">
+      {/* Top status strip — NOT role=banner (real header owns that) */}
+      <div className="topbar" aria-label="Durum">
         <div className="container topbar__inner">
           <span className="topbar__status">
-            <span className="dot" aria-hidden />
+            <span className="dot" aria-hidden="true" />
             <span>Şu an açık. Sapanca, Yeni Mahalle.</span>
           </span>
           <a className="topbar__link" href={BUSINESS.phone.href}>
-            <span aria-hidden>☎</span>
+            <span aria-hidden="true">☎</span>
             <span>{BUSINESS.phone.display}</span>
           </a>
         </div>
@@ -60,8 +61,8 @@ export default function Home() {
 
       <header className="header">
         <div className="container header__inner">
-          <a className="brand" href="#" aria-label={`${BUSINESS.name} anasayfa`}>
-            <span className="brand__mark" aria-hidden>Y</span>
+          <a className="brand" href="/" aria-label={`${BUSINESS.name} anasayfa`}>
+            <span className="brand__mark" aria-hidden="true">Y</span>
             <span className="brand__name">Yeni Mahalle Market</span>
           </a>
           <div className="header__actions">
@@ -74,8 +75,8 @@ export default function Home() {
               <IconWhatsApp className="btn__icon" />
               <span>WhatsApp</span>
             </a>
-            <a href={BUSINESS.phone.href} className="btn btn--black btn--sm">
-              <span>Hemen Ara</span>
+            <a href={BUSINESS.phone.href} className="btn btn--ghost btn--sm">
+              <span>Ara</span>
               <IconArrow className="btn__icon" />
             </a>
           </div>
@@ -83,70 +84,56 @@ export default function Home() {
       </header>
 
       <main>
-        {/* Hero with floating CTA card */}
+        {/* Hero — split 60/40, copy left, single photo right */}
         <section className="hero" aria-labelledby="hero-title">
           <div className="container">
-            <div className="hero__photo reveal">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={IMAGES.hero}
-                alt="Yeni Mahalle Market"
-                loading="eager"
-                decoding="async"
-                fetchPriority="high"
-              />
-              <div className="hero__text">
-                <span className="hero__eyebrow">
-                  <span className="dot" aria-hidden />
-                  Şu an açık
-                </span>
-                <h1 id="hero-title" className="hero__title">
+            <div className="hero__grid">
+              <div>
+                <h1 id="hero-title" className="hero__title reveal">
                   Sapanca&apos;nın
                   <br />
                   <span className="hero__title-accent">bakkalı.</span>
                 </h1>
-                <p className="hero__lede">
+                <p className="hero__lede reveal">
                   Yeni Mahalle&apos;de taze meyve sebze, şarküteri ve günlük
                   market ihtiyaçların. Söyle, kapına getirelim.
                 </p>
+                <div className="hero__ctas reveal">
+                  <a
+                    href={BUSINESS.whatsapp.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn btn--primary"
+                  >
+                    <IconWhatsApp className="btn__icon" />
+                    <span>Bugün sipariş ver</span>
+                  </a>
+                  <a href="#iletisim" className="btn btn--ghost">
+                    <span>İletişim</span>
+                    <IconArrow className="btn__icon" />
+                  </a>
+                </div>
               </div>
-
-              {/* Floating CTA card */}
-              <div className="hero__card" role="region" aria-label="Hızlı sipariş">
-                <div className="hero__card-cell">
-                  <span className="hero__card-key">Saatler</span>
-                  <span className="hero__card-val">07:30 / 22:00</span>
-                </div>
-                <div className="hero__card-cell">
-                  <span className="hero__card-key">Günler</span>
-                  <span className="hero__card-val">Her gün</span>
-                </div>
-                <div className="hero__card-cell">
-                  <span className="hero__card-key">Teslimat</span>
-                  <span className="hero__card-val">Mahalle içi</span>
-                </div>
-                <div className="hero__card-cell">
-                  <span className="hero__card-key">Telefon</span>
-                  <span className="hero__card-val">{BUSINESS.phone.display}</span>
-                </div>
-                <a
-                  href={BUSINESS.whatsapp.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="btn btn--primary btn--lg hero__card-cta"
-                >
-                  <IconWhatsApp className="btn__icon" />
-                  <span>WhatsApp</span>
-                </a>
+              <div className="hero__photo reveal">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={IMAGES.hero}
+                  alt=""
+                  loading="eager"
+                  decoding="async"
+                  fetchPriority="high"
+                />
               </div>
             </div>
           </div>
         </section>
 
-        {/* Categories — destination cards adapted */}
+        <div className="divider" />
+
+        {/* Categories — 4 photo cards */}
         <section className="categories" aria-labelledby="categories-title">
           <div className="container">
-            <div className="categories__head">
+            <div className="section__head">
               <h2 id="categories-title" className="section-title">
                 Tezgâhta ne <span className="section-title__accent">bulursun</span>.
               </h2>
@@ -155,7 +142,6 @@ export default function Home() {
                 Hepsi tek bir telefonda.
               </p>
             </div>
-
             <div className="categories__grid">
               {categories.map((c) => (
                 <a
@@ -167,10 +153,10 @@ export default function Home() {
                   aria-label={`${c.label} için WhatsApp'tan yaz`}
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={c.photo} alt={c.label} loading="lazy" />
+                  <img src={c.photo} alt="" loading="lazy" />
                   <span className="category__label">
                     {c.label}
-                    <span className="category__count">{c.sub}</span>
+                    <span className="category__sub">{c.sub}</span>
                   </span>
                 </a>
               ))}
@@ -178,10 +164,10 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Why us */}
+        {/* Values — trio */}
         <section className="values" aria-labelledby="values-title">
           <div className="container">
-            <div className="values__head">
+            <div className="section__head">
               <h2 id="values-title" className="section-title">
                 Neden <span className="section-title__accent">buradayız</span>.
               </h2>
@@ -226,10 +212,10 @@ export default function Home() {
           aria-labelledby="contact-title"
         >
           <div className="container">
-            <div className="contact__head">
-              <h2 id="contact-title" className="contact__title">
+            <div className="section__head">
+              <h2 id="contact-title" className="section-title">
                 Gel,{" "}
-                <span className="contact__title-accent">ya da</span> biz
+                <span className="section-title__accent">ya da</span> biz
                 gelelim.
               </h2>
               <p className="section-lede">
@@ -284,7 +270,7 @@ export default function Home() {
                     href={BUSINESS.instagram.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="btn btn--outline"
+                    className="btn btn--ghost"
                   >
                     <IconInstagram className="btn__icon" />
                     Instagram
@@ -293,7 +279,7 @@ export default function Home() {
                     href={BUSINESS.googleMapsDirectionsUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="btn btn--outline"
+                    className="btn btn--ghost"
                   >
                     <IconDirections className="btn__icon" />
                     Yol Tarifi
