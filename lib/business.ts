@@ -36,9 +36,14 @@ export const BUSINESS = {
   },
   geo: { lat: 40.6914, lng: 30.2641 },
   googleStoreCode: "13227824233344056896",
+  // Google Place ID — bu doldurulduğunda /api/reviews Google Places API'ye gerçek çağrı atabilir.
+  // Şimdilik bos. lib/reviews.ts placeholder veri kullanıyor.
+  googlePlaceId: "",
   domain: "sapancayenimahallemarket.com",
   url: "https://sapancayenimahallemarket.com",
   googleMapsCidUrl: "https://www.google.com/maps?cid=13227824233344056896",
+  googleReviewsUrl:
+    "https://www.google.com/maps?cid=13227824233344056896&hl=tr",
   googleMapsEmbedUrl:
     "https://maps.google.com/maps?q=Yeni%20Mahalle%20Market%20Sapanca%20Sakarya&t=&z=16&ie=UTF8&iwloc=&output=embed",
   googleMapsDirectionsUrl:

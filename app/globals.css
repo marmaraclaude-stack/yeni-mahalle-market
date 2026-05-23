@@ -95,8 +95,8 @@ p { margin: 0; }
    NAV — 3 col: brand | floating pill | cta group
    ============================================================ */
 .nav {
-  max-width: var(--container);
-  margin: 0 auto clamp(20px, 2.4vw, 32px);
+  width: 100%;
+  margin: 0 0 clamp(20px, 2.4vw, 32px);
   display: grid;
   grid-template-columns: 1fr auto 1fr;
   align-items: center;
@@ -208,9 +208,9 @@ p { margin: 0; }
 .btn-circle-arrow:hover svg { transform: rotate(45deg); }
 
 /* ============================================================
-   HERO
+   HERO — full width within page padding
    ============================================================ */
-.hero { width: 100%; max-width: var(--container); margin: 0 auto; }
+.hero { width: 100%; }
 
 .hero__frame {
   position: relative;
@@ -413,7 +413,17 @@ p { margin: 0; }
   border: 1px solid rgba(255, 255, 255, 0.18);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
+  display: block;
+  text-decoration: none;
+  color: var(--white);
+  transition: transform 0.25s var(--ease-out), border-color 0.25s var(--ease-out);
 }
+.hcard:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+.hcard:hover .hcard__photo { transform: scale(1.04); }
+.hcard__photo { transition: transform 0.6s var(--ease-out); }
 .hcard__photo {
   width: 100%;
   aspect-ratio: 1 / 1;
@@ -906,6 +916,138 @@ p { margin: 0; }
 }
 
 /* ============================================================
+   REVIEWS — Google Maps style review cards
+   ============================================================ */
+.reviews {
+  padding-block: var(--section-y);
+  background: var(--fg);
+}
+
+.reviews__head {
+  max-width: var(--container);
+  margin: 0 auto 56px;
+  padding-inline: var(--gutter);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 22px;
+}
+
+.reviews__rail {
+  display: flex;
+  gap: 18px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  padding-inline: max(var(--gutter), calc((100vw - var(--container)) / 2));
+  padding-block: 4px;
+}
+.reviews__rail::-webkit-scrollbar { display: none; }
+
+.review {
+  flex: 0 0 360px;
+  background: var(--white);
+  border: 1px solid var(--stroke);
+  border-radius: var(--r-card);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  scroll-snap-align: start;
+  text-decoration: none;
+  color: var(--black);
+  transition: border-color 0.18s ease, transform 0.18s ease;
+}
+.review:hover {
+  border-color: #dcdcdc;
+  transform: translateY(-2px);
+}
+
+.review__top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.review__avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--fg);
+  color: var(--black);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 17px;
+  flex-shrink: 0;
+  letter-spacing: -0.02em;
+}
+
+.review__who {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.review__name {
+  font-size: 14.5px;
+  font-weight: 600;
+  color: var(--black);
+  letter-spacing: -0.005em;
+}
+
+.review__date {
+  font-size: 12.5px;
+  color: var(--paragraph);
+}
+
+.review__stars {
+  display: inline-flex;
+  gap: 2px;
+  color: #fbbf24;
+}
+.review__stars svg { width: 14px; height: 14px; }
+
+.review__text {
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--paragraph);
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 5;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.review__source {
+  margin-top: auto;
+  padding-top: 10px;
+  border-top: 1px solid var(--stroke);
+  font-size: 12px;
+  color: var(--paragraph);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.review__source svg {
+  width: 12px;
+  height: 12px;
+}
+
+.reviews__more {
+  max-width: var(--container);
+  margin: 36px auto 0;
+  padding-inline: var(--gutter);
+  display: flex;
+  justify-content: center;
+}
+
+/* ============================================================
    CTA — full-bleed photo
    ============================================================ */
 .cta {
@@ -1120,7 +1262,10 @@ p { margin: 0; }
   .hcard--featured { width: 220px; }
 
   /* Sections */
-  .moments, .packages, .howto { padding-block: 72px; }
+  .moments, .packages, .howto, .reviews { padding-block: 72px; }
+
+  .reviews__rail { gap: 12px; }
+  .review { flex: 0 0 86vw; max-width: 360px; padding: 20px; }
 
   .moments__rail { margin-top: 36px; gap: 14px; }
   .moment { flex: 0 0 78vw; max-width: 320px; }

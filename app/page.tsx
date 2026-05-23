@@ -1,5 +1,6 @@
 import { BUSINESS } from "@/lib/business";
 import { IMAGES } from "@/lib/images";
+import { REVIEWS } from "@/lib/reviews";
 
 /* ============================================================
    SVG icons
@@ -75,6 +76,25 @@ function MapPinIcon() {
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
       <path d="M12 21s-7-7.2-7-12a7 7 0 1 1 14 0c0 4.8-7 12-7 12Z" />
       <circle cx="12" cy="9" r="2.5" />
+    </svg>
+  );
+}
+
+function StarIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M12 2l2.95 6.55L22 9.55l-5 4.83 1.18 6.87L12 17.77l-6.18 3.48L7 14.38 2 9.55l7.05-1L12 2z" />
+    </svg>
+  );
+}
+
+function GoogleGIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path fill="#4285F4" d="M21.6 12.23c0-.8-.07-1.4-.2-2.04H12v3.7h5.5c-.1.93-.7 2.34-2.04 3.28l-.02.12 2.96 2.3.2.02c1.88-1.74 2.97-4.3 2.97-7.38z"/>
+      <path fill="#34A853" d="M12 22c2.7 0 4.96-.9 6.6-2.42l-3.14-2.44c-.84.58-1.97.99-3.46.99-2.65 0-4.89-1.75-5.7-4.17l-.12.01-3.07 2.38-.04.11C4.7 19.62 8.07 22 12 22z"/>
+      <path fill="#FBBC05" d="M6.3 13.96A6 6 0 015.97 12c0-.68.12-1.34.32-1.96L6.28 9.9 3.17 7.5l-.1.05C2.38 8.92 2 10.42 2 12s.38 3.08 1.07 4.45L6.3 13.96z"/>
+      <path fill="#EA4335" d="M12 5.87c1.88 0 3.14.8 3.86 1.48l2.82-2.74C16.95 3.05 14.7 2 12 2 8.07 2 4.7 4.38 3.07 7.55L6.3 10.04C7.11 7.62 9.35 5.87 12 5.87z"/>
     </svg>
   );
 }
@@ -210,9 +230,16 @@ export default function Home() {
                 </a>
               </aside>
 
-              {/* Photo cards */}
+              {/* Photo cards (clickable -> WhatsApp) */}
               <div className="hero__cards" role="list">
-                <article className="hcard hcard--featured" role="listitem">
+                <a
+                  className="hcard hcard--featured"
+                  role="listitem"
+                  href={BUSINESS.whatsapp.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Günün tazeleri — WhatsApp'tan sor"
+                >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img className="hcard__photo" src={IMAGES.produce} alt="Taze sebze ve meyve" loading="lazy" />
                   <div className="hcard__caption">
@@ -221,19 +248,40 @@ export default function Home() {
                       Sabah halden gelen meyve sebze, her gün taze raflarda.
                     </p>
                   </div>
-                </article>
-                <article className="hcard" role="listitem">
+                </a>
+                <a
+                  className="hcard"
+                  role="listitem"
+                  href={BUSINESS.whatsapp.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Şarküteri — WhatsApp'tan sor"
+                >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img className="hcard__photo" src={IMAGES.charcuterie} alt="Şarküteri" loading="lazy" />
-                </article>
-                <article className="hcard" role="listitem">
+                </a>
+                <a
+                  className="hcard"
+                  role="listitem"
+                  href={BUSINESS.whatsapp.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Fırın — WhatsApp'tan sor"
+                >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img className="hcard__photo" src={IMAGES.bread} alt="Fırın" loading="lazy" />
-                </article>
-                <article className="hcard" role="listitem">
+                </a>
+                <a
+                  className="hcard"
+                  role="listitem"
+                  href={BUSINESS.whatsapp.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Teslimat — WhatsApp'tan sor"
+                >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img className="hcard__photo" src={IMAGES.delivery} alt="Teslimat" loading="lazy" />
-                </article>
+                </a>
               </div>
             </div>
           </div>
@@ -412,6 +460,70 @@ export default function Home() {
                 </div>
               ))}
             </div>
+          </div>
+        </section>
+
+        {/* REVIEWS — Google Maps style */}
+        <section className="reviews" id="yorumlar" aria-labelledby="reviews-title">
+          <div className="reviews__head">
+            <span className="pill-light">
+              <GoogleGIcon />
+              Google Yorumları
+            </span>
+            <h2 id="reviews-title" className="headline-display">
+              Mahallenin <span className="mute">sesi.</span>
+            </h2>
+            <p className="section-sub">
+              Yeni Mahalle&apos;den müşterilerimizin Google Haritalar
+              üzerinden bıraktığı yorumlar.
+            </p>
+          </div>
+
+          <div className="reviews__rail" role="region" aria-label="Müşteri yorumları">
+            {REVIEWS.map((r) => (
+              <a
+                key={r.name}
+                className="review"
+                href={BUSINESS.googleReviewsUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={`${r.name} yorumu — Google'da görüntüle`}
+              >
+                <div className="review__top">
+                  <span className="review__avatar" aria-hidden="true">
+                    {r.initial}
+                  </span>
+                  <div className="review__who">
+                    <span className="review__name">{r.name}</span>
+                    <span className="review__date">{r.date}</span>
+                  </div>
+                </div>
+                <div
+                  className="review__stars"
+                  aria-label={`${r.rating} yıldız`}
+                >
+                  {Array.from({ length: r.rating }).map((_, i) => (
+                    <StarIcon key={i} />
+                  ))}
+                </div>
+                <p className="review__text">{r.text}</p>
+                <div className="review__source">
+                  <GoogleGIcon />
+                  <span>Google&apos;dan</span>
+                </div>
+              </a>
+            ))}
+          </div>
+
+          <div className="reviews__more">
+            <a
+              href={BUSINESS.googleReviewsUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-ghost-pill"
+            >
+              Tüm yorumları Google&apos;da gör
+            </a>
           </div>
         </section>
 
