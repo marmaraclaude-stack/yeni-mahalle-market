@@ -1,6 +1,6 @@
 import { BUSINESS } from "@/lib/business";
 import { IMAGES } from "@/lib/images";
-import { IconWhatsApp, IconInstagram } from "@/components/icons";
+import { IconWhatsApp, IconInstagram, IconDirections } from "@/components/icons";
 
 const navLinks = [
   { label: "Anasayfa", href: "#", active: true },
@@ -82,15 +82,6 @@ function IconChevronLeft() {
   );
 }
 
-function IconMail() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <rect x="3" y="5" width="18" height="14" rx="2" />
-      <path d="M3 7l9 6 9-6" />
-    </svg>
-  );
-}
-
 export default function Home() {
   return (
     <>
@@ -99,7 +90,7 @@ export default function Home() {
         <div className="container nav__inner">
           <a className="brand" href="#" aria-label={`${BUSINESS.name} anasayfa`}>
             <span className="brand__mark" aria-hidden="true">Y</span>
-            <span className="brand__name">Yeni Mahalle</span>
+            <span className="brand__name">Yeni Mahalle Market</span>
           </a>
 
           <div className="nav__pill">
@@ -420,21 +411,18 @@ export default function Home() {
             </div>
 
             <div className="footer__col">
-              <h4>İletişimde kal</h4>
-              <p>Güncellemeler ve mahalle haberleri için.</p>
-              <form
-                className="subscribe"
-                action={BUSINESS.whatsapp.href}
+              <h4>Hızlı sipariş</h4>
+              <p>Soru ya da siparişin için sağ alttan sohbeti aç, ya da WhatsApp&apos;tan yaz.</p>
+              <a
+                href={BUSINESS.whatsapp.href}
                 target="_blank"
                 rel="noopener noreferrer"
+                className="btn btn--primary"
+                style={{ marginTop: 14 }}
               >
-                <input
-                  type="email"
-                  placeholder="E-postanı yaz"
-                  aria-label="E-posta"
-                />
-                <button type="submit">Abone ol</button>
-              </form>
+                <IconWhatsApp className="btn__icon" />
+                <span>WhatsApp&apos;tan yaz</span>
+              </a>
               <div className="footer__socials">
                 <a
                   href={BUSINESS.instagram.href}
@@ -453,10 +441,12 @@ export default function Home() {
                   <IconWhatsApp />
                 </a>
                 <a
-                  href={`mailto:`}
-                  aria-label="E-posta"
+                  href={BUSINESS.googleMapsDirectionsUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Konum"
                 >
-                  <IconMail />
+                  <IconDirections />
                 </a>
               </div>
             </div>
