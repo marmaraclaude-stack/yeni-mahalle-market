@@ -15,15 +15,15 @@ export default function LoginForm() {
         style={{
           display: "flex",
           flexDirection: "column",
-          gap: 6,
+          gap: 7,
         }}
       >
         <span
           style={{
             fontSize: 10.5,
-            letterSpacing: "0.22em",
+            letterSpacing: "0.2em",
             textTransform: "uppercase",
-            color: "var(--muted)",
+            color: "var(--gray-500)",
             fontWeight: 600,
           }}
         >
@@ -37,11 +37,13 @@ export default function LoginForm() {
           autoComplete="current-password"
           style={{
             font: "inherit",
-            padding: "11px 12px",
-            border: "1px solid var(--ink)",
-            background: "var(--bone-2)",
-            borderRadius: 2,
+            padding: "13px 14px",
+            border: "1px solid rgba(10, 10, 10, 0.12)",
+            background: "var(--cream)",
+            borderRadius: 10,
             fontSize: 15,
+            color: "var(--black)",
+            transition: "border-color 0.15s ease, box-shadow 0.15s ease",
           }}
         />
       </label>
@@ -52,16 +54,16 @@ export default function LoginForm() {
         type="submit"
         disabled={pending}
         style={{
-          marginTop: 6,
-          padding: "13px 16px",
-          background: pending ? "var(--bone-3)" : "var(--ink)",
-          color: "var(--bone)",
-          border: "1px solid var(--ink)",
-          borderRadius: 2,
+          marginTop: 8,
+          padding: "14px 18px",
+          background: pending ? "var(--gray-300)" : "var(--black)",
+          color: "var(--white)",
+          border: "none",
+          borderRadius: 999,
           fontWeight: 600,
           fontSize: 14,
-          letterSpacing: "0.04em",
           cursor: pending ? "wait" : "pointer",
+          transition: "background 0.15s ease",
         }}
       >
         {pending ? "Giriş yapılıyor..." : "Giriş yap"}

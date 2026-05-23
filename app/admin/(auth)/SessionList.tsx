@@ -104,7 +104,7 @@ export default function SessionList({ initial }: { initial: ChatSession[] }) {
                 {s.visitor_name ?? "İsimsiz"}
               </div>
               <div className={styles.rowMeta}>
-                {s.visitor_phone ?? "—"} · {timeAgo(s.last_message_at)}
+                {s.visitor_phone ?? "·"} · {timeAgo(s.last_message_at)}
               </div>
             </div>
             <div className={styles.rowRight}>

@@ -303,7 +303,7 @@ export default function ChatWidget() {
                   <h3 className={styles.introTitle}>Merhaba 👋</h3>
                   <p className={styles.introLede}>
                     Sorularınızı, siparişinizi ya da fiyat sormak istediğiniz ürünü
-                    yazın — en kısa sürede dönüyoruz.
+                    yazın, en kısa sürede dönüyoruz.
                   </p>
                 </div>
                 <form className={styles.introForm} onSubmit={startSession}>

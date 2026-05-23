@@ -34,7 +34,7 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL(BUSINESS.url),
   title: {
-    default: `${BUSINESS.name} — Sapanca Yeni Mahalle Bakkalı · Adrese Teslim`,
+    default: `${BUSINESS.name} · Sapanca Yeni Mahalle Bakkalı · Adrese Teslim`,
     template: `%s · ${BUSINESS.name}`,
   },
   description: BUSINESS.description,
@@ -63,7 +63,7 @@ export const metadata: Metadata = {
     locale: "tr_TR",
     url: BUSINESS.url,
     siteName: BUSINESS.name,
-    title: `${BUSINESS.name} — Sapanca Yeni Mahalle Bakkalı`,
+    title: `${BUSINESS.name} · Sapanca Yeni Mahalle Bakkalı`,
     description: BUSINESS.shortDescription,
     images: [
       {
