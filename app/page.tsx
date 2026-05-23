@@ -1,99 +1,123 @@
 import { BUSINESS } from "@/lib/business";
 import { IMAGES } from "@/lib/images";
-import { IconWhatsApp, IconInstagram, IconDirections } from "@/components/icons";
 
+/* ============================================================
+   SVG icons
+   ============================================================ */
+function ArrowUR({ className = "" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M5 19L19 5M19 5H8M19 5V16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function ArrowRight() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function ChevronLeft() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M15 6l-6 6 6 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function ChevronRight() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M9 6l6 6-6 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function SparkleIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+      <path d="M12 3l1.8 5.4L19 10l-5.2 1.6L12 17l-1.8-5.4L5 10l5.2-1.6L12 3z" />
+    </svg>
+  );
+}
+
+function BasketIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+      <path d="M3 7h18M6 7l1.2 12.2a2 2 0 002 1.8h5.6a2 2 0 002-1.8L18 7M9 7V5a3 3 0 016 0v2" />
+    </svg>
+  );
+}
+
+function InstagramIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+      <rect x="3" y="3" width="18" height="18" rx="5" />
+      <circle cx="12" cy="12" r="4" />
+      <circle cx="17.5" cy="6.5" r="1" fill="currentColor" />
+    </svg>
+  );
+}
+
+function WhatsAppIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M20 12a8 8 0 1 1-3.2-6.4L20 4l-1.4 3.3A8 8 0 0 1 20 12Zm-5.2 2.1-1.3-.5a.7.7 0 0 0-.7.1l-.8.8a5.6 5.6 0 0 1-2.5-2.5l.8-.8a.7.7 0 0 0 .1-.7l-.5-1.3a.7.7 0 0 0-.8-.4l-1.2.3a.7.7 0 0 0-.5.8 6.7 6.7 0 0 0 6 6 .7.7 0 0 0 .8-.5l.3-1.2a.7.7 0 0 0-.4-.8Z" />
+    </svg>
+  );
+}
+
+function MapPinIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+      <path d="M12 21s-7-7.2-7-12a7 7 0 1 1 14 0c0 4.8-7 12-7 12Z" />
+      <circle cx="12" cy="9" r="2.5" />
+    </svg>
+  );
+}
+
+/* ============================================================
+   DATA
+   ============================================================ */
 const navLinks = [
-  { label: "Anasayfa", href: "#", active: true },
+  { label: "Anasayfa", href: "#top", active: true },
   { label: "Ürünler", href: "#urunler" },
   { label: "Galeri", href: "#galeri" },
   { label: "Nasıl Çalışır", href: "#nasil" },
   { label: "İletişim", href: "#iletisim" },
 ];
 
-const heroCards = [
-  { label: "Adrese teslim", sub: "Mahalle içi 5 dk", photo: IMAGES.delivery },
-  { label: "Sıcak ekmek", sub: "Fırından çıkan", photo: IMAGES.bread },
-  { label: "Şarküteri", sub: "Tartı ile", photo: IMAGES.charcuterie },
-  { label: "Taze sebze", sub: "Mevsiminde", photo: IMAGES.produce },
-];
-
-const momentCards = [
-  { src: IMAGES.gallery1, title: "", sub: "" },
-  { src: IMAGES.produce, title: "", sub: "" },
-  { src: IMAGES.charcuterie, title: "Şarküteri tezgâhı", sub: "Tartı ile, taze" },
-  { src: IMAGES.delivery, title: "", sub: "" },
-  { src: IMAGES.gallery2, title: "", sub: "" },
-  { src: IMAGES.bread, title: "", sub: "" },
-];
-
 const packages = [
-  { title: "Taze meyve sebze", meta: "Mevsiminde", photo: IMAGES.produce },
-  { title: "Şarküteri, kahvaltı", meta: "Tartı ile", photo: IMAGES.charcuterie },
-  { title: "Ekmek ve fırın", meta: "Sıcak, günlük", photo: IMAGES.bread },
-  { title: "Adrese teslim", meta: "Mahalle içi", photo: IMAGES.delivery },
+  { title: "Meyve & Sebze", meta: "Mevsiminde", photo: IMAGES.produce },
+  { title: "Şarküteri", meta: "Tartı ile", photo: IMAGES.charcuterie },
+  { title: "Fırın", meta: "Sabah taze", photo: IMAGES.bread },
+  { title: "Eve Teslimat", meta: "Aynı gün", photo: IMAGES.delivery },
 ];
 
 const steps = [
-  {
-    n: 1,
-    title: "Ürünleri seç",
-    body: "Hangi ürüne ihtiyacın olduğunu listele. Aklına geleni söyle, gerisi bizden.",
-    active: true,
-  },
-  {
-    n: 2,
-    title: "WhatsApp ya da telefon",
-    body: "Sipariş listeni WhatsApp'tan yaz ya da telefondan ara. Aradan birkaç dakika geçer.",
-  },
-  {
-    n: 3,
-    title: "Tezgâhtan toplayalım",
-    body: "Hızla hazırlayıp paketleyelim. Gerekiyorsa eksikleri arayıp soralım.",
-  },
-  {
-    n: 4,
-    title: "Kapına gelelim",
-    body: "Mahalle içi ortalama beş dakika. Ücretsiz. Sıcak ekmekle birlikte gelir.",
-  },
+  { n: 1, title: "Ürünleri seç", body: "Hangi ürüne ihtiyacın olduğunu listele. Aklına geleni söyle, gerisi bizden.", active: true },
+  { n: 2, title: "WhatsApp ya da telefon", body: "Sipariş listeni WhatsApp'tan yaz ya da telefondan ara. Aradan birkaç dakika geçer." },
+  { n: 3, title: "Tezgâhtan toplayalım", body: "Hızla hazırlayıp paketleyelim. Gerekiyorsa eksikleri arayıp soralım." },
+  { n: 4, title: "Kapına gelelim", body: "Mahalle içi ortalama beş dakika. Ücretsiz. Sıcak ekmekle birlikte gelir." },
 ];
-
-function IconArrowSmall() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="M7 17L17 7" />
-      <path d="M9 7h8v8" />
-    </svg>
-  );
-}
-
-function IconChevronRight() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="M9 6l6 6-6 6" />
-    </svg>
-  );
-}
-
-function IconChevronLeft() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="M15 6l-6 6 6 6" />
-    </svg>
-  );
-}
 
 export default function Home() {
   return (
     <>
-      {/* Floating pill nav */}
-      <nav className="nav" aria-label="Ana navigasyon">
-        <div className="container nav__inner">
-          <a className="brand" href="#" aria-label={`${BUSINESS.name} anasayfa`}>
-            <span className="brand__mark" aria-hidden="true">Y</span>
-            <span className="brand__name">Yeni Mahalle Market</span>
-          </a>
+      <div className="page" id="top">
+        {/* NAV — 3 col: brand | floating pill | cta group */}
+        <header className="nav" aria-label="Üst menü">
+          <div className="nav__brand-cell">
+            <a href="#top" className="brand" aria-label={BUSINESS.name}>
+              <span className="brand__mark" aria-hidden="true">Y</span>
+              <span className="brand__name">{BUSINESS.name}</span>
+            </a>
+          </div>
 
-          <div className="nav__pill">
+          <nav className="nav__pill" aria-label="Ana menü">
             {navLinks.map((l) => (
               <a
                 key={l.label}
@@ -103,358 +127,397 @@ export default function Home() {
                 {l.label}
               </a>
             ))}
+          </nav>
+
+          <div className="nav__cta-cell">
+            <a
+              href={BUSINESS.whatsapp.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-ghost-pill"
+            >
+              Sipariş ver
+            </a>
+            <a
+              href={BUSINESS.whatsapp.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-circle-arrow"
+              aria-label="Sipariş ver"
+            >
+              <ArrowUR />
+            </a>
           </div>
+        </header>
 
-          <a
-            href={BUSINESS.whatsapp.href}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn btn--ghost"
-          >
-            <span>Sipariş ver</span>
-            <span className="btn__arrow"><IconArrowSmall /></span>
-          </a>
-        </div>
-      </nav>
-
-      <main>
         {/* HERO */}
         <section className="hero" aria-labelledby="hero-title">
           <div className="hero__frame">
-            <div className="hero__bg" aria-hidden="true">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={IMAGES.hero}
-                alt=""
-                loading="eager"
-                decoding="async"
-                fetchPriority="high"
-              />
-            </div>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              className="hero__bg"
+              src={IMAGES.hero}
+              alt=""
+              loading="eager"
+              decoding="async"
+              fetchPriority="high"
+            />
 
             <div className="hero__center">
-              <span className="pill">
+              <span className="pill-glass">
                 <span className="dot" aria-hidden="true" />
                 Sapanca, Yeni Mahalle
               </span>
-              <h1 id="hero-title" className="hero__title">
-                Mahallenin bakkalı,
-                <br />
-                kapına kadar.
-              </h1>
             </div>
 
+            <h1 id="hero-title" className="hero__title">
+              <span>Mahallenin bakkalı,</span>
+              <span>kapına kadar.</span>
+            </h1>
+
             <div className="hero__bottom">
-              <div className="hero__glass">
-                <div className="hero__glass-top">
+              {/* Glass card */}
+              <aside className="hero__glass">
+                <div className="hero__glass-label">
                   <span className="avatars" aria-hidden="true">
-                    <span className="avatars__item">Y</span>
-                    <span className="avatars__item">M</span>
-                    <span className="avatars__item">B</span>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img className="avatars__item" src={IMAGES.produce} alt="" />
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img className="avatars__item" src={IMAGES.bread} alt="" />
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img className="avatars__item" src={IMAGES.charcuterie} alt="" />
                     <span className="avatars__count">5dk</span>
                   </span>
-                  <span className="hero__glass-label">Mahalle içi teslim</span>
+                  <span>Mahalle içi teslim</span>
                 </div>
+
                 <p className="hero__glass-body">
-                  Yeni Mahalle&apos;de taze meyve sebze, şarküteri ve günlük
-                  market ihtiyaçların. Söyle, kapına getirelim.
+                  Taze meyve, sebze, ekmek ve günlük ihtiyaçların WhatsApp&apos;tan
+                  tek mesajla. Sapanca Yeni Mahalle içinde ortalama beş dakikada
+                  kapında.
                 </p>
+
                 <a
                   href={BUSINESS.whatsapp.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="btn btn--white hero__glass-cta"
+                  className="pill-cta"
                 >
-                  <span>WhatsApp&apos;tan başla</span>
-                  <span className="btn__arrow"><IconArrowSmall /></span>
+                  <span className="pill-cta__label">WhatsApp&apos;tan başla</span>
+                  <span className="pill-cta__arrow" aria-hidden="true">
+                    <ArrowUR />
+                  </span>
                 </a>
-              </div>
+              </aside>
 
-              <div className="hero__cards" aria-label="Tezgâhtan kareler">
-                {heroCards.map((c) => (
-                  <div className="hcard" key={c.label}>
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={c.photo} alt="" loading="lazy" />
-                    <div className="hcard__label">
-                      {c.label}
-                      <span className="hcard__sub">{c.sub}</span>
-                    </div>
+              {/* Photo cards */}
+              <div className="hero__cards" role="list">
+                <article className="hcard hcard--featured" role="listitem">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img className="hcard__photo" src={IMAGES.produce} alt="Taze sebze ve meyve" loading="lazy" />
+                  <div className="hcard__caption">
+                    <h3 className="hcard__cap-title">Günün tazeleri</h3>
+                    <p className="hcard__cap-sub">
+                      Sabah halden gelen meyve sebze, her gün taze raflarda.
+                    </p>
                   </div>
-                ))}
+                </article>
+                <article className="hcard" role="listitem">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img className="hcard__photo" src={IMAGES.charcuterie} alt="Şarküteri" loading="lazy" />
+                </article>
+                <article className="hcard" role="listitem">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img className="hcard__photo" src={IMAGES.bread} alt="Fırın" loading="lazy" />
+                </article>
+                <article className="hcard" role="listitem">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img className="hcard__photo" src={IMAGES.delivery} alt="Teslimat" loading="lazy" />
+                </article>
               </div>
             </div>
           </div>
         </section>
+      </div>
 
-        {/* MOMENTS - photo rail */}
-        <section className="moments" id="galeri" aria-labelledby="moments-title">
-          <div className="container">
-            <span className="pill pill--light moments__pill">
-              <span className="dot" aria-hidden="true" />
+      <main>
+        {/* MOMENTS */}
+        <section className="moments" id="galeri">
+          <div className="moments__head">
+            <span className="pill-light">
+              <SparkleIcon />
               Tezgâhtan
             </span>
-            <h2 id="moments-title" className="moments__title">
-              Unutulmaz tatlar{" "}
-              <span className="moments__title-mute">Yeni Mahalle&apos;de.</span>
+            <h2 className="headline-display">
+              Unutulmaz <span className="mute">tatlar</span>
+              <br />
+              Yeni Mahalle&apos;de.
             </h2>
-            <p className="moments__sub">
-              Mevsim değiştikçe tezgâh da değişir. Taze ürün, tanıdık yüz,
-              günlük seçim. Yakın geçmişten birkaç kadraj.
+            <p className="section-sub">
+              Her sabah seçilen meyveler, fırından gelen ekmek ve mahallenin
+              kendi tarifleri. Küçük anlardan oluşan bir lezzet günlüğü.
             </p>
           </div>
 
-          <div className="moments__rail">
-            {momentCards.map((m, i) => (
-              <figure
-                className={`moment${m.title ? " moment--overlay" : ""}`}
-                key={i}
-              >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={m.src} alt="" loading="lazy" />
-                {m.title && (
-                  <figcaption className="moment__cap">
-                    <span className="moment__cap-title">{m.title}</span>
-                    <span className="moment__cap-sub">{m.sub}</span>
-                  </figcaption>
-                )}
-              </figure>
-            ))}
+          <div className="moments__rail" role="region" aria-label="Tezgâh anları">
+            <article className="moment">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={IMAGES.produce} alt="Taze meyve ve sebze tezgâhı" loading="lazy" />
+            </article>
+            <article className="moment">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={IMAGES.bread} alt="Sıcak ekmek ve fırın ürünleri" loading="lazy" />
+            </article>
+            <article className="moment moment--overlay">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={IMAGES.charcuterie} alt="Şarküteri ve yerel peynirler" loading="lazy" />
+              <div className="moment__cap">
+                <div className="moment__cap-title">Şarküteri köşesi</div>
+                <div className="moment__cap-sub">Ezine, Erzincan tulum, ev yapımı sucuk</div>
+              </div>
+            </article>
+            <article className="moment">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={IMAGES.gallery1} alt="Mahalle tezgâhı detayı" loading="lazy" />
+            </article>
+            <article className="moment">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={IMAGES.delivery} alt="Mahalleye teslimat" loading="lazy" />
+            </article>
+            <article className="moment">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={IMAGES.gallery2} alt="Yeni Mahalle tezgâhı" loading="lazy" />
+            </article>
           </div>
 
-          <div className="container">
-            <div className="rail-foot">
-              <button className="btn btn--ghost btn--sm" aria-label="Önceki">
-                <IconChevronLeft />
-              </button>
-              <span className="rail-bar"><span /></span>
-              <button className="btn btn--ghost btn--sm" aria-label="Sonraki">
-                <IconChevronRight />
-              </button>
-            </div>
+          <div className="rail-foot">
+            <button className="rail-arrow" type="button" aria-label="Önceki">
+              <ChevronLeft />
+            </button>
+            <div className="rail-bar" role="presentation" />
+            <button className="rail-arrow" type="button" aria-label="Sonraki">
+              <ChevronRight />
+            </button>
           </div>
         </section>
 
-        {/* PACKAGES - tall left + 2x2 right */}
-        <section className="packages" id="urunler" aria-labelledby="packages-title">
-          <div className="container">
-            <div className="packages__head">
-              <span className="pill pill--light moments__pill">
-                <span className="dot" aria-hidden="true" />
-                Ne satıyoruz
-              </span>
-              <h2 id="packages-title" className="packages__title">
-                Mahallene gerekenler{" "}
-                <span className="packages__title-mute">hepsi tek bir yerde.</span>
-              </h2>
-              <p className="packages__sub">
-                Bir mahalle bakkalının yapması gereken her şey, biraz daha
-                özenle. Hepsi bir telefonda.
-              </p>
-            </div>
+        {/* PACKAGES */}
+        <section className="packages" id="urunler">
+          <div className="packages__head">
+            <span className="pill-light">
+              <BasketIcon />
+              Ne satıyoruz
+            </span>
+            <h2 className="headline-display">
+              Mahallene gerekenler
+              <br />
+              <span className="mute">hepsi</span> tek bir yerde.
+            </h2>
+            <p className="section-sub">
+              Mevsiminde meyve sebze, günlük süt ürünleri, fırın ve şarküteri.
+              Adres tarif eder, biz kapına bırakırız.
+            </p>
+          </div>
 
-            <div className="packages__grid">
-              <article className="pkg-hero">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={IMAGES.gallery1} alt="" loading="lazy" />
-                <h3 className="pkg-hero__title">
-                  Sapanca&apos;dan günlük taze.
-                </h3>
-              </article>
-
-              <div className="pkg-grid">
-                {packages.map((p) => (
-                  <a
-                    key={p.title}
-                    href={BUSINESS.whatsapp.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="pkg"
-                    aria-label={`${p.title} için WhatsApp'tan yaz`}
-                  >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={p.photo} alt="" loading="lazy" />
-                    <div className="pkg__body">
-                      <div className="pkg__title">{p.title}</div>
-                      <div className="pkg__row">
-                        <span className="pkg__meta">{p.meta}</span>
-                        <span className="pkg__link">
-                          Sor <IconArrowSmall />
-                        </span>
-                      </div>
-                    </div>
-                  </a>
-                ))}
+          <div className="packages__grid">
+            <a
+              className="pkg-hero"
+              href={BUSINESS.whatsapp.href}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={IMAGES.hero} alt="Sapanca'dan günlük taze ürünler" loading="lazy" />
+              <div className="pkg-hero__title">
+                Sapanca&apos;dan
+                <br />
+                günlük taze.
               </div>
+            </a>
+
+            <div className="pkg-grid">
+              {packages.map((p) => (
+                <a
+                  key={p.title}
+                  className="pkg"
+                  href={BUSINESS.whatsapp.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={p.photo} alt={p.title} loading="lazy" />
+                  <div className="pkg__body">
+                    <div className="pkg__title">{p.title}</div>
+                    <div className="pkg__row">
+                      <span className="pkg__meta">{p.meta}</span>
+                      <span className="pkg__link">
+                        Sor <ArrowRight />
+                      </span>
+                    </div>
+                  </div>
+                </a>
+              ))}
             </div>
           </div>
         </section>
 
         {/* HOW IT WORKS */}
-        <section className="howto" id="nasil" aria-labelledby="howto-title">
-          <div className="container">
-            <div className="howto__head">
-              <h2 id="howto-title" className="howto__title">
-                Nasıl sipariş verirsin
-              </h2>
-              <div className="howto__tags">
-                <span className="howto__tag">Telefon</span>
-                <span className="howto__tag">WhatsApp</span>
-                <span className="howto__tag">Hızlı teslim</span>
-                <span className="howto__tag">Mahalle içi</span>
-                <span className="howto__tag">Ücretsiz</span>
-              </div>
+        <section className="howto" id="nasil">
+          <header className="howto__head">
+            <h2 className="howto__title">
+              Nasıl sipariş <em>verirsin</em>
+            </h2>
+            <div className="howto__tags" aria-hidden="true">
+              <span className="howto__tag">Telefon</span>
+              <span className="howto__tag">WhatsApp</span>
+              <span className="howto__tag">Hızlı teslim</span>
+              <span className="howto__tag">Mahalle içi</span>
+              <span className="howto__tag">Ücretsiz</span>
             </div>
+          </header>
 
-            <div className="howto__grid">
-              <div className="howto__photo">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={IMAGES.story} alt="" loading="lazy" />
-                <div className="howto__photo-cap">
-                  <p className="howto__photo-text">
-                    Mahallenin bakkalına bir telefon, kapına ulaşan sipariş.
-                  </p>
-                  <a
-                    href={BUSINESS.whatsapp.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="btn btn--white btn--sm"
-                  >
-                    <span>Yaz</span>
-                    <span className="btn__arrow"><IconArrowSmall /></span>
-                  </a>
-                </div>
-              </div>
+          <div className="howto__grid">
+            <figure className="howto__photo">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={IMAGES.story} alt="Tezgâhtan taze ürünler" loading="lazy" />
+              <figcaption className="howto__photo-cap">
+                <p className="howto__photo-text">
+                  Listeyi WhatsApp&apos;tan yaz, gerisini biz halledelim. Birkaç dakika içinde kapında.
+                </p>
+                <a
+                  href={BUSINESS.whatsapp.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="pill-cta"
+                  aria-label="WhatsApp'tan yaz"
+                >
+                  <span className="pill-cta__label">Yaz</span>
+                  <span className="pill-cta__arrow" aria-hidden="true">
+                    <ArrowRight />
+                  </span>
+                </a>
+              </figcaption>
+            </figure>
 
-              <div className="howto__steps">
-                <span className="howto__eyebrow">Sipariş süreci</span>
-                <h3 className="howto__steps-title">Dört adımda sipariş</h3>
-                {steps.map((s) => (
-                  <div
-                    key={s.n}
-                    className={`step${s.active ? " step--active" : ""}`}
-                  >
-                    <span className="step__num">{s.n}</span>
-                    <div>
-                      <div className="step__title">{s.title}</div>
-                      <p className="step__body">{s.body}</p>
-                    </div>
+            <div className="howto__steps">
+              <p className="howto__eyebrow">Sipariş süreci</p>
+              <h3 className="howto__steps-title">Dört adımda sipariş</h3>
+              {steps.map((s) => (
+                <div key={s.n} className={`step${s.active ? " step--active" : ""}`}>
+                  <span className="step__num">{s.n}</span>
+                  <div>
+                    <h4 className="step__title">{s.title}</h4>
+                    <p className="step__body">{s.body}</p>
                   </div>
-                ))}
-              </div>
+                </div>
+              ))}
             </div>
           </div>
         </section>
 
-        {/* CTA full-bleed */}
+        {/* CTA */}
         <section className="cta" aria-labelledby="cta-title">
           <div className="cta__frame">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={IMAGES.hero} alt="" loading="lazy" />
             <div className="cta__inner">
               <h2 id="cta-title" className="cta__title">
-                Bugün ne lazımsa,
-                <br />
-                bir telefon kadar uzakta.
+                <span>Bugün ne lazımsa,</span>
+                <span>bir telefon kadar uzakta.</span>
               </h2>
               <p className="cta__sub">
-                Mahalle içindeysen ortalama beş dakikada elindeyiz. Söyle,
-                kapına getirelim.
+                Mahalle içindeysen ortalama beş dakikada elindeyiz. Söyle, kapına getirelim.
               </p>
               <a
                 href={BUSINESS.whatsapp.href}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="btn btn--white cta__btn"
+                className="cta__btn"
               >
-                <span>WhatsApp&apos;tan sipariş ver</span>
-                <span className="btn__arrow"><IconArrowSmall /></span>
+                WhatsApp&apos;tan sipariş ver
+                <span className="pill-cta__arrow" aria-hidden="true">
+                  <ArrowRight />
+                </span>
               </a>
             </div>
           </div>
         </section>
       </main>
 
-      {/* Footer */}
+      {/* FOOTER */}
       <footer className="footer" id="iletisim">
-        <div className="container">
-          <div className="footer__grid">
-            <div className="footer__brand-block">
-              <a className="brand" href="#">
-                <span className="brand__mark" aria-hidden="true">Y</span>
-                <span className="brand__name">Yeni Mahalle</span>
+        <div className="footer__grid">
+          <div className="footer__brand-block">
+            <a href="#top" className="brand" aria-label={BUSINESS.name}>
+              <span className="brand__mark" aria-hidden="true">Y</span>
+              <span className="brand__name">{BUSINESS.name}</span>
+            </a>
+            <p className="footer__desc">{BUSINESS.shortDescription}</p>
+          </div>
+
+          <nav className="footer__col" aria-label="Bağlantılar">
+            <h4>Bağlantılar</h4>
+            <ul>
+              <li><a href="#top">Anasayfa</a></li>
+              <li><a href="#urunler">Ürünler</a></li>
+              <li><a href="#galeri">Galeri</a></li>
+              <li><a href="#nasil">Nasıl Çalışır</a></li>
+            </ul>
+          </nav>
+
+          <div className="footer__col">
+            <h4>İletişim</h4>
+            <p>{BUSINESS.address.full}</p>
+            <a href={BUSINESS.phone.href}>{BUSINESS.phone.display}</a>
+            <a href={BUSINESS.whatsapp.href} target="_blank" rel="noopener noreferrer">
+              WhatsApp
+            </a>
+          </div>
+
+          <div className="footer__col">
+            <h4>Hızlı sipariş</h4>
+            <p className="footer__cta-text">
+              Listeni gönder, kapına getirelim. Mahalle içi ortalama beş dakika.
+            </p>
+            <a
+              href={BUSINESS.whatsapp.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="footer__cta-btn"
+            >
+              WhatsApp&apos;tan sipariş ver
+            </a>
+            <div className="footer__socials">
+              <a
+                href={BUSINESS.instagram.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={`Instagram ${BUSINESS.instagram.handle}`}
+              >
+                <InstagramIcon />
               </a>
-              <p className="footer__desc">
-                Sapanca Yeni Mahalle&apos;nin bakkalı. Taze meyve sebze,
-                şarküteri ve günlük market ihtiyaçların, kapına teslim.
-              </p>
-            </div>
-
-            <div className="footer__col">
-              <h4>Bağlantılar</h4>
-              <a href="#">Anasayfa</a>
-              <a href="#urunler">Ürünler</a>
-              <a href="#galeri">Galeri</a>
-              <a href="#nasil">Nasıl Çalışır</a>
-            </div>
-
-            <div className="footer__col">
-              <h4>İletişim</h4>
-              <p>{BUSINESS.address.full}</p>
-              <a href={BUSINESS.phone.href}>{BUSINESS.phone.display}</a>
               <a
                 href={BUSINESS.whatsapp.href}
                 target="_blank"
                 rel="noopener noreferrer"
+                aria-label="WhatsApp"
               >
-                WhatsApp&apos;tan yaz
+                <WhatsAppIcon />
               </a>
-            </div>
-
-            <div className="footer__col">
-              <h4>Hızlı sipariş</h4>
-              <p>Soru ya da siparişin için sağ alttan sohbeti aç, ya da WhatsApp&apos;tan yaz.</p>
               <a
-                href={BUSINESS.whatsapp.href}
+                href={BUSINESS.googleMapsDirectionsUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="btn btn--primary"
-                style={{ marginTop: 14 }}
+                aria-label="Yol tarifi"
               >
-                <IconWhatsApp className="btn__icon" />
-                <span>WhatsApp&apos;tan yaz</span>
+                <MapPinIcon />
               </a>
-              <div className="footer__socials">
-                <a
-                  href={BUSINESS.instagram.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="Instagram"
-                >
-                  <IconInstagram />
-                </a>
-                <a
-                  href={BUSINESS.whatsapp.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="WhatsApp"
-                >
-                  <IconWhatsApp />
-                </a>
-                <a
-                  href={BUSINESS.googleMapsDirectionsUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="Konum"
-                >
-                  <IconDirections />
-                </a>
-              </div>
             </div>
           </div>
+        </div>
 
-          <div className="footer__bottom">
-            © {new Date().getFullYear()} {BUSINESS.name}. Tüm hakları saklıdır.
-          </div>
+        <div className="footer__bottom">
+          © {new Date().getFullYear()} {BUSINESS.name}. Tüm hakları saklıdır.
         </div>
       </footer>
     </>
