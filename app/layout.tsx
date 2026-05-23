@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Cormorant_Garamond, Plus_Jakarta_Sans, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { BUSINESS, buildLocalBusinessJsonLd } from "@/lib/business";
+import ChatWidgetMount from "@/components/ChatWidget";
 
 const cormorant = Cormorant_Garamond({
   variable: "--font-cormorant",
@@ -122,6 +123,7 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
         {children}
+        <ChatWidgetMount />
       </body>
     </html>
   );
