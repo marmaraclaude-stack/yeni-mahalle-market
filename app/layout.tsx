@@ -1,13 +1,13 @@
 import type { Metadata, Viewport } from "next";
-import { Geist } from "next/font/google";
+import { Urbanist } from "next/font/google";
 import "./globals.css";
 import { BUSINESS, buildLocalBusinessJsonLd } from "@/lib/business";
 import ChatWidgetMount from "@/components/ChatWidget";
 
-const geist = Geist({
+const urbanist = Urbanist({
   variable: "--font-sans",
   subsets: ["latin", "latin-ext"],
-  weight: ["400", "500", "600"],
+  weight: ["400", "500", "600", "700"],
   display: "swap",
 });
 
@@ -88,7 +88,7 @@ export default function RootLayout({
   const jsonLd = buildLocalBusinessJsonLd();
 
   return (
-    <html lang="tr" className={geist.variable}>
+    <html lang="tr" className={urbanist.variable}>
       <body>
         <script
           type="application/ld+json"
