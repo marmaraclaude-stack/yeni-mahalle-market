@@ -7,31 +7,11 @@ import {
   IconArrow,
 } from "@/components/icons";
 
-const sells = [
-  {
-    title: "Taze meyve ve sebze",
-    body: "Her sabah seçilen mevsim meyveleri, sebzeleri ve yeşillikler. Sapanca'nın tazesi tezgâhımızda.",
-  },
-  {
-    title: "Şarküteri ve kahvaltılık",
-    body: "Peynir, zeytin, kaşar, sucuk, salam, tereyağı. Kahvaltını kuran her şey kasamızdan tartılır.",
-  },
-  {
-    title: "Süt ve ekmek",
-    body: "Sıcak ekmek, günlük süt, yoğurt, ayran. Sabah erken, akşam geç, her zaman taze.",
-  },
-  {
-    title: "Günlük market ihtiyacı",
-    body: "Deterjan, temizlik, atıştırmalık, içecek. Aklına gelen, kapımızda hazır.",
-  },
-  {
-    title: "Adrese teslim",
-    body: "Mahalle içinde ortalama beş dakika. Ücretsiz. Telefonla ya da WhatsApp'tan söyle, yeter.",
-  },
-  {
-    title: "Geniş çalışma saatleri",
-    body: "Haftanın yedi günü, sabah 07:30'dan itibaren açığız. Bayram dahil.",
-  },
+const categories = [
+  { label: "Taze meyve sebze", sub: "Mevsiminde", photo: IMAGES.produce },
+  { label: "Şarküteri, kahvaltı", sub: "Tartı ile", photo: IMAGES.charcuterie },
+  { label: "Ekmek ve fırın", sub: "Sıcak, günlük", photo: IMAGES.bread },
+  { label: "Adrese teslim", sub: "Mahalle içi 5 dk", photo: IMAGES.delivery },
 ];
 
 function IconClockMini() {
@@ -81,9 +61,7 @@ export default function Home() {
       <header className="header">
         <div className="container header__inner">
           <a className="brand" href="#" aria-label={`${BUSINESS.name} anasayfa`}>
-            <span className="brand__mark" aria-hidden>
-              Y
-            </span>
+            <span className="brand__mark" aria-hidden>Y</span>
             <span className="brand__name">Yeni Mahalle Market</span>
           </a>
           <div className="header__actions">
@@ -105,75 +83,102 @@ export default function Home() {
       </header>
 
       <main>
-        {/* Hero — 2-column with prominent photo */}
+        {/* Hero with floating CTA card */}
         <section className="hero" aria-labelledby="hero-title">
           <div className="container">
-            <div className="hero__grid">
-              <div>
-                <h1 id="hero-title" className="hero__title reveal">
-                  Sapanca&apos;nın
-                  <br />
-                  <span className="hero__title-line2">bakkalı.</span>
-                </h1>
-                <p className="hero__lede reveal">
-                  Yeni Mahalle&apos;de taze meyve sebze, şarküteri ve günlük
-                  market ihtiyaçların. Söyle, kapına getirelim.
-                </p>
-                <div className="hero__ctas reveal">
-                  <a
-                    href={BUSINESS.whatsapp.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="btn btn--primary btn--lg"
-                  >
-                    <IconWhatsApp className="btn__icon" />
-                    <span>WhatsApp&apos;tan sipariş ver</span>
-                  </a>
-                  <a href="#iletisim" className="btn btn--outline btn--lg">
-                    <span>İletişim</span>
-                    <IconArrow className="btn__icon" />
-                  </a>
-                </div>
-
-                <dl className="hero__facts reveal">
-                  <div className="hero__fact">
-                    <dt className="hero__fact-key">Saatler</dt>
-                    <dd className="hero__fact-val">07:30, 22:00</dd>
-                  </div>
-                  <div className="hero__fact">
-                    <dt className="hero__fact-key">Günler</dt>
-                    <dd className="hero__fact-val">Her gün</dd>
-                  </div>
-                  <div className="hero__fact">
-                    <dt className="hero__fact-key">Teslimat</dt>
-                    <dd className="hero__fact-val">Mahalle içi</dd>
-                  </div>
-                  <div className="hero__fact">
-                    <dt className="hero__fact-key">Konum</dt>
-                    <dd className="hero__fact-val">Kurtuluş Cd.</dd>
-                  </div>
-                </dl>
-              </div>
-
-              <div className="hero__photo reveal">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={IMAGES.hero}
-                  alt="Yeni Mahalle Market tezgâhı"
-                  loading="eager"
-                  decoding="async"
-                  fetchPriority="high"
-                />
-                <span className="hero__photo-badge">
+            <div className="hero__photo reveal">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={IMAGES.hero}
+                alt="Yeni Mahalle Market"
+                loading="eager"
+                decoding="async"
+                fetchPriority="high"
+              />
+              <div className="hero__text">
+                <span className="hero__eyebrow">
                   <span className="dot" aria-hidden />
                   Şu an açık
                 </span>
+                <h1 id="hero-title" className="hero__title">
+                  Sapanca&apos;nın
+                  <br />
+                  <span className="hero__title-accent">bakkalı.</span>
+                </h1>
+                <p className="hero__lede">
+                  Yeni Mahalle&apos;de taze meyve sebze, şarküteri ve günlük
+                  market ihtiyaçların. Söyle, kapına getirelim.
+                </p>
+              </div>
+
+              {/* Floating CTA card */}
+              <div className="hero__card" role="region" aria-label="Hızlı sipariş">
+                <div className="hero__card-cell">
+                  <span className="hero__card-key">Saatler</span>
+                  <span className="hero__card-val">07:30 / 22:00</span>
+                </div>
+                <div className="hero__card-cell">
+                  <span className="hero__card-key">Günler</span>
+                  <span className="hero__card-val">Her gün</span>
+                </div>
+                <div className="hero__card-cell">
+                  <span className="hero__card-key">Teslimat</span>
+                  <span className="hero__card-val">Mahalle içi</span>
+                </div>
+                <div className="hero__card-cell">
+                  <span className="hero__card-key">Telefon</span>
+                  <span className="hero__card-val">{BUSINESS.phone.display}</span>
+                </div>
+                <a
+                  href={BUSINESS.whatsapp.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn btn--primary btn--lg hero__card-cta"
+                >
+                  <IconWhatsApp className="btn__icon" />
+                  <span>WhatsApp</span>
+                </a>
               </div>
             </div>
           </div>
         </section>
 
-        {/* Values — 3 column trio */}
+        {/* Categories — destination cards adapted */}
+        <section className="categories" aria-labelledby="categories-title">
+          <div className="container">
+            <div className="categories__head">
+              <h2 id="categories-title" className="section-title">
+                Tezgâhta ne <span className="section-title__accent">bulursun</span>.
+              </h2>
+              <p className="section-lede">
+                Mahalle bakkalının yapması gereken her şey, biraz daha özenle.
+                Hepsi tek bir telefonda.
+              </p>
+            </div>
+
+            <div className="categories__grid">
+              {categories.map((c) => (
+                <a
+                  key={c.label}
+                  href={BUSINESS.whatsapp.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="category"
+                  aria-label={`${c.label} için WhatsApp'tan yaz`}
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={c.photo} alt={c.label} loading="lazy" />
+                  <span className="category__label">
+                    {c.label}
+                    <span className="category__count">{c.sub}</span>
+                  </span>
+                </a>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Why us */}
         <section className="values" aria-labelledby="values-title">
           <div className="container">
             <div className="values__head">
@@ -214,68 +219,6 @@ export default function Home() {
           </div>
         </section>
 
-        {/* What we sell */}
-        <section className="sell" aria-labelledby="sell-title">
-          <div className="container">
-            <div className="values__head">
-              <h2 id="sell-title" className="section-title">
-                Ne <span className="section-title__accent">satıyoruz</span>.
-              </h2>
-              <p className="section-lede">
-                Bir mahalle bakkalının yapması gereken her şey. Tartı, fatura,
-                kapıya kadar.
-              </p>
-            </div>
-            <div className="sell__list">
-              {sells.map((s) => (
-                <article className="sell__item" key={s.title}>
-                  <h3 className="sell__item-title">{s.title}</h3>
-                  <p className="sell__item-body">{s.body}</p>
-                </article>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Order CTA — large card with photo */}
-        <section className="order" aria-labelledby="order-title">
-          <div className="container">
-            <div className="order__card">
-              <div className="order__text">
-                <h2 id="order-title" className="order__title">
-                  Söyle,{" "}
-                  <span className="order__title-accent">getirelim.</span>
-                </h2>
-                <p className="order__lede">
-                  WhatsApp&apos;tan ya da telefondan siparişini bildir. Mahalle
-                  içindeysen ortalama beş dakikada elindeyiz.
-                </p>
-                <div className="order__ctas">
-                  <a
-                    href={BUSINESS.whatsapp.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="btn btn--primary btn--lg"
-                  >
-                    <IconWhatsApp className="btn__icon" />
-                    WhatsApp&apos;tan yaz
-                  </a>
-                  <a
-                    href={BUSINESS.phone.href}
-                    className="btn btn--outline btn--lg"
-                  >
-                    {BUSINESS.phone.display}
-                  </a>
-                </div>
-              </div>
-              <div className="order__photo" aria-hidden>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={IMAGES.produce} alt="" loading="lazy" />
-              </div>
-            </div>
-          </div>
-        </section>
-
         {/* Contact */}
         <section
           className="contact"
@@ -294,6 +237,7 @@ export default function Home() {
                 yazışalım.
               </p>
             </div>
+
             <div className="contact__grid">
               <div>
                 <dl className="contact__list">
@@ -304,9 +248,7 @@ export default function Home() {
                   <div className="contact__row">
                     <dt>Telefon</dt>
                     <dd>
-                      <a href={BUSINESS.phone.href}>
-                        {BUSINESS.phone.display}
-                      </a>
+                      <a href={BUSINESS.phone.href}>{BUSINESS.phone.display}</a>
                     </dd>
                   </div>
                   <div className="contact__row">
@@ -374,14 +316,13 @@ export default function Home() {
 
       <footer className="footer">
         <div className="container">
-          <div className="footer__wordmark">
-            Yeni Mahalle
-            <br />
-            <span className="footer__wordmark-accent">Market.</span>
-          </div>
-          <div className="footer__grid">
-            <div className="footer__col">
-              <h4>Hakkında</h4>
+          <div className="footer__inner">
+            <div>
+              <h2 className="footer__brand">
+                Yeni Mahalle
+                <br />
+                <span className="footer__brand-accent">Market.</span>
+              </h2>
               <p className="footer__desc">{BUSINESS.shortDescription}</p>
             </div>
             <div className="footer__col">
@@ -423,8 +364,7 @@ export default function Home() {
           </div>
           <div className="footer__bottom">
             <span>
-              © {new Date().getFullYear()} {BUSINESS.name}. Tüm hakları
-              saklıdır.
+              © {new Date().getFullYear()} {BUSINESS.name}. Tüm hakları saklıdır.
             </span>
             <span>Sapanca, Yeni Mahalle, Kurtuluş Caddesi.</span>
           </div>
