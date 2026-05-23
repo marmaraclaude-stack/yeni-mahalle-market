@@ -1,27 +1,13 @@
 import type { Metadata, Viewport } from "next";
-import { Bricolage_Grotesque, Geist, JetBrains_Mono } from "next/font/google";
+import { Geist } from "next/font/google";
 import "./globals.css";
 import { BUSINESS, buildLocalBusinessJsonLd } from "@/lib/business";
 import ChatWidgetMount from "@/components/ChatWidget";
-
-const bricolage = Bricolage_Grotesque({
-  variable: "--font-display",
-  subsets: ["latin", "latin-ext"],
-  axes: ["opsz"],
-  display: "swap",
-});
 
 const geist = Geist({
   variable: "--font-sans",
   subsets: ["latin", "latin-ext"],
   weight: ["300", "400", "500", "600", "700"],
-  display: "swap",
-});
-
-const mono = JetBrains_Mono({
-  variable: "--font-mono-jet",
-  subsets: ["latin"],
-  weight: ["400", "500", "700"],
   display: "swap",
 });
 
@@ -111,10 +97,7 @@ export default function RootLayout({
   const jsonLd = buildLocalBusinessJsonLd();
 
   return (
-    <html
-      lang="tr"
-      className={`${bricolage.variable} ${geist.variable} ${mono.variable}`}
-    >
+    <html lang="tr" className={geist.variable}>
       <body>
         <script
           type="application/ld+json"

@@ -109,14 +109,14 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-family: var(--font-display, serif);
+  font-family: var(--font-sans);
   font-weight: 700;
   font-size: 18px;
   flex-shrink: 0;
 }
 
 .headerTitle {
-  font-family: var(--font-display, system-ui);
+  font-family: var(--font-sans);
   font-weight: 600;
   font-size: 16px;
   line-height: 1.15;
@@ -183,7 +183,7 @@
 }
 
 .introTitle {
-  font-family: var(--font-display, system-ui);
+  font-family: var(--font-sans);
   font-weight: 600;
   font-size: 24px;
   line-height: 1.1;
