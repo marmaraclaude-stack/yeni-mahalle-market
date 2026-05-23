@@ -1,34 +1,47 @@
 import { BUSINESS } from "@/lib/business";
 import { IMAGES } from "@/lib/images";
 import {
-  IconBread,
-  IconBasket,
-  IconScooter,
-  IconPhone,
-  IconClock,
   IconWhatsApp,
   IconInstagram,
   IconDirections,
   IconArrow,
 } from "@/components/icons";
 
-const galleryCaptions = [
-  "Tezgâh",
-  "Sebze",
-  "Meyve",
-  "Domates",
-  "Şarküteri",
+const sells = [
+  {
+    title: "Taze meyve ve sebze",
+    body: "Her sabah seçilen mevsim meyveleri, sebzeleri ve yeşillikler. Sapanca'nın tazesi tezgâhımızda.",
+  },
+  {
+    title: "Şarküteri ve kahvaltılık",
+    body: "Peynir, zeytin, kaşar, sucuk, salam, tereyağı. Kahvaltını kuran her şey kasamızdan tartılır.",
+  },
+  {
+    title: "Süt ve ekmek",
+    body: "Sıcak ekmek, günlük süt, yoğurt, ayran. Sabah erken, akşam geç, her zaman taze.",
+  },
+  {
+    title: "Günlük market ihtiyacı",
+    body: "Deterjan, temizlik, atıştırmalık, içecek. Aklına gelen, kapımızda hazır.",
+  },
+  {
+    title: "Adrese teslim",
+    body: "Mahalle içinde ortalama 5 dakika. Ücretsiz. Telefonla ya da WhatsApp'tan söyle, yeter.",
+  },
+  {
+    title: "Geniş çalışma saatleri",
+    body: "Haftanın 7 günü, sabah 07:30'dan itibaren açığız. Bayram dahil.",
+  },
 ];
 
 export default function Home() {
   return (
     <>
-      {/* Top bar */}
       <div className="topbar" role="banner" aria-label="Durum">
         <div className="container topbar__inner">
           <span className="topbar__status">
             <span className="dot" aria-hidden />
-            <span>Şu an açık · Adrese teslim aktif · Sapanca / Yeni Mahalle</span>
+            <span>Şu an açık · Sapanca / Yeni Mahalle</span>
           </span>
           <a className="topbar__link" href={BUSINESS.phone.href}>
             <span aria-hidden>☎</span>
@@ -37,17 +50,13 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Header */}
       <header className="header">
         <div className="container header__inner">
           <a className="brand" href="#" aria-label={`${BUSINESS.name} anasayfa`}>
             <span className="brand__mark" aria-hidden>
               Y
             </span>
-            <span className="brand__text">
-              <span className="brand__primary">Yeni Mahalle Market</span>
-              <span className="brand__secondary">Sapanca · Sakarya</span>
-            </span>
+            <span className="brand__name">Yeni Mahalle Market</span>
           </a>
           <div className="header__actions">
             <a
@@ -71,244 +80,104 @@ export default function Home() {
         {/* Hero */}
         <section className="hero" aria-labelledby="hero-title">
           <div className="container">
-            <div className="hero__grid">
-              <div className="hero__text">
-                <div className="hero__eyebrow-row reveal">
-                  <span>Est. Sapanca · Yeni Mahalle</span>
-                  <span className="hero__rule" aria-hidden />
-                  <span>
-                    No. <span className="num">001</span>
-                  </span>
+            <div className="hero__inner">
+              <h1 id="hero-title" className="hero__title reveal">
+                Sapanca&apos;nın
+                <br />
+                <span className="hero__title-line2">bakkalı.</span>
+              </h1>
+
+              <div className="hero__bottom reveal">
+                <div>
+                  <p className="hero__lede">
+                    Yeni Mahalle&apos;de taze meyve sebze, şarküteri ve günlük
+                    market ihtiyaçların. Söyle, kapına getirelim.
+                  </p>
+                  <div className="hero__ctas">
+                    <a
+                      href={BUSINESS.whatsapp.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="btn btn--black btn--lg"
+                    >
+                      <IconWhatsApp className="btn__icon" />
+                      <span>WhatsApp&apos;tan sipariş ver</span>
+                    </a>
+                    <a href="#iletisim" className="btn btn--outline btn--lg">
+                      <span>İletişim</span>
+                      <IconArrow className="btn__icon" />
+                    </a>
+                  </div>
                 </div>
 
-                <h1 id="hero-title" className="hero__title reveal">
-                  Mahallenin
-                  <br />
-                  bakkalı
-                  <span className="hero__title-dot">.</span>
-                  <br />
-                  <span className="hero__title-accent">Kapına&nbsp;kadar.</span>
-                </h1>
-
-                <p className="hero__lede reveal">
-                  Sapanca Yeni Mahalle&apos;de taze meyve sebze, şarküteri ve
-                  günlük market ihtiyaçlarınız için buradayız. Söyleyin, sıcak
-                  ekmekle birlikte kapınıza getirelim.
-                </p>
-
-                <div className="hero__ctas reveal">
-                  <a
-                    href={BUSINESS.whatsapp.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="btn btn--black btn--lg"
-                  >
-                    <IconWhatsApp className="btn__icon" />
-                    <span>WhatsApp&apos;tan sipariş ver</span>
-                  </a>
-                  <a href="#iletisim" className="btn btn--outline btn--lg">
-                    <span>İletişim</span>
-                    <IconArrow className="btn__icon" />
-                  </a>
-                </div>
-
-                <dl className="hero__meta">
-                  <div className="hero__meta-cell">
-                    <span className="hero__meta-label">Saatler</span>
-                    <span className="hero__meta-value">07:30 · 22:00</span>
+                <dl className="hero__sidefacts">
+                  <div className="hero__fact">
+                    <dt className="hero__fact-key">Saatler</dt>
+                    <dd className="hero__fact-val">
+                      07:30, <span style={{ color: "var(--gray-500)" }}>22:00</span>
+                    </dd>
                   </div>
-                  <div className="hero__meta-cell">
-                    <span className="hero__meta-label">Günler</span>
-                    <span className="hero__meta-value">7/7</span>
+                  <div className="hero__fact">
+                    <dt className="hero__fact-key">Günler</dt>
+                    <dd className="hero__fact-val">Her gün</dd>
                   </div>
-                  <div className="hero__meta-cell">
-                    <span className="hero__meta-label">Teslimat</span>
-                    <span className="hero__meta-value">Mahalle içi</span>
+                  <div className="hero__fact">
+                    <dt className="hero__fact-key">Teslimat</dt>
+                    <dd className="hero__fact-val">Mahalle içi</dd>
                   </div>
-                  <div className="hero__meta-cell">
-                    <span className="hero__meta-label">Konum</span>
-                    <span className="hero__meta-value">Kurtuluş Cd.</span>
+                  <div className="hero__fact">
+                    <dt className="hero__fact-key">Konum</dt>
+                    <dd className="hero__fact-val">Kurtuluş Cd.</dd>
                   </div>
                 </dl>
               </div>
-
-              <div className="hero__media reveal" aria-hidden>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={IMAGES.hero}
-                  alt=""
-                  loading="eager"
-                  decoding="async"
-                  fetchPriority="high"
-                />
-                <span className="hero__media-tag">
-                  <span className="dot" aria-hidden />
-                  Sapanca, taze
-                </span>
-              </div>
             </div>
           </div>
         </section>
 
-        {/* Info strip */}
-        <section className="infostrip" aria-label="Hızlı bilgiler">
-          <div className="container">
-            <div className="infostrip__inner">
-              <div className="infostrip__cell">
-                <div className="infostrip__label">01 · Saatler</div>
-                <div className="infostrip__value">07:30&apos;dan itibaren</div>
-                <div className="infostrip__sub">
-                  Pazartesi&apos;den Pazar&apos;a, her gün açığız.
-                </div>
-              </div>
-              <div className="infostrip__cell">
-                <div className="infostrip__label">02 · Teslimat</div>
-                <div className="infostrip__value">Adrese teslim</div>
-                <div className="infostrip__sub">
-                  Mahalle içi, ücretsiz. Ortalama 5 dakika.
-                </div>
-              </div>
-              <div className="infostrip__cell">
-                <div className="infostrip__label">03 · Konum</div>
-                <div className="infostrip__value">Kurtuluş Caddesi</div>
-                <div className="infostrip__sub">
-                  Yeni Mah., 54600 Sapanca / Sakarya.
-                </div>
-              </div>
-            </div>
+        {/* Hero photo */}
+        <section className="heroPhoto" aria-hidden>
+          <div className="heroPhoto__frame">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={IMAGES.hero}
+              alt=""
+              loading="eager"
+              decoding="async"
+              fetchPriority="high"
+            />
           </div>
         </section>
 
-        {/* Bento services */}
-        <section className="bento" id="hizmetler" aria-labelledby="bento-title">
+        {/* Statement */}
+        <section className="statement" aria-label="Hakkında">
           <div className="container">
-            <div className="bento__head">
-              <h2 id="bento-title" className="section-title">
-                Ne <span className="section-title__accent">satıyoruz</span>,
-                <br />
-                ne <span className="section-title__accent">yapıyoruz</span>.
+            <p className="statement__text">
+              Mahallenin bakkalı. Taze, tanıdık, <strong>kapına kadar</strong>.
+            </p>
+          </div>
+        </section>
+
+        {/* What we sell */}
+        <section className="sell" aria-labelledby="sell-title">
+          <div className="container">
+            <div className="sell__head">
+              <h2 id="sell-title" className="section-title">
+                Ne <span className="section-title__accent">satıyoruz</span>.
               </h2>
-              <p className="bento__lede">
+              <p className="sell__lede">
                 Klasik bir mahalle bakkalının yapması gereken her şey, biraz daha
                 özenle. Taze ürün, tanıdık yüz, kapına teslim.
               </p>
             </div>
 
-            <div className="bento__grid">
-              {/* 1: Tall photo card */}
-              <article className="bento__card bento__card--tall">
-                <div className="bento__photo">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={IMAGES.produce}
-                    alt="Taze meyve ve sebze tezgâhı"
-                    loading="lazy"
-                  />
-                </div>
-                <div className="bento__body">
-                  <span className="bento__num">01 / 06</span>
-                  <h3 className="bento__card-title">Taze meyve ve sebze</h3>
-                  <p className="bento__card-body">
-                    Her sabah seçilen mevsim meyveleri, sebzeleri ve yeşillikler.
-                    Sapanca&apos;nın tazesi tezgâhımızda.
-                  </p>
-                </div>
-              </article>
-
-              {/* 2: Şarküteri (dark) */}
-              <article className="bento__card bento__card--dark">
-                <div className="bento__body">
-                  <span className="bento__num">02 / 06</span>
-                  <IconBread className="bento__icon" />
-                  <h3 className="bento__card-title">Şarküteri, kahvaltılık</h3>
-                  <p className="bento__card-body">
-                    Peynir, zeytin, kaşar, sucuk, salam, tereyağı. Kahvaltınızı
-                    kuran her şey kasamızdan tartılır.
-                  </p>
-                </div>
-              </article>
-
-              {/* 3: Adrese teslim (orange wide) */}
-              <article className="bento__card bento__card--wide bento__card--orange">
-                <div className="bento__body">
-                  <span className="bento__num">03 / 06</span>
-                  <IconScooter className="bento__icon" />
-                  <h3 className="bento__card-title">
-                    Adrese teslim.
-                    <br />
-                    Mahallene 5 dakikada.
-                  </h3>
-                  <p className="bento__card-body">
-                    Telefonla ya da WhatsApp&apos;tan söyle, mahalle içinde kısa
-                    sürede kapıdayız. Üstelik ücretsiz.
-                  </p>
-                  <a
-                    href={BUSINESS.whatsapp.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="bento__cta"
-                  >
-                    WhatsApp&apos;tan başla
-                    <span className="bento__cta-arrow" aria-hidden>
-                      →
-                    </span>
-                  </a>
-                </div>
-              </article>
-
-              {/* 4: Market ihtiyacı */}
-              <article className="bento__card">
-                <div className="bento__body">
-                  <span className="bento__num">04 / 06</span>
-                  <IconBasket className="bento__icon" />
-                  <h3 className="bento__card-title">Günlük market ihtiyacı</h3>
-                  <p className="bento__card-body">
-                    Süt, ekmek, deterjan, temizlik, atıştırmalık. Aklınıza gelen,
-                    kapımızda hazır.
-                  </p>
-                </div>
-              </article>
-
-              {/* 5: Photo only (wide) */}
-              <article className="bento__card bento__card--photo-wide">
-                <div
-                  className="bento__photo"
-                  style={{ aspectRatio: "16/10", minHeight: 240 }}
-                >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={IMAGES.bread}
-                    alt="Sıcak ekmek ve fırın ürünleri"
-                    loading="lazy"
-                  />
-                </div>
-              </article>
-
-              {/* 6: Telefon */}
-              <article className="bento__card">
-                <div className="bento__body">
-                  <span className="bento__num">05 / 06</span>
-                  <IconPhone className="bento__icon" />
-                  <h3 className="bento__card-title">Telefonla sipariş</h3>
-                  <p className="bento__card-body">
-                    Listenizi okumanız yeter. {BUSINESS.phone.display}&apos;ten
-                    arayın, gerisini biz hallediyoruz.
-                  </p>
-                </div>
-              </article>
-
-              {/* 7: Saatler */}
-              <article className="bento__card">
-                <div className="bento__body">
-                  <span className="bento__num">06 / 06</span>
-                  <IconClock className="bento__icon" />
-                  <h3 className="bento__card-title">Geniş çalışma saatleri</h3>
-                  <p className="bento__card-body">
-                    Haftanın 7 günü, sabah 07:30&apos;dan itibaren açığız. Acele
-                    etmenize gerek yok, biz oradayız.
-                  </p>
-                </div>
-              </article>
+            <div className="sell__grid">
+              {sells.map((s) => (
+                <article className="sell__item" key={s.title}>
+                  <h3 className="sell__item-title">{s.title}</h3>
+                  <p className="sell__item-body">{s.body}</p>
+                </article>
+              ))}
             </div>
           </div>
         </section>
@@ -336,30 +205,27 @@ export default function Home() {
               ].map((src, i) => (
                 <figure className="gallery__item" key={i}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={src} alt={galleryCaptions[i] ?? ""} loading="lazy" />
-                  <figcaption className="gallery__caption">
-                    {galleryCaptions[i] ?? ""}
-                  </figcaption>
+                  <img src={src} alt="" loading="lazy" />
                 </figure>
               ))}
             </div>
           </div>
         </section>
 
-        {/* Delivery CTA */}
-        <section className="delivery" aria-labelledby="delivery-title">
+        {/* Order */}
+        <section className="order" aria-labelledby="order-title">
           <div className="container">
-            <div className="delivery__inner">
+            <div className="order__inner">
               <div>
-                <h2 id="delivery-title" className="delivery__title">
+                <h2 id="order-title" className="order__title">
                   Söyle,{" "}
-                  <span className="delivery__title-mark">getirelim.</span>
+                  <span className="order__title-emph">getirelim.</span>
                 </h2>
-                <p className="delivery__lede">
+                <p className="order__lede">
                   WhatsApp&apos;tan ya da telefondan siparişini bildir. Mahalle
                   içindeysen ortalama 5 dakikada elindeyiz.
                 </p>
-                <div className="delivery__ctas">
+                <div className="order__ctas">
                   <a
                     href={BUSINESS.whatsapp.href}
                     target="_blank"
@@ -367,7 +233,7 @@ export default function Home() {
                     className="btn btn--black btn--lg"
                   >
                     <IconWhatsApp className="btn__icon" />
-                    WhatsApp
+                    WhatsApp&apos;tan yaz
                   </a>
                   <a
                     href={BUSINESS.phone.href}
@@ -378,31 +244,31 @@ export default function Home() {
                 </div>
               </div>
 
-              <ol className="delivery__steps">
-                <li className="delivery__step">
-                  <span className="delivery__step-num">01</span>
+              <ol className="order__steps">
+                <li className="order__step">
+                  <span className="order__step-mark" aria-hidden />
                   <div>
-                    <div className="delivery__step-title">Yaz veya ara</div>
-                    <div className="delivery__step-sub">
-                      WhatsApp ya da {BUSINESS.phone.display}
+                    <div className="order__step-title">Yaz veya ara</div>
+                    <div className="order__step-sub">
+                      WhatsApp ya da {BUSINESS.phone.display}.
                     </div>
                   </div>
                 </li>
-                <li className="delivery__step">
-                  <span className="delivery__step-num">02</span>
+                <li className="order__step">
+                  <span className="order__step-mark" aria-hidden />
                   <div>
-                    <div className="delivery__step-title">Siparişini söyle</div>
-                    <div className="delivery__step-sub">
+                    <div className="order__step-title">Siparişini söyle</div>
+                    <div className="order__step-sub">
                       İhtiyaçlarını listele, biz hazırlayalım.
                     </div>
                   </div>
                 </li>
-                <li className="delivery__step">
-                  <span className="delivery__step-num">03</span>
+                <li className="order__step">
+                  <span className="order__step-mark" aria-hidden />
                   <div>
-                    <div className="delivery__step-title">Kapına gelelim</div>
-                    <div className="delivery__step-sub">
-                      Mahalle içi ücretsiz · ortalama 5 dakika.
+                    <div className="order__step-title">Kapına gelelim</div>
+                    <div className="order__step-sub">
+                      Mahalle içi ücretsiz. Ortalama 5 dakika.
                     </div>
                   </div>
                 </li>
@@ -419,18 +285,12 @@ export default function Home() {
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={IMAGES.story}
-                  alt="Yeni Mahalle Market dış görünümü"
+                  alt="Yeni Mahalle Market"
                   loading="lazy"
                 />
-                <span className="story__photo-tag">Sapanca · 54600</span>
               </div>
               <div>
-                <span className="eyebrow">Mahalleli</span>
-                <h2
-                  id="story-title"
-                  className="story__title"
-                  style={{ marginTop: 14 }}
-                >
+                <h2 id="story-title" className="story__title">
                   Birbirini bilen bir{" "}
                   <span className="story__title-accent">mahalle</span> için.
                 </h2>
@@ -457,20 +317,13 @@ export default function Home() {
         >
           <div className="container">
             <div className="contact__head">
-              <div>
-                <span className="eyebrow">Bize ulaşın</span>
-                <h2
-                  id="contact-title"
-                  className="contact__title"
-                  style={{ marginTop: 14 }}
-                >
-                  Gel,{" "}
-                  <span className="contact__title-accent">ya da</span> biz
-                  gelelim.
-                </h2>
-              </div>
+              <h2 id="contact-title" className="contact__title">
+                Gel,{" "}
+                <span className="contact__title-accent">ya da</span> biz
+                gelelim.
+              </h2>
               <p className="contact__lede">
-                Telefon, WhatsApp, Instagram. Hangisi seninle rahatsa, oradan
+                Telefon, WhatsApp, Instagram. Hangisi sana rahatsa, oradan
                 yazışalım.
               </p>
             </div>
@@ -481,7 +334,6 @@ export default function Home() {
                   <div className="contact__row">
                     <dt>Adres</dt>
                     <dd>{BUSINESS.address.full}</dd>
-                    <span className="contact__row-meta">TR-54</span>
                   </div>
                   <div className="contact__row">
                     <dt>Telefon</dt>
@@ -490,14 +342,12 @@ export default function Home() {
                         {BUSINESS.phone.display}
                       </a>
                     </dd>
-                    <span className="contact__row-meta">7/24</span>
                   </div>
                   <div className="contact__row">
                     <dt>Çalışma</dt>
-                    <dd>{BUSINESS.hours.daysDisplay}</dd>
-                    <span className="contact__row-meta">
-                      {BUSINESS.hours.opens} · {BUSINESS.hours.closes}
-                    </span>
+                    <dd>
+                      Her gün, {BUSINESS.hours.opens} {BUSINESS.hours.closes}
+                    </dd>
                   </div>
                   <div className="contact__row">
                     <dt>Instagram</dt>
@@ -510,7 +360,6 @@ export default function Home() {
                         {BUSINESS.instagram.handle}
                       </a>
                     </dd>
-                    <span className="contact__row-meta">Sosyal</span>
                   </div>
                 </dl>
 
@@ -559,7 +408,6 @@ export default function Home() {
         </section>
       </main>
 
-      {/* Footer */}
       <footer className="footer">
         <div className="container">
           <div className="footer__brand-block">
@@ -600,7 +448,7 @@ export default function Home() {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                Google Maps · Yol Tarifi
+                Yol Tarifi
               </a>
               <a
                 href={BUSINESS.googleMapsCidUrl}
