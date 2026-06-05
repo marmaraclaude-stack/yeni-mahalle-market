@@ -172,63 +172,47 @@ export default function Home() {
           </div>
         </header>
 
-        {/* ===== HERO ===== */}
+        {/* ===== HERO — minimalist ===== */}
         <section className="hero" aria-labelledby="hero-title">
           <div className="hero__frame">
-            <div className="hero__center">
+            <div className="hero__inner">
               <span className="pill-light">
                 <span className="dot" aria-hidden="true" />
                 Sapanca · Yeni Mahalle · Şu an açık
               </span>
-            </div>
 
-            <h1 id="hero-title" className="hero__title">
-              <span>Mahallenin bakkalı,</span>
-              <span className="accent">kapına kadar.</span>
-            </h1>
+              <h1 id="hero-title" className="hero__title">
+                <span>Mahallenin bakkalı,</span>
+                <span className="accent">kapına kadar.</span>
+              </h1>
 
-            <div className="hero__bottom">
-              {/* Glass card */}
-              <aside className="hero__glass">
-                <div className="hero__glass-label">
-                  <span className="hero__glass-label-dot">5dk</span>
-                  <span>Mahalle içi teslim</span>
-                </div>
-                <p className="hero__glass-body">
-                  Taze meyve sebze, şarküteri ve günlük ihtiyaçların WhatsApp&apos;tan
-                  tek mesajla. Ortalama beş dakikada kapında.
-                </p>
-                <a href={BUSINESS.whatsapp.href} target="_blank" rel="noopener noreferrer" className="pill-cta">
-                  <span className="pill-cta__label">WhatsApp&apos;tan başla</span>
-                  <span className="pill-cta__arrow" aria-hidden="true"><ArrowUR /></span>
-                </a>
-              </aside>
+              <p className="hero__sub">
+                Taze meyve sebze, şarküteri ve günlük ihtiyaçların. WhatsApp&apos;tan söyle,
+                mahallene ortalama beş dakikada gelelim.
+              </p>
 
-              {/* Bento grid (replaces photo cards) */}
-              <div className="hero__bento">
-                <a href={BUSINESS.whatsapp.href} target="_blank" rel="noopener noreferrer" className="bento-card bento-card--featured">
-                  <LeafIcon />
-                  <div>
-                    <div className="bento-card__label">Taze meyve sebze</div>
-                    <span className="bento-card__sub">Sabah halden, mevsimde</span>
-                  </div>
+              <div className="hero__ctas">
+                <a
+                  href={BUSINESS.whatsapp.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn-primary-pill"
+                >
+                  WhatsApp&apos;tan sipariş ver
+                  <ArrowUR />
                 </a>
-                <a href={BUSINESS.whatsapp.href} target="_blank" rel="noopener noreferrer" className="bento-card bento-card--orange">
-                  <BreadIcon />
-                  <div className="bento-card__label">Sıcak ekmek</div>
+                <a href="#hizmetler" className="btn-text">
+                  Hizmetleri gör
+                  <ArrowRight />
                 </a>
-                <a href={BUSINESS.whatsapp.href} target="_blank" rel="noopener noreferrer" className="bento-card bento-card--olive">
-                  <CheeseIcon />
-                  <div className="bento-card__label">Şarküteri</div>
-                </a>
-                <a href={BUSINESS.whatsapp.href} target="_blank" rel="noopener noreferrer" className="bento-card bento-card--peach">
-                  <MilkIcon />
-                  <div className="bento-card__label">Süt, yoğurt</div>
-                </a>
-                <a href={BUSINESS.whatsapp.href} target="_blank" rel="noopener noreferrer" className="bento-card bento-card--cream">
-                  <ScooterIcon />
-                  <div className="bento-card__label">Adrese teslim</div>
-                </a>
+              </div>
+
+              <div className="hero__meta">
+                <span className="hero__meta-item"><ClockIcon /> 07:30 — 22:00</span>
+                <span className="hero__meta-divider" aria-hidden="true" />
+                <span className="hero__meta-item"><SparkleIcon /> 7 gün açık</span>
+                <span className="hero__meta-divider" aria-hidden="true" />
+                <span className="hero__meta-item"><ScooterIcon /> Mahalle içi ücretsiz</span>
               </div>
             </div>
           </div>
