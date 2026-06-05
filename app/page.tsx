@@ -1,5 +1,6 @@
 import { BUSINESS } from "@/lib/business";
-import { REVIEWS } from "@/lib/reviews";
+import { REVIEW_STATS } from "@/lib/reviews";
+import ReviewsRail from "@/components/ReviewsRail";
 
 /* ============================================================
    ICONS
@@ -131,6 +132,41 @@ function SparkleIcon() {
     </svg>
   );
 }
+function WAMiniIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M20 12a8 8 0 1 1-3.2-6.4L20 4l-1.4 3.3A8 8 0 0 1 20 12Zm-5.2 2.1-1.3-.5a.7.7 0 0 0-.7.1l-.8.8a5.6 5.6 0 0 1-2.5-2.5l.8-.8a.7.7 0 0 0 .1-.7l-.5-1.3a.7.7 0 0 0-.8-.4l-1.2.3a.7.7 0 0 0-.5.8 6.7 6.7 0 0 0 6 6 .7.7 0 0 0 .8-.5l.3-1.2a.7.7 0 0 0-.4-.8Z" />
+    </svg>
+  );
+}
+/**
+ * DotMap — Sapanca harita silüetinin dot-grid SVG illüstrasyonu.
+ * Dış dotted-map paketi yerine inline static SVG (sandbox dış paket kabul etmiyor).
+ */
+function DotMap() {
+  // 20x10 grid of dots, with denser cluster suggesting town center
+  const dots: { x: number; y: number; size?: number }[] = [];
+  for (let row = 0; row < 10; row++) {
+    for (let col = 0; col < 24; col++) {
+      // skip random ones to look organic
+      const skip = (row * 24 + col * 7) % 11 === 0;
+      if (skip) continue;
+      // denser around center (col 12, row 5)
+      const dx = col - 12;
+      const dy = row - 5;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      const size = dist < 3 ? 0.6 : 0.35;
+      dots.push({ x: col * 5 + 2, y: row * 6 + 3, size });
+    }
+  }
+  return (
+    <svg className="feature-cell__map-svg" viewBox="0 0 122 65" preserveAspectRatio="xMidYMid slice">
+      {dots.map((d, i) => (
+        <circle key={i} cx={d.x} cy={d.y} r={d.size} fill="currentColor" />
+      ))}
+    </svg>
+  );
+}
 
 /* ============================================================
    DATA
@@ -220,20 +256,94 @@ export default function Home() {
       </div>
 
       <main>
-        {/* ===== STATS ===== */}
-        <section className="stats" aria-label="Sayılar">
-          <div className="stats__grid">
-            <div className="stat">
-              <span className="stat__num">07:30</span>
-              <span className="stat__label">Sabah ilk açan. Mahallenin uyanışıyla aynı saatte tezgah hazır.</span>
+        {/* ===== FEATURES BENTO (21st.dev features-9 pattern) ===== */}
+        <section className="features" aria-label="Öne çıkanlar">
+          <div className="features__grid">
+            {/* Cell 1 — Konum / Map */}
+            <div className="feature-cell feature-cell--half">
+              <div className="feature-cell__body">
+                <span className="feature-cell__eyebrow">
+                  <MapPinIcon /> Konum
+                </span>
+                <p className="feature-cell__title">
+                  Sapanca&apos;da Yeni Mahalle&apos;nin ortasında,{" "}
+                  <span className="mute">mahallenize beş dakika.</span>
+                </p>
+              </div>
+              <div className="feature-cell__map" aria-hidden="true">
+                <DotMap />
+                <span className="feature-cell__map-pin">
+                  <span className="dot" /> Kurtuluş Caddesi
+                </span>
+                <span className="feature-cell__map-card">
+                  Son sipariş · az önce
+                </span>
+              </div>
             </div>
-            <div className="stat">
-              <span className="stat__num">7<em>/</em>7</span>
-              <span className="stat__label">Haftanın yedi günü açığız. Bayram ve resmi tatil dahil.</span>
+
+            {/* Cell 2 — WhatsApp chat preview */}
+            <div className="feature-cell">
+              <div className="feature-cell__body">
+                <span className="feature-cell__eyebrow">
+                  <WAMiniIcon /> WhatsApp&apos;tan sipariş
+                </span>
+                <p className="feature-cell__title">
+                  Sipariş listeni yaz, mahallene{" "}
+                  <span className="mute">beş dakikada ulaşalım.</span>
+                </p>
+              </div>
+              <div className="feature-cell__chat" aria-hidden="true">
+                <div className="chat-msg">
+                  Yarın sabah için ekmek, 2 yoğurt, domates ve bir bağ
+                  maydanoz lazım.
+                  <span className="chat-msg__meta">Bugün · 18:42</span>
+                </div>
+                <div className="chat-msg chat-msg--mine">
+                  Tabii, 07:35&apos;te kapıda olur. Başka? 🍞
+                  <span className="chat-msg__meta">Az önce</span>
+                </div>
+              </div>
             </div>
-            <div className="stat">
-              <span className="stat__num">~5<em>dk</em></span>
-              <span className="stat__label">Mahalle içi adrese teslim ortalama süresi. Ücretsiz.</span>
+
+            {/* Cell 3 — Big stat full width */}
+            <div className="feature-cell feature-cell--full feature-cell--stat">
+              <div className="feature-cell__stat">
+                07:30 <em>—</em> 22:00
+              </div>
+              <p className="feature-cell__stat-sub">
+                Haftanın yedi günü açığız. Bayram ve resmi tatil dahil.
+              </p>
+            </div>
+
+            {/* Cell 4 — Order timeline full width */}
+            <div className="feature-cell feature-cell--full">
+              <div className="feature-cell__body">
+                <span className="feature-cell__eyebrow">
+                  <ClockIcon /> Sipariş zaman çizelgesi
+                </span>
+                <p className="feature-cell__title">
+                  Söyle, hazırlayalım, kapına gelelim.{" "}
+                  <span className="mute">Ortalama dört dakika.</span>
+                </p>
+              </div>
+              <div className="feature-cell__timeline" aria-hidden="true">
+                <div className="timeline-step">
+                  <span className="timeline-step__time">00:00</span>
+                  <span className="timeline-step__label">Mesajın geldi</span>
+                </div>
+                <div className="timeline-step">
+                  <span className="timeline-step__time">00:45</span>
+                  <span className="timeline-step__label">Tezgâhtan toplanıyor</span>
+                </div>
+                <div className="timeline-step">
+                  <span className="timeline-step__time">02:10</span>
+                  <span className="timeline-step__label">Paketlendi</span>
+                </div>
+                <div className="timeline-step timeline-step--active">
+                  <span className="timeline-step__time">~04:30</span>
+                  <span className="timeline-step__label">Kapında</span>
+                </div>
+              </div>
             </div>
           </div>
         </section>
@@ -350,30 +460,20 @@ export default function Home() {
               Mahallenin <span className="mute">sesi.</span>
             </h2>
             <p className="section-sub">
-              Yeni Mahalle&apos;den müşterilerimizin Google Haritalar üzerinden bıraktığı yorumlar.
+              Yeni Mahalle&apos;den müşterilerimizin Google Haritalar üzerinden
+              bıraktığı yorumlar.
             </p>
+            <span className="reviews__stats" aria-label={`${REVIEW_STATS.average} yıldız ortalama, ${REVIEW_STATS.count} yorum`}>
+              <span className="reviews__stats-stars" aria-hidden="true">
+                {Array.from({ length: 5 }).map((_, i) => <StarIcon key={i} />)}
+              </span>
+              <span className="reviews__stats-avg">{REVIEW_STATS.average.toString().replace(".", ",")}</span>
+              <span className="reviews__stats-count">· {REVIEW_STATS.count} yorum</span>
+            </span>
           </div>
-          <div className="reviews__rail" role="region" aria-label="Müşteri yorumları">
-            {REVIEWS.map((r) => (
-              <a key={r.name} className="review" href={BUSINESS.googleReviewsUrl} target="_blank" rel="noopener noreferrer">
-                <div className="review__top">
-                  <span className="review__avatar" aria-hidden="true">{r.initial}</span>
-                  <div className="review__who">
-                    <span className="review__name">{r.name}</span>
-                    <span className="review__date">{r.date}</span>
-                  </div>
-                </div>
-                <div className="review__stars" aria-label={`${r.rating} yıldız`}>
-                  {Array.from({ length: r.rating }).map((_, i) => <StarIcon key={i} />)}
-                </div>
-                <p className="review__text">{r.text}</p>
-                <div className="review__source">
-                  <GoogleGIcon />
-                  <span>Google&apos;dan</span>
-                </div>
-              </a>
-            ))}
-          </div>
+
+          <ReviewsRail />
+
           <div className="reviews__more">
             <a href={BUSINESS.googleReviewsUrl} target="_blank" rel="noopener noreferrer" className="btn-ghost-pill">
               Tüm yorumları Google&apos;da gör

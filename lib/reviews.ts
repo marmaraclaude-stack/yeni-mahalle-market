@@ -1,67 +1,99 @@
 /**
- * Mahalle müşterilerinden örnek yorumlar (Google Maps formatında).
- *
- * Bu dosya şimdilik placeholder veri içeriyor. Sahibi gerçek Google
- * Place ID verince (BUSINESS.googlePlaceId) ileride şu şekilde
- * değiştirilebilir:
- *
- *   1. /api/reviews route handler ekle, server-side Google Places API
- *      çağrısı yap (fetch('https://maps.googleapis.com/maps/api/place/details/json?place_id=...&fields=reviews&key=...'))
- *   2. Bu dosyanın `getReviews()` fonksiyonu fetch eder, cache eder
- *   3. ReviewsSection client component'i içinde render eder
- *
- * Yorumlar Google Maps üzerinden çekilse de manuel olarak da
- * güncellenebilir — sahip dilerse her hafta birkaç gerçek yorumu
- * buraya kopyalayabilir.
+ * Yeni Mahalle Market — gercek Google Maps yorumlari.
+ * Sahibinin GBP sayfasindan derlendi.
  */
 
 export interface Review {
-  /** Müşteri adı (ilk isim + soyadın baş harfi tipik Google formatı) */
   name: string;
-  /** Avatar için harf (genelde ismin ilk harfi) */
   initial: string;
-  /** Yıldız sayısı 1-5 */
   rating: number;
-  /** Görece tarih ("3 hafta önce", "2 ay önce") */
   date: string;
-  /** Yorum metni */
   text: string;
 }
 
 export const REVIEWS: Review[] = [
   {
-    name: "Ayşe K.",
-    initial: "A",
+    name: "Duha Enes",
+    initial: "D",
     rating: 5,
-    date: "2 hafta önce",
-    text: "Mahallenin en güzel bakkalı. Sebze meyveler çok taze, fiyatlar uygun. Akşam saatlerinde bile sıcak ekmek bulabiliyorum. Telefonla arayınca eve teslim de yapıyorlar, çok pratik.",
+    date: "4 ay önce",
+    text: "Kaliteli hizmet. Reyonların düzeni, müşteri ilişkisi, özellikle manav reyonu taze olması beş yıldızı hak ediyor.",
   },
   {
-    name: "Mehmet Y.",
-    initial: "M",
-    rating: 5,
-    date: "1 ay önce",
-    text: "Yeni Mahalle'ye taşındığımızdan beri tek alışveriş yerimiz. Ne aradıysak buldular, olmadığında bir gün içinde getirttiler. İnsanlar sıcakkanlı, market temiz.",
-  },
-  {
-    name: "Fatma D.",
-    initial: "F",
-    rating: 5,
-    date: "3 hafta önce",
-    text: "Kahvaltılık ürünleri çok kaliteli. Özellikle peynir çeşitleri ve zeytinleri. Sıcak ekmek sabah erken alındığında bir başka oluyor. Tavsiye ederim.",
-  },
-  {
-    name: "Hasan T.",
-    initial: "H",
-    rating: 4,
-    date: "2 ay önce",
-    text: "Sapanca'da güvenip alışveriş yapacağınız bir mahalle bakkalı. Geniş çalışma saatleri çok iyi, ben genelde işten geç çıkıyorum, kapalı değiller. Adrese teslim hizmeti süper.",
-  },
-  {
-    name: "Zeynep A.",
+    name: "Zeynep Zahide Arkan",
     initial: "Z",
     rating: 5,
-    date: "1 hafta önce",
-    text: "WhatsApp'tan sipariş veriyoruz, 5 dakikada kapıda. Bayram için bile aradık, açıklardı. Esnaflık bu olsa gerek — hizmet, samimiyet, kalite hepsi bir arada.",
+    date: "4 ay önce",
+    text: "Market yenilenmiş ve harika olmuş. Artık sadece bir mahalle marketi değil, büyük zincir marketlerde bulabileceğiniz her şey var. Mutlaka uğrayın.",
+  },
+  {
+    name: "Uğur Acar",
+    initial: "U",
+    rating: 5,
+    date: "11 ay önce",
+    text: "Bir markette olması gereken neredeyse her şey var. Gecenin kaçında olursa olsun sipariş verdiğinizde evinize kadar getiriliyor. Eve teslim de var, manav reyonu, tavuk reyonu, dondurma reyonu... Kaliteli, güler yüzlü hizmet ön planda.",
+  },
+  {
+    name: "Ömer Faruk Karaoğlu",
+    initial: "Ö",
+    rating: 5,
+    date: "4 ay önce",
+    text: "Temiz ve düzenli olması yetmiyormuş gibi bir de tatlı insanlar.",
+  },
+  {
+    name: "Faruk Akbıyık",
+    initial: "F",
+    rating: 5,
+    date: "5 ay önce",
+    text: "Çok güzel, özellikle et ürünlerinin konumu ve duruşu, al benisi harika 😋👌",
+  },
+  {
+    name: "Betül Benli",
+    initial: "B",
+    rating: 5,
+    date: "4 ay önce",
+    text: "Çok güzel, temiz bir market. Öneriyorum 👍",
+  },
+  {
+    name: "Ömer Hyt",
+    initial: "Ö",
+    rating: 5,
+    date: "4 ay önce",
+    text: "Çok temiz, düzenli. Memnuniyetle alışveriş yapıyoruz.",
+  },
+  {
+    name: "Ümit Güldemir",
+    initial: "Ü",
+    rating: 4,
+    date: "10 ay önce",
+    text: "Tatil alanlarına yakın olması ilçe merkezine inmemek için çok iyi. Piknik ve mangal malzemeleri mevcut.",
+  },
+  {
+    name: "Fatih Topcu",
+    initial: "F",
+    rating: 5,
+    date: "bir yıl önce",
+    text: "Güleryüzlü hizmet, kaliteli, uygun fiyat.",
+  },
+  {
+    name: "Ahmet Yağmur",
+    initial: "A",
+    rating: 5,
+    date: "2 yıl önce",
+    text: "4/4 hizmet ve kaliteli işletme.",
+  },
+  {
+    name: "Halim Kılıç",
+    initial: "H",
+    rating: 5,
+    date: "3 yıl önce",
+    text: "5 km içerisinde tek market. Şirin mahalle bakkalı tadında.",
   },
 ];
+
+export const REVIEW_STATS = {
+  count: REVIEWS.length,
+  average: Number(
+    (REVIEWS.reduce((s, r) => s + r.rating, 0) / REVIEWS.length).toFixed(1),
+  ),
+};

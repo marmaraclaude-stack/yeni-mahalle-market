@@ -1,14 +1,14 @@
 import type { Metadata, Viewport } from "next";
-import { Spectral } from "next/font/google";
+import { Fraunces } from "next/font/google";
 import "./globals.css";
 import { BUSINESS, buildLocalBusinessJsonLd } from "@/lib/business";
-import ChatWidgetMount from "@/components/ChatWidget";
+import WhatsAppFab from "@/components/WhatsAppFab";
 
-// Display serif (h1, h2 büyük başlıklar) — Spectral, Google Fonts.
-const spectral = Spectral({
+// Display serif (h1, h2 büyük başlıklar) — Fraunces, variable optik boyut destekli.
+const fraunces = Fraunces({
   variable: "--font-display",
   subsets: ["latin", "latin-ext"],
-  weight: ["400", "500", "600", "700"],
+  axes: ["opsz", "SOFT"],
   style: ["normal", "italic"],
   display: "swap",
 });
@@ -92,7 +92,7 @@ export default function RootLayout({
   const jsonLd = buildLocalBusinessJsonLd();
 
   return (
-    <html lang="tr" className={spectral.variable}>
+    <html lang="tr" className={fraunces.variable}>
       <head>
         <link
           rel="preconnect"
@@ -111,7 +111,7 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
         {children}
-        <ChatWidgetMount />
+        <WhatsAppFab />
       </body>
     </html>
   );
