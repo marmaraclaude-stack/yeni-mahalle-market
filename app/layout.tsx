@@ -1,15 +1,19 @@
 import type { Metadata, Viewport } from "next";
-import { Urbanist } from "next/font/google";
+import { Spectral } from "next/font/google";
 import "./globals.css";
 import { BUSINESS, buildLocalBusinessJsonLd } from "@/lib/business";
 import ChatWidgetMount from "@/components/ChatWidget";
 
-const urbanist = Urbanist({
-  variable: "--font-sans",
+// Display serif (h1, h2 büyük başlıklar) — Spectral, Google Fonts.
+const spectral = Spectral({
+  variable: "--font-display",
   subsets: ["latin", "latin-ext"],
   weight: ["400", "500", "600", "700"],
+  style: ["normal", "italic"],
   display: "swap",
 });
+
+// Body sans — General Sans, Fontshare üzerinden link tag ile yüklenir (next/font Fontshare desteklemiyor).
 
 export const viewport: Viewport = {
   themeColor: "#ffffff",
@@ -88,7 +92,18 @@ export default function RootLayout({
   const jsonLd = buildLocalBusinessJsonLd();
 
   return (
-    <html lang="tr" className={urbanist.variable}>
+    <html lang="tr" className={spectral.variable}>
+      <head>
+        <link
+          rel="preconnect"
+          href="https://api.fontshare.com"
+          crossOrigin="anonymous"
+        />
+        <link
+          rel="stylesheet"
+          href="https://api.fontshare.com/v2/css?f[]=general-sans@200,300,400,500,600,700&display=swap"
+        />
+      </head>
       <body>
         <script
           type="application/ld+json"
