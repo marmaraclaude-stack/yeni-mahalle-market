@@ -434,10 +434,13 @@ p { margin: 0; }
   font-size: var(--t-lead);
   line-height: 1.5;
   color: var(--gray-500);
-  max-width: var(--measure);
   text-wrap: pretty;
 }
-.section__head--center .section__sub { margin-inline: auto; }
+/* Ortalı head'de açıklama okunabilirlik için dar + ortalı kalsın */
+.section__head--center .section__sub {
+  max-width: var(--measure);
+  margin-inline: auto;
+}
 
 /* ============================================================
    FEATURES — Apple-style split
