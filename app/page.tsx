@@ -187,8 +187,10 @@ export default function Home() {
         <header className="nav" aria-label="Üst menü">
           <div className="nav__brand-cell">
             <a href="#top" className="brand" aria-label={BUSINESS.name}>
-              <span className="brand__mark" aria-hidden="true">Y</span>
-              <span className="brand__name">{BUSINESS.name}</span>
+              <span className="brand__name">
+                Yeni Mahalle <em>Market</em>
+                <span className="brand__loc" aria-hidden="true">Sapanca · 54</span>
+              </span>
             </a>
           </div>
           <nav className="nav__pill" aria-label="Ana menü">
@@ -244,7 +246,7 @@ export default function Home() {
               </div>
 
               <div className="hero__meta">
-                <span className="hero__meta-item"><ClockIcon /> 07:30 — 22:00</span>
+                <span className="hero__meta-item"><ClockIcon /> 07:30&ndash;22:00</span>
                 <span className="hero__meta-divider" aria-hidden="true" />
                 <span className="hero__meta-item"><SparkleIcon /> 7 gün açık</span>
                 <span className="hero__meta-divider" aria-hidden="true" />
@@ -308,7 +310,7 @@ export default function Home() {
             {/* Cell 3 — Big stat full width */}
             <div className="feature-cell feature-cell--full feature-cell--stat">
               <div className="feature-cell__stat">
-                07:30 <em>—</em> 22:00
+                07:30 <em>&ndash;</em> 22:00
               </div>
               <p className="feature-cell__stat-sub">
                 Haftanın yedi günü açığız. Bayram ve resmi tatil dahil.
@@ -408,7 +410,7 @@ export default function Home() {
               <a href={BUSINESS.whatsapp.href} target="_blank" rel="noopener noreferrer" className="service-card service-card--mint">
                 <ClockIcon />
                 <div>
-                  <h3 className="service-card__title">07:30 — 22:00</h3>
+                  <h3 className="service-card__title">07:30&ndash;22:00</h3>
                   <p className="service-card__body">Haftanın yedi günü açık. Bayram dahil hizmetinizdeyiz.</p>
                 </div>
                 <span className="service-card__cta">Saatler <ArrowUR /></span>
@@ -503,9 +505,11 @@ export default function Home() {
       <footer className="footer" id="iletisim">
         <div className="footer__grid">
           <div className="footer__brand-block">
-            <a href="#top" className="brand" aria-label={BUSINESS.name}>
-              <span className="brand__mark" aria-hidden="true">Y</span>
-              <span className="brand__name">{BUSINESS.name}</span>
+            <a href="#top" className="brand brand--footer" aria-label={BUSINESS.name}>
+              <span className="brand__name">
+                Yeni Mahalle <em>Market</em>
+                <span className="brand__loc" aria-hidden="true">Sapanca · 54</span>
+              </span>
             </a>
             <p className="footer__desc">{BUSINESS.shortDescription}</p>
           </div>
