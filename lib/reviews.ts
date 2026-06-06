@@ -82,13 +82,6 @@ export const REVIEWS: Review[] = [
     date: "2 yıl önce",
     text: "4/4 hizmet ve kaliteli işletme.",
   },
-  {
-    name: "Halim Kılıç",
-    initial: "H",
-    rating: 5,
-    date: "3 yıl önce",
-    text: "5 km içerisinde tek market. Şirin mahalle bakkalı tadında.",
-  },
 ];
 
 export const REVIEW_STATS = {

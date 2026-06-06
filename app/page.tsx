@@ -1,5 +1,4 @@
 import { BUSINESS } from "@/lib/business";
-import { REVIEW_STATS } from "@/lib/reviews";
 import ReviewsRail from "@/components/ReviewsRail";
 
 /* ============================================================
@@ -16,13 +15,6 @@ function ArrowRight() {
   return (
     <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
       <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
-function StarIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-      <path d="M12 2l2.95 6.55L22 9.55l-5 4.83 1.18 6.87L12 17.77l-6.18 3.48L7 14.38 2 9.55l7.05-1L12 2z" />
     </svg>
   );
 }
@@ -116,29 +108,6 @@ function MilkIcon() {
   );
 }
 
-/* Stipple-style dot map */
-function DotMapSvg() {
-  const dots: { x: number; y: number; r: number }[] = [];
-  for (let row = 0; row < 14; row++) {
-    for (let col = 0; col < 28; col++) {
-      const skip = (row * 28 + col * 11) % 13 === 0;
-      if (skip) continue;
-      const dx = col - 14;
-      const dy = row - 7;
-      const dist = Math.sqrt(dx * dx + dy * dy);
-      const r = dist < 3 ? 0.7 : dist < 6 ? 0.5 : 0.35;
-      dots.push({ x: col * 5 + 2.5, y: row * 5 + 2.5, r });
-    }
-  }
-  return (
-    <svg className="viz-map__svg" viewBox="0 0 142 72" preserveAspectRatio="xMidYMid slice">
-      {dots.map((d, i) => (
-        <circle key={i} cx={d.x} cy={d.y} r={d.r} />
-      ))}
-    </svg>
-  );
-}
-
 /* ============================================================
    DATA
    ============================================================ */
@@ -153,7 +122,7 @@ const services = [
   {
     icon: BasketIcon,
     title: "Adrese teslim",
-    body: "Listeyi WhatsApp'tan ya da telefondan bildir. Mahalle içi ücretsiz, beş dakikada kapında.",
+    body: "Listeyi WhatsApp'tan ya da telefondan bildir. Mahalle içi teslimat ücretsiz, kapına getiririz.",
   },
   {
     icon: LeafIcon,
@@ -178,15 +147,15 @@ const services = [
   {
     icon: ClockIcon,
     title: "Açık · 7 gün",
-    body: "07:30 ile 22:00 arası açığız. Bayram, resmi tatil dahil her gün hizmetinizdeyiz.",
+    body: "07:30 ile 22:30 arası açığız. Bayram, resmi tatil dahil her gün hizmetinizdeyiz.",
   },
 ];
 
 const steps = [
-  { num: "01", title: "Listeni yaz", body: "İhtiyaçlarını WhatsApp üzerinden mesaj olarak gönder. Madde madde olması yeter." },
-  { num: "02", title: "Onaylayalım", body: "Stoktan teyitlerini yapıp eksik olan varsa alternatifini sorarız." },
-  { num: "03", title: "Hazırlanır", body: "Tezgâhtan toplar, soğuk zincire dikkat eder, özenle paketleriz." },
-  { num: "04", title: "Kapına gelir", body: "Mahalle içi ortalama dört buçuk dakikada elinde olur. Nakit veya kart, fark etmez." },
+  { title: "Listeni yaz", body: "İhtiyaçlarını WhatsApp üzerinden mesaj olarak gönder." },
+  { title: "Onaylayalım", body: "Stoktan teyitlerini yapıp eksik olan varsa alternatifini sorarız." },
+  { title: "Siparişin hazırlanır", body: "Tezgâhtan toplar, soğuk zincire dikkat eder, özenle paketleriz." },
+  { title: "Siparişin kapına gelir", body: "Mahalle içi ortalama yarım saat içinde siparişin elinde olur." },
 ];
 
 export default function Home() {
@@ -211,7 +180,6 @@ export default function Home() {
               ))}
             </nav>
             <div className="nav__cta">
-              <span className="nav__status">Şu an açık</span>
               <a
                 href={BUSINESS.whatsapp.href}
                 target="_blank"
@@ -230,9 +198,11 @@ export default function Home() {
         <section className="hero" aria-labelledby="hero-title">
           <div className="container">
             <div className="hero__inner">
-              <span className="chip">
-                <span className="chip__dot" aria-hidden="true" />
-                Sapanca · Yeni Mahalle
+              <span className="status-badge">
+                <span className="status-badge__dot" aria-hidden="true" />
+                <span className="status-badge__label">Şu an açık</span>
+                <span className="status-badge__sep" aria-hidden="true" />
+                <span className="status-badge__hours">07:30 – 22:30</span>
               </span>
 
               <h1 id="hero-title" className="hero__title">
@@ -242,7 +212,7 @@ export default function Home() {
 
               <p className="hero__sub">
                 Taze meyve sebze, şarküteri ve günlük ihtiyaç. WhatsApp&apos;tan
-                listeni gönder, mahallene ortalama beş dakikada gelelim.
+                listeyi gönder, kapına getirelim.
               </p>
 
               <div className="hero__ctas">
@@ -263,26 +233,23 @@ export default function Home() {
             {/* Stats strip */}
             <div className="hero__stats" aria-label="Öne çıkan rakamlar">
               <div className="hero__stat">
-                <div className="hero__stat-num mono">
-                  04<em>:30</em>
+                <div className="hero__stat-num">
+                  ~<em>30</em> dk
                 </div>
                 <div className="hero__stat-label">Ortalama teslim süresi</div>
               </div>
               <div className="hero__stat">
-                <div className="hero__stat-num mono">07—22</div>
-                <div className="hero__stat-label">Hizmet saatleri, her gün</div>
+                <div className="hero__stat-num">07:30 – 22:30</div>
+                <div className="hero__stat-label">Her gün açığız</div>
               </div>
               <div className="hero__stat">
-                <div className="hero__stat-num mono">
-                  {REVIEW_STATS.average.toString().replace(".", ",")}
-                  <em>/5</em>
+                <div className="hero__stat-num">
+                  <em>7</em> gün
                 </div>
-                <div className="hero__stat-label">
-                  {REVIEW_STATS.count} Google yorumu
-                </div>
+                <div className="hero__stat-label">Bayram dahil, kapanmadan</div>
               </div>
               <div className="hero__stat">
-                <div className="hero__stat-num mono">
+                <div className="hero__stat-num">
                   <em>₺</em>0
                 </div>
                 <div className="hero__stat-label">Mahalle içi teslimat</div>
@@ -296,8 +263,8 @@ export default function Home() {
           <div className="container container--wide">
             <header className="section__head section__head--center">
               <h2 className="section__title">
-                Bir telefon kadar,{" "}
-                <span className="mute">en fazla beş dakika.</span>
+                Yakındayız.{" "}
+                <span className="mute">Söyle, kapına getirelim.</span>
               </h2>
               <p className="section__sub">
                 Sapanca&apos;da Yeni Mahalle&apos;nin merkezindeyiz. Sipariş
@@ -308,11 +275,12 @@ export default function Home() {
             <div className="features__row">
               <div className="features__copy">
                 <h3 className="features__h">
-                  Sapanca&apos;nın merkezinde, mahallene beş dakika.
+                  Sapanca&apos;nın merkezinde, Kurtuluş Caddesi&apos;nde.
                 </h3>
                 <p className="features__p">
-                  Kurtuluş Caddesi üzerindeyiz. Yeni Mahalle, Şirin Mahalle ve
-                  çevre tatil siteleri için en kısa rota.
+                  Yeni Mahalle, Şirin Mahalle ve çevre tatil siteleri için
+                  en kısa rotadayız. Aşağıdan haritayı gez ya da direkt yol
+                  tarifi al.
                 </p>
                 <div>
                   <a
@@ -325,15 +293,24 @@ export default function Home() {
                   </a>
                 </div>
               </div>
-              <div className="features__visual">
-                <div className="viz-map" aria-hidden="true">
-                  <DotMapSvg />
-                  <span className="viz-map__rings" />
-                  <span className="viz-map__pin">
-                    <span className="viz-map__pin-dot" />
-                    KURTULUŞ CD · 54900
-                  </span>
-                </div>
+              <div className="features__visual features__visual--map">
+                <iframe
+                  src={BUSINESS.googleMapsEmbedUrl}
+                  title="Yeni Mahalle Market konumu"
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  className="map-frame"
+                />
+                <a
+                  href={BUSINESS.googleMapsDirectionsUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="map-pin"
+                  aria-label="Yol tarifi al"
+                >
+                  <span className="map-pin__dot" />
+                  Kurtuluş Caddesi · Sapanca
+                </a>
               </div>
             </div>
 
@@ -359,17 +336,21 @@ export default function Home() {
               </div>
               <div className="features__visual">
                 <div className="viz-chat" aria-hidden="true">
-                  <div className="viz-chat__msg">
-                    Yarın sabah için ekmek, 2 yoğurt, domates, bir bağ
-                    maydanoz lazım.
+                  <div className="viz-chat__msg viz-chat__msg--in viz-chat__anim-1">
+                    Selam, yarın sabah için ekmek, 2 yoğurt, domates ve bir
+                    bağ maydanoz lazım.
                     <span className="viz-chat__msg-meta">18:42</span>
                   </div>
-                  <div className="viz-chat__msg viz-chat__msg--mine">
-                    Tabii, 07:35&apos;te kapıda olur. Başka bir şey var mı?
+                  <div className="viz-chat__typing viz-chat__anim-2">
+                    <span /><span /><span />
+                  </div>
+                  <div className="viz-chat__msg viz-chat__msg--mine viz-chat__anim-3">
+                    Tabii, sabah hazır olur. Başka ihtiyacın var mı?
                     <span className="viz-chat__msg-meta">18:43</span>
                   </div>
-                  <div className="viz-chat__typing">
-                    <span /><span /><span />
+                  <div className="viz-chat__msg viz-chat__msg--in viz-chat__anim-4">
+                    Bir de yarım kilo zeytin ekleyelim. Teşekkürler!
+                    <span className="viz-chat__msg-meta">18:43</span>
                   </div>
                 </div>
               </div>
@@ -378,34 +359,31 @@ export default function Home() {
             <div className="features__row">
               <div className="features__copy">
                 <h3 className="features__h">
-                  Sipariş anından kapıya, dört buçuk dakika.
+                  Söyle, hazırlayalım, kapına getirelim.
                 </h3>
                 <p className="features__p">
-                  Ortalama tamamlanma süremiz. Soğuk zincir korunur, hassas
-                  ürünler en sona paketlenir.
+                  Mahalle içindeysen ortalama yarım saatte siparişin elinde
+                  olur. Soğuk zincir korunur, hassas ürünler en sona
+                  paketlenir.
                 </p>
               </div>
               <div className="features__visual">
                 <div className="viz-timeline" aria-hidden="true">
                   <div className="viz-timeline__row">
-                    <span className="viz-timeline__time mono">00:00</span>
-                    <span className="viz-timeline__label">Mesajın geldi</span>
+                    <span className="viz-timeline__label">Mesajın elimize ulaşır</span>
                     <span className="viz-timeline__badge">Alındı</span>
                   </div>
                   <div className="viz-timeline__row">
-                    <span className="viz-timeline__time mono">00:45</span>
-                    <span className="viz-timeline__label">Tezgâhtan toplanıyor</span>
+                    <span className="viz-timeline__label">Tezgâhtan toplarız</span>
                     <span className="viz-timeline__badge">Toplanıyor</span>
                   </div>
                   <div className="viz-timeline__row">
-                    <span className="viz-timeline__time mono">02:10</span>
-                    <span className="viz-timeline__label">Paketlendi</span>
+                    <span className="viz-timeline__label">Paketleriz, kuryeye veririz</span>
                     <span className="viz-timeline__badge">Hazır</span>
                   </div>
                   <div className="viz-timeline__row viz-timeline__row--active">
-                    <span className="viz-timeline__time mono">~04:30</span>
-                    <span className="viz-timeline__label">Kapında</span>
-                    <span className="viz-timeline__badge">Kurye yolda</span>
+                    <span className="viz-timeline__label">Kapına geliriz</span>
+                    <span className="viz-timeline__badge">~30 dk</span>
                   </div>
                 </div>
               </div>
@@ -458,8 +436,7 @@ export default function Home() {
 
             <div className="howto">
               {steps.map((step) => (
-                <div key={step.num} className="step">
-                  <span className="step__num mono">{step.num}</span>
+                <div key={step.title} className="step">
                   <h3 className="step__title">{step.title}</h3>
                   <p className="step__body">{step.body}</p>
                 </div>
@@ -471,28 +448,14 @@ export default function Home() {
         {/* ===== REVIEWS ===== */}
         <section id="yorumlar" className="section section--tight">
           <div className="container container--wide">
-            <header className="reviews__head">
-              <div>
-                <h2 className="section__title">
-                  Mahallenin sesi.
-                </h2>
-              </div>
-              <span
-                className="reviews__stat"
-                aria-label={`${REVIEW_STATS.average} yıldız ortalama, ${REVIEW_STATS.count} yorum`}
-              >
-                <span className="reviews__stat-stars" aria-hidden="true">
-                  {Array.from({ length: 5 }).map((_, i) => (
-                    <StarIcon key={i} />
-                  ))}
-                </span>
-                <span className="reviews__stat-avg">
-                  {REVIEW_STATS.average.toString().replace(".", ",")}
-                </span>
-                <span className="reviews__stat-count">
-                  · {REVIEW_STATS.count} Google yorumu
-                </span>
-              </span>
+            <header className="section__head">
+              <h2 className="section__title">
+                Müşterilerimizden gelen yorumlar.
+              </h2>
+              <p className="section__sub">
+                Yeni Mahalle&apos;den müşterilerimizin Google Haritalar
+                üzerinden bıraktığı yorumlar. Her biri gerçek.
+              </p>
             </header>
 
             <ReviewsRail />
@@ -518,8 +481,8 @@ export default function Home() {
                 Bugün ne lazımsa, bir telefon kadar uzakta.
               </h2>
               <p className="cta__sub">
-                Mahalle içindeysen ortalama beş dakikada elindeyiz. Söyle,
-                kapına getirelim.
+                Listeyi yaz, gerisini bize bırak. Mahalle içi teslimat
+                ücretsiz.
               </p>
               <a
                 href={BUSINESS.whatsapp.href}
@@ -605,7 +568,7 @@ export default function Home() {
             <div className="footer__col">
               <h4>Saatler</h4>
               <ul>
-                <li><p>Pzt–Paz · 07:30–22:00</p></li>
+                <li><p>Pzt–Paz · 07:30–22:30</p></li>
                 <li><p>Bayram dahil her gün açık</p></li>
               </ul>
             </div>

@@ -29,9 +29,9 @@ export const BUSINESS = {
     handle: "@yenimahallemarket",
   },
   hours: {
-    display: "Haftanın 7 günü · 07:30'dan itibaren",
+    display: "Haftanın 7 günü · 07:30 – 22:30",
     opens: "07:30",
-    closes: "22:00",
+    closes: "22:30",
     daysDisplay: "Pazartesi · Pazar",
   },
   geo: { lat: 40.6914, lng: 30.2641 },
