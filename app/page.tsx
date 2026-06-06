@@ -198,12 +198,14 @@ export default function Home() {
         <section className="hero" aria-labelledby="hero-title">
           <div className="container">
             <div className="hero__inner">
-              <span className="status-badge">
-                <span className="status-badge__dot" aria-hidden="true" />
-                <span className="status-badge__label">Şu an açık</span>
-                <span className="status-badge__sep" aria-hidden="true" />
-                <span className="status-badge__hours">07:30 – 22:30</span>
-              </span>
+              <div className="status-line" aria-label="Şu an açık, sipariş alıyoruz">
+                <span className="status-line__rail" aria-hidden="true">
+                  <span className="status-line__pulse" />
+                </span>
+                <span className="status-line__text">
+                  Şu an sipariş alıyoruz
+                </span>
+              </div>
 
               <h1 id="hero-title" className="hero__title">
                 Mahallenin bakkalı,{" "}
@@ -247,12 +249,6 @@ export default function Home() {
                   <em>7</em> gün
                 </div>
                 <div className="hero__stat-label">Bayram dahil, kapanmadan</div>
-              </div>
-              <div className="hero__stat">
-                <div className="hero__stat-num">
-                  <em>₺</em>0
-                </div>
-                <div className="hero__stat-label">Mahalle içi teslimat</div>
               </div>
             </div>
           </div>
