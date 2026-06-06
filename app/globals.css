@@ -404,7 +404,8 @@ p { margin: 0; }
   color: var(--gray-300);
 }
 .section__head {
-  max-width: 820px;
+  /* Tam genişlik: başlık container'ı baştan sona kullanır,
+     alt metin kendi okuma ölçüsünde dar kalır. */
   margin-bottom: var(--head-gap);
   display: flex;
   flex-direction: column;
@@ -414,6 +415,7 @@ p { margin: 0; }
   margin-inline: auto;
   text-align: center;
   align-items: center;
+  max-width: 920px;
 }
 .section__head--center .section__title { max-width: 20ch; }
 .section__title {
