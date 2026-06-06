@@ -1,20 +1,17 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist } from "next/font/google";
 import "./globals.css";
 import { BUSINESS, buildLocalBusinessJsonLd } from "@/lib/business";
 import WhatsAppFab from "@/components/WhatsAppFab";
 
+// Gövde + UI sans — Geist (next/font, self-host).
 const geist = Geist({
   variable: "--font-geist",
   subsets: ["latin", "latin-ext"],
   display: "swap",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin", "latin-ext"],
-  display: "swap",
-});
+// Display sans — Switzer, Fontshare üzerinden <link> ile (next/font Fontshare desteklemiyor).
 
 export const viewport: Viewport = {
   themeColor: "#ffffff",
@@ -87,7 +84,18 @@ export default function RootLayout({
   const jsonLd = buildLocalBusinessJsonLd();
 
   return (
-    <html lang="tr" className={`${geist.variable} ${geistMono.variable}`}>
+    <html lang="tr" className={geist.variable}>
+      <head>
+        <link
+          rel="preconnect"
+          href="https://api.fontshare.com"
+          crossOrigin="anonymous"
+        />
+        <link
+          rel="stylesheet"
+          href="https://api.fontshare.com/v2/css?f[]=switzer@400,500,600,700,800&display=swap"
+        />
+      </head>
       <body>
         <script
           type="application/ld+json"
