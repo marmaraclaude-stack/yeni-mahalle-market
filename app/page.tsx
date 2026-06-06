@@ -230,13 +230,10 @@ export default function Home() {
         <section className="hero" aria-labelledby="hero-title">
           <div className="container">
             <div className="hero__inner">
-              <div className="hero__chip-row">
-                <span className="chip">
-                  <span className="chip__dot" aria-hidden="true" />
-                  Sapanca · Yeni Mahalle
-                </span>
-                <span className="eyebrow">v · 2026</span>
-              </div>
+              <span className="chip">
+                <span className="chip__dot" aria-hidden="true" />
+                Sapanca · Yeni Mahalle
+              </span>
 
               <h1 id="hero-title" className="hero__title">
                 Mahallenin bakkalı,{" "}
@@ -298,9 +295,6 @@ export default function Home() {
         <section className="section" aria-label="Öne çıkanlar">
           <div className="container container--wide">
             <header className="section__head section__head--center">
-              <span className="eyebrow">
-                <span className="eyebrow__num">01</span> Neden biz
-              </span>
               <h2 className="section__title">
                 Bir telefon kadar,{" "}
                 <span className="mute">en fazla beş dakika.</span>
@@ -313,9 +307,6 @@ export default function Home() {
 
             <div className="features__row">
               <div className="features__copy">
-                <span className="eyebrow">
-                  <span className="eyebrow__num">01</span> Konum
-                </span>
                 <h3 className="features__h">
                   Sapanca&apos;nın merkezinde, mahallene beş dakika.
                 </h3>
@@ -348,9 +339,6 @@ export default function Home() {
 
             <div className="features__row features__row--reverse">
               <div className="features__copy">
-                <span className="eyebrow">
-                  <span className="eyebrow__num">02</span> Sipariş
-                </span>
                 <h3 className="features__h">
                   Listeyi yaz, gerisi bize.
                 </h3>
@@ -389,9 +377,6 @@ export default function Home() {
 
             <div className="features__row">
               <div className="features__copy">
-                <span className="eyebrow">
-                  <span className="eyebrow__num">03</span> Süreç
-                </span>
                 <h3 className="features__h">
                   Sipariş anından kapıya, dört buçuk dakika.
                 </h3>
@@ -432,9 +417,6 @@ export default function Home() {
         <section id="hizmetler" className="section section--tight">
           <div className="container container--wide">
             <header className="section__head">
-              <span className="eyebrow">
-                <span className="eyebrow__num">02</span> Hizmetler
-              </span>
               <h2 className="section__title">
                 Bir mahalle bakkalında olması gereken,{" "}
                 <span className="mute">biraz daha özenle.</span>
@@ -468,9 +450,6 @@ export default function Home() {
         <section id="surec" className="section section--tight">
           <div className="container container--wide">
             <header className="section__head">
-              <span className="eyebrow">
-                <span className="eyebrow__num">03</span> Süreç
-              </span>
               <h2 className="section__title">
                 Dört adımda sipariş.{" "}
                 <span className="mute">Uygulama yok, randevu yok.</span>
@@ -494,10 +473,7 @@ export default function Home() {
           <div className="container container--wide">
             <header className="reviews__head">
               <div>
-                <span className="eyebrow">
-                  <span className="eyebrow__num">04</span> Yorumlar
-                </span>
-                <h2 className="section__title" style={{ marginTop: 16 }}>
+                <h2 className="section__title">
                   Mahallenin sesi.
                 </h2>
               </div>
@@ -538,7 +514,6 @@ export default function Home() {
         <section className="cta">
           <div className="container">
             <div className="cta__inner">
-              <span className="cta__eyebrow">Hazırsan</span>
               <h2 className="cta__title">
                 Bugün ne lazımsa, bir telefon kadar uzakta.
               </h2>
