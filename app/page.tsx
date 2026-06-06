@@ -5,9 +5,9 @@ import ReviewsRail from "@/components/ReviewsRail";
 /* ============================================================
    ICONS
    ============================================================ */
-function ArrowUR({ className = "" }: { className?: string }) {
+function ArrowUR() {
   return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
       <path d="M5 19L19 5M19 5H8M19 5V16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
@@ -23,16 +23,6 @@ function StarIcon() {
   return (
     <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
       <path d="M12 2l2.95 6.55L22 9.55l-5 4.83 1.18 6.87L12 17.77l-6.18 3.48L7 14.38 2 9.55l7.05-1L12 2z" />
-    </svg>
-  );
-}
-function GoogleGIcon() {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden="true">
-      <path fill="#4285F4" d="M21.6 12.23c0-.8-.07-1.4-.2-2.04H12v3.7h5.5c-.1.93-.7 2.34-2.04 3.28l-.02.12 2.96 2.3.2.02c1.88-1.74 2.97-4.3 2.97-7.38z"/>
-      <path fill="#34A853" d="M12 22c2.7 0 4.96-.9 6.6-2.42l-3.14-2.44c-.84.58-1.97.99-3.46.99-2.65 0-4.89-1.75-5.7-4.17l-.12.01-3.07 2.38-.04.11C4.7 19.62 8.07 22 12 22z"/>
-      <path fill="#FBBC05" d="M6.3 13.96A6 6 0 015.97 12c0-.68.12-1.34.32-1.96L6.28 9.9 3.17 7.5l-.1.05C2.38 8.92 2 10.42 2 12s.38 3.08 1.07 4.45L6.3 13.96z"/>
-      <path fill="#EA4335" d="M12 5.87c1.88 0 3.14.8 3.86 1.48l2.82-2.74C16.95 3.05 14.7 2 12 2 8.07 2 4.7 4.38 3.07 7.55L6.3 10.04C7.11 7.62 9.35 5.87 12 5.87z"/>
     </svg>
   );
 }
@@ -54,7 +44,7 @@ function WhatsAppIcon() {
 }
 function MapPinIcon() {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
       <path d="M12 21s-7-7.2-7-12a7 7 0 1 1 14 0c0 4.8-7 12-7 12Z" />
       <circle cx="12" cy="9" r="2.5" />
     </svg>
@@ -62,14 +52,14 @@ function MapPinIcon() {
 }
 function PhoneIcon() {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
       <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.13 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.37 1.9.72 2.8a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.9.35 1.84.59 2.8.72A2 2 0 0 1 22 16.92Z" />
     </svg>
   );
 }
 function LeafIcon() {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true">
       <path d="M19 4c-7 0-13 6-13 13a6 6 0 0 0 6 6c7 0 13-6 13-13V4h-6z" />
       <path d="M6 17c4-4 8-6 13-7" strokeLinecap="round" />
     </svg>
@@ -77,7 +67,7 @@ function LeafIcon() {
 }
 function ScooterIcon() {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true">
       <circle cx="6" cy="18" r="3" />
       <circle cx="18" cy="18" r="3" />
       <path d="M9 18h6M6 18l3-9h4l3 9M13 9V5h3" strokeLinecap="round" />
@@ -86,7 +76,7 @@ function ScooterIcon() {
 }
 function ClockIcon() {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true">
       <circle cx="12" cy="12" r="9" />
       <path d="M12 7v5l3 2" strokeLinecap="round" />
     </svg>
@@ -94,7 +84,7 @@ function ClockIcon() {
 }
 function BreadIcon() {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true">
       <path d="M4 12c0-3 3-5 6-5h4c3 0 6 2 6 5 0 2-1.5 3-3 3H7c-1.5 0-3-1-3-3z" />
       <path d="M8 12l1-2M12 12l1-2M16 12l1-2" strokeLinecap="round" />
     </svg>
@@ -102,67 +92,48 @@ function BreadIcon() {
 }
 function CheeseIcon() {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true">
       <path d="M3 12L12 4l9 8v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-6z" />
-      <circle cx="9" cy="15" r="1" fill="currentColor" />
-      <circle cx="15" cy="14" r="1" fill="currentColor" />
-      <circle cx="13" cy="17" r="1" fill="currentColor" />
+      <circle cx="9" cy="15" r="0.9" fill="currentColor" />
+      <circle cx="15" cy="14" r="0.9" fill="currentColor" />
+      <circle cx="13" cy="17" r="0.9" fill="currentColor" />
     </svg>
   );
 }
 function BasketIcon() {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true">
       <path d="M3 7h18M6 7l1.2 12.2a2 2 0 002 1.8h5.6a2 2 0 002-1.8L18 7M9 7V5a3 3 0 016 0v2" />
     </svg>
   );
 }
 function MilkIcon() {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true">
       <path d="M8 2h8v4l2 4v10a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V10l2-4V2z" />
       <path d="M8 10h8M10 14h4v4h-4z" strokeLinecap="round" />
     </svg>
   );
 }
-function SparkleIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-      <path d="M12 3l1.8 5.4L19 10l-5.2 1.6L12 17l-1.8-5.4L5 10l5.2-1.6L12 3z" />
-    </svg>
-  );
-}
-function WAMiniIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-      <path d="M20 12a8 8 0 1 1-3.2-6.4L20 4l-1.4 3.3A8 8 0 0 1 20 12Zm-5.2 2.1-1.3-.5a.7.7 0 0 0-.7.1l-.8.8a5.6 5.6 0 0 1-2.5-2.5l.8-.8a.7.7 0 0 0 .1-.7l-.5-1.3a.7.7 0 0 0-.8-.4l-1.2.3a.7.7 0 0 0-.5.8 6.7 6.7 0 0 0 6 6 .7.7 0 0 0 .8-.5l.3-1.2a.7.7 0 0 0-.4-.8Z" />
-    </svg>
-  );
-}
-/**
- * DotMap — Sapanca harita silüetinin dot-grid SVG illüstrasyonu.
- * Dış dotted-map paketi yerine inline static SVG (sandbox dış paket kabul etmiyor).
- */
-function DotMap() {
-  // 20x10 grid of dots, with denser cluster suggesting town center
-  const dots: { x: number; y: number; size?: number }[] = [];
-  for (let row = 0; row < 10; row++) {
-    for (let col = 0; col < 24; col++) {
-      // skip random ones to look organic
-      const skip = (row * 24 + col * 7) % 11 === 0;
+
+/* Stipple-style dot map */
+function DotMapSvg() {
+  const dots: { x: number; y: number; r: number }[] = [];
+  for (let row = 0; row < 14; row++) {
+    for (let col = 0; col < 28; col++) {
+      const skip = (row * 28 + col * 11) % 13 === 0;
       if (skip) continue;
-      // denser around center (col 12, row 5)
-      const dx = col - 12;
-      const dy = row - 5;
+      const dx = col - 14;
+      const dy = row - 7;
       const dist = Math.sqrt(dx * dx + dy * dy);
-      const size = dist < 3 ? 0.6 : 0.35;
-      dots.push({ x: col * 5 + 2, y: row * 6 + 3, size });
+      const r = dist < 3 ? 0.7 : dist < 6 ? 0.5 : 0.35;
+      dots.push({ x: col * 5 + 2.5, y: row * 5 + 2.5, r });
     }
   }
   return (
-    <svg className="feature-cell__map-svg" viewBox="0 0 122 65" preserveAspectRatio="xMidYMid slice">
+    <svg className="viz-map__svg" viewBox="0 0 142 72" preserveAspectRatio="xMidYMid slice">
       {dots.map((d, i) => (
-        <circle key={i} cx={d.x} cy={d.y} r={d.size} fill="currentColor" />
+        <circle key={i} cx={d.x} cy={d.y} r={d.r} />
       ))}
     </svg>
   );
@@ -172,61 +143,109 @@ function DotMap() {
    DATA
    ============================================================ */
 const navLinks = [
-  { label: "Anasayfa", href: "#top", active: true },
   { label: "Hizmetler", href: "#hizmetler" },
   { label: "Süreç", href: "#surec" },
   { label: "Yorumlar", href: "#yorumlar" },
   { label: "İletişim", href: "#iletisim" },
 ];
 
+const services = [
+  {
+    icon: BasketIcon,
+    title: "Adrese teslim",
+    body: "Listeyi WhatsApp'tan ya da telefondan bildir. Mahalle içi ücretsiz, beş dakikada kapında.",
+  },
+  {
+    icon: LeafIcon,
+    title: "Meyve ve sebze",
+    body: "Her sabah halden, mevsiminde gelen. Tezgâhımızda kalan günü görürsün.",
+  },
+  {
+    icon: CheeseIcon,
+    title: "Şarküteri",
+    body: "Peynir, zeytin, sucuk, tereyağ. Kasamızdan tartı ile, istediğin gramajda.",
+  },
+  {
+    icon: BreadIcon,
+    title: "Ekmek ve fırın",
+    body: "Sabah sıcak, akşam taze. Günde iki defa yenilenen ekmek ve unlu mamul.",
+  },
+  {
+    icon: MilkIcon,
+    title: "Süt ve yoğurt",
+    body: "Günlük süt, ayran, yoğurt. Soğuk zincir korunarak kapına gelir.",
+  },
+  {
+    icon: ClockIcon,
+    title: "Açık · 7 gün",
+    body: "07:30 ile 22:00 arası açığız. Bayram, resmi tatil dahil her gün hizmetinizdeyiz.",
+  },
+];
+
+const steps = [
+  { num: "01", title: "Listeni yaz", body: "İhtiyaçlarını WhatsApp üzerinden mesaj olarak gönder. Madde madde olması yeter." },
+  { num: "02", title: "Onaylayalım", body: "Stoktan teyitlerini yapıp eksik olan varsa alternatifini sorarız." },
+  { num: "03", title: "Hazırlanır", body: "Tezgâhtan toplar, soğuk zincire dikkat eder, özenle paketleriz." },
+  { num: "04", title: "Kapına gelir", body: "Mahalle içi ortalama dört buçuk dakikada elinde olur. Nakit veya kart, fark etmez." },
+];
+
 export default function Home() {
   return (
     <>
-      <div className="page" id="top">
-        {/* ===== NAV ===== */}
-        <header className="nav" aria-label="Üst menü">
-          <div className="nav__brand-cell">
+      {/* ===== NAV ===== */}
+      <div className="nav-shell">
+        <div className="container container--wide">
+          <header className="nav" aria-label="Üst menü">
             <a href="#top" className="brand" aria-label={BUSINESS.name}>
-              <span className="brand__name">
-                Yeni Mahalle <em>Market</em>
-                <span className="brand__loc" aria-hidden="true">Sapanca · 54</span>
+              <span className="brand__mono">
+                yenimahalle<em>.market</em>
+                <span className="slash">/</span>
+                sapanca
               </span>
             </a>
-          </div>
-          <nav className="nav__pill" aria-label="Ana menü">
-            {navLinks.map((l) => (
-              <a key={l.label} href={l.href} className={`nav__link${l.active ? " nav__link--active" : ""}`}>
-                {l.label}
+            <nav className="nav__links" aria-label="Ana menü">
+              {navLinks.map((l) => (
+                <a key={l.label} href={l.href} className="nav__link">
+                  {l.label}
+                </a>
+              ))}
+            </nav>
+            <div className="nav__cta">
+              <span className="nav__status">Şu an açık</span>
+              <a
+                href={BUSINESS.whatsapp.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn btn--primary"
+              >
+                Sipariş ver <ArrowUR />
               </a>
-            ))}
-          </nav>
-          <div className="nav__cta-cell">
-            <a href={BUSINESS.whatsapp.href} target="_blank" rel="noopener noreferrer" className="btn-ghost-pill">
-              Sipariş ver
-            </a>
-            <a href={BUSINESS.whatsapp.href} target="_blank" rel="noopener noreferrer" className="btn-circle-arrow" aria-label="Sipariş ver">
-              <ArrowUR />
-            </a>
-          </div>
-        </header>
+            </div>
+          </header>
+        </div>
+      </div>
 
-        {/* ===== HERO — minimalist ===== */}
+      <main id="top">
+        {/* ===== HERO ===== */}
         <section className="hero" aria-labelledby="hero-title">
-          <div className="hero__frame">
+          <div className="container">
             <div className="hero__inner">
-              <span className="pill-light">
-                <span className="dot" aria-hidden="true" />
-                Sapanca · Yeni Mahalle · Şu an açık
-              </span>
+              <div className="hero__chip-row">
+                <span className="chip">
+                  <span className="chip__dot" aria-hidden="true" />
+                  Sapanca · Yeni Mahalle
+                </span>
+                <span className="eyebrow">v · 2026</span>
+              </div>
 
               <h1 id="hero-title" className="hero__title">
-                <span>Mahallenin bakkalı,</span>
-                <span className="accent">kapına kadar.</span>
+                Mahallenin bakkalı,{" "}
+                <span className="hero__title-accent">kapına kadar.</span>
               </h1>
 
               <p className="hero__sub">
-                Taze meyve sebze, şarküteri ve günlük ihtiyaçların. WhatsApp&apos;tan söyle,
-                mahallene ortalama beş dakikada gelelim.
+                Taze meyve sebze, şarküteri ve günlük ihtiyaç. WhatsApp&apos;tan
+                listeni gönder, mahallene ortalama beş dakikada gelelim.
               </p>
 
               <div className="hero__ctas">
@@ -234,116 +253,175 @@ export default function Home() {
                   href={BUSINESS.whatsapp.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="btn-primary-pill"
+                  className="btn btn--primary"
                 >
-                  WhatsApp&apos;tan sipariş ver
-                  <ArrowUR />
+                  WhatsApp&apos;tan sipariş ver <ArrowUR />
                 </a>
-                <a href="#hizmetler" className="btn-text">
-                  Hizmetleri gör
-                  <ArrowRight />
+                <a href="#hizmetler" className="btn btn--ghost">
+                  Hizmetleri gör <ArrowRight />
                 </a>
               </div>
+            </div>
 
-              <div className="hero__meta">
-                <span className="hero__meta-item"><ClockIcon /> 07:30&ndash;22:00</span>
-                <span className="hero__meta-divider" aria-hidden="true" />
-                <span className="hero__meta-item"><SparkleIcon /> 7 gün açık</span>
-                <span className="hero__meta-divider" aria-hidden="true" />
-                <span className="hero__meta-item"><ScooterIcon /> Mahalle içi ücretsiz</span>
+            {/* Stats strip */}
+            <div className="hero__stats" aria-label="Öne çıkan rakamlar">
+              <div className="hero__stat">
+                <div className="hero__stat-num mono">
+                  04<em>:30</em>
+                </div>
+                <div className="hero__stat-label">Ortalama teslim süresi</div>
+              </div>
+              <div className="hero__stat">
+                <div className="hero__stat-num mono">07—22</div>
+                <div className="hero__stat-label">Hizmet saatleri, her gün</div>
+              </div>
+              <div className="hero__stat">
+                <div className="hero__stat-num mono">
+                  {REVIEW_STATS.average.toString().replace(".", ",")}
+                  <em>/5</em>
+                </div>
+                <div className="hero__stat-label">
+                  {REVIEW_STATS.count} Google yorumu
+                </div>
+              </div>
+              <div className="hero__stat">
+                <div className="hero__stat-num mono">
+                  <em>₺</em>0
+                </div>
+                <div className="hero__stat-label">Mahalle içi teslimat</div>
               </div>
             </div>
           </div>
         </section>
-      </div>
 
-      <main>
-        {/* ===== FEATURES BENTO (21st.dev features-9 pattern) ===== */}
-        <section className="features" aria-label="Öne çıkanlar">
-          <div className="features__grid">
-            {/* Cell 1 — Konum / Map */}
-            <div className="feature-cell feature-cell--half">
-              <div className="feature-cell__body">
-                <span className="feature-cell__eyebrow">
-                  <MapPinIcon /> Konum
-                </span>
-                <p className="feature-cell__title">
-                  Sapanca&apos;da Yeni Mahalle&apos;nin ortasında,{" "}
-                  <span className="mute">mahallenize beş dakika.</span>
-                </p>
-              </div>
-              <div className="feature-cell__map" aria-hidden="true">
-                <DotMap />
-                <span className="feature-cell__map-pin">
-                  <span className="dot" /> Kurtuluş Caddesi
-                </span>
-                <span className="feature-cell__map-card">
-                  Son sipariş · az önce
-                </span>
-              </div>
-            </div>
-
-            {/* Cell 2 — WhatsApp chat preview */}
-            <div className="feature-cell">
-              <div className="feature-cell__body">
-                <span className="feature-cell__eyebrow">
-                  <WAMiniIcon /> WhatsApp&apos;tan sipariş
-                </span>
-                <p className="feature-cell__title">
-                  Sipariş listeni yaz, mahallene{" "}
-                  <span className="mute">beş dakikada ulaşalım.</span>
-                </p>
-              </div>
-              <div className="feature-cell__chat" aria-hidden="true">
-                <div className="chat-msg">
-                  Yarın sabah için ekmek, 2 yoğurt, domates ve bir bağ
-                  maydanoz lazım.
-                  <span className="chat-msg__meta">Bugün · 18:42</span>
-                </div>
-                <div className="chat-msg chat-msg--mine">
-                  Tabii, 07:35&apos;te kapıda olur. Başka? 🍞
-                  <span className="chat-msg__meta">Az önce</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Cell 3 — Big stat full width */}
-            <div className="feature-cell feature-cell--full feature-cell--stat">
-              <div className="feature-cell__stat">
-                07:30 <em>&ndash;</em> 22:00
-              </div>
-              <p className="feature-cell__stat-sub">
-                Haftanın yedi günü açığız. Bayram ve resmi tatil dahil.
+        {/* ===== FEATURES — Apple-style split rows ===== */}
+        <section className="section" aria-label="Öne çıkanlar">
+          <div className="container container--wide">
+            <header className="section__head section__head--center">
+              <span className="eyebrow">
+                <span className="eyebrow__num">01</span> Neden biz
+              </span>
+              <h2 className="section__title">
+                Bir telefon kadar,{" "}
+                <span className="mute">en fazla beş dakika.</span>
+              </h2>
+              <p className="section__sub">
+                Sapanca&apos;da Yeni Mahalle&apos;nin merkezindeyiz. Sipariş
+                geldiği anda hazırlanır, kapına gelir.
               </p>
+            </header>
+
+            <div className="features__row">
+              <div className="features__copy">
+                <span className="eyebrow">
+                  <span className="eyebrow__num">01</span> Konum
+                </span>
+                <h3 className="features__h">
+                  Sapanca&apos;nın merkezinde, mahallene beş dakika.
+                </h3>
+                <p className="features__p">
+                  Kurtuluş Caddesi üzerindeyiz. Yeni Mahalle, Şirin Mahalle ve
+                  çevre tatil siteleri için en kısa rota.
+                </p>
+                <div>
+                  <a
+                    href={BUSINESS.googleMapsDirectionsUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn btn--link"
+                  >
+                    Yol tarifi al
+                  </a>
+                </div>
+              </div>
+              <div className="features__visual">
+                <div className="viz-map" aria-hidden="true">
+                  <DotMapSvg />
+                  <span className="viz-map__rings" />
+                  <span className="viz-map__pin">
+                    <span className="viz-map__pin-dot" />
+                    KURTULUŞ CD · 54900
+                  </span>
+                </div>
+              </div>
             </div>
 
-            {/* Cell 4 — Order timeline full width */}
-            <div className="feature-cell feature-cell--full">
-              <div className="feature-cell__body">
-                <span className="feature-cell__eyebrow">
-                  <ClockIcon /> Sipariş zaman çizelgesi
+            <div className="features__row features__row--reverse">
+              <div className="features__copy">
+                <span className="eyebrow">
+                  <span className="eyebrow__num">02</span> Sipariş
                 </span>
-                <p className="feature-cell__title">
-                  Söyle, hazırlayalım, kapına gelelim.{" "}
-                  <span className="mute">Ortalama dört dakika.</span>
+                <h3 className="features__h">
+                  Listeyi yaz, gerisi bize.
+                </h3>
+                <p className="features__p">
+                  WhatsApp&apos;tan ya da telefondan ulaş. Stoktan teyit eder,
+                  eksik olanı sorar, tezgâhtan özenle toplarız.
+                </p>
+                <div>
+                  <a
+                    href={BUSINESS.whatsapp.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn btn--link"
+                  >
+                    WhatsApp&apos;tan başla
+                  </a>
+                </div>
+              </div>
+              <div className="features__visual">
+                <div className="viz-chat" aria-hidden="true">
+                  <div className="viz-chat__msg">
+                    Yarın sabah için ekmek, 2 yoğurt, domates, bir bağ
+                    maydanoz lazım.
+                    <span className="viz-chat__msg-meta">18:42</span>
+                  </div>
+                  <div className="viz-chat__msg viz-chat__msg--mine">
+                    Tabii, 07:35&apos;te kapıda olur. Başka bir şey var mı?
+                    <span className="viz-chat__msg-meta">18:43</span>
+                  </div>
+                  <div className="viz-chat__typing">
+                    <span /><span /><span />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="features__row">
+              <div className="features__copy">
+                <span className="eyebrow">
+                  <span className="eyebrow__num">03</span> Süreç
+                </span>
+                <h3 className="features__h">
+                  Sipariş anından kapıya, dört buçuk dakika.
+                </h3>
+                <p className="features__p">
+                  Ortalama tamamlanma süremiz. Soğuk zincir korunur, hassas
+                  ürünler en sona paketlenir.
                 </p>
               </div>
-              <div className="feature-cell__timeline" aria-hidden="true">
-                <div className="timeline-step">
-                  <span className="timeline-step__time">00:00</span>
-                  <span className="timeline-step__label">Mesajın geldi</span>
-                </div>
-                <div className="timeline-step">
-                  <span className="timeline-step__time">00:45</span>
-                  <span className="timeline-step__label">Tezgâhtan toplanıyor</span>
-                </div>
-                <div className="timeline-step">
-                  <span className="timeline-step__time">02:10</span>
-                  <span className="timeline-step__label">Paketlendi</span>
-                </div>
-                <div className="timeline-step timeline-step--active">
-                  <span className="timeline-step__time">~04:30</span>
-                  <span className="timeline-step__label">Kapında</span>
+              <div className="features__visual">
+                <div className="viz-timeline" aria-hidden="true">
+                  <div className="viz-timeline__row">
+                    <span className="viz-timeline__time mono">00:00</span>
+                    <span className="viz-timeline__label">Mesajın geldi</span>
+                    <span className="viz-timeline__badge">Alındı</span>
+                  </div>
+                  <div className="viz-timeline__row">
+                    <span className="viz-timeline__time mono">00:45</span>
+                    <span className="viz-timeline__label">Tezgâhtan toplanıyor</span>
+                    <span className="viz-timeline__badge">Toplanıyor</span>
+                  </div>
+                  <div className="viz-timeline__row">
+                    <span className="viz-timeline__time mono">02:10</span>
+                    <span className="viz-timeline__label">Paketlendi</span>
+                    <span className="viz-timeline__badge">Hazır</span>
+                  </div>
+                  <div className="viz-timeline__row viz-timeline__row--active">
+                    <span className="viz-timeline__time mono">~04:30</span>
+                    <span className="viz-timeline__label">Kapında</span>
+                    <span className="viz-timeline__badge">Kurye yolda</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -351,207 +429,216 @@ export default function Home() {
         </section>
 
         {/* ===== SERVICES ===== */}
-        <section id="hizmetler" aria-labelledby="services-title">
-          <div className="section__head">
-            <span className="pill-light"><SparkleIcon /> Hizmetler</span>
-            <h2 id="services-title" className="headline-display">
-              Tek bir telefonda, <span className="mute">tezgâhın tamamı.</span>
-            </h2>
-            <p className="section-sub">
-              Bir mahalle bakkalının yapması gereken her şey, biraz daha özenle.
-              Taze ürün, tanıdık yüz, kapına teslim.
-            </p>
-          </div>
+        <section id="hizmetler" className="section section--tight">
+          <div className="container container--wide">
+            <header className="section__head">
+              <span className="eyebrow">
+                <span className="eyebrow__num">02</span> Hizmetler
+              </span>
+              <h2 className="section__title">
+                Bir mahalle bakkalında olması gereken,{" "}
+                <span className="mute">biraz daha özenle.</span>
+              </h2>
+            </header>
 
-          <div className="services">
-            <div className="services__grid">
-              <a href={BUSINESS.whatsapp.href} target="_blank" rel="noopener noreferrer" className="service-card service-card--featured">
-                <BasketIcon />
-                <div>
-                  <h3 className="service-card__title">Söyle, hazırlayalım. Beş dakikada kapına gelelim.</h3>
-                  <p className="service-card__body">
-                    Listeyi WhatsApp&apos;tan ya da telefondan bildir. Mahalle içi teslimat ücretsiz.
-                  </p>
-                </div>
-                <span className="service-card__cta">WhatsApp&apos;tan başla <ArrowUR /></span>
-              </a>
-              <a href={BUSINESS.whatsapp.href} target="_blank" rel="noopener noreferrer" className="service-card service-card--orange">
-                <LeafIcon />
-                <div>
-                  <h3 className="service-card__title">Meyve ve sebze</h3>
-                  <p className="service-card__body">Her sabah halden. Mevsiminde olan, mevsiminde gelir.</p>
-                </div>
-                <span className="service-card__cta">Sor <ArrowUR /></span>
-              </a>
-              <a href={BUSINESS.whatsapp.href} target="_blank" rel="noopener noreferrer" className="service-card service-card--olive">
-                <CheeseIcon />
-                <div>
-                  <h3 className="service-card__title">Şarküteri</h3>
-                  <p className="service-card__body">Peynir, zeytin, sucuk, tereyağ. Kasamızdan tartı ile.</p>
-                </div>
-                <span className="service-card__cta">Sor <ArrowUR /></span>
-              </a>
-              <a href={BUSINESS.whatsapp.href} target="_blank" rel="noopener noreferrer" className="service-card service-card--peach">
-                <BreadIcon />
-                <div>
-                  <h3 className="service-card__title">Ekmek, fırın</h3>
-                  <p className="service-card__body">Sabah sıcak, akşam taze. Günde iki defa yenilenir.</p>
-                </div>
-                <span className="service-card__cta">Sor <ArrowUR /></span>
-              </a>
-              <a href={BUSINESS.whatsapp.href} target="_blank" rel="noopener noreferrer" className="service-card service-card--cream">
-                <MilkIcon />
-                <div>
-                  <h3 className="service-card__title">Süt, yoğurt</h3>
-                  <p className="service-card__body">Günlük süt, ayran, yoğurt. Soğuk zincir korunur.</p>
-                </div>
-                <span className="service-card__cta">Sor <ArrowUR /></span>
-              </a>
-              <a href={BUSINESS.whatsapp.href} target="_blank" rel="noopener noreferrer" className="service-card service-card--mint">
-                <ClockIcon />
-                <div>
-                  <h3 className="service-card__title">07:30&ndash;22:00</h3>
-                  <p className="service-card__body">Haftanın yedi günü açık. Bayram dahil hizmetinizdeyiz.</p>
-                </div>
-                <span className="service-card__cta">Saatler <ArrowUR /></span>
-              </a>
+            <div className="services">
+              {services.map((s) => (
+                <a
+                  key={s.title}
+                  href={BUSINESS.whatsapp.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="service"
+                >
+                  <div className="service__icon">
+                    <s.icon />
+                  </div>
+                  <h3 className="service__title">{s.title}</h3>
+                  <p className="service__body">{s.body}</p>
+                  <span className="service__cta">
+                    Sipariş ver <ArrowRight />
+                  </span>
+                </a>
+              ))}
             </div>
           </div>
         </section>
 
         {/* ===== HOW IT WORKS ===== */}
-        <section className="howto" id="surec" aria-labelledby="howto-title">
-          <div className="section__head">
-            <span className="pill-light"><SparkleIcon /> Süreç</span>
-            <h2 id="howto-title" className="headline-display">
-              Dört adımda <span className="mute">sipariş.</span>
-            </h2>
-            <p className="section-sub">
-              Telefon ya da WhatsApp. Karmaşa yok, randevu yok, uygulama indirmek yok.
-            </p>
-          </div>
-          <div className="howto__steps">
-            <div className="step-card">
-              <span className="step-card__num">1</span>
-              <h3 className="step-card__title">Ürünleri seç</h3>
-              <p className="step-card__body">İhtiyaçlarını listele. Aklına geleni söyle, gerisi bizden.</p>
-            </div>
-            <div className="step-card">
-              <span className="step-card__num">2</span>
-              <h3 className="step-card__title">WhatsApp ya da ara</h3>
-              <p className="step-card__body">{BUSINESS.phone.display} numaramızdan ya da WhatsApp&apos;tan ulaş.</p>
-            </div>
-            <div className="step-card">
-              <span className="step-card__num">3</span>
-              <h3 className="step-card__title">Tezgâhtan toplarız</h3>
-              <p className="step-card__body">Hızlıca paketleriz. Eksik var ise arar, sorarız.</p>
-            </div>
-            <div className="step-card">
-              <span className="step-card__num">4</span>
-              <h3 className="step-card__title">Kapına gelelim</h3>
-              <p className="step-card__body">Ortalama beş dakikada elinde. Mahalle içi ücretsiz.</p>
+        <section id="surec" className="section section--tight">
+          <div className="container container--wide">
+            <header className="section__head">
+              <span className="eyebrow">
+                <span className="eyebrow__num">03</span> Süreç
+              </span>
+              <h2 className="section__title">
+                Dört adımda sipariş.{" "}
+                <span className="mute">Uygulama yok, randevu yok.</span>
+              </h2>
+            </header>
+
+            <div className="howto">
+              {steps.map((step) => (
+                <div key={step.num} className="step">
+                  <span className="step__num mono">{step.num}</span>
+                  <h3 className="step__title">{step.title}</h3>
+                  <p className="step__body">{step.body}</p>
+                </div>
+              ))}
             </div>
           </div>
         </section>
 
         {/* ===== REVIEWS ===== */}
-        <section className="reviews" id="yorumlar" aria-labelledby="reviews-title">
-          <div className="section__head">
-            <span className="pill-light"><GoogleGIcon /> Google Yorumları</span>
-            <h2 id="reviews-title" className="headline-display">
-              Mahallenin <span className="mute">sesi.</span>
-            </h2>
-            <p className="section-sub">
-              Yeni Mahalle&apos;den müşterilerimizin Google Haritalar üzerinden
-              bıraktığı yorumlar.
-            </p>
-            <span className="reviews__stats" aria-label={`${REVIEW_STATS.average} yıldız ortalama, ${REVIEW_STATS.count} yorum`}>
-              <span className="reviews__stats-stars" aria-hidden="true">
-                {Array.from({ length: 5 }).map((_, i) => <StarIcon key={i} />)}
+        <section id="yorumlar" className="section section--tight">
+          <div className="container container--wide">
+            <header className="reviews__head">
+              <div>
+                <span className="eyebrow">
+                  <span className="eyebrow__num">04</span> Yorumlar
+                </span>
+                <h2 className="section__title" style={{ marginTop: 16 }}>
+                  Mahallenin sesi.
+                </h2>
+              </div>
+              <span
+                className="reviews__stat"
+                aria-label={`${REVIEW_STATS.average} yıldız ortalama, ${REVIEW_STATS.count} yorum`}
+              >
+                <span className="reviews__stat-stars" aria-hidden="true">
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <StarIcon key={i} />
+                  ))}
+                </span>
+                <span className="reviews__stat-avg">
+                  {REVIEW_STATS.average.toString().replace(".", ",")}
+                </span>
+                <span className="reviews__stat-count">
+                  · {REVIEW_STATS.count} Google yorumu
+                </span>
               </span>
-              <span className="reviews__stats-avg">{REVIEW_STATS.average.toString().replace(".", ",")}</span>
-              <span className="reviews__stats-count">· {REVIEW_STATS.count} yorum</span>
-            </span>
-          </div>
+            </header>
 
-          <ReviewsRail />
+            <ReviewsRail />
 
-          <div className="reviews__more">
-            <a href={BUSINESS.googleReviewsUrl} target="_blank" rel="noopener noreferrer" className="btn-ghost-pill">
-              Tüm yorumları Google&apos;da gör
-            </a>
+            <div className="reviews__more">
+              <a
+                href={BUSINESS.googleReviewsUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn btn--ghost"
+              >
+                Tüm yorumları Google&apos;da gör <ArrowUR />
+              </a>
+            </div>
           </div>
         </section>
 
         {/* ===== CTA ===== */}
-        <section className="cta" aria-labelledby="cta-title">
-          <div className="cta__frame">
-            <h2 id="cta-title" className="cta__title">
-              <span>Bugün ne lazımsa,</span>
-              <em>bir telefon kadar uzakta.</em>
-            </h2>
-            <p className="cta__sub">
-              Mahalle içindeysen ortalama beş dakikada elindeyiz. Söyle, kapına getirelim.
-            </p>
-            <a href={BUSINESS.whatsapp.href} target="_blank" rel="noopener noreferrer" className="cta__btn">
-              WhatsApp&apos;tan sipariş ver
-              <span className="pill-cta__arrow" aria-hidden="true"><ArrowRight /></span>
-            </a>
+        <section className="cta">
+          <div className="container">
+            <div className="cta__inner">
+              <span className="cta__eyebrow">Hazırsan</span>
+              <h2 className="cta__title">
+                Bugün ne lazımsa, bir telefon kadar uzakta.
+              </h2>
+              <p className="cta__sub">
+                Mahalle içindeysen ortalama beş dakikada elindeyiz. Söyle,
+                kapına getirelim.
+              </p>
+              <a
+                href={BUSINESS.whatsapp.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="cta__btn"
+              >
+                WhatsApp&apos;tan sipariş ver <ArrowUR />
+              </a>
+            </div>
           </div>
         </section>
       </main>
 
       {/* ===== FOOTER ===== */}
       <footer className="footer" id="iletisim">
-        <div className="footer__grid">
-          <div className="footer__brand-block">
-            <a href="#top" className="brand brand--footer" aria-label={BUSINESS.name}>
-              <span className="brand__name">
-                Yeni Mahalle <em>Market</em>
-                <span className="brand__loc" aria-hidden="true">Sapanca · 54</span>
-              </span>
-            </a>
-            <p className="footer__desc">{BUSINESS.shortDescription}</p>
-          </div>
-          <nav className="footer__col" aria-label="Bağlantılar">
-            <h4>Bağlantılar</h4>
-            <ul>
-              <li><a href="#top">Anasayfa</a></li>
-              <li><a href="#hizmetler">Hizmetler</a></li>
-              <li><a href="#surec">Süreç</a></li>
-              <li><a href="#yorumlar">Yorumlar</a></li>
-            </ul>
-          </nav>
-          <div className="footer__col">
-            <h4>İletişim</h4>
-            <p>{BUSINESS.address.full}</p>
-            <a href={BUSINESS.phone.href}>{BUSINESS.phone.display}</a>
-            <a href={BUSINESS.whatsapp.href} target="_blank" rel="noopener noreferrer">WhatsApp</a>
-          </div>
-          <div className="footer__col">
-            <h4>Hızlı sipariş</h4>
-            <p className="footer__cta-text">Listeni gönder, kapına getirelim. Mahalle içi ortalama beş dakika.</p>
-            <a href={BUSINESS.whatsapp.href} target="_blank" rel="noopener noreferrer" className="footer__cta-btn">
-              WhatsApp&apos;tan sipariş ver
-            </a>
-            <div className="footer__socials">
-              <a href={BUSINESS.instagram.href} target="_blank" rel="noopener noreferrer" aria-label={`Instagram ${BUSINESS.instagram.handle}`}>
-                <InstagramIcon />
+        <div className="container container--wide">
+          <div className="footer__grid">
+            <div className="footer__brand-block">
+              <a href="#top" className="brand" aria-label={BUSINESS.name}>
+                <span className="brand__mono">
+                  yenimahalle<em>.market</em>
+                  <span className="slash">/</span>
+                  sapanca
+                </span>
               </a>
-              <a href={BUSINESS.whatsapp.href} target="_blank" rel="noopener noreferrer" aria-label="WhatsApp">
-                <WhatsAppIcon />
-              </a>
-              <a href={BUSINESS.phone.href} aria-label="Telefon">
-                <PhoneIcon />
-              </a>
-              <a href={BUSINESS.googleMapsDirectionsUrl} target="_blank" rel="noopener noreferrer" aria-label="Yol tarifi">
-                <MapPinIcon />
-              </a>
+              <p className="footer__desc">{BUSINESS.shortDescription}</p>
+              <div className="footer__socials">
+                <a
+                  href={BUSINESS.instagram.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`Instagram ${BUSINESS.instagram.handle}`}
+                >
+                  <InstagramIcon />
+                </a>
+                <a
+                  href={BUSINESS.whatsapp.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="WhatsApp"
+                >
+                  <WhatsAppIcon />
+                </a>
+                <a href={BUSINESS.phone.href} aria-label="Telefon">
+                  <PhoneIcon />
+                </a>
+                <a
+                  href={BUSINESS.googleMapsDirectionsUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Yol tarifi"
+                >
+                  <MapPinIcon />
+                </a>
+              </div>
+            </div>
+            <div className="footer__col">
+              <h4>Site</h4>
+              <ul>
+                <li><a href="#top">Anasayfa</a></li>
+                <li><a href="#hizmetler">Hizmetler</a></li>
+                <li><a href="#surec">Süreç</a></li>
+                <li><a href="#yorumlar">Yorumlar</a></li>
+              </ul>
+            </div>
+            <div className="footer__col">
+              <h4>İletişim</h4>
+              <ul>
+                <li><p>{BUSINESS.address.full}</p></li>
+                <li><a href={BUSINESS.phone.href}>{BUSINESS.phone.display}</a></li>
+                <li>
+                  <a
+                    href={BUSINESS.whatsapp.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    WhatsApp
+                  </a>
+                </li>
+              </ul>
+            </div>
+            <div className="footer__col">
+              <h4>Saatler</h4>
+              <ul>
+                <li><p>Pzt–Paz · 07:30–22:00</p></li>
+                <li><p>Bayram dahil her gün açık</p></li>
+              </ul>
             </div>
           </div>
-        </div>
-        <div className="footer__bottom">
-          © {new Date().getFullYear()} {BUSINESS.name}. Tüm hakları saklıdır.
+          <div className="footer__bottom">
+            <span>© {new Date().getFullYear()} {BUSINESS.name}</span>
+            <span>Sapanca · Sakarya · TR-54</span>
+          </div>
         </div>
       </footer>
     </>

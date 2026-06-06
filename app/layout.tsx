@@ -1,19 +1,20 @@
 import type { Metadata, Viewport } from "next";
-import { Fraunces } from "next/font/google";
+import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { BUSINESS, buildLocalBusinessJsonLd } from "@/lib/business";
 import WhatsAppFab from "@/components/WhatsAppFab";
 
-// Display serif (h1, h2 büyük başlıklar) — Fraunces, variable optik boyut destekli.
-const fraunces = Fraunces({
-  variable: "--font-display",
+const geist = Geist({
+  variable: "--font-geist",
   subsets: ["latin", "latin-ext"],
-  axes: ["opsz", "SOFT"],
-  style: ["normal", "italic"],
   display: "swap",
 });
 
-// Body sans — General Sans, Fontshare üzerinden link tag ile yüklenir (next/font Fontshare desteklemiyor).
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono",
+  subsets: ["latin", "latin-ext"],
+  display: "swap",
+});
 
 export const viewport: Viewport = {
   themeColor: "#ffffff",
@@ -45,9 +46,7 @@ export const metadata: Metadata = {
   creator: BUSINESS.name,
   publisher: BUSINESS.name,
   category: "Local Business",
-  alternates: {
-    canonical: "/",
-  },
+  alternates: { canonical: "/" },
   openGraph: {
     type: "website",
     locale: "tr_TR",
@@ -72,10 +71,6 @@ export const metadata: Metadata = {
       "max-video-preview": -1,
     },
   },
-  verification: {
-    // Google Search Console doğrulaması yapıldığında token'ı buraya:
-    // google: "verification-token",
-  },
   other: {
     "geo.region": "TR-54",
     "geo.placename": "Sapanca",
@@ -92,18 +87,7 @@ export default function RootLayout({
   const jsonLd = buildLocalBusinessJsonLd();
 
   return (
-    <html lang="tr" className={fraunces.variable}>
-      <head>
-        <link
-          rel="preconnect"
-          href="https://api.fontshare.com"
-          crossOrigin="anonymous"
-        />
-        <link
-          rel="stylesheet"
-          href="https://api.fontshare.com/v2/css?f[]=general-sans@200,300,400,500,600,700&display=swap"
-        />
-      </head>
+    <html lang="tr" className={`${geist.variable} ${geistMono.variable}`}>
       <body>
         <script
           type="application/ld+json"
