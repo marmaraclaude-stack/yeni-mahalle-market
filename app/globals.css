@@ -26,7 +26,8 @@
      fallback ile kullaniyoruz. */
   --font-mono: ui-monospace, "SF Mono", Menlo, monospace;
 
-  --container: 1280px;
+  --container: 1400px;
+  --max-text: 1400px;
   --gutter: clamp(20px, 4vw, 40px);
   --section-y: 120px;
 
@@ -784,7 +785,7 @@ p { margin: 0; }
   background: var(--white);
 }
 .features__grid {
-  max-width: 1100px;
+  max-width: var(--container);
   margin: 0 auto;
   padding-inline: var(--gutter);
   display: grid;
