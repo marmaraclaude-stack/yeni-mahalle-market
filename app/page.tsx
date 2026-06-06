@@ -163,7 +163,7 @@ export default function Home() {
     <>
       {/* ===== NAV ===== */}
       <div className="nav-shell">
-        <div className="container container--wide">
+        <div className="container">
           <header className="nav" aria-label="Üst menü">
             <a href="#top" className="brand" aria-label={BUSINESS.name}>
               <span className="brand__mono">
@@ -260,7 +260,7 @@ export default function Home() {
 
         {/* ===== FEATURES — Apple-style split rows ===== */}
         <section className="section" aria-label="Öne çıkanlar">
-          <div className="container container--wide">
+          <div className="container">
             <header className="section__head section__head--center">
               <h2 className="section__title">
                 Yakındayız.{" "}
@@ -393,7 +393,7 @@ export default function Home() {
 
         {/* ===== SERVICES ===== */}
         <section id="hizmetler" className="section section--tight">
-          <div className="container container--wide">
+          <div className="container">
             <header className="section__head">
               <h2 className="section__title">
                 Bir mahalle bakkalında olması gereken,{" "}
@@ -426,7 +426,7 @@ export default function Home() {
 
         {/* ===== HOW IT WORKS ===== */}
         <section id="surec" className="section section--tight">
-          <div className="container container--wide">
+          <div className="container">
             <header className="section__head">
               <h2 className="section__title">
                 Dört adımda sipariş.{" "}
@@ -447,7 +447,7 @@ export default function Home() {
 
         {/* ===== REVIEWS ===== */}
         <section id="yorumlar" className="section section--tight">
-          <div className="container container--wide">
+          <div className="container">
             <header className="section__head">
               <h2 className="section__title">
                 Müşterilerimizden gelen yorumlar.
@@ -499,7 +499,7 @@ export default function Home() {
 
       {/* ===== FOOTER ===== */}
       <footer className="footer" id="iletisim">
-        <div className="container container--wide">
+        <div className="container">
           <div className="footer__grid">
             <div className="footer__brand-block">
               <a href="#top" className="brand" aria-label={BUSINESS.name}>

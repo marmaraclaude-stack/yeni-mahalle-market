@@ -31,9 +31,11 @@
   --font-mono: var(--font-sans);
 
   /* Layout */
-  --container: 1240px;
-  --container-wide: 1440px;
-  --gutter: clamp(20px, 4vw, 48px);
+  /* Layout — tek standart genişlik. Tüm bölümler aynı container'ı kullanır. */
+  --container: 1200px;
+  --gutter: clamp(20px, 5vw, 56px);
+  --measure: 58ch;       /* paragraf okuma genişliği */
+  --measure-narrow: 46ch;/* dar kolon paragrafı */
 
   /* Radii */
   --r-pill: 999px;
@@ -84,12 +86,12 @@ p { margin: 0; }
    PRIMITIVES
    ============================================================ */
 .container {
-  max-width: var(--container);
+  width: 100%;
+  /* --container = net içerik genişliği; gutter onun dışına eklenir.
+     Böylece masaüstünde içerik tam --container kadar olur. */
+  max-width: calc(var(--container) + var(--gutter) * 2);
   margin-inline: auto;
   padding-inline: var(--gutter);
-}
-.container--wide {
-  max-width: var(--container-wide);
 }
 
 .mono {
@@ -317,7 +319,7 @@ p { margin: 0; }
   font-size: var(--t-lead);
   line-height: 1.45;
   color: var(--gray-700);
-  max-width: 52ch;
+  max-width: var(--measure);
   margin: 0 auto;
 }
 .hero__ctas {
@@ -416,8 +418,9 @@ p { margin: 0; }
   font-size: var(--t-lead);
   line-height: 1.5;
   color: var(--gray-500);
-  max-width: 60ch;
+  max-width: var(--measure);
 }
+.section__head--center .section__sub { margin-inline: auto; }
 
 /* ============================================================
    FEATURES — Apple-style split
@@ -453,7 +456,7 @@ p { margin: 0; }
   font-size: 16.5px;
   line-height: 1.55;
   color: var(--gray-500);
-  max-width: 46ch;
+  max-width: var(--measure-narrow);
 }
 .features__visual {
   position: relative;
@@ -734,14 +737,15 @@ p { margin: 0; }
   overflow-x: auto;
   scroll-snap-type: x mandatory;
   scrollbar-width: none;
-  padding-inline: max(var(--gutter), calc((100vw - var(--container-wide)) / 2));
-  margin-inline: calc(-1 * var(--gutter));
   padding-block: 4px;
+  /* sağ kenarda kart kesilmesi yerine nefes payı */
+  scroll-padding-left: 0;
 }
 .reviews__rail::-webkit-scrollbar { display: none; }
 .review {
-  flex: 0 0 calc((min(100vw, var(--container-wide)) - var(--gutter) * 2 - 16px * 3) / 4);
-  min-width: 270px;
+  /* container içeriği = %100. Tam 4 kart görünür, 5.si kenardan sızar. */
+  flex: 0 0 calc((100% - 92px) / 4);
+  min-width: 260px;
   max-width: 360px;
   background: var(--white);
   border: 1px solid var(--gray-200);
@@ -895,7 +899,7 @@ p { margin: 0; }
   font-size: var(--t-lead);
   line-height: 1.5;
   color: var(--gray-400);
-  max-width: 52ch;
+  max-width: var(--measure);
 }
 .cta__btn {
   display: inline-flex;
