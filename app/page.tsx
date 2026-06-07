@@ -1,5 +1,6 @@
 import { BUSINESS } from "@/lib/business";
 import ReviewsRail from "@/components/ReviewsRail";
+import StatusIndicator from "@/components/StatusIndicator";
 
 /* ============================================================
    ICONS
@@ -198,14 +199,7 @@ export default function Home() {
         <section className="hero" aria-labelledby="hero-title">
           <div className="container">
             <div className="hero__inner">
-              <div className="status-line" aria-label="Şu an açık, sipariş alıyoruz">
-                <span className="status-line__rail" aria-hidden="true">
-                  <span className="status-line__pulse" />
-                </span>
-                <span className="status-line__text">
-                  Şu an sipariş alıyoruz
-                </span>
-              </div>
+              <StatusIndicator />
 
               <h1 id="hero-title" className="hero__title">
                 Mahallenin bakkalı,{" "}
@@ -257,7 +251,7 @@ export default function Home() {
         {/* ===== FEATURES — Apple-style split rows ===== */}
         <section className="section" aria-label="Öne çıkanlar">
           <div className="container">
-            <header className="section__head">
+            <header className="section__head section__head--center">
               <h2 className="section__title">
                 Yakındayız.{" "}
                 <span className="mute">Söyle, kapına getirelim.</span>
@@ -390,7 +384,7 @@ export default function Home() {
         {/* ===== SERVICES ===== */}
         <section id="hizmetler" className="section section--tight">
           <div className="container">
-            <header className="section__head">
+            <header className="section__head section__head--center">
               <h2 className="section__title">
                 Bir mahalle bakkalında olması gereken,{" "}
                 <span className="mute">biraz daha özenle.</span>
@@ -423,7 +417,7 @@ export default function Home() {
         {/* ===== HOW IT WORKS ===== */}
         <section id="surec" className="section section--tight">
           <div className="container">
-            <header className="section__head">
+            <header className="section__head section__head--center">
               <h2 className="section__title">
                 Dört adımda sipariş.{" "}
                 <span className="mute">Uygulama yok, randevu yok.</span>
@@ -444,7 +438,7 @@ export default function Home() {
         {/* ===== REVIEWS ===== */}
         <section id="yorumlar" className="section section--tight">
           <div className="container">
-            <header className="section__head">
+            <header className="section__head section__head--center">
               <h2 className="section__title">
                 Müşterilerimizden gelen yorumlar.
               </h2>

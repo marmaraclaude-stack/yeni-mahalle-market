@@ -156,48 +156,44 @@ p { margin: 0; }
   color: var(--accent);
 }
 
-/* Hero status line — pill chrome'u yok. Hareketli ince ray + tek satır metin */
-.status-line {
+/* Hero status — zamana duyarlı. Açık: yeşil canlı nokta; kapalı: gri nokta. */
+.status {
   display: inline-flex;
   align-items: center;
-  gap: 12px;
-  padding: 0;
-}
-.status-line__rail {
-  position: relative;
-  display: inline-block;
-  width: 64px;
-  height: 2px;
-  border-radius: 999px;
-  background: var(--gray-200);
-  overflow: hidden;
-}
-.status-line__pulse {
-  position: absolute;
-  inset: 0;
-  width: 24px;
-  border-radius: inherit;
-  background: linear-gradient(90deg, transparent, var(--green) 50%, transparent);
-  animation: railScan 2.4s var(--ease) infinite;
-}
-.status-line__text {
+  gap: 10px;
   font-size: 13.5px;
-  font-weight: 500;
-  letter-spacing: -0.005em;
-  color: var(--ink);
   line-height: 1;
 }
-@keyframes railScan {
-  0%   { transform: translateX(-100%); }
-  100% { transform: translateX(264%); }
+.status__dot {
+  position: relative;
+  width: 9px; height: 9px; border-radius: 50%;
+  background: var(--gray-400);
+  flex-shrink: 0;
+}
+.status--open .status__dot {
+  background: var(--green);
+}
+.status--open .status__dot::after {
+  content: "";
+  position: absolute; inset: 0;
+  border-radius: 50%;
+  background: var(--green);
+  animation: statusPing 1.8s var(--ease) infinite;
+}
+.status--closed .status__dot { background: #d14343; }
+.status__label {
+  font-weight: 600;
+  color: var(--ink);
+}
+.status__sep { width: 4px; height: 4px; border-radius: 50%; background: var(--gray-300); }
+.status__detail { color: var(--gray-500); }
+@keyframes statusPing {
+  0%   { transform: scale(1); opacity: 0.6; }
+  70%  { transform: scale(2.6); opacity: 0; }
+  100% { transform: scale(2.6); opacity: 0; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .status-line__pulse {
-    animation: none;
-    width: 100%;
-    background: var(--green);
-    opacity: 0.55;
-  }
+  .status--open .status__dot::after { animation: none; }
 }
 @keyframes pulse {
   0%   { box-shadow: 0 0 0 0 rgba(255, 90, 31, 0.45); }
@@ -404,12 +400,15 @@ p { margin: 0; }
   color: var(--gray-300);
 }
 .section__head {
-  /* Tam genişlik: başlık container'ı baştan sona kullanır,
-     alt metin kendi okuma ölçüsünde dar kalır. */
   margin-bottom: var(--head-gap);
   display: flex;
   flex-direction: column;
   gap: 16px;
+}
+/* Split olmayan bölüm başlıkları: ortalı + tam genişlik */
+.section__head--center {
+  text-align: center;
+  align-items: center;
 }
 .section__title {
   font-family: var(--font-display);
@@ -436,15 +435,15 @@ p { margin: 0; }
 .features__row {
   display: grid;
   grid-template-columns: 1fr;
-  gap: clamp(28px, 4vw, 56px);
+  gap: clamp(28px, 4vw, 40px);
   align-items: center;
   padding-block: clamp(40px, 5vw, 64px);
   border-top: 1px solid var(--gray-200);
 }
 .features__row:last-child { border-bottom: 1px solid var(--gray-200); }
 @media (min-width: 880px) {
-  .features__row { grid-template-columns: 5fr 7fr; }
-  .features__row--reverse { grid-template-columns: 7fr 5fr; }
+  /* %45 içerik · %10 boşluk · %45 içerik */
+  .features__row { grid-template-columns: 45% 45%; gap: 10%; }
   .features__row--reverse .features__copy { order: 2; }
 }
 .features__copy {
@@ -465,7 +464,6 @@ p { margin: 0; }
   font-size: 16.5px;
   line-height: 1.55;
   color: var(--gray-500);
-  max-width: var(--measure-narrow);
   text-wrap: pretty;
 }
 .features__visual {
@@ -750,15 +748,12 @@ p { margin: 0; }
   scroll-snap-type: x mandatory;
   scrollbar-width: none;
   padding-block: 4px;
-  /* sağ kenarda kart kesilmesi yerine nefes payı */
-  scroll-padding-left: 0;
 }
 .reviews__rail::-webkit-scrollbar { display: none; }
 .review {
-  /* container içeriği = %100. Tam 4 kart görünür, 5.si kenardan sızar. */
-  flex: 0 0 calc((100% - 92px) / 4);
+  /* container içeriği = %100. Tam 4 kart görünür, gerisi kaydırmalı. */
+  flex: 0 0 calc((100% - 3 * 16px) / 4);
   min-width: 260px;
-  max-width: 360px;
   background: var(--white);
   border: 1px solid var(--gray-200);
   border-radius: var(--r-lg);
@@ -768,11 +763,7 @@ p { margin: 0; }
   color: var(--ink);
   transition: border-color 180ms var(--ease), transform 180ms var(--ease), box-shadow 180ms var(--ease);
 }
-.review:hover {
-  border-color: var(--gray-300);
-  transform: translateY(-2px);
-  box-shadow: 0 16px 36px -22px rgba(16,16,16,0.18);
-}
+.review:hover { border-color: var(--gray-300); }
 .review__top { display: flex; align-items: center; gap: 12px; }
 .review__avatar {
   width: 38px; height: 38px;
@@ -800,8 +791,7 @@ p { margin: 0; }
 .review__text {
   font-size: 14px; line-height: 1.55;
   color: var(--gray-700); margin: 0;
-  display: -webkit-box; -webkit-line-clamp: 4;
-  -webkit-box-orient: vertical; overflow: hidden;
+  text-wrap: pretty;
 }
 .review__source {
   margin-top: auto;

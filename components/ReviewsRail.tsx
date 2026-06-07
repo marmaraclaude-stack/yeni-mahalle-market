@@ -2,7 +2,14 @@
 
 import { useRef, useState, useEffect } from "react";
 import { REVIEWS } from "@/lib/reviews";
-import { BUSINESS } from "@/lib/business";
+
+/** Yorumu kelime sınırında temiz kes; ortada saçma kesilmesin. */
+function clip(text: string, max = 150) {
+  if (text.length <= max) return text;
+  const cut = text.slice(0, max);
+  const lastSpace = cut.lastIndexOf(" ");
+  return cut.slice(0, lastSpace > 0 ? lastSpace : max).replace(/[.,;:!?\s]+$/, "") + "…";
+}
 
 function StarIcon() {
   return (
@@ -42,11 +49,12 @@ export default function ReviewsRail() {
   const [canPrev, setCanPrev] = useState(false);
   const [canNext, setCanNext] = useState(true);
 
-  const scrollBy = (dir: 1 | -1) => {
+  const scrollByCards = (dir: 1 | -1) => {
     const el = railRef.current;
     if (!el) return;
-    const cardWidth = el.querySelector(".review")?.clientWidth ?? 360;
-    el.scrollBy({ left: dir * (cardWidth + 18), behavior: "smooth" });
+    const card = el.querySelector(".review");
+    const cardWidth = card ? card.clientWidth : 348;
+    el.scrollBy({ left: dir * (cardWidth + 16), behavior: "smooth" });
   };
 
   useEffect(() => {
@@ -72,13 +80,7 @@ export default function ReviewsRail() {
     <>
       <div ref={railRef} className="reviews__rail" role="region" aria-label="Müşteri yorumları">
         {REVIEWS.map((r) => (
-          <a
-            key={r.name}
-            className="review"
-            href={BUSINESS.googleReviewsUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
+          <article key={r.name} className="review">
             <div className="review__top">
               <span className="review__avatar" aria-hidden="true">{r.initial}</span>
               <div className="review__who">
@@ -89,12 +91,12 @@ export default function ReviewsRail() {
             <div className="review__stars" aria-label={`${r.rating} yıldız`}>
               {Array.from({ length: r.rating }).map((_, i) => <StarIcon key={i} />)}
             </div>
-            <p className="review__text">{r.text}</p>
+            <p className="review__text">{clip(r.text)}</p>
             <div className="review__source">
               <GoogleGIcon />
               <span>Google&apos;dan</span>
             </div>
-          </a>
+          </article>
         ))}
       </div>
 
@@ -103,7 +105,7 @@ export default function ReviewsRail() {
           type="button"
           className="rail-arrow"
           aria-label="Önceki"
-          onClick={() => scrollBy(-1)}
+          onClick={() => scrollByCards(-1)}
           disabled={!canPrev}
         >
           <ChevronLeft />
@@ -115,7 +117,7 @@ export default function ReviewsRail() {
           type="button"
           className="rail-arrow"
           aria-label="Sonraki"
-          onClick={() => scrollBy(1)}
+          onClick={() => scrollByCards(1)}
           disabled={!canNext}
         >
           <ChevronRight />
