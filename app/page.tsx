@@ -423,24 +423,49 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ===== CTA ===== */}
+        {/* ===== CTA — command center ===== */}
         <section className="cta">
           <div className="container">
-            <div className="cta__inner">
+            <div className="cta__head">
               <h2 className="cta__title">
-                Bugün ne lazımsa, bir telefon kadar uzakta.
+                Bir mesaj <em>uzaktayız.</em>
               </h2>
               <p className="cta__sub">
-                Listeyi yaz, gerisini bize bırak. Mahalle içi teslimat
-                ücretsiz.
+                Listeyi yaz, kapına gelelim. Mahalle içi teslimat ücretsiz.
               </p>
+            </div>
+
+            <div className="cta__grid">
               <a
                 href={BUSINESS.whatsapp.href}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="cta__btn"
+                className="cta-card cta-card--primary"
               >
-                WhatsApp&apos;tan sipariş ver <ArrowUR />
+                <span className="cta-card__icon"><WhatsAppIcon /></span>
+                <span className="cta-card__eyebrow">WhatsApp</span>
+                <span className="cta-card__title">Sipariş ver</span>
+                <span className="cta-card__detail">Mesajla, gerisi bize</span>
+                <span className="cta-card__arrow" aria-hidden="true"><ArrowUR /></span>
+              </a>
+              <a href={BUSINESS.phone.href} className="cta-card">
+                <span className="cta-card__icon"><PhoneIcon /></span>
+                <span className="cta-card__eyebrow">Telefon</span>
+                <span className="cta-card__title">{BUSINESS.phone.display}</span>
+                <span className="cta-card__detail">Arayıp söyleyebilirsin</span>
+                <span className="cta-card__arrow" aria-hidden="true"><ArrowUR /></span>
+              </a>
+              <a
+                href={BUSINESS.googleMapsDirectionsUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="cta-card"
+              >
+                <span className="cta-card__icon"><MapPinIcon /></span>
+                <span className="cta-card__eyebrow">Yol tarifi</span>
+                <span className="cta-card__title">Kurtuluş Cad.</span>
+                <span className="cta-card__detail">Sapanca · Yeni Mahalle</span>
+                <span className="cta-card__arrow" aria-hidden="true"><ArrowUR /></span>
               </a>
             </div>
           </div>
