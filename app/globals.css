@@ -57,11 +57,11 @@
   --t-mega: clamp(72px, 12vw, 180px);
 
   /* Section rhythm */
-  /* Tek standart bölüm dikey padding'i. Tüm bölümler bunu kullanır. */
-  --section-y: clamp(56px, 6vw, 88px);
+  /* Tek standart dikey boşluk. Tüm bölümler (hero/section/cta/footer)
+     padding-top + padding-bottom için bunu kullanır. */
+  --section-y: clamp(40px, 4.5vw, 64px);
   --section-y-sm: var(--section-y);
-  /* Bölüm başlığı ile içerik arası standart boşluk */
-  --head-gap: clamp(28px, 3.5vw, 48px);
+  --head-gap: clamp(24px, 3vw, 40px);
 }
 
 * { box-sizing: border-box; }
@@ -272,7 +272,7 @@ p { margin: 0; }
    HERO
    ============================================================ */
 .hero {
-  padding: clamp(48px, 6vw, 88px) 0 var(--section-y);
+  padding-block: var(--section-y);
   position: relative;
   overflow: hidden;
 }
@@ -305,7 +305,7 @@ p { margin: 0; }
   flex-direction: column;
   align-items: center;
   text-align: center;
-  gap: clamp(20px, 2.4vw, 32px);
+  gap: clamp(16px, 2vw, 24px);
 }
 .hero__title {
   font-family: var(--font-display);
@@ -342,7 +342,7 @@ p { margin: 0; }
 
 /* Stats strip below hero */
 .hero__stats {
-  margin-top: clamp(40px, 5vw, 64px);
+  margin-top: var(--section-y);
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 0;
@@ -437,11 +437,12 @@ p { margin: 0; }
 .features__row {
   display: grid;
   grid-template-columns: 1fr;
-  gap: clamp(28px, 4vw, 40px);
+  gap: clamp(24px, 3vw, 36px);
   align-items: stretch;
-  padding-block: clamp(28px, 3.5vw, 48px);
+  padding-block: calc(var(--section-y) / 2);
 }
-.features__row + .features__row { padding-top: clamp(28px, 3.5vw, 48px); }
+.features__row:first-child { padding-top: 0; }
+.features__row:last-child { padding-bottom: 0; }
 @media (min-width: 880px) {
   /* %45 içerik · %10 boşluk · %45 içerik */
   .features__row { grid-template-columns: 45% 45%; gap: 10%; }
@@ -931,7 +932,7 @@ p { margin: 0; }
    FOOTER
    ============================================================ */
 .footer {
-  padding: clamp(64px, 8vw, 112px) 0 32px;
+  padding: var(--section-y) 0 24px;
   background: var(--white);
   border-top: 1px solid var(--gray-200);
 }
@@ -991,8 +992,8 @@ p { margin: 0; }
 .footer__socials a:hover { background: var(--gray-100); border-color: var(--gray-300); }
 .footer__socials svg { width: 15px; height: 15px; }
 .footer__bottom {
-  margin-top: 56px;
-  padding-top: 24px;
+  margin-top: var(--section-y);
+  padding-top: 20px;
   border-top: 1px solid var(--gray-200);
   display: flex;
   justify-content: space-between;
@@ -1054,8 +1055,6 @@ p { margin: 0; }
    MOBILE
    ============================================================ */
 @media (max-width: 720px) {
-  .hero { padding-top: 40px; }
-  .hero__stats { margin-top: 36px; }
   .review {
     flex: 0 0 84vw;
     min-width: 0;
