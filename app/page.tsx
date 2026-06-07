@@ -251,17 +251,6 @@ export default function Home() {
         {/* ===== FEATURES — Apple-style split rows ===== */}
         <section className="section" aria-label="Öne çıkanlar">
           <div className="container">
-            <header className="section__head section__head--center">
-              <h2 className="section__title">
-                Yakındayız.{" "}
-                <span className="mute">Söyle, kapına getirelim.</span>
-              </h2>
-              <p className="section__sub">
-                Sapanca&apos;da Yeni Mahalle&apos;nin merkezindeyiz. Sipariş
-                geldiği anda hazırlanır, kapına gelir.
-              </p>
-            </header>
-
             <div className="features__row">
               <div className="features__copy">
                 <h3 className="features__h">
