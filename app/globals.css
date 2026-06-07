@@ -353,7 +353,9 @@ p { margin: 0; }
   padding: 28px clamp(16px, 2vw, 32px);
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  align-items: center;
+  text-align: center;
+  gap: 8px;
   position: relative;
 }
 .hero__stat + .hero__stat::before {
@@ -436,11 +438,10 @@ p { margin: 0; }
   display: grid;
   grid-template-columns: 1fr;
   gap: clamp(28px, 4vw, 40px);
-  align-items: center;
-  padding-block: clamp(40px, 5vw, 64px);
-  border-top: 1px solid var(--gray-200);
+  align-items: stretch;
+  padding-block: clamp(28px, 3.5vw, 48px);
 }
-.features__row:last-child { border-bottom: 1px solid var(--gray-200); }
+.features__row + .features__row { padding-top: clamp(28px, 3.5vw, 48px); }
 @media (min-width: 880px) {
   /* %45 içerik · %10 boşluk · %45 içerik */
   .features__row { grid-template-columns: 45% 45%; gap: 10%; }
@@ -449,7 +450,8 @@ p { margin: 0; }
 .features__copy {
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 16px;
+  align-self: center;
 }
 .features__h {
   font-family: var(--font-display);
@@ -468,14 +470,18 @@ p { margin: 0; }
 }
 .features__visual {
   position: relative;
-  border-radius: var(--r-xl);
-  background: var(--gray-50);
+  border-radius: var(--r-lg);
+  background: var(--white);
   border: 1px solid var(--gray-200);
   overflow: hidden;
-  min-height: 360px;
+  min-height: 380px;
   display: flex;
   align-items: center;
   justify-content: center;
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.9) inset,
+    0 24px 48px -28px rgba(16,16,16,0.18),
+    0 8px 16px -10px rgba(16,16,16,0.08);
 }
 
 /* Map — gerçek Google Maps embed */
@@ -533,6 +539,7 @@ p { margin: 0; }
   width: 100%;
   padding: clamp(28px, 4vw, 48px);
   display: flex; flex-direction: column; gap: 12px;
+  background: var(--gray-50);
 }
 .viz-chat__msg {
   max-width: 78%;
