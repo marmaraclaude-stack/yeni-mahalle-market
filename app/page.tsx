@@ -114,7 +114,6 @@ function MilkIcon() {
    ============================================================ */
 const navLinks = [
   { label: "Hizmetler", href: "#hizmetler" },
-  { label: "Süreç", href: "#surec" },
   { label: "Yorumlar", href: "#yorumlar" },
   { label: "İletişim", href: "#iletisim" },
 ];
@@ -150,13 +149,6 @@ const services = [
     title: "Açık · 7 gün",
     body: "07:30 ile 22:30 arası açığız. Bayram, resmi tatil dahil her gün hizmetinizdeyiz.",
   },
-];
-
-const steps = [
-  { title: "Listeni yaz", body: "İhtiyaçlarını WhatsApp üzerinden mesaj olarak gönder." },
-  { title: "Onaylayalım", body: "Stoktan teyitlerini yapıp eksik olan varsa alternatifini sorarız." },
-  { title: "Siparişin hazırlanır", body: "Tezgâhtan toplar, soğuk zincire dikkat eder, özenle paketleriz." },
-  { title: "Siparişin kapına gelir", body: "Mahalle içi ortalama yarım saat içinde siparişin elinde olur." },
 ];
 
 export default function Home() {
@@ -403,27 +395,6 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ===== HOW IT WORKS ===== */}
-        <section id="surec" className="section section--tight">
-          <div className="container">
-            <header className="section__head section__head--center">
-              <h2 className="section__title">
-                Dört adımda sipariş.{" "}
-                <span className="mute">Uygulama yok, randevu yok.</span>
-              </h2>
-            </header>
-
-            <div className="howto">
-              {steps.map((step) => (
-                <div key={step.title} className="step">
-                  <h3 className="step__title">{step.title}</h3>
-                  <p className="step__body">{step.body}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
         {/* ===== REVIEWS ===== */}
         <section id="yorumlar" className="section section--tight">
           <div className="container">
@@ -524,7 +495,6 @@ export default function Home() {
               <ul>
                 <li><a href="#top">Anasayfa</a></li>
                 <li><a href="#hizmetler">Hizmetler</a></li>
-                <li><a href="#surec">Süreç</a></li>
                 <li><a href="#yorumlar">Yorumlar</a></li>
               </ul>
             </div>
