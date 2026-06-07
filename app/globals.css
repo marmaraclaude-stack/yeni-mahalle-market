@@ -854,15 +854,11 @@ p { margin: 0; }
   gap: clamp(32px, 4vw, 56px);
 }
 
-/* Sol-üstte oturan büyük editorial başlık + altta açıklama */
+/* Ortalı editorial başlık */
 .cta__head {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 16px;
-  align-items: end;
-}
-@media (min-width: 880px) {
-  .cta__head { grid-template-columns: 1.4fr 1fr; gap: clamp(32px, 4vw, 64px); }
+  display: flex;
+  justify-content: center;
+  text-align: center;
 }
 .cta__title {
   font-family: var(--font-display);
@@ -874,18 +870,7 @@ p { margin: 0; }
   text-wrap: balance;
   margin: 0;
 }
-.cta__title em {
-  font-style: normal;
-  color: var(--accent);
-}
-.cta__sub {
-  font-size: var(--t-lead);
-  line-height: 1.55;
-  color: rgba(255,255,255,0.6);
-  text-wrap: pretty;
-  margin: 0;
-  padding-bottom: 8px;
-}
+.cta__title-wa { color: var(--green); }
 
 /* 3 aksiyon kartı */
 .cta__grid {

@@ -428,11 +428,8 @@ export default function Home() {
           <div className="container">
             <div className="cta__head">
               <h2 className="cta__title">
-                Bir mesaj <em>uzaktayız.</em>
+                <span className="cta__title-wa">Bir mesaj</span> uzaktayız.
               </h2>
-              <p className="cta__sub">
-                Listeyi yaz, kapına gelelim. Mahalle içi teslimat ücretsiz.
-              </p>
             </div>
 
             <div className="cta__grid">
