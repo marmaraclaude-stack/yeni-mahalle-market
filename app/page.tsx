@@ -195,7 +195,7 @@ export default function Home() {
 
               <h1 id="hero-title" className="hero__title">
                 Mahallenin bakkalı,{" "}
-                <span className="hero__title-accent">kapına kadar.</span>
+                <span className="hero__title-accent">kapına kadar teslimat.</span>
               </h1>
 
               <p className="hero__sub">

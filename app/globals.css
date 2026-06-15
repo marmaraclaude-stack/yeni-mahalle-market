@@ -275,26 +275,34 @@ p { margin: 0; }
   padding-block: var(--section-y);
   position: relative;
   overflow: hidden;
+  /* Arka plan görseli — public/photos/storefront.jpg
+     Beyaz katmanlar tipografiyi önde tutsun diye görselin üstüne biner. */
+  background-color: var(--white);
+  background-image:
+    /* en üstte ince dot grid (var olan tasarım dili) */
+    radial-gradient(circle at 1px 1px, rgba(16,16,16,0.06) 1px, transparent 0),
+    /* dikey beyaz wash — üst+alt yoğun, orta hafif şeffaf */
+    linear-gradient(
+      180deg,
+      rgba(255,255,255,0.96) 0%,
+      rgba(255,255,255,0.82) 35%,
+      rgba(255,255,255,0.75) 60%,
+      rgba(255,255,255,0.94) 100%
+    ),
+    /* sağ üstte turuncu vurgu (mağaza markasının yeri) */
+    radial-gradient(ellipse 60% 50% at 70% 18%, rgba(255, 90, 31, 0.08) 0%, transparent 60%),
+    /* gerçek mağaza fotoğrafı */
+    url("/photos/storefront.jpg");
+  background-size: 32px 32px, auto, auto, cover;
+  background-position: 0 0, center, center, center 65%;
+  background-repeat: repeat, no-repeat, no-repeat, no-repeat;
 }
 .hero::before {
   content: "";
   position: absolute;
   inset: 0;
-  background-image:
-    radial-gradient(circle at 1px 1px, var(--gray-200) 1px, transparent 0);
-  background-size: 32px 32px;
-  mask-image: radial-gradient(ellipse 60% 60% at 50% 30%, black, transparent 75%);
-  -webkit-mask-image: radial-gradient(ellipse 60% 60% at 50% 30%, black, transparent 75%);
-  opacity: 0.6;
-  pointer-events: none;
-}
-.hero::after {
-  content: "";
-  position: absolute;
-  top: -200px; left: 50%;
-  transform: translateX(-50%);
-  width: 1000px; height: 600px;
-  background: radial-gradient(ellipse at center, rgba(255, 90, 31, 0.10) 0%, transparent 60%);
+  /* başlık alanı için ekstra okunabilirlik vignette'i */
+  background: radial-gradient(ellipse 65% 55% at 50% 42%, rgba(255,255,255,0.55) 0%, transparent 75%);
   pointer-events: none;
   z-index: 0;
 }
@@ -348,6 +356,11 @@ p { margin: 0; }
   gap: 0;
   border-top: 1px solid var(--gray-200);
   border-bottom: 1px solid var(--gray-200);
+  /* Görselin üstünde okunabilirlik için subtle beyaz katman */
+  background: rgba(255,255,255,0.7);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-radius: var(--r-md);
 }
 .hero__stat {
   padding: 28px clamp(16px, 2vw, 32px);
