@@ -2,6 +2,22 @@ import { BUSINESS } from "@/lib/business";
 import ReviewsRail from "@/components/ReviewsRail";
 import StatusIndicator from "@/components/StatusIndicator";
 import ChatPreview from "@/components/ChatPreview";
+import {
+  Carrot,
+  Beef,
+  Croissant,
+  Milk,
+  CupSoda,
+  Cookie,
+  Cigarette,
+  Flame,
+  Umbrella,
+  BatteryCharging,
+  Check,
+  ShoppingBasket,
+  Package,
+  Bike,
+} from "lucide-react";
 
 /* ============================================================
    ICONS
@@ -51,14 +67,6 @@ function PhoneIcon() {
     </svg>
   );
 }
-function LeafIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true">
-      <path d="M19 4c-7 0-13 6-13 13a6 6 0 0 0 6 6c7 0 13-6 13-13V4h-6z" />
-      <path d="M6 17c4-4 8-6 13-7" strokeLinecap="round" />
-    </svg>
-  );
-}
 function ScooterIcon() {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true">
@@ -93,39 +101,6 @@ function CardIcon() {
     </svg>
   );
 }
-function BreadIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true">
-      <path d="M4 12c0-3 3-5 6-5h4c3 0 6 2 6 5 0 2-1.5 3-3 3H7c-1.5 0-3-1-3-3z" />
-      <path d="M8 12l1-2M12 12l1-2M16 12l1-2" strokeLinecap="round" />
-    </svg>
-  );
-}
-function CheeseIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true">
-      <path d="M3 12L12 4l9 8v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-6z" />
-      <circle cx="9" cy="15" r="0.9" fill="currentColor" />
-      <circle cx="15" cy="14" r="0.9" fill="currentColor" />
-      <circle cx="13" cy="17" r="0.9" fill="currentColor" />
-    </svg>
-  );
-}
-function BasketIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true">
-      <path d="M3 7h18M6 7l1.2 12.2a2 2 0 002 1.8h5.6a2 2 0 002-1.8L18 7M9 7V5a3 3 0 016 0v2" />
-    </svg>
-  );
-}
-function MilkIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true">
-      <path d="M8 2h8v4l2 4v10a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V10l2-4V2z" />
-      <path d="M8 10h8M10 14h4v4h-4z" strokeLinecap="round" />
-    </svg>
-  );
-}
 
 /* ============================================================
    DATA
@@ -136,37 +111,17 @@ const navLinks = [
   { label: "İletişim", href: "#iletisim" },
 ];
 
-const services = [
-  {
-    icon: BasketIcon,
-    title: "Adrese teslim",
-    body: "Listeyi WhatsApp'tan ya da telefondan bildir. Mahalle içi teslimat ücretsiz, kapına getiririz.",
-  },
-  {
-    icon: LeafIcon,
-    title: "Meyve ve sebze",
-    body: "Her sabah halden, mevsiminde gelen. Tezgâhımızda kalan günü görürsün.",
-  },
-  {
-    icon: CheeseIcon,
-    title: "Şarküteri",
-    body: "Peynir, zeytin, sucuk, tereyağ. Kasamızdan tartı ile, istediğin gramajda.",
-  },
-  {
-    icon: BreadIcon,
-    title: "Ekmek ve fırın",
-    body: "Sabah sıcak, akşam taze. Günde iki defa yenilenen ekmek ve unlu mamul.",
-  },
-  {
-    icon: MilkIcon,
-    title: "Süt ve yoğurt",
-    body: "Günlük süt, ayran, yoğurt. Soğuk zincir korunarak kapına gelir.",
-  },
-  {
-    icon: ClockIcon,
-    title: "Açık · 7 gün",
-    body: "07:30 ile 22:30 arası açığız. Bayram, resmi tatil dahil her gün hizmetinizdeyiz.",
-  },
+const categories = [
+  { Icon: Carrot, label: "Meyve & Sebze" },
+  { Icon: Beef, label: "Şarküteri & Et" },
+  { Icon: Croissant, label: "Ekmek & Fırın" },
+  { Icon: Milk, label: "Süt & Kahvaltılık" },
+  { Icon: CupSoda, label: "İçecek & Su" },
+  { Icon: Cookie, label: "Atıştırmalık" },
+  { Icon: Cigarette, label: "Sigara & Tütün" },
+  { Icon: Flame, label: "Mangal & Kömür" },
+  { Icon: Umbrella, label: "Plaj, Mayo & Terlik" },
+  { Icon: BatteryCharging, label: "Şarj Aleti & Pil" },
 ];
 
 export default function Home() {
@@ -353,7 +308,7 @@ export default function Home() {
             <div className="features__row">
               <div className="features__copy">
                 <h3 className="features__h">
-                  Söyle, hazırlayalım, kapına getirelim.
+                  Sipariş ver, hazırlayalım, kapına getirelim.
                 </h3>
                 <p className="features__p">
                   Mahalle içindeysen ortalama yarım saatte siparişin elinde
@@ -361,57 +316,79 @@ export default function Home() {
                   paketlenir.
                 </p>
               </div>
-              <div className="features__visual">
-                <div className="viz-timeline" aria-hidden="true">
-                  <div className="viz-timeline__row">
-                    <span className="viz-timeline__label">Mesajın elimize ulaşır</span>
-                    <span className="viz-timeline__badge">Alındı</span>
+              <div className="features__visual features__visual--track">
+                <div className="track" aria-hidden="true">
+                  <div className="track__head">
+                    <span className="track__title">Siparişiniz hazırlanıyor</span>
+                    <span className="track__eta">~30 dk</span>
                   </div>
-                  <div className="viz-timeline__row">
-                    <span className="viz-timeline__label">Tezgâhtan toplarız</span>
-                    <span className="viz-timeline__badge">Toplanıyor</span>
-                  </div>
-                  <div className="viz-timeline__row">
-                    <span className="viz-timeline__label">Paketleriz, kuryeye veririz</span>
-                    <span className="viz-timeline__badge">Hazır</span>
-                  </div>
-                  <div className="viz-timeline__row viz-timeline__row--active">
-                    <span className="viz-timeline__label">Kapına geliriz</span>
-                    <span className="viz-timeline__badge">~30 dk</span>
-                  </div>
+                  <ol className="track__steps">
+                    <li className="track__step track__step--done">
+                      <span className="track__node"><Check size={15} strokeWidth={2.6} /></span>
+                      <span className="track__body">
+                        <span className="track__label">Sipariş alındı</span>
+                        <span className="track__sub">WhatsApp&apos;tan ulaştı</span>
+                      </span>
+                      <span className="track__time">18:42</span>
+                    </li>
+                    <li className="track__step track__step--done">
+                      <span className="track__node"><ShoppingBasket size={15} strokeWidth={2.2} /></span>
+                      <span className="track__body">
+                        <span className="track__label">Tezgâhtan toplandı</span>
+                        <span className="track__sub">Taze ürünler ayrıldı</span>
+                      </span>
+                      <span className="track__time">18:46</span>
+                    </li>
+                    <li className="track__step track__step--done">
+                      <span className="track__node"><Package size={15} strokeWidth={2.2} /></span>
+                      <span className="track__body">
+                        <span className="track__label">Paketlendi</span>
+                        <span className="track__sub">Soğuk zincir korundu</span>
+                      </span>
+                      <span className="track__time">18:51</span>
+                    </li>
+                    <li className="track__step track__step--active">
+                      <span className="track__node"><Bike size={15} strokeWidth={2.2} /></span>
+                      <span className="track__body">
+                        <span className="track__label">Kapınıza geliyor</span>
+                        <span className="track__sub">Kurye yola çıktı</span>
+                      </span>
+                      <span className="track__time">~18:55</span>
+                    </li>
+                  </ol>
                 </div>
               </div>
             </div>
           </div>
         </section>
 
-        {/* ===== SERVICES ===== */}
+        {/* ===== CATEGORIES ===== */}
         <section id="hizmetler" className="section section--tight">
           <div className="container">
             <header className="section__head section__head--center">
-              <h2 className="section__title">
-                Bir mahalle bakkalında olması gereken,{" "}
-                <span className="mute">biraz daha özenle.</span>
+              <h2 className="section__title section__title--nowrap">
+                Bir mahalle bakkalında olması gereken{" "}
+                <span className="accent">her şey.</span>
               </h2>
+              <p className="section__sub">
+                Manavdan şarküteriye, mangal kömüründen şarj aletine. Aklına
+                geleni yaz, kapına getirelim.
+              </p>
             </header>
 
-            <div className="services">
-              {services.map((s) => (
+            <div className="cats">
+              {categories.map((c) => (
                 <a
-                  key={s.title}
+                  key={c.label}
                   href={BUSINESS.whatsapp.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="service"
+                  className="cat"
                 >
-                  <div className="service__icon">
-                    <s.icon />
-                  </div>
-                  <h3 className="service__title">{s.title}</h3>
-                  <p className="service__body">{s.body}</p>
-                  <span className="service__cta">
-                    Sipariş ver <ArrowRight />
+                  <span className="cat__icon" aria-hidden="true">
+                    <c.Icon size={26} strokeWidth={1.6} />
                   </span>
+                  <span className="cat__label">{c.label}</span>
                 </a>
               ))}
             </div>

@@ -524,6 +524,11 @@ p { margin: 0; }
 .section--dark .section__title { color: var(--white); }
 .section__title .accent { color: var(--accent); }
 .section__title .mute { color: var(--gray-400); }
+/* tek satır kalsın (masaüstü); küçük ekranda doğal sarar */
+.section__title--nowrap { font-size: clamp(25px, 3.1vw, 44px); }
+@media (min-width: 900px) {
+  .section__title--nowrap { white-space: nowrap; }
+}
 .section__sub {
   font-size: var(--t-lead);
   line-height: 1.5;
@@ -686,21 +691,24 @@ p { margin: 0; }
   color: #111b21;
   position: relative;
   box-shadow: 0 1px 1px rgba(11,20,26,0.12);
-  /* başlangıç: gizli — .is-visible ile açılır */
-  opacity: 0;
-  transform: translateY(12px) scale(0.96);
-  transition: opacity 0.45s var(--ease), transform 0.45s var(--ease);
+  /* JS mount sırasında her baloncuk belirir */
+  animation: bubbleIn 0.34s var(--ease) both;
 }
-.chat.is-visible .chat-bubble { opacity: 1; transform: none; }
+@keyframes bubbleIn {
+  from { opacity: 0; transform: translateY(10px) scale(0.96); }
+  to   { opacity: 1; transform: none; }
+}
 .chat-bubble--in {
   align-self: flex-start;
   background: #ffffff;
   border-top-left-radius: 3px;
+  transform-origin: bottom left;
 }
 .chat-bubble--out {
   align-self: flex-end;
   background: #d9fdd3;
   border-top-right-radius: 3px;
+  transform-origin: bottom right;
 }
 .chat-bubble__text { display: inline; }
 .chat-bubble__meta {
@@ -714,106 +722,177 @@ p { margin: 0; }
   white-space: nowrap;
 }
 .chat-bubble__checks { width: 15px; height: 10px; color: #53bdeb; }
+/* yazıyor göstergesi */
+.chat-typing {
+  align-self: flex-start;
+  display: inline-flex;
+  gap: 4px;
+  padding: 11px 14px;
+  background: #fff;
+  border-radius: 12px;
+  border-top-left-radius: 3px;
+  box-shadow: 0 1px 1px rgba(11,20,26,0.12);
+  animation: bubbleIn 0.28s var(--ease) both;
+}
+.chat-typing span {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: rgba(17,27,33,0.35);
+  animation: typingDot 1.3s infinite both;
+}
+.chat-typing span:nth-child(2) { animation-delay: 0.18s; }
+.chat-typing span:nth-child(3) { animation-delay: 0.36s; }
+@keyframes typingDot {
+  0%, 60%, 100% { opacity: 0.35; transform: translateY(0); }
+  30% { opacity: 1; transform: translateY(-3px); }
+}
 @media (prefers-reduced-motion: reduce) {
-  .chat-bubble { opacity: 1; transform: none; transition: none; }
+  .chat-bubble, .chat-typing { animation: none; }
+  .chat-typing span { animation: none; }
 }
-
-/* Timeline visual */
-.viz-timeline {
-  width: 100%;
-  padding: clamp(28px, 4vw, 48px);
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-.viz-timeline__row {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  align-items: center;
-  gap: 16px;
-  padding: 16px 18px;
-  background: var(--white);
-  border: 1px solid var(--gray-200);
-  border-radius: var(--r-md);
-}
-.viz-timeline__row--active {
-  border-color: var(--ink);
-  box-shadow: 0 8px 24px -16px rgba(16,16,16,0.25);
-}
-.viz-timeline__time {
-  font-family: var(--font-sans);
-  font-size: 13px;
-  color: var(--gray-500);
-  font-variant-numeric: tabular-nums;
-}
-.viz-timeline__row--active .viz-timeline__time { color: var(--accent); }
-.viz-timeline__label { font-size: 14.5px; font-weight: 500; color: var(--ink); }
-.viz-timeline__row--active .viz-timeline__label { font-weight: 600; }
-.viz-timeline__badge {
-  font-family: var(--font-mono);
-  font-size: 10.5px;
-  letter-spacing: 0.08em;
-  color: var(--gray-400);
-  text-transform: uppercase;
-}
-.viz-timeline__row--active .viz-timeline__badge { color: var(--accent); }
 
 /* ============================================================
-   SERVICES — clean grid
+   ORDER TRACKING (features row 3 görseli)
    ============================================================ */
-.services {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 0;
-  border-top: 1px solid var(--gray-200);
-}
-@media (min-width: 720px) {
-  .services { grid-template-columns: repeat(3, 1fr); }
-}
-.service {
-  position: relative;
-  padding: 36px 32px;
-  border-bottom: 1px solid var(--gray-200);
+.features__visual--track { padding: clamp(20px, 2.4vw, 32px); }
+.track {
+  width: 100%;
   display: flex;
   flex-direction: column;
+}
+.track__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   gap: 16px;
+  padding-bottom: 18px;
+  margin-bottom: 6px;
+  border-bottom: 1px solid var(--gray-200);
+}
+.track__title { font-size: 15px; font-weight: 600; color: var(--ink); letter-spacing: -0.01em; }
+.track__eta {
+  display: inline-flex; align-items: center;
+  padding: 5px 12px;
+  border-radius: var(--r-pill);
+  background: var(--accent-soft);
+  color: var(--accent-deep);
+  font-size: 12.5px; font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.track__steps {
+  list-style: none;
+  margin: 0;
+  padding: 8px 0 0;
+}
+.track__step {
+  position: relative;
+  display: grid;
+  grid-template-columns: 30px 1fr auto;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 0;
+}
+/* bağlantı çizgisi */
+.track__step::before {
+  content: "";
+  position: absolute;
+  left: 14px; top: 38px; bottom: -12px;
+  width: 2px;
+  background: var(--gray-200);
+}
+.track__step:last-child::before { display: none; }
+.track__step--done::before { background: var(--green); }
+.track__node {
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  display: grid; place-items: center;
+  z-index: 1;
+  background: var(--gray-100);
+  color: var(--gray-400);
+  border: 2px solid var(--gray-200);
+  transition: all 200ms var(--ease);
+}
+.track__step--done .track__node {
+  background: var(--green);
+  border-color: var(--green);
+  color: #04280f;
+}
+.track__step--active .track__node {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+  box-shadow: 0 0 0 0 rgba(255,90,31,0.5);
+  animation: trackPulse 1.8s var(--ease) infinite;
+}
+@keyframes trackPulse {
+  0%   { box-shadow: 0 0 0 0 rgba(255,90,31,0.45); }
+  70%  { box-shadow: 0 0 0 10px rgba(255,90,31,0); }
+  100% { box-shadow: 0 0 0 0 rgba(255,90,31,0); }
+}
+.track__body { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.track__label { font-size: 14px; font-weight: 600; color: var(--ink); letter-spacing: -0.01em; }
+.track__step:not(.track__step--done):not(.track__step--active) .track__label { color: var(--gray-400); }
+.track__sub { font-size: 12.5px; color: var(--gray-500); }
+.track__time {
+  font-size: 12px;
+  color: var(--gray-400);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.track__step--active .track__time { color: var(--accent); font-weight: 600; }
+@media (prefers-reduced-motion: reduce) {
+  .track__step--active .track__node { animation: none; }
+}
+
+/* ============================================================
+   CATEGORIES — getir tarzı ikon kartlar
+   ============================================================ */
+.cats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+@media (min-width: 560px) { .cats { grid-template-columns: repeat(3, 1fr); } }
+@media (min-width: 760px) { .cats { grid-template-columns: repeat(5, 1fr); } }
+.cat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 12px;
+  padding: 22px 14px;
+  border-radius: var(--r-lg);
+  background: var(--white);
+  border: 1px solid var(--gray-200);
   color: var(--ink);
-  transition: background 200ms var(--ease);
+  text-decoration: none;
+  transition: transform 220ms var(--ease), box-shadow 220ms var(--ease),
+    border-color 220ms var(--ease);
 }
-@media (min-width: 720px) {
-  .service { border-right: 1px solid var(--gray-200); }
-  .service:nth-child(3n) { border-right: none; }
+.cat:hover {
+  transform: translateY(-4px);
+  border-color: var(--gray-300);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.9) inset,
+    0 18px 36px -24px rgba(16,16,16,0.22),
+    0 8px 16px -12px rgba(16,16,16,0.10);
 }
-.service:hover { background: var(--gray-50); }
-.service__icon {
-  width: 36px; height: 36px;
-  color: var(--ink);
+.cat__icon {
+  width: 56px; height: 56px;
+  display: grid; place-items: center;
+  border-radius: 16px;
+  background: var(--accent-soft);
+  color: var(--accent-deep);
+  transition: transform 220ms var(--ease);
 }
-.service__icon svg { width: 100%; height: 100%; }
-.service__title {
-  font-size: 19px;
+.cat:hover .cat__icon { transform: scale(1.08) rotate(-4deg); }
+.cat__label {
+  font-size: 13.5px;
   font-weight: 600;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.01em;
+  line-height: 1.25;
+  color: var(--ink);
+  text-wrap: balance;
 }
-.service__body {
-  font-size: 14.5px;
-  line-height: 1.55;
-  color: var(--gray-500);
-  text-wrap: pretty;
-}
-.service__cta {
-  margin-top: auto;
-  padding-top: 16px;
-  font-family: var(--font-mono);
-  font-size: 11.5px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--gray-500);
-  display: inline-flex; align-items: center; gap: 6px;
-  transition: color 160ms var(--ease), gap 160ms var(--ease);
-}
-.service:hover .service__cta { color: var(--accent); gap: 10px; }
-.service__cta svg { width: 12px; height: 12px; }
 
 /* ============================================================
    REVIEWS

@@ -13,6 +13,10 @@ const MESSAGES: Msg[] = [
   { from: "out", text: "Rica ederiz 🙂 Sabah 07:35'te kapınızdayız.", time: "18:44" },
 ];
 
+// Her mesaj ~3 sn ekranda kalır; karşı taraf yazarken typing gösterilir.
+const STEP_MS = 3000;
+const TYPING_MS = 1100;
+
 function Checks() {
   return (
     <svg className="chat-bubble__checks" viewBox="0 0 18 12" fill="none" aria-hidden="true">
@@ -24,8 +28,12 @@ function Checks() {
 
 export default function ChatPreview() {
   const ref = useRef<HTMLDivElement>(null);
-  const [visible, setVisible] = useState(false);
+  const bodyRef = useRef<HTMLDivElement>(null);
+  const [started, setStarted] = useState(false);
+  const [count, setCount] = useState(0); // kaç mesaj görünür
+  const [typing, setTyping] = useState(false);
 
+  // Bölüm görünür olunca başlat
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
@@ -33,19 +41,75 @@ export default function ChatPreview() {
       (entries) => {
         entries.forEach((e) => {
           if (e.isIntersecting) {
-            setVisible(true);
+            setStarted(true);
             io.disconnect();
           }
         });
       },
-      { threshold: 0.3 },
+      { threshold: 0.35 },
     );
     io.observe(el);
     return () => io.disconnect();
   }, []);
 
+  // Sıralı oynatma döngüsü
+  useEffect(() => {
+    if (!started) return;
+    const reduce =
+      typeof window !== "undefined" &&
+      window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    if (reduce) {
+      setCount(MESSAGES.length);
+      return;
+    }
+
+    const timers: ReturnType<typeof setTimeout>[] = [];
+    let cancelled = false;
+
+    const playFrom = (i: number) => {
+      if (cancelled) return;
+      if (i >= MESSAGES.length) {
+        // tamamlandı: kısa bekleyip baştan
+        timers.push(setTimeout(() => {
+          if (cancelled) return;
+          setCount(0);
+          setTyping(false);
+          timers.push(setTimeout(() => playFrom(0), 500));
+        }, STEP_MS + 600));
+        return;
+      }
+      // bir sonraki "out" mesajından önce typing göster
+      if (MESSAGES[i].from === "out") {
+        setTyping(true);
+        timers.push(setTimeout(() => {
+          if (cancelled) return;
+          setTyping(false);
+          setCount(i + 1);
+          timers.push(setTimeout(() => playFrom(i + 1), STEP_MS));
+        }, TYPING_MS));
+      } else {
+        setCount(i + 1);
+        timers.push(setTimeout(() => playFrom(i + 1), STEP_MS));
+      }
+    };
+
+    timers.push(setTimeout(() => playFrom(0), 400));
+    return () => {
+      cancelled = true;
+      timers.forEach(clearTimeout);
+    };
+  }, [started]);
+
+  // Yeni mesajda en alta kaydır
+  useEffect(() => {
+    const b = bodyRef.current;
+    if (b) b.scrollTop = b.scrollHeight;
+  }, [count, typing]);
+
+  const shown = MESSAGES.slice(0, count);
+
   return (
-    <div ref={ref} className={`chat${visible ? " is-visible" : ""}`} aria-hidden="true">
+    <div ref={ref} className="chat" aria-hidden="true">
       <div className="chat__head">
         <span className="chat__avatar">Y</span>
         <span className="chat__who">
@@ -53,13 +117,9 @@ export default function ChatPreview() {
           <span className="chat__status">çevrimiçi</span>
         </span>
       </div>
-      <div className="chat__body">
-        {MESSAGES.map((m, i) => (
-          <div
-            key={i}
-            className={`chat-bubble chat-bubble--${m.from}`}
-            style={{ transitionDelay: `${0.2 + i * 0.22}s` }}
-          >
+      <div className="chat__body" ref={bodyRef}>
+        {shown.map((m, i) => (
+          <div key={i} className={`chat-bubble chat-bubble--${m.from}`}>
             <span className="chat-bubble__text">{m.text}</span>
             <span className="chat-bubble__meta">
               {m.time}
@@ -67,6 +127,11 @@ export default function ChatPreview() {
             </span>
           </div>
         ))}
+        {typing && (
+          <div className="chat-typing" key="typing">
+            <span /><span /><span />
+          </div>
+        )}
       </div>
     </div>
   );
