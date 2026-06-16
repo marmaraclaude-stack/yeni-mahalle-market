@@ -143,6 +143,18 @@ p { margin: 0; }
   background: var(--accent-deep);
   transform: translateY(-1px);
 }
+/* WhatsApp sipariş butonu — marka yeşili */
+.btn--whatsapp {
+  background: var(--green);
+  color: #04280f;
+  font-weight: 600;
+}
+.btn--whatsapp svg { width: 17px; height: 17px; }
+.btn--whatsapp:hover {
+  background: #1fbd5a;
+  transform: translateY(-1px);
+  box-shadow: 0 10px 24px -12px rgba(37, 211, 102, 0.6);
+}
 .btn--link {
   height: auto;
   padding: 0;
@@ -365,54 +377,69 @@ p { margin: 0; }
   margin-top: 8px;
 }
 
-/* Stats strip below hero */
+/* Stats — ikonlu kartlar (shadcn FeatureCard'dan uyarlandı) */
 .hero__stats {
   margin-top: var(--section-y);
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 0;
-  border-top: 1px solid var(--gray-200);
-  border-bottom: 1px solid var(--gray-200);
+  gap: 16px;
 }
-.hero__stat {
-  padding: 28px clamp(16px, 2vw, 32px);
+.stat-card {
+  background: var(--white);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--r-lg);
+  padding: clamp(24px, 2.4vw, 32px) clamp(20px, 2vw, 28px);
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
   gap: 8px;
-  position: relative;
+  transition: transform 280ms var(--ease), box-shadow 280ms var(--ease),
+    border-color 280ms var(--ease);
 }
-.hero__stat + .hero__stat::before {
-  content: "";
-  position: absolute;
-  left: 0; top: 25%; bottom: 25%;
-  width: 1px;
-  background: var(--gray-200);
+.stat-card:hover {
+  transform: translateY(-6px);
+  border-color: var(--gray-300);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.9) inset,
+    0 24px 48px -28px rgba(16,16,16,0.22),
+    0 10px 20px -12px rgba(16,16,16,0.10);
 }
-.hero__stat-num {
+.stat-card__icon {
+  width: 56px; height: 56px;
+  margin-bottom: 6px;
+  display: inline-grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--gray-100);
+  color: var(--ink);
+  transition: background 280ms var(--ease), color 280ms var(--ease);
+}
+.stat-card:hover .stat-card__icon {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+.stat-card__icon svg { width: 26px; height: 26px; }
+.stat-card__num {
   font-family: var(--font-display);
-  font-size: clamp(28px, 3vw, 40px);
+  font-size: clamp(26px, 2.8vw, 36px);
   font-weight: 700;
   letter-spacing: -0.03em;
   line-height: 1;
   color: var(--ink);
   font-variant-numeric: tabular-nums;
 }
-.hero__stat-num em {
+.stat-card__num em {
   font-style: normal;
   color: var(--accent);
 }
-.hero__stat-label {
-  font-size: 13px;
+.stat-card__label {
+  font-size: 13.5px;
   color: var(--gray-500);
   line-height: 1.4;
 }
 @media (max-width: 760px) {
-  .hero__stats { grid-template-columns: 1fr; }
-  .hero__stat { padding-block: 22px; border-bottom: 1px solid var(--gray-200); }
-  .hero__stat:last-child { border-bottom: none; }
-  .hero__stat + .hero__stat::before { display: none; }
+  .hero__stats { grid-template-columns: 1fr; gap: 12px; }
 }
 
 /* ============================================================

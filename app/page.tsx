@@ -75,6 +75,15 @@ function ClockIcon() {
     </svg>
   );
 }
+function CalendarIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true">
+      <rect x="3" y="5" width="18" height="16" rx="2.5" />
+      <path d="M3 10h18M8 3v4M16 3v4" strokeLinecap="round" />
+      <circle cx="12" cy="15.5" r="1.4" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
 function BreadIcon() {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true">
@@ -177,9 +186,9 @@ export default function Home() {
                 href={BUSINESS.whatsapp.href}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="btn btn--primary"
+                className="btn btn--whatsapp"
               >
-                Sipariş ver <ArrowUR />
+                <WhatsAppIcon /> Sipariş ver
               </a>
             </div>
           </header>
@@ -209,9 +218,9 @@ export default function Home() {
                     href={BUSINESS.whatsapp.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="btn btn--primary"
+                    className="btn btn--whatsapp"
                   >
-                    WhatsApp&apos;tan sipariş ver <ArrowUR />
+                    <WhatsAppIcon /> WhatsApp&apos;tan sipariş ver
                   </a>
                   <a href="#hizmetler" className="btn btn--ghost">
                     Hizmetleri gör <ArrowRight />
@@ -230,23 +239,26 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Stats strip */}
+            {/* Stats — ikonlu kartlar */}
             <div className="hero__stats" aria-label="Öne çıkan rakamlar">
-              <div className="hero__stat">
-                <div className="hero__stat-num">
+              <div className="stat-card">
+                <span className="stat-card__icon" aria-hidden="true"><ScooterIcon /></span>
+                <div className="stat-card__num">
                   ~<em>30</em> dk
                 </div>
-                <div className="hero__stat-label">Ortalama teslim süresi</div>
+                <div className="stat-card__label">Ortalama teslim süresi</div>
               </div>
-              <div className="hero__stat">
-                <div className="hero__stat-num">07:30 – 22:30</div>
-                <div className="hero__stat-label">Her gün açığız</div>
+              <div className="stat-card">
+                <span className="stat-card__icon" aria-hidden="true"><ClockIcon /></span>
+                <div className="stat-card__num">07:30 – 22:30</div>
+                <div className="stat-card__label">Her gün açığız</div>
               </div>
-              <div className="hero__stat">
-                <div className="hero__stat-num">
+              <div className="stat-card">
+                <span className="stat-card__icon" aria-hidden="true"><CalendarIcon /></span>
+                <div className="stat-card__num">
                   <em>7</em> gün
                 </div>
-                <div className="hero__stat-label">Bayram dahil, kapanmadan</div>
+                <div className="stat-card__label">Bayram dahil, kapanmadan</div>
               </div>
             </div>
           </div>
