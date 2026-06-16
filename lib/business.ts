@@ -50,18 +50,35 @@ export const BUSINESS = {
     "https://www.google.com/maps/dir/?api=1&destination=Yeni+Mahalle+Market+Sapanca+Sakarya",
 } as const;
 
-/** Ürün kategorileri — hem UI hem schema.org kataloğu için tek kaynak. */
+/** Ürün kategorileri — schema.org kataloğu (SEO). UI sırası CategoryGrid'de. */
 export const PRODUCT_CATEGORIES = [
   "Meyve & Sebze",
   "Şarküteri & Et",
   "Ekmek & Fırın",
   "Süt & Kahvaltılık",
   "İçecek & Su",
+  "Bakliyat & Makarna",
+  "Konserve & Hazır Yemek",
+  "Yağ, Sos & Baharat",
   "Atıştırmalık",
+  "Cips & Kuruyemiş",
+  "Çikolata & Şekerleme",
+  "Kahve & Çay",
+  "Dondurma",
+  "Donuk Gıda",
+  "Zeytin & Turşu",
+  "Temizlik & Deterjan",
+  "Kağıt Ürünleri",
+  "Bebek",
+  "Evcil Hayvan",
   "Sigara & Tütün",
   "Mangal & Kömür",
-  "Plaj, Mayo & Terlik",
+  "Çakmak, Kibrit & Tüp",
   "Şarj Aleti & Pil",
+  "Plaj, Mayo & Terlik",
+  "Güneş Kremi & Plaj",
+  "Şişme Bot & Havuz",
+  "Sinek & Böcek Kovucu",
 ] as const;
 
 /** Hizmet verilen bölgeler — yerel SEO için. */

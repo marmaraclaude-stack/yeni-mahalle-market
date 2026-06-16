@@ -4,22 +4,8 @@ import StatusIndicator from "@/components/StatusIndicator";
 import ChatPreview from "@/components/ChatPreview";
 import SiteNav from "@/components/SiteNav";
 import Carousel from "@/components/Carousel";
-import {
-  Carrot,
-  Beef,
-  Croissant,
-  Milk,
-  CupSoda,
-  Cookie,
-  Cigarette,
-  Flame,
-  Umbrella,
-  BatteryCharging,
-  Check,
-  ShoppingBasket,
-  Package,
-  Bike,
-} from "lucide-react";
+import CategoryGrid from "@/components/CategoryGrid";
+import { Check, ShoppingBasket, Package, Bike } from "lucide-react";
 
 /* ============================================================
    ICONS
@@ -103,22 +89,6 @@ function CardIcon() {
     </svg>
   );
 }
-
-/* ============================================================
-   DATA
-   ============================================================ */
-const categories = [
-  { Icon: Carrot, label: "Meyve & Sebze" },
-  { Icon: Beef, label: "Şarküteri & Et" },
-  { Icon: Croissant, label: "Ekmek & Fırın" },
-  { Icon: Milk, label: "Süt & Kahvaltılık" },
-  { Icon: CupSoda, label: "İçecek & Su" },
-  { Icon: Cookie, label: "Atıştırmalık" },
-  { Icon: Cigarette, label: "Sigara & Tütün" },
-  { Icon: Flame, label: "Mangal & Kömür" },
-  { Icon: Umbrella, label: "Plaj, Mayo & Terlik" },
-  { Icon: BatteryCharging, label: "Şarj Aleti & Pil" },
-];
 
 export default function Home() {
   return (
@@ -345,22 +315,7 @@ export default function Home() {
 
             <Carousel />
 
-            <div className="cats">
-              {categories.map((c) => (
-                <a
-                  key={c.label}
-                  href={BUSINESS.whatsapp.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="cat"
-                >
-                  <span className="cat__icon" aria-hidden="true">
-                    <c.Icon size={26} strokeWidth={1.6} />
-                  </span>
-                  <span className="cat__label">{c.label}</span>
-                </a>
-              ))}
-            </div>
+            <CategoryGrid />
           </div>
         </section>
 

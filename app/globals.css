@@ -979,7 +979,14 @@ p { margin: 0; }
   gap: 12px;
 }
 @media (min-width: 560px) { .cats { grid-template-columns: repeat(3, 1fr); } }
-@media (min-width: 760px) { .cats { grid-template-columns: repeat(5, 1fr); } }
+@media (min-width: 900px) { .cats { grid-template-columns: repeat(4, 1fr); } }
+.cats__more {
+  margin-top: clamp(20px, 2.4vw, 32px);
+  display: flex;
+  justify-content: center;
+}
+.cats__more .btn { gap: 8px; }
+.cats__more .btn svg { width: 16px; height: 16px; }
 .cat {
   display: flex;
   flex-direction: column;
