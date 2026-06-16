@@ -2,6 +2,8 @@ import { BUSINESS } from "@/lib/business";
 import ReviewsRail from "@/components/ReviewsRail";
 import StatusIndicator from "@/components/StatusIndicator";
 import ChatPreview from "@/components/ChatPreview";
+import SiteNav from "@/components/SiteNav";
+import Carousel from "@/components/Carousel";
 import {
   Carrot,
   Beef,
@@ -105,12 +107,6 @@ function CardIcon() {
 /* ============================================================
    DATA
    ============================================================ */
-const navLinks = [
-  { label: "Hizmetler", href: "#hizmetler" },
-  { label: "Yorumlar", href: "#yorumlar" },
-  { label: "İletişim", href: "#iletisim" },
-];
-
 const categories = [
   { Icon: Carrot, label: "Meyve & Sebze" },
   { Icon: Beef, label: "Şarküteri & Et" },
@@ -128,36 +124,7 @@ export default function Home() {
   return (
     <>
       {/* ===== NAV ===== */}
-      <div className="nav-shell">
-        <div className="container">
-          <header className="nav" aria-label="Üst menü">
-            <a href="#top" className="brand" aria-label={BUSINESS.name}>
-              <span className="brand__mono">
-                yenimahalle<em>.market</em>
-                <span className="slash">/</span>
-                sapanca
-              </span>
-            </a>
-            <nav className="nav__links" aria-label="Ana menü">
-              {navLinks.map((l) => (
-                <a key={l.label} href={l.href} className="nav__link">
-                  {l.label}
-                </a>
-              ))}
-            </nav>
-            <div className="nav__cta">
-              <a
-                href={BUSINESS.whatsapp.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn btn--whatsapp"
-              >
-                <WhatsAppIcon /> Sipariş ver
-              </a>
-            </div>
-          </header>
-        </div>
-      </div>
+      <SiteNav />
 
       <main id="top">
         {/* ===== HERO ===== */}
@@ -234,9 +201,9 @@ export default function Home() {
         </section>
 
         {/* ===== FEATURES — Apple-style split rows ===== */}
-        <section className="section" aria-label="Öne çıkanlar">
+        <section id="hizmetler" className="section" aria-label="Hizmetler">
           <div className="container">
-            <div className="features__row">
+            <div id="konum" className="features__row features__row--map">
               <div className="features__copy">
                 <h3 className="features__h">
                   Sapanca&apos;nın merkezinde, Kurtuluş Caddesi&apos;nde.
@@ -362,8 +329,8 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ===== CATEGORIES ===== */}
-        <section id="hizmetler" className="section section--tight">
+        {/* ===== PRODUCTS / CATEGORIES ===== */}
+        <section id="urunler" className="section section--tight">
           <div className="container">
             <header className="section__head section__head--center">
               <h2 className="section__title section__title--nowrap">
@@ -375,6 +342,8 @@ export default function Home() {
                 geleni yaz, kapına getirelim.
               </p>
             </header>
+
+            <Carousel />
 
             <div className="cats">
               {categories.map((c) => (
@@ -474,11 +443,9 @@ export default function Home() {
         <div className="container">
           <div className="footer__grid">
             <div className="footer__brand-block">
-              <a href="#top" className="brand" aria-label={BUSINESS.name}>
-                <span className="brand__mono">
-                  yenimahalle<em>.market</em>
-                  <span className="slash">/</span>
-                  sapanca
+              <a href="#top" className="brand brand--footer" aria-label={BUSINESS.name}>
+                <span className="brand__name">
+                  Yeni Mahalle <span className="brand__accent">Market</span>
                 </span>
               </a>
               <p className="footer__desc">{BUSINESS.shortDescription}</p>
@@ -515,8 +482,9 @@ export default function Home() {
             <div className="footer__col">
               <h4>Site</h4>
               <ul>
-                <li><a href="#top">Anasayfa</a></li>
+                <li><a href="#konum">Konum</a></li>
                 <li><a href="#hizmetler">Hizmetler</a></li>
+                <li><a href="#urunler">Ürünler</a></li>
                 <li><a href="#yorumlar">Yorumlar</a></li>
               </ul>
             </div>
