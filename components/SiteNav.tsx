@@ -71,11 +71,24 @@ export default function SiteNav() {
         </header>
       </div>
 
-      {/* Mobil / tablet menü */}
-      <div className={`nav-drawer${open ? " is-open" : ""}`} role="dialog" aria-modal="true" hidden={!open}>
-        <nav className="nav-drawer__links" aria-label="Mobil menü">
+      {/* Mobil / tablet — soldan açılan tam sayfa menü */}
+      <div className={`nav-panel${open ? " is-open" : ""}`} role="dialog" aria-modal="true">
+        <div className="nav-panel__top">
+          <span className="brand__name">
+            Yeni Mahalle <span className="brand__accent">Market</span>
+          </span>
+          <button
+            type="button"
+            className="nav-panel__close"
+            aria-label="Menüyü kapat"
+            onClick={() => setOpen(false)}
+          >
+            <X size={24} />
+          </button>
+        </div>
+        <nav className="nav-panel__links" aria-label="Mobil menü">
           {LINKS.map((l) => (
-            <a key={l.label} href={l.href} className="nav-drawer__link" onClick={() => setOpen(false)}>
+            <a key={l.label} href={l.href} className="nav-panel__link" onClick={() => setOpen(false)}>
               {l.label}
             </a>
           ))}
@@ -84,19 +97,12 @@ export default function SiteNav() {
           href={BUSINESS.whatsapp.href}
           target="_blank"
           rel="noopener noreferrer"
-          className="btn btn--whatsapp nav-drawer__order"
+          className="btn btn--whatsapp nav-panel__order"
           onClick={() => setOpen(false)}
         >
           <WhatsAppIcon /> WhatsApp&apos;tan sipariş ver
         </a>
       </div>
-      <button
-        type="button"
-        className={`nav-scrim${open ? " is-open" : ""}`}
-        aria-hidden="true"
-        tabIndex={-1}
-        onClick={() => setOpen(false)}
-      />
     </div>
   );
 }

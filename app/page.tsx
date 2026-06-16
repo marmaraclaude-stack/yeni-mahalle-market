@@ -373,7 +373,7 @@ export default function Home() {
               </h2>
               <p className="section__sub">
                 Yeni Mahalle&apos;den müşterilerimizin Google Haritalar
-                üzerinden bıraktığı yorumlar. Her biri gerçek.
+                üzerinden bıraktığı yorumlar.
               </p>
             </header>
 

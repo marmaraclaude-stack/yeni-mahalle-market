@@ -324,51 +324,61 @@ p { margin: 0; }
 }
 .nav__burger:hover { background: var(--gray-50); }
 
-/* Mobil / tablet menü çekmecesi */
-.nav-drawer {
+/* Mobil / tablet — soldan açılan tam sayfa menü */
+.nav-panel {
   position: fixed;
-  top: 68px; left: 0; right: 0;
-  z-index: 55;
+  inset: 0;
+  z-index: 70;
   background: var(--white);
-  border-bottom: 1px solid var(--gray-200);
-  padding: 16px clamp(20px, 5vw, 56px) 24px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  transform: translateY(-12px);
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 220ms var(--ease), transform 220ms var(--ease);
-  box-shadow: 0 24px 48px -28px rgba(16,16,16,0.25);
+  padding: 20px clamp(22px, 6vw, 48px) calc(28px + env(safe-area-inset-bottom));
+  transform: translateX(-100%);
+  transition: transform 320ms cubic-bezier(0.65, 0, 0.35, 1);
+  overflow-y: auto;
 }
-.nav-drawer.is-open { transform: none; opacity: 1; pointer-events: auto; }
-.nav-drawer__link {
-  padding: 14px 8px;
-  font-size: 17px;
-  font-weight: 600;
-  letter-spacing: -0.01em;
+.nav-panel.is-open { transform: none; }
+.nav-panel__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 48px;
+  margin-bottom: clamp(24px, 6vw, 48px);
+}
+.nav-panel__close {
+  width: 44px; height: 44px;
+  display: grid; place-items: center;
+  border-radius: 12px;
+  border: 1px solid var(--gray-200);
+  background: var(--white);
+  color: var(--ink);
+}
+.nav-panel__close:hover { background: var(--gray-50); }
+.nav-panel__links {
+  display: flex;
+  flex-direction: column;
+}
+.nav-panel__link {
+  display: block;
+  padding: 18px 0;
+  font-family: var(--font-display);
+  font-size: clamp(28px, 7vw, 40px);
+  font-weight: 700;
+  letter-spacing: -0.03em;
   color: var(--ink);
   border-bottom: 1px solid var(--gray-100);
+  transition: color 160ms var(--ease), padding-left 200ms var(--ease);
 }
-.nav-drawer__link:hover { color: var(--accent); }
-.nav-drawer__order {
-  margin-top: 14px;
+.nav-panel__link:hover { color: var(--accent); padding-left: 8px; }
+.nav-panel__order {
+  margin-top: auto;
   width: 100%;
-  height: 50px;
+  height: 54px;
+  font-size: 15.5px;
 }
-.nav-scrim {
-  position: fixed;
-  inset: 68px 0 0;
-  z-index: 54;
-  background: rgba(16,16,16,0.35);
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 220ms var(--ease);
-}
-.nav-scrim.is-open { opacity: 1; pointer-events: auto; }
 
 @media (min-width: 921px) {
-  .nav-drawer, .nav-scrim { display: none; }
+  .nav-panel { display: none; }
 }
 @media (max-width: 920px) {
   .nav__links { display: none; }
@@ -696,7 +706,13 @@ p { margin: 0; }
 }
 
 /* WhatsApp tarzı sohbet — scroll'da staggered reveal (ChatPreview.tsx) */
-.features__visual--chat { padding: 0; align-items: stretch; }
+/* Sabit yükseklik: mesaj geldikçe alan büyümez, içeride kayar */
+.features__visual--chat {
+  padding: 0;
+  align-items: stretch;
+  height: 480px;
+  min-height: 0;
+}
 .chat {
   width: 100%;
   height: 100%;
@@ -731,12 +747,15 @@ p { margin: 0; }
 .chat__status { font-size: 12px; color: rgba(255,255,255,0.75); }
 .chat__body {
   flex: 1;
+  min-height: 0;
   padding: clamp(18px, 2.6vw, 28px);
   display: flex;
   flex-direction: column;
   gap: 8px;
-  overflow: hidden;
+  overflow-y: auto;
+  scrollbar-width: none;
 }
+.chat__body::-webkit-scrollbar { display: none; }
 .chat-bubble {
   max-width: 82%;
   padding: 7px 10px 6px 12px;
@@ -1258,11 +1277,11 @@ p { margin: 0; }
 .cta-card__eyebrow {
   grid-area: eyebrow;
   margin-top: 18px;
-  font-size: 12px;
-  font-weight: 500;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: rgba(255,255,255,0.5);
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: rgba(255,255,255,0.55);
 }
 .cta-card__title {
   grid-area: title;
@@ -1422,12 +1441,16 @@ p { margin: 0; }
    MOBILE
    ============================================================ */
 @media (max-width: 720px) {
+  /* yorumlar: tek tek, tam genişlik, ortalı kayar */
   .review {
-    flex: 0 0 84vw;
+    flex: 0 0 100%;
     min-width: 0;
-    max-width: 320px;
-    padding: 20px;
+    max-width: none;
+    padding: 22px;
+    scroll-snap-align: center;
   }
+  /* chat: mobilde de sabit yükseklik */
+  .features__visual--chat { height: 440px; }
   .footer__bottom { flex-direction: column; align-items: flex-start; gap: 12px; }
 }
 
