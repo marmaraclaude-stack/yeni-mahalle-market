@@ -26,11 +26,9 @@
     "Segoe UI", system-ui, "Helvetica Neue", Arial, sans-serif;
   --font-display: "Switzer", var(--font-geist), -apple-system,
     BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
-  /* Marka wordmark fontları */
-  --font-brand-sans: var(--font-montserrat), "Montserrat",
+  /* Marka wordmark — logodaki yuvarlak ağır tip (Baloo 2) */
+  --font-brand: var(--font-baloo), "Baloo 2", "Quicksand",
     -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-brand-serif: "Fraunces", "Kyrial Display Pro",
-    "Cormorant Garamond", "PT Serif", Georgia, serif;
   /* Etiket/sayı vurgusu için ayrı bir mono yok; Geist'i tabular rakamlarla
      ve harf aralığıyla kullanıyoruz. --font-mono alias'i geriye dönük uyum. */
   --font-mono: var(--font-sans);
@@ -323,26 +321,25 @@ p { margin: 0; }
   flex-shrink: 0;
 }
 .brand__name {
+  font-family: var(--font-brand);
   font-size: var(--fs-h4);
   line-height: 1;
   color: var(--ink);
   white-space: nowrap;
   display: inline-flex;
   align-items: baseline;
-  gap: 4px;
+  gap: 5px;
 }
-/* "Yeni Mahalle" — Montserrat Black 900 */
+/* Logodaki tek yuvarlak-kalın tip; "Yeni Mahalle" ink, "Market" turuncu */
 .brand__sans {
-  font-family: var(--font-brand-sans);
-  font-weight: 900;
-  letter-spacing: -0.025em;
+  font-family: var(--font-brand);
+  font-weight: 800;
+  letter-spacing: -0.01em;
 }
-/* "Market" — Kyrial Display Pro fallback'i Fraunces italic */
 .brand__serif {
-  font-family: var(--font-brand-serif);
-  font-style: italic;
-  font-weight: 500;
-  letter-spacing: -0.015em;
+  font-family: var(--font-brand);
+  font-weight: 800;
+  letter-spacing: -0.01em;
   color: var(--accent);
 }
 .brand__accent { color: var(--accent); }
@@ -1135,10 +1132,9 @@ p { margin: 0; }
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .review__date {
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   font-size: var(--fs-micro);
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  letter-spacing: -0.005em;
   color: var(--gray-400);
 }
 .review__stars { display: inline-flex; gap: 1px; color: #fbbf24; }
@@ -1152,11 +1148,10 @@ p { margin: 0; }
   margin-top: auto;
   padding-top: 12px;
   border-top: 1px solid var(--gray-200);
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   font-size: var(--fs-micro);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--gray-400);
+  letter-spacing: -0.005em;
+  color: var(--gray-500);
   display: flex; align-items: center; gap: 6px;
 }
 .review__source svg { width: 11px; height: 11px; }

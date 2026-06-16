@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Montserrat } from "next/font/google";
+import { Geist, Baloo_2 } from "next/font/google";
 import "./globals.css";
 import { BUSINESS, buildLocalBusinessJsonLd } from "@/lib/business";
 import { REVIEW_STATS } from "@/lib/reviews";
@@ -12,16 +12,15 @@ const geist = Geist({
   display: "swap",
 });
 
-// Marka wordmark "Yeni Mahalle" için — Montserrat Black (900).
-const montserrat = Montserrat({
-  variable: "--font-montserrat",
+// Marka wordmark "Yeni Mahalle Market" — logodaki yuvarlak-kalın tarz.
+const baloo = Baloo_2({
+  variable: "--font-baloo",
   subsets: ["latin", "latin-ext"],
-  weight: ["900"],
+  weight: ["600", "700", "800"],
   display: "swap",
 });
 
-// Display sans — Switzer + "Market" wordmark için display serif,
-// Fontshare üzerinden <link> ile yüklenir.
+// Display sans — Switzer, Fontshare üzerinden <link> ile yüklenir.
 
 export const viewport: Viewport = {
   themeColor: "#ffffff",
@@ -140,7 +139,7 @@ export default function RootLayout({
   });
 
   return (
-    <html lang="tr" className={`${geist.variable} ${montserrat.variable}`}>
+    <html lang="tr" className={`${geist.variable} ${baloo.variable}`}>
       <head>
         <link
           rel="preconnect"
@@ -150,13 +149,6 @@ export default function RootLayout({
         <link
           rel="stylesheet"
           href="https://api.fontshare.com/v2/css?f[]=switzer@400,500,600,700,800&display=swap"
-        />
-        {/* "Market" kelimesi için display serif. Kyrial Display Pro
-            ücretli/Adobe Fonts; en yakın açık alternatif Fraunces
-            italic — sonradan istersen kit ile değiştirebiliriz. */}
-        <link
-          rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@1,9..144,500;1,9..144,600&display=swap"
         />
       </head>
       <body>
