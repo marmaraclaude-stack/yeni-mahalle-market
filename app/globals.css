@@ -973,27 +973,48 @@ p { margin: 0; }
 /* ============================================================
    CATEGORIES — getir tarzı ikon kartlar
    ============================================================ */
+/* MOBİL: 3 satır, yatay kayan (Getir tarzı) */
 .cats {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
+  grid-auto-flow: column;
+  grid-template-rows: repeat(3, 1fr);
+  grid-auto-columns: 44%;
+  gap: 10px;
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  scrollbar-width: none;
+  /* kenarlardan taşıp container'ın tamamını kaydırma alanı yap */
+  margin-inline: calc(-1 * var(--gutter));
+  padding-inline: var(--gutter);
+  padding-bottom: 4px;
 }
-@media (min-width: 560px) { .cats { grid-template-columns: repeat(3, 1fr); } }
-@media (min-width: 900px) { .cats { grid-template-columns: repeat(4, 1fr); } }
-.cats__more {
-  margin-top: clamp(20px, 2.4vw, 32px);
-  display: flex;
-  justify-content: center;
+.cats::-webkit-scrollbar { display: none; }
+.cat { scroll-snap-align: start; }
+@media (min-width: 480px) { .cats { grid-auto-columns: 30%; } }
+/* TABLET: normal grid */
+@media (min-width: 720px) {
+  .cats {
+    grid-auto-flow: row;
+    grid-template-rows: none;
+    grid-template-columns: repeat(5, 1fr);
+    grid-auto-columns: auto;
+    overflow: visible;
+    margin-inline: 0;
+    padding-inline: 0;
+    gap: 12px;
+  }
 }
-.cats__more .btn { gap: 8px; }
-.cats__more .btn svg { width: 16px; height: 16px; }
+/* MASAÜSTÜ: 9 sütun × 3 satır — hepsi açık */
+@media (min-width: 1120px) {
+  .cats { grid-template-columns: repeat(9, 1fr); gap: 10px; }
+}
 .cat {
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  gap: 12px;
-  padding: 22px 14px;
+  gap: 10px;
+  padding: 18px 10px;
   border-radius: var(--r-lg);
   background: var(--white);
   border: 1px solid var(--gray-200);
@@ -1011,9 +1032,9 @@ p { margin: 0; }
     0 8px 16px -12px rgba(16,16,16,0.10);
 }
 .cat__icon {
-  width: 56px; height: 56px;
+  width: 48px; height: 48px;
   display: grid; place-items: center;
-  border-radius: 16px;
+  border-radius: 14px;
   background: var(--accent-soft);
   color: var(--accent);
   transition: transform 220ms var(--ease);

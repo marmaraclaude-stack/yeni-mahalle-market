@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import {
   Carrot,
   Beef,
@@ -29,14 +28,13 @@ import {
   Sun,
   LifeBuoy,
   Bug,
-  Plus,
   type LucideIcon,
 } from "lucide-react";
 import { BUSINESS } from "@/lib/business";
 
 type Cat = { Icon: LucideIcon; label: string };
 
-// Sıra: günlük temeller önce, niş/sezonluk sonra.
+// 27 kategori — günlük temeller önce, niş/sezonluk sonra.
 const CATEGORIES: Cat[] = [
   { Icon: Carrot, label: "Meyve & Sebze" },
   { Icon: Beef, label: "Şarküteri & Et" },
@@ -67,50 +65,24 @@ const CATEGORIES: Cat[] = [
   { Icon: Bug, label: "Sinek & Böcek Kovucu" },
 ];
 
-const INITIAL = 16; // 4 sütun × 4 satır
-
 export default function CategoryGrid() {
-  const [expanded, setExpanded] = useState(false);
-  const shown = expanded ? CATEGORIES : CATEGORIES.slice(0, INITIAL);
-  const hidden = CATEGORIES.length - INITIAL;
-
   return (
-    <>
-      <div className="cats">
-        {shown.map((c) => (
-          <a
-            key={c.label}
-            href={BUSINESS.whatsapp.href}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="cat"
-          >
-            <span className="cat__icon" aria-hidden="true">
-              <c.Icon size={26} strokeWidth={1.6} />
-            </span>
-            <span className="cat__label">{c.label}</span>
-          </a>
-        ))}
-      </div>
-
-      {hidden > 0 && (
-        <div className="cats__more">
-          <button
-            type="button"
-            className="btn btn--ghost"
-            onClick={() => setExpanded((v) => !v)}
-            aria-expanded={expanded}
-          >
-            {expanded ? (
-              "Daha az göster"
-            ) : (
-              <>
-                <Plus size={16} strokeWidth={2.2} /> Tümünü gör ({hidden} kategori daha)
-              </>
-            )}
-          </button>
-        </div>
-      )}
-    </>
+    <div className="cats" role="list">
+      {CATEGORIES.map((c) => (
+        <a
+          key={c.label}
+          href={BUSINESS.whatsapp.href}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="cat"
+          role="listitem"
+        >
+          <span className="cat__icon" aria-hidden="true">
+            <c.Icon size={24} strokeWidth={1.6} />
+          </span>
+          <span className="cat__label">{c.label}</span>
+        </a>
+      ))}
+    </div>
   );
 }
