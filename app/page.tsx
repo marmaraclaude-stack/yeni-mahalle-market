@@ -205,9 +205,9 @@ export default function Home() {
           <div className="container">
             <div id="konum" className="features__row features__row--map">
               <div className="features__copy">
-                <h3 className="features__h">
+                <h2 className="features__h">
                   Sapanca&apos;nın merkezinde, Kurtuluş Caddesi&apos;nde.
-                </h3>
+                </h2>
                 <p className="features__p">
                   Yeni Mahalle, Şirin Mahalle ve çevre tatil siteleri için
                   en kısa rotadayız. Aşağıdan haritayı gez ya da direkt yol
@@ -248,9 +248,9 @@ export default function Home() {
 
             <div id="hizmetler" className="features__row features__row--reverse">
               <div className="features__copy">
-                <h3 className="features__h">
+                <h2 className="features__h">
                   Listeyi yaz, gerisi bizde.
-                </h3>
+                </h2>
                 <p className="features__p">
                   WhatsApp&apos;tan ya da telefondan ulaş. Stoktan teyit eder,
                   eksik olanı sorar, tezgâhtan özenle toplarız.
@@ -274,9 +274,9 @@ export default function Home() {
 
             <div className="features__row">
               <div className="features__copy">
-                <h3 className="features__h">
+                <h2 className="features__h">
                   Sipariş ver, hazırlayalım, kapına getirelim.
-                </h3>
+                </h2>
                 <p className="features__p">
                   Mahalle içindeysen ortalama yarım saatte siparişin elinde
                   olur. Soğuk zincir korunur, hassas ürünler en sona
@@ -444,8 +444,16 @@ export default function Home() {
           <div className="footer__grid">
             <div className="footer__brand-block">
               <a href="#top" className="brand brand--footer" aria-label={BUSINESS.name}>
+                <img
+                  src="/logo.png"
+                  alt=""
+                  width={42}
+                  height={42}
+                  className="brand__logo"
+                />
                 <span className="brand__name">
-                  Yeni Mahalle <span className="brand__accent">Market</span>
+                  <span className="brand__sans">Yeni Mahalle</span>
+                  <span className="brand__serif">Market</span>
                 </span>
               </a>
               <p className="footer__desc">{BUSINESS.shortDescription}</p>

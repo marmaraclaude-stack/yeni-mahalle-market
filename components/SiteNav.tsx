@@ -36,8 +36,10 @@ export default function SiteNav() {
       <div className="container">
         <header className="nav" aria-label="Üst menü">
           <a href="#top" className="brand" aria-label={BUSINESS.name} onClick={() => setOpen(false)}>
+            <img src="/logo.png" alt="" width={36} height={36} className="brand__logo" />
             <span className="brand__name">
-              Yeni Mahalle <span className="brand__accent">Market</span>
+              <span className="brand__sans">Yeni Mahalle</span>
+              <span className="brand__serif">Market</span>
             </span>
           </a>
 
@@ -74,8 +76,12 @@ export default function SiteNav() {
       {/* Mobil / tablet — soldan açılan tam sayfa menü */}
       <div className={`nav-panel${open ? " is-open" : ""}`} role="dialog" aria-modal="true">
         <div className="nav-panel__top">
-          <span className="brand__name">
-            Yeni Mahalle <span className="brand__accent">Market</span>
+          <span className="brand brand--panel">
+            <img src="/logo.png" alt="" width={36} height={36} className="brand__logo" />
+            <span className="brand__name">
+              <span className="brand__sans">Yeni Mahalle</span>
+              <span className="brand__serif">Market</span>
+            </span>
           </span>
           <button
             type="button"

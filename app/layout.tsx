@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Geist } from "next/font/google";
+import { Geist, Montserrat } from "next/font/google";
 import "./globals.css";
 import { BUSINESS, buildLocalBusinessJsonLd } from "@/lib/business";
 import { REVIEW_STATS } from "@/lib/reviews";
@@ -12,7 +12,16 @@ const geist = Geist({
   display: "swap",
 });
 
-// Display sans — Switzer, Fontshare üzerinden <link> ile (next/font Fontshare desteklemiyor).
+// Marka wordmark "Yeni Mahalle" için — Montserrat Black (900).
+const montserrat = Montserrat({
+  variable: "--font-montserrat",
+  subsets: ["latin", "latin-ext"],
+  weight: ["900"],
+  display: "swap",
+});
+
+// Display sans — Switzer + "Market" wordmark için display serif,
+// Fontshare üzerinden <link> ile yüklenir.
 
 export const viewport: Viewport = {
   themeColor: "#ffffff",
@@ -131,7 +140,7 @@ export default function RootLayout({
   });
 
   return (
-    <html lang="tr" className={geist.variable}>
+    <html lang="tr" className={`${geist.variable} ${montserrat.variable}`}>
       <head>
         <link
           rel="preconnect"
@@ -141,6 +150,13 @@ export default function RootLayout({
         <link
           rel="stylesheet"
           href="https://api.fontshare.com/v2/css?f[]=switzer@400,500,600,700,800&display=swap"
+        />
+        {/* "Market" kelimesi için display serif. Kyrial Display Pro
+            ücretli/Adobe Fonts; en yakın açık alternatif Fraunces
+            italic — sonradan istersen kit ile değiştirebiliriz. */}
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@1,9..144,500;1,9..144,600&display=swap"
         />
       </head>
       <body>
