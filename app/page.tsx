@@ -1,6 +1,7 @@
 import { BUSINESS } from "@/lib/business";
 import ReviewsRail from "@/components/ReviewsRail";
 import StatusIndicator from "@/components/StatusIndicator";
+import ChatPreview from "@/components/ChatPreview";
 
 /* ============================================================
    ICONS
@@ -295,9 +296,10 @@ export default function Home() {
                     href={BUSINESS.googleMapsDirectionsUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="btn btn--link"
+                    className="btn-apple"
                   >
-                    Yol tarifi al
+                    <span className="btn-apple__label">Yol tarifi al</span>
+                    <span className="btn-apple__icon" aria-hidden="true"><ArrowUR /></span>
                   </a>
                 </div>
               </div>
@@ -336,31 +338,15 @@ export default function Home() {
                     href={BUSINESS.whatsapp.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="btn btn--link"
+                    className="btn-apple btn-apple--wa"
                   >
-                    WhatsApp&apos;tan başla
+                    <span className="btn-apple__label">WhatsApp&apos;tan başla</span>
+                    <span className="btn-apple__icon" aria-hidden="true"><WhatsAppIcon /></span>
                   </a>
                 </div>
               </div>
-              <div className="features__visual">
-                <div className="viz-chat" aria-hidden="true">
-                  <div className="viz-chat__msg viz-chat__msg--in viz-chat__anim-1">
-                    Selam, yarın sabah için ekmek, 2 yoğurt, domates ve bir
-                    bağ maydanoz lazım.
-                    <span className="viz-chat__msg-meta">18:42</span>
-                  </div>
-                  <div className="viz-chat__typing viz-chat__anim-2">
-                    <span /><span /><span />
-                  </div>
-                  <div className="viz-chat__msg viz-chat__msg--mine viz-chat__anim-3">
-                    Tabii, sabah hazır olur. Başka ihtiyacın var mı?
-                    <span className="viz-chat__msg-meta">18:43</span>
-                  </div>
-                  <div className="viz-chat__msg viz-chat__msg--in viz-chat__anim-4">
-                    Bir de yarım kilo zeytin ekleyelim. Teşekkürler!
-                    <span className="viz-chat__msg-meta">18:43</span>
-                  </div>
-                </div>
+              <div className="features__visual features__visual--chat">
+                <ChatPreview />
               </div>
             </div>
 

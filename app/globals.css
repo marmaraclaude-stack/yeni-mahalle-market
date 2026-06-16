@@ -155,18 +155,63 @@ p { margin: 0; }
   transform: translateY(-1px);
   box-shadow: 0 10px 24px -12px rgba(37, 211, 102, 0.6);
 }
-.btn--link {
-  height: auto;
-  padding: 0;
-  background: transparent;
+/* Apple-style hover-fill buton (21st.dev pattern) */
+.btn-apple {
+  position: relative;
+  isolation: isolate;
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  height: 48px;
+  padding: 0 6px 0 22px;
+  border-radius: var(--r-pill);
+  background: var(--gray-100);
   color: var(--ink);
-  font-weight: 500;
-  border-bottom: 1px solid currentColor;
-  border-radius: 0;
+  font-size: 14.5px;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  text-decoration: none;
+  overflow: hidden;
+  transition: color 0.4s var(--ease);
 }
-.btn--link:hover {
-  color: var(--accent);
+.btn-apple::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--ink);
+  border-radius: inherit;
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 0.5s cubic-bezier(0.65, 0, 0.35, 1);
 }
+.btn-apple:hover { color: var(--white); }
+.btn-apple:hover::before { transform: scaleX(1); }
+.btn-apple__label { position: relative; }
+.btn-apple__icon {
+  width: 36px; height: 36px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--ink);
+  color: var(--white);
+  transition: background 0.4s var(--ease), color 0.4s var(--ease), transform 0.4s var(--ease);
+}
+.btn-apple__icon svg { width: 15px; height: 15px; transition: transform 0.4s var(--ease); }
+.btn-apple:hover .btn-apple__icon { background: var(--white); color: var(--ink); }
+.btn-apple:hover .btn-apple__icon svg { transform: translate(2px, -2px); }
+
+/* WhatsApp yeşili varyant */
+.btn-apple--wa {
+  background: rgba(37, 211, 102, 0.14);
+  color: #0a7c3d;
+}
+.btn-apple--wa::before { background: var(--green); }
+.btn-apple--wa:hover { color: #04280f; }
+.btn-apple--wa .btn-apple__icon { background: var(--green); color: #04280f; }
+.btn-apple--wa:hover .btn-apple__icon { background: #04280f; color: var(--green); }
+.btn-apple--wa:hover .btn-apple__icon svg { transform: none; }
 
 /* Hero status — zamana duyarlı. Açık: yeşil canlı nokta; kapalı: gri nokta. */
 .status {
@@ -590,79 +635,87 @@ p { margin: 0; }
   animation: pulse 1.8s var(--ease) infinite;
 }
 
-/* Chat visual — sıralı mesaj animasyonu */
-.viz-chat {
+/* WhatsApp tarzı sohbet — scroll'da staggered reveal (ChatPreview.tsx) */
+.features__visual--chat { padding: 0; align-items: stretch; }
+.chat {
   width: 100%;
-  padding: clamp(28px, 4vw, 48px);
-  display: flex; flex-direction: column; gap: 12px;
-  background: var(--gray-50);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  /* WhatsApp duvar kağıdı tonu + ince doku */
+  background:
+    radial-gradient(circle at 1px 1px, rgba(16,16,16,0.025) 1px, transparent 0),
+    #efeae2;
+  background-size: 22px 22px, auto;
 }
-.viz-chat__msg {
-  max-width: 78%;
-  padding: 12px 16px;
-  border-radius: 16px;
-  font-size: 14px;
-  line-height: 1.45;
-  background: var(--white);
-  border: 1px solid var(--gray-200);
-  color: var(--ink);
-  box-shadow: 0 1px 0 rgba(255,255,255,0.8) inset, 0 8px 16px -10px rgba(16,16,16,0.06);
+.chat__head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px;
+  background: #075e54;
+  color: #fff;
+}
+.chat__avatar {
+  width: 38px; height: 38px;
+  border-radius: 50%;
+  background: #25d366;
+  color: #04280f;
+  display: inline-grid; place-items: center;
+  font-family: var(--font-display);
+  font-weight: 700; font-size: 17px;
+  flex-shrink: 0;
+}
+.chat__who { display: flex; flex-direction: column; line-height: 1.2; min-width: 0; }
+.chat__name { font-size: 14.5px; font-weight: 600; letter-spacing: -0.01em; }
+.chat__status { font-size: 12px; color: rgba(255,255,255,0.75); }
+.chat__body {
+  flex: 1;
+  padding: clamp(18px, 2.6vw, 28px);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow: hidden;
+}
+.chat-bubble {
+  max-width: 82%;
+  padding: 7px 10px 6px 12px;
+  border-radius: 12px;
+  font-size: 13.5px;
+  line-height: 1.4;
+  color: #111b21;
+  position: relative;
+  box-shadow: 0 1px 1px rgba(11,20,26,0.12);
+  /* başlangıç: gizli — .is-visible ile açılır */
   opacity: 0;
-  transform: translateY(8px);
+  transform: translateY(12px) scale(0.96);
+  transition: opacity 0.45s var(--ease), transform 0.45s var(--ease);
+}
+.chat.is-visible .chat-bubble { opacity: 1; transform: none; }
+.chat-bubble--in {
   align-self: flex-start;
+  background: #ffffff;
+  border-top-left-radius: 3px;
 }
-.viz-chat__msg-meta {
-  display: block;
-  font-size: 11px;
-  font-weight: 500;
-  color: var(--gray-400);
-  margin-top: 6px;
-}
-.viz-chat__msg--in { align-self: flex-start; }
-.viz-chat__msg--mine {
+.chat-bubble--out {
   align-self: flex-end;
-  background: var(--ink);
-  color: var(--white);
-  border-color: var(--ink);
+  background: #d9fdd3;
+  border-top-right-radius: 3px;
 }
-.viz-chat__msg--mine .viz-chat__msg-meta { color: var(--gray-400); text-align: right; }
-.viz-chat__typing {
-  align-self: flex-start;
-  padding: 12px 16px;
-  background: var(--white);
-  border: 1px solid var(--gray-200);
-  border-radius: 16px;
-  display: inline-flex; gap: 4px;
-  opacity: 0;
+.chat-bubble__text { display: inline; }
+.chat-bubble__meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  float: right;
+  margin: 6px 0 -2px 10px;
+  font-size: 10.5px;
+  color: rgba(17,27,33,0.45);
+  white-space: nowrap;
 }
-.viz-chat__typing span {
-  width: 6px; height: 6px; border-radius: 50%; background: var(--gray-400);
-  animation: typing 1.4s infinite both;
-}
-.viz-chat__typing span:nth-child(2) { animation-delay: 0.15s; }
-.viz-chat__typing span:nth-child(3) { animation-delay: 0.3s; }
-
-/* Mesaj sırası — toplam ~5sn'lik döngü, sonra loop */
-.viz-chat__anim-1 { animation: msgIn 0.5s 0.3s var(--ease) forwards, msgFade 6s 4.5s ease infinite; }
-.viz-chat__anim-2 { animation: typingIn 0.4s 1.4s var(--ease) forwards, typingOut 0.4s 2.6s var(--ease) forwards; }
-.viz-chat__anim-3 { animation: msgIn 0.5s 3s var(--ease) forwards, msgFade 6s 1.8s ease infinite; }
-.viz-chat__anim-4 { animation: msgIn 0.5s 4.2s var(--ease) forwards; }
-
-@keyframes msgIn {
-  to { opacity: 1; transform: translateY(0); }
-}
-@keyframes msgFade {
-  0%, 90% { opacity: 1; }
-  95%, 100% { opacity: 1; }
-}
-@keyframes typingIn { to { opacity: 1; } }
-@keyframes typingOut { to { opacity: 0; height: 0; padding-top: 0; padding-bottom: 0; margin-top: -12px; } }
-@keyframes typing {
-  0%, 60%, 100% { opacity: 0.3; transform: translateY(0); }
-  30% { opacity: 1; transform: translateY(-2px); }
-}
+.chat-bubble__checks { width: 15px; height: 10px; color: #53bdeb; }
 @media (prefers-reduced-motion: reduce) {
-  .viz-chat__msg, .viz-chat__typing { opacity: 1; transform: none; animation: none; }
+  .chat-bubble { opacity: 1; transform: none; transition: none; }
 }
 
 /* Timeline visual */
