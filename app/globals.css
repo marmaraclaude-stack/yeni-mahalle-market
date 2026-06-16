@@ -1008,7 +1008,7 @@ p { margin: 0; }
   display: grid; place-items: center;
   border-radius: 16px;
   background: var(--accent-soft);
-  color: var(--accent-deep);
+  color: var(--accent);
   transition: transform 220ms var(--ease);
 }
 .cat:hover .cat__icon { transform: scale(1.08) rotate(-4deg); }
