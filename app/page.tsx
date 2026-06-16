@@ -334,7 +334,7 @@ export default function Home() {
           <div className="container">
             <header className="section__head section__head--center">
               <h2 className="section__title section__title--nowrap">
-                Bir mahalle bakkalında olması gereken{" "}
+                Bir mahalle marketinde olması gereken{" "}
                 <span className="accent">her şey.</span>
               </h2>
               <p className="section__sub">
