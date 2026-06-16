@@ -190,31 +190,43 @@ export default function Home() {
         {/* ===== HERO ===== */}
         <section className="hero" aria-labelledby="hero-title">
           <div className="container">
-            <div className="hero__inner">
-              <StatusIndicator />
+            <div className="hero__split">
+              <div className="hero__copy">
+                <StatusIndicator />
 
-              <h1 id="hero-title" className="hero__title">
-                Mahallenin bakkalı,{" "}
-                <span className="hero__title-accent">kapına kadar teslimat.</span>
-              </h1>
+                <h1 id="hero-title" className="hero__title">
+                  Mahallenin bakkalı,{" "}
+                  <span className="hero__title-accent">kapına kadar teslimat.</span>
+                </h1>
 
-              <p className="hero__sub">
-                Taze meyve sebze, şarküteri ve günlük ihtiyaç. WhatsApp&apos;tan
-                listeyi gönder, kapına getirelim.
-              </p>
+                <p className="hero__sub">
+                  Taze meyve sebze, şarküteri ve günlük ihtiyaç. WhatsApp&apos;tan
+                  listeyi gönder, kapına getirelim.
+                </p>
 
-              <div className="hero__ctas">
-                <a
-                  href={BUSINESS.whatsapp.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="btn btn--primary"
-                >
-                  WhatsApp&apos;tan sipariş ver <ArrowUR />
-                </a>
-                <a href="#hizmetler" className="btn btn--ghost">
-                  Hizmetleri gör <ArrowRight />
-                </a>
+                <div className="hero__ctas">
+                  <a
+                    href={BUSINESS.whatsapp.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn btn--primary"
+                  >
+                    WhatsApp&apos;tan sipariş ver <ArrowUR />
+                  </a>
+                  <a href="#hizmetler" className="btn btn--ghost">
+                    Hizmetleri gör <ArrowRight />
+                  </a>
+                </div>
+              </div>
+
+              <div className="hero__visual">
+                <img
+                  src="/Hero.png"
+                  alt="Yeni Mahalle Market — Sapanca Kurtuluş Caddesi"
+                  className="hero__photo"
+                  width={1200}
+                  height={900}
+                />
               </div>
             </div>
 
