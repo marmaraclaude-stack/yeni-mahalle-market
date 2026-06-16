@@ -381,48 +381,48 @@ p { margin: 0; }
 .hero__stats {
   margin-top: var(--section-y);
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
 }
 .stat-card {
   background: var(--white);
   border: 1px solid var(--gray-200);
-  border-radius: var(--r-lg);
-  padding: clamp(24px, 2.4vw, 32px) clamp(20px, 2vw, 28px);
+  border-radius: var(--r-md);
+  padding: 20px 18px;
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  gap: 8px;
-  transition: transform 280ms var(--ease), box-shadow 280ms var(--ease),
-    border-color 280ms var(--ease);
+  gap: 4px;
+  transition: transform 240ms var(--ease), box-shadow 240ms var(--ease),
+    border-color 240ms var(--ease);
 }
 .stat-card:hover {
-  transform: translateY(-6px);
+  transform: translateY(-4px);
   border-color: var(--gray-300);
   box-shadow:
     0 1px 0 rgba(255,255,255,0.9) inset,
-    0 24px 48px -28px rgba(16,16,16,0.22),
-    0 10px 20px -12px rgba(16,16,16,0.10);
+    0 18px 36px -24px rgba(16,16,16,0.22),
+    0 8px 16px -12px rgba(16,16,16,0.10);
 }
 .stat-card__icon {
-  width: 56px; height: 56px;
-  margin-bottom: 6px;
+  width: 42px; height: 42px;
+  margin-bottom: 8px;
   display: inline-grid;
   place-items: center;
   border-radius: 50%;
   background: var(--gray-100);
   color: var(--ink);
-  transition: background 280ms var(--ease), color 280ms var(--ease);
+  transition: background 240ms var(--ease), color 240ms var(--ease);
 }
 .stat-card:hover .stat-card__icon {
   background: var(--accent-soft);
   color: var(--accent);
 }
-.stat-card__icon svg { width: 26px; height: 26px; }
+.stat-card__icon svg { width: 20px; height: 20px; }
 .stat-card__num {
   font-family: var(--font-display);
-  font-size: clamp(26px, 2.8vw, 36px);
+  font-size: clamp(22px, 2vw, 28px);
   font-weight: 700;
   letter-spacing: -0.03em;
   line-height: 1;
@@ -434,12 +434,15 @@ p { margin: 0; }
   color: var(--accent);
 }
 .stat-card__label {
-  font-size: 13.5px;
+  font-size: 13px;
   color: var(--gray-500);
   line-height: 1.4;
 }
-@media (max-width: 760px) {
-  .hero__stats { grid-template-columns: 1fr; gap: 12px; }
+@media (max-width: 880px) {
+  .hero__stats { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 460px) {
+  .hero__stats { grid-template-columns: 1fr; }
 }
 
 /* ============================================================

@@ -84,6 +84,14 @@ function CalendarIcon() {
     </svg>
   );
 }
+function CardIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true">
+      <rect x="2.5" y="5" width="19" height="14" rx="2.5" />
+      <path d="M2.5 9.5h19M6 15h4" strokeLinecap="round" />
+    </svg>
+  );
+}
 function BreadIcon() {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true">
@@ -259,6 +267,11 @@ export default function Home() {
                   <em>7</em> gün
                 </div>
                 <div className="stat-card__label">Bayram dahil, kapanmadan</div>
+              </div>
+              <div className="stat-card">
+                <span className="stat-card__icon" aria-hidden="true"><CardIcon /></span>
+                <div className="stat-card__num">Kapıda</div>
+                <div className="stat-card__label">Nakit &amp; kart ile ödeme</div>
               </div>
             </div>
           </div>
