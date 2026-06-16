@@ -1191,8 +1191,12 @@ p { margin: 0; }
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(ellipse 70% 60% at 50% -10%, rgba(37, 211, 102, 0.10) 0%, transparent 60%),
-    radial-gradient(circle 360px at 92% 105%, rgba(255, 90, 31, 0.06) 0%, transparent 60%);
+    /* üst kenarı beyazla kapat → üstteki bölümle pürüzsüz geçiş */
+    linear-gradient(180deg, var(--white) 0%, transparent 22%),
+    /* başlığın arkasında yumuşak yeşil ışıltı (üst kenara değmez) */
+    radial-gradient(ellipse 55% 45% at 50% 12%, rgba(37, 211, 102, 0.12) 0%, transparent 60%),
+    /* alt köşede çok hafif sıcak ton */
+    radial-gradient(circle 360px at 95% 108%, rgba(255, 90, 31, 0.05) 0%, transparent 60%);
   pointer-events: none;
 }
 .cta::after {
@@ -1223,10 +1227,10 @@ p { margin: 0; }
 }
 .cta__title {
   font-family: var(--font-display);
-  font-size: var(--fs-display);
+  font-size: var(--fs-h2);
   font-weight: 700;
   letter-spacing: -0.035em;
-  line-height: 1.02;
+  line-height: 1.05;
   color: var(--ink);
   text-wrap: balance;
   margin: 0;
