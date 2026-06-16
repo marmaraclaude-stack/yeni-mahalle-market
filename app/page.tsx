@@ -201,7 +201,7 @@ export default function Home() {
         </section>
 
         {/* ===== FEATURES — Apple-style split rows ===== */}
-        <section id="hizmetler" className="section" aria-label="Hizmetler">
+        <section className="section" aria-label="Hizmetler">
           <div className="container">
             <div id="konum" className="features__row features__row--map">
               <div className="features__copy">
@@ -246,10 +246,10 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="features__row features__row--reverse">
+            <div id="hizmetler" className="features__row features__row--reverse">
               <div className="features__copy">
                 <h3 className="features__h">
-                  Listeyi yaz, gerisi bize.
+                  Listeyi yaz, gerisi bizde.
                 </h3>
                 <p className="features__p">
                   WhatsApp&apos;tan ya da telefondan ulaş. Stoktan teyit eder,
@@ -411,7 +411,7 @@ export default function Home() {
                 <span className="cta-card__icon"><WhatsAppIcon /></span>
                 <span className="cta-card__eyebrow">WhatsApp</span>
                 <span className="cta-card__title">Sipariş ver</span>
-                <span className="cta-card__detail">Mesajla, gerisi bize</span>
+                <span className="cta-card__detail">Mesajla, gerisi bizde</span>
                 <span className="cta-card__arrow" aria-hidden="true"><ArrowUR /></span>
               </a>
               <a href={BUSINESS.phone.href} className="cta-card">

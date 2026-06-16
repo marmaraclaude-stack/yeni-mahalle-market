@@ -10,7 +10,7 @@ const MESSAGES: Msg[] = [
   { from: "in", text: "Bir de yarım kilo zeytin ekleyelim lütfen.", time: "18:43" },
   { from: "out", text: "Not aldım. Yeşil mi siyah mı olsun?", time: "18:43" },
   { from: "in", text: "Yeşil olsun, çok teşekkür ederim.", time: "18:44" },
-  { from: "out", text: "Rica ederiz 🙂 Sabah 07:35'te kapınızdayız.", time: "18:44" },
+  { from: "out", text: "Rica ederiz 🙂 Sabah 08:00'da kapınızdayız.", time: "18:44" },
 ];
 
 // Her mesaj ~3 sn ekranda kalır; karşı taraf yazarken typing gösterilir.
