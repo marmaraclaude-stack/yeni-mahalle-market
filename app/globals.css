@@ -292,7 +292,7 @@ p { margin: 0; }
     /* sağ üstte turuncu vurgu (mağaza markasının yeri) */
     radial-gradient(ellipse 60% 50% at 70% 18%, rgba(255, 90, 31, 0.08) 0%, transparent 60%),
     /* gerçek mağaza fotoğrafı */
-    url("/photos/storefront.jpg");
+    url("/Hero.png");
   background-size: 32px 32px, auto, auto, cover;
   background-position: 0 0, center, center, center 65%;
   background-repeat: repeat, no-repeat, no-repeat, no-repeat;
