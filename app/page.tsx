@@ -135,7 +135,7 @@ export default function Home() {
                 <StatusIndicator />
 
                 <h1 id="hero-title" className="hero__title">
-                  Mahallenin bakkalı,{" "}
+                  Mahallenin marketi,{" "}
                   <span className="hero__title-accent">kapına kadar teslimat.</span>
                 </h1>
 

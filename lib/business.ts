@@ -6,7 +6,7 @@ export const BUSINESS = {
   description:
     "Sapanca Yeni Mahalle'de hizmet veren marketimizde taze meyve, sebze, şarküteri ürünleri ve tüm market ihtiyaçlarınızı uygun fiyatlarla karşılayabilirsiniz. Adrese teslim hizmetimizle siparişleriniz kapınıza kadar gelir. Haftanın 7 günü 07:30'dan itibaren hizmetinizdeyiz.",
   shortDescription:
-    "Sapanca Yeni Mahalle'nin bakkalı. Taze meyve sebze, şarküteri ve günlük market ihtiyaçları, adrese teslim.",
+    "Sapanca Yeni Mahalle'nin marketi. Taze meyve sebze, şarküteri ve günlük market ihtiyaçları, adrese teslim.",
   address: {
     street: "Yeni Mah., Kurtuluş Caddesi",
     postalCode: "54600",
