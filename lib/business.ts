@@ -50,16 +50,45 @@ export const BUSINESS = {
     "https://www.google.com/maps/dir/?api=1&destination=Yeni+Mahalle+Market+Sapanca+Sakarya",
 } as const;
 
-export function buildLocalBusinessJsonLd() {
+/** Ürün kategorileri — hem UI hem schema.org kataloğu için tek kaynak. */
+export const PRODUCT_CATEGORIES = [
+  "Meyve & Sebze",
+  "Şarküteri & Et",
+  "Ekmek & Fırın",
+  "Süt & Kahvaltılık",
+  "İçecek & Su",
+  "Atıştırmalık",
+  "Sigara & Tütün",
+  "Mangal & Kömür",
+  "Plaj, Mayo & Terlik",
+  "Şarj Aleti & Pil",
+] as const;
+
+/** Hizmet verilen bölgeler — yerel SEO için. */
+export const SERVICE_AREAS = [
+  "Yeni Mahalle, Sapanca",
+  "Şirin Mahalle, Sapanca",
+  "Kırkpınar, Sapanca",
+  "Sapanca, Sakarya",
+  "Maşukiye",
+];
+
+export function buildLocalBusinessJsonLd(rating?: { average: number; count: number }) {
   return {
     "@context": "https://schema.org",
-    "@type": BUSINESS.schemaType,
+    "@type": ["GroceryStore", "LocalBusiness", "Store"],
     "@id": `${BUSINESS.url}/#localbusiness`,
     name: BUSINESS.name,
-    image: `${BUSINESS.url}/og.png`,
+    alternateName: ["Yeni Mahalle Market Sapanca", "Sapanca Yeni Mahalle Market"],
+    legalName: BUSINESS.legalName,
+    slogan: "Mahallenin marketi, kapına kadar teslimat.",
+    image: [`${BUSINESS.url}/Hero.png`],
+    logo: `${BUSINESS.url}/Hero.png`,
     url: BUSINESS.url,
     telephone: BUSINESS.phone.intl,
-    priceRange: "₺",
+    priceRange: "₺₺",
+    currenciesAccepted: "TRY",
+    paymentAccepted: "Nakit, Kredi Kartı, Banka Kartı",
     description: BUSINESS.description,
     address: {
       "@type": "PostalAddress",
@@ -74,6 +103,8 @@ export function buildLocalBusinessJsonLd() {
       latitude: BUSINESS.geo.lat,
       longitude: BUSINESS.geo.lng,
     },
+    hasMap: BUSINESS.googleMapsCidUrl,
+    openingHours: "Mo-Su 07:30-22:30",
     openingHoursSpecification: [
       {
         "@type": "OpeningHoursSpecification",
@@ -90,11 +121,38 @@ export function buildLocalBusinessJsonLd() {
         closes: BUSINESS.hours.closes,
       },
     ],
-    sameAs: [BUSINESS.instagram.href, BUSINESS.whatsapp.href],
-    hasMap: BUSINESS.googleMapsCidUrl,
-    areaServed: {
-      "@type": "AdministrativeArea",
-      name: "Sapanca, Sakarya",
+    ...(rating && rating.count > 0
+      ? {
+          aggregateRating: {
+            "@type": "AggregateRating",
+            ratingValue: rating.average,
+            reviewCount: rating.count,
+            bestRating: 5,
+            worstRating: 1,
+          },
+        }
+      : {}),
+    areaServed: SERVICE_AREAS.map((name) => ({ "@type": "Place", name })),
+    sameAs: [
+      BUSINESS.instagram.href,
+      BUSINESS.whatsapp.href,
+      BUSINESS.googleMapsCidUrl,
+    ],
+    hasOfferCatalog: {
+      "@type": "OfferCatalog",
+      name: "Ürün Kategorileri",
+      itemListElement: PRODUCT_CATEGORIES.map((cat) => ({
+        "@type": "OfferCatalog",
+        name: cat,
+      })),
+    },
+    makesOffer: {
+      "@type": "Offer",
+      name: "Adrese teslim market alışverişi",
+      description:
+        "Mahalle içi ücretsiz, adrese teslim market alışverişi. WhatsApp veya telefonla sipariş.",
+      areaServed: "Sapanca, Sakarya",
+      availability: "https://schema.org/InStock",
     },
   };
 }

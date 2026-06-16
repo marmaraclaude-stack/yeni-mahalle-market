@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Geist } from "next/font/google";
 import "./globals.css";
 import { BUSINESS, buildLocalBusinessJsonLd } from "@/lib/business";
+import { REVIEW_STATS } from "@/lib/reviews";
 import WhatsAppFab from "@/components/WhatsAppFab";
 
 // Gövde + UI sans — Geist (next/font, self-host).
@@ -22,24 +23,58 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL(BUSINESS.url),
   title: {
-    default: `${BUSINESS.name} · Sapanca Yeni Mahalle Bakkalı · Adrese Teslim`,
+    default: `${BUSINESS.name} · Sapanca Yeni Mahalle · Adrese Teslim Market`,
     template: `%s · ${BUSINESS.name}`,
   },
   description: BUSINESS.description,
   applicationName: BUSINESS.name,
   generator: "Next.js",
   keywords: [
+    // Marka
     "Yeni Mahalle Market",
-    "Sapanca bakkal",
+    "Yeni Mahalle Market Sapanca",
+    "Sapanca Yeni Mahalle Market",
+    "yenimahallemarket",
+    "yeni mahalle marketi",
+    // Yerel — market / bakkal
     "Sapanca market",
-    "Sapanca Yeni Mahalle",
-    "Sapanca adrese teslim market",
+    "Sapanca bakkal",
+    "Sapanca süpermarket",
+    "Sapanca manav",
+    "Sapanca şarküteri",
+    "Sakarya Sapanca market",
     "Sakarya Sapanca bakkal",
-    "şarküteri Sapanca",
-    "meyve sebze Sapanca",
-    "Kurtuluş Caddesi market",
+    "Yeni Mahalle Sapanca market",
+    "Şirin Mahalle market",
+    "Kurtuluş Caddesi market Sapanca",
+    "Sapanca açık market",
+    "Sapanca 7/24 market",
+    // Teslimat
+    "Sapanca adrese teslim market",
+    "Sapanca eve teslim market",
+    "Sapanca market siparişi",
+    "Sapanca online market",
+    "Sapanca WhatsApp market sipariş",
+    "Sapanca su siparişi",
+    "Sapanca markete telefonla sipariş",
+    // Kategoriler
+    "Sapanca meyve sebze",
+    "Sapanca mangal kömürü",
+    "Sapanca piknik malzemeleri",
+    "Sapanca şarj aleti",
+    "Sapanca mayo plaj malzemeleri",
+    "Sapanca terlik",
+    "Sapanca sigara satışı",
+    "Sapanca içecek su",
+    "Sapanca ekmek fırın",
+    // Turizm bölgeleri
+    "Sapanca bungalov market",
+    "Sapanca tatil köyü market",
+    "Kırkpınar market",
+    "Maşukiye market",
+    "Sapanca göl kenarı market",
   ],
-  authors: [{ name: BUSINESS.name }],
+  authors: [{ name: BUSINESS.name, url: BUSINESS.url }],
   creator: BUSINESS.name,
   publisher: BUSINESS.name,
   category: "Local Business",
@@ -49,13 +84,22 @@ export const metadata: Metadata = {
     locale: "tr_TR",
     url: BUSINESS.url,
     siteName: BUSINESS.name,
-    title: `${BUSINESS.name} · Sapanca Yeni Mahalle Bakkalı`,
+    title: `${BUSINESS.name} · Sapanca Yeni Mahalle · Adrese Teslim Market`,
     description: BUSINESS.shortDescription,
+    images: [
+      {
+        url: "/Hero.png",
+        width: 1200,
+        height: 900,
+        alt: `${BUSINESS.name} — Sapanca Kurtuluş Caddesi`,
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
-    title: BUSINESS.name,
+    title: `${BUSINESS.name} · Sapanca Adrese Teslim Market`,
     description: BUSINESS.shortDescription,
+    images: ["/Hero.png"],
   },
   robots: {
     index: true,
@@ -81,7 +125,10 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const jsonLd = buildLocalBusinessJsonLd();
+  const jsonLd = buildLocalBusinessJsonLd({
+    average: REVIEW_STATS.average,
+    count: REVIEW_STATS.count,
+  });
 
   return (
     <html lang="tr" className={geist.variable}>
