@@ -182,7 +182,7 @@ export default function CategoryGrid() {
   const waUrl =
     selected.length > 0
       ? `${BUSINESS.whatsapp.href}?text=${encodeURIComponent(
-          "Merhaba, şu reyonlardan sipariş vermek istiyorum:\n" +
+          "Merhaba, şu kategorilerden sipariş vermek istiyorum:\n" +
             selected.map((s) => "• " + s).join("\n"),
         )}`
       : BUSINESS.whatsapp.href;
@@ -245,7 +245,7 @@ export default function CategoryGrid() {
         {/* Yukarı açılan tam liste */}
         <div className="basket__panel" role="list">
           <div className="basket__panel-head">
-            <span className="basket__panel-title">Listendeki reyonlar</span>
+            <span className="basket__panel-title">Listendeki kategoriler</span>
             <button
               type="button"
               className="basket__panel-close"
@@ -299,7 +299,7 @@ export default function CategoryGrid() {
             aria-expanded={expanded}
           >
             <span className="basket__meta-title">
-              {selected.length === 1 ? "1 reyon" : `${selected.length} reyon`}
+              {selected.length === 1 ? "1 kategori" : `${selected.length} kategori`}
             </span>
             <span className="basket__meta-sub">
               {expanded ? "kapat" : "listeni gör"}
@@ -308,26 +308,6 @@ export default function CategoryGrid() {
           </button>
 
           <span className="basket__divider" aria-hidden="true" />
-
-          <div className="basket__chips">
-            {selected.map((label) => {
-              const cat = CATEGORIES.find((c) => c.label === label);
-              const fg = cat ? TINTS[cat.t][1] : "#fff";
-              return (
-                <button
-                  key={label}
-                  type="button"
-                  className="basket__chip"
-                  style={{ "--chip-fg": fg } as React.CSSProperties}
-                  onClick={() => setSelected((p) => p.filter((l) => l !== label))}
-                >
-                  <span className="basket__chip-dot" aria-hidden="true" />
-                  {label}
-                  <X size={12} strokeWidth={2.5} />
-                </button>
-              );
-            })}
-          </div>
 
           <button
             type="button"

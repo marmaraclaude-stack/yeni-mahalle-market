@@ -1125,7 +1125,8 @@ p { margin: 0; }
   bottom: 22px;
   left: 50%;
   transform: translateX(-50%) translateY(140%);
-  width: min(720px, calc(100% - 32px));
+  width: max-content;
+  max-width: min(560px, calc(100% - 32px));
   opacity: 0;
   pointer-events: none;
   transition: transform 420ms var(--ease-spring), opacity 280ms var(--ease);
@@ -1299,37 +1300,6 @@ p { margin: 0; }
   display: grid; place-items: center;
   font-variant-numeric: tabular-nums;
 }
-.basket__chips {
-  flex: 1;
-  display: flex;
-  gap: 6px;
-  overflow-x: auto;
-  scrollbar-width: none;
-  padding: 2px 0;
-}
-.basket__chips::-webkit-scrollbar { display: none; }
-.basket__chip {
-  flex-shrink: 0;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 10px 6px 10px;
-  border-radius: 999px;
-  background: rgba(255,255,255,0.1);
-  color: #fff;
-  font-size: var(--fs-small);
-  font-weight: 500;
-  white-space: nowrap;
-  transition: background 160ms var(--ease);
-}
-.basket__chip:hover { background: rgba(255,255,255,0.18); }
-.basket__chip svg { opacity: 0.6; }
-.basket__chip-dot {
-  width: 7px; height: 7px;
-  border-radius: 50%;
-  background: var(--chip-fg, #fff);
-  flex-shrink: 0;
-}
 .basket__clear {
   flex-shrink: 0;
   width: 38px; height: 38px;
@@ -1354,8 +1324,6 @@ p { margin: 0; }
   }
   .basket.is-active { transform: translateY(0); }
   .basket__bar { padding: 8px 8px 8px 12px; gap: 8px; }
-  /* mobilde chip önizleme yerine panel ile gör */
-  .basket__chips, .basket__divider { display: none; }
   .basket__send { flex: 1; font-size: var(--fs-small); padding: 0 14px; }
   .basket__panel { max-height: 50vh; }
 }
