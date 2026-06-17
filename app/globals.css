@@ -1300,6 +1300,30 @@ p { margin: 0; }
   display: grid; place-items: center;
   font-variant-numeric: tabular-nums;
 }
+/* Mini renk önizleme — çakışan noktalar (avatar-stack) */
+.basket__preview {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  padding-right: 2px;
+}
+.basket__preview-dot {
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  border: 2px solid rgba(17,17,17,0.94);
+  margin-left: -7px;
+  flex-shrink: 0;
+}
+.basket__preview-dot:first-child { margin-left: 0; }
+.basket__preview-more {
+  margin-left: 2px;
+  font-size: var(--fs-micro);
+  font-weight: 600;
+  color: rgba(255,255,255,0.7);
+  white-space: nowrap;
+}
+
 .basket__clear {
   flex-shrink: 0;
   width: 38px; height: 38px;
@@ -1324,6 +1348,7 @@ p { margin: 0; }
   }
   .basket.is-active { transform: translateY(0); }
   .basket__bar { padding: 8px 8px 8px 12px; gap: 8px; }
+  .basket__preview, .basket__divider { display: none; }
   .basket__send { flex: 1; font-size: var(--fs-small); padding: 0 14px; }
   .basket__panel { max-height: 50vh; }
 }

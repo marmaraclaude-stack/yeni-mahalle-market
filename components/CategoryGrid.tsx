@@ -307,6 +307,28 @@ export default function CategoryGrid() {
             </span>
           </button>
 
+          {/* Mini renk önizlemesi — ilk 4 kategorinin tonu */}
+          {selected.length > 0 && (
+            <span className="basket__preview" aria-hidden="true">
+              {selected.slice(0, 4).map((label) => {
+                const cat = CATEGORIES.find((c) => c.label === label);
+                const fg = cat ? TINTS[cat.t][1] : "#fff";
+                return (
+                  <span
+                    key={label}
+                    className="basket__preview-dot"
+                    style={{ background: fg }}
+                  />
+                );
+              })}
+              {selected.length > 4 && (
+                <span className="basket__preview-more">
+                  +{selected.length - 4}
+                </span>
+              )}
+            </span>
+          )}
+
           <span className="basket__divider" aria-hidden="true" />
 
           <button
