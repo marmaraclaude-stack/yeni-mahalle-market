@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import {
   Carrot,
   Beef,
@@ -28,13 +29,14 @@ import {
   Sun,
   LifeBuoy,
   Bug,
+  ChevronLeft,
+  ChevronRight,
   type LucideIcon,
 } from "lucide-react";
 import { BUSINESS } from "@/lib/business";
 
 type Cat = { Icon: LucideIcon; label: string };
 
-// 27 kategori — günlük temeller önce, niş/sezonluk sonra.
 const CATEGORIES: Cat[] = [
   { Icon: Carrot, label: "Meyve & Sebze" },
   { Icon: Beef, label: "Şarküteri & Et" },
@@ -66,23 +68,74 @@ const CATEGORIES: Cat[] = [
 ];
 
 export default function CategoryGrid() {
+  const railRef = useRef<HTMLDivElement>(null);
+  const [canPrev, setCanPrev] = useState(false);
+  const [canNext, setCanNext] = useState(true);
+
+  const scrollBy = (dir: 1 | -1) => {
+    const el = railRef.current;
+    if (!el) return;
+    el.scrollBy({ left: dir * el.clientWidth * 0.85, behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    const el = railRef.current;
+    if (!el) return;
+    const update = () => {
+      const max = el.scrollWidth - el.clientWidth;
+      setCanPrev(el.scrollLeft > 4);
+      setCanNext(el.scrollLeft < max - 4);
+    };
+    update();
+    el.addEventListener("scroll", update, { passive: true });
+    window.addEventListener("resize", update);
+    return () => {
+      el.removeEventListener("scroll", update);
+      window.removeEventListener("resize", update);
+    };
+  }, []);
+
   return (
-    <div className="cats" role="list">
-      {CATEGORIES.map((c) => (
-        <a
-          key={c.label}
-          href={BUSINESS.whatsapp.href}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="cat"
-          role="listitem"
+    <>
+      <div ref={railRef} className="cats" role="list">
+        {CATEGORIES.map((c) => (
+          <a
+            key={c.label}
+            href={BUSINESS.whatsapp.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="cat"
+            role="listitem"
+          >
+            <span className="cat__icon" aria-hidden="true">
+              <c.Icon size={24} strokeWidth={1.6} />
+            </span>
+            <span className="cat__label">{c.label}</span>
+          </a>
+        ))}
+      </div>
+
+      {/* Sadece mobil/tablette görünen kaydırma kontrolleri */}
+      <div className="cats__nav" aria-hidden="true">
+        <button
+          type="button"
+          className="cats__arrow"
+          aria-label="Önceki kategoriler"
+          onClick={() => scrollBy(-1)}
+          disabled={!canPrev}
         >
-          <span className="cat__icon" aria-hidden="true">
-            <c.Icon size={24} strokeWidth={1.6} />
-          </span>
-          <span className="cat__label">{c.label}</span>
-        </a>
-      ))}
-    </div>
+          <ChevronLeft size={18} strokeWidth={2.2} />
+        </button>
+        <button
+          type="button"
+          className="cats__arrow"
+          aria-label="Sonraki kategoriler"
+          onClick={() => scrollBy(1)}
+          disabled={!canNext}
+        >
+          <ChevronRight size={18} strokeWidth={2.2} />
+        </button>
+      </div>
+    </>
   );
 }

@@ -151,7 +151,7 @@ export default function Home() {
               </div>
               <div className="stat-card">
                 <span className="stat-card__icon" aria-hidden="true"><ClockIcon /></span>
-                <div className="stat-card__num">07:30 – 22:30</div>
+                <div className="stat-card__num">07:30 – 00:00</div>
                 <div className="stat-card__label">Her gün açığız</div>
               </div>
               <div className="stat-card">
@@ -470,7 +470,7 @@ export default function Home() {
             <div className="footer__col">
               <h4>Saatler</h4>
               <ul>
-                <li><p>Pzt–Paz · 07:30–22:30</p></li>
+                <li><p>Pzt–Paz · 07:30–00:00</p></li>
                 <li><p>Bayram dahil her gün açık</p></li>
               </ul>
             </div>

@@ -29,9 +29,9 @@ export const BUSINESS = {
     handle: "@yenimahallemarket",
   },
   hours: {
-    display: "Haftanın 7 günü · 07:30 – 22:30",
+    display: "Haftanın 7 günü · 07:30 – 00:00",
     opens: "07:30",
-    closes: "22:30",
+    closes: "00:00",
     daysDisplay: "Pazartesi · Pazar",
   },
   geo: { lat: 40.6914, lng: 30.2641 },
@@ -121,7 +121,7 @@ export function buildLocalBusinessJsonLd(rating?: { average: number; count: numb
       longitude: BUSINESS.geo.lng,
     },
     hasMap: BUSINESS.googleMapsCidUrl,
-    openingHours: "Mo-Su 07:30-22:30",
+    openingHours: "Mo-Su 07:30-24:00",
     openingHoursSpecification: [
       {
         "@type": "OpeningHoursSpecification",

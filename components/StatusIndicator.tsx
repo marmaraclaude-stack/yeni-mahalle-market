@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 
 const OPEN_MIN = 7 * 60 + 30; // 07:30
-const CLOSE_MIN = 22 * 60 + 30; // 22:30
+const CLOSE_MIN = 24 * 60;    // 00:00 (gün sonu)
 
 /** Istanbul saatine göre dakika cinsinden şu an. */
 function istanbulMinutes(): number {
@@ -32,12 +32,12 @@ export default function StatusIndicator() {
   const open = now !== null && now >= OPEN_MIN && now < CLOSE_MIN;
 
   // Mount öncesi nötr durum (yanıp sönmeyi engelle)
-  const label = now === null ? "07:30 – 22:30 arası açık" : open ? "Şu an açık" : "Şu an kapalı";
+  const label = now === null ? "07:30 – 00:00 arası açık" : open ? "Şu an açık" : "Şu an kapalı";
   const detail =
     now === null
       ? null
       : open
-        ? "22:30'a kadar sipariş alıyoruz"
+        ? "00:00'a kadar sipariş alıyoruz"
         : "07:30'da tekrar açılıyoruz";
 
   return (

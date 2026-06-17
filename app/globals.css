@@ -973,25 +973,48 @@ p { margin: 0; }
 /* ============================================================
    CATEGORIES — getir tarzı ikon kartlar
    ============================================================ */
-/* MOBİL: 3 satır, yatay kayan (Getir tarzı) */
+/* MOBİL: 3 satır, yatay kayan (container içinde başlar, taşmaz) */
 .cats {
   display: grid;
   grid-auto-flow: column;
   grid-template-rows: repeat(3, 1fr);
-  grid-auto-columns: 44%;
+  /* 2 kart + yarısı görünür → kullanıcı kaydırılabilir olduğunu anlar */
+  grid-auto-columns: calc((100% - 20px) / 2);
   gap: 10px;
   overflow-x: auto;
   scroll-snap-type: x proximity;
   scrollbar-width: none;
-  /* kenarlardan taşıp container'ın tamamını kaydırma alanı yap */
-  margin-inline: calc(-1 * var(--gutter));
-  padding-inline: var(--gutter);
   padding-bottom: 4px;
 }
 .cats::-webkit-scrollbar { display: none; }
 .cat { scroll-snap-align: start; }
-@media (min-width: 480px) { .cats { grid-auto-columns: 30%; } }
-/* TABLET: normal grid */
+
+/* Mobil kontrol butonları — sadece kayan modda görünür */
+.cats__nav {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 16px;
+}
+.cats__arrow {
+  width: 42px; height: 42px;
+  border-radius: 999px;
+  background: var(--white);
+  border: 1px solid var(--gray-200);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ink);
+  transition: background 180ms var(--ease), border-color 180ms var(--ease),
+    opacity 180ms var(--ease);
+}
+.cats__arrow:hover:not(:disabled) {
+  background: var(--gray-50);
+  border-color: var(--gray-300);
+}
+.cats__arrow:disabled { opacity: 0.35; cursor: not-allowed; }
+
+/* TABLET: 5 sütun, normal grid */
 @media (min-width: 720px) {
   .cats {
     grid-auto-flow: row;
@@ -999,12 +1022,11 @@ p { margin: 0; }
     grid-template-columns: repeat(5, 1fr);
     grid-auto-columns: auto;
     overflow: visible;
-    margin-inline: 0;
-    padding-inline: 0;
     gap: 12px;
   }
+  .cats__nav { display: none; }
 }
-/* MASAÜSTÜ: 9 sütun × 3 satır — hepsi açık */
+/* MASAÜSTÜ: 9 sütun × 3 satır */
 @media (min-width: 1120px) {
   .cats { grid-template-columns: repeat(9, 1fr); gap: 10px; }
 }
