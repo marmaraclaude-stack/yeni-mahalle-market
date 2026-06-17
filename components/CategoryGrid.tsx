@@ -39,36 +39,48 @@ import {
 } from "lucide-react";
 import { BUSINESS } from "@/lib/business";
 
-type Cat = { Icon: LucideIcon; label: string };
+type Cat = { Icon: LucideIcon; label: string; t: number };
+
+// Yumuşak pastel paleti [arka plan, ön plan] — kategori grubuna göre.
+const TINTS: [string, string][] = [
+  ["#eafaf0", "#159b57"], // 0 yeşil
+  ["#fdeceb", "#df513c"], // 1 mercan
+  ["#fdf4e1", "#cf8910"], // 2 amber
+  ["#eaf1fe", "#2f6fed"], // 3 mavi
+  ["#e6f7fb", "#0e93a8"], // 4 cam göbeği
+  ["#f2ecfd", "#7a52d6"], // 5 mor
+  ["#fdebf3", "#d6489b"], // 6 pembe
+  ["#e7f6f2", "#11917a"], // 7 deniz yeşili
+];
 
 const CATEGORIES: Cat[] = [
-  { Icon: Carrot, label: "Meyve & Sebze" },
-  { Icon: Beef, label: "Şarküteri & Et" },
-  { Icon: Croissant, label: "Ekmek & Fırın" },
-  { Icon: Milk, label: "Süt & Kahvaltılık" },
-  { Icon: CupSoda, label: "İçecek & Su" },
-  { Icon: Wheat, label: "Bakliyat & Makarna" },
-  { Icon: Soup, label: "Konserve & Hazır Yemek" },
-  { Icon: Droplets, label: "Yağ, Sos & Baharat" },
-  { Icon: Cookie, label: "Atıştırmalık" },
-  { Icon: Nut, label: "Cips & Kuruyemiş" },
-  { Icon: Candy, label: "Çikolata & Şekerleme" },
-  { Icon: Coffee, label: "Kahve & Çay" },
-  { Icon: IceCreamCone, label: "Dondurma" },
-  { Icon: Snowflake, label: "Donuk Gıda" },
-  { Icon: Citrus, label: "Zeytin & Turşu" },
-  { Icon: SprayCan, label: "Temizlik & Deterjan" },
-  { Icon: ScrollText, label: "Kağıt Ürünleri" },
-  { Icon: Baby, label: "Bebek" },
-  { Icon: PawPrint, label: "Evcil Hayvan" },
-  { Icon: Cigarette, label: "Sigara & Tütün" },
-  { Icon: Flame, label: "Mangal & Kömür" },
-  { Icon: FlameKindling, label: "Çakmak, Kibrit & Tüp" },
-  { Icon: BatteryCharging, label: "Şarj Aleti & Pil" },
-  { Icon: Umbrella, label: "Plaj, Mayo & Terlik" },
-  { Icon: Sun, label: "Güneş Kremi & Plaj" },
-  { Icon: LifeBuoy, label: "Şişme Bot & Havuz" },
-  { Icon: Bug, label: "Sinek & Böcek Kovucu" },
+  { Icon: Carrot, label: "Meyve & Sebze", t: 0 },
+  { Icon: Beef, label: "Şarküteri & Et", t: 1 },
+  { Icon: Croissant, label: "Ekmek & Fırın", t: 2 },
+  { Icon: Milk, label: "Süt & Kahvaltılık", t: 3 },
+  { Icon: CupSoda, label: "İçecek & Su", t: 4 },
+  { Icon: Wheat, label: "Bakliyat & Makarna", t: 2 },
+  { Icon: Soup, label: "Konserve & Hazır Yemek", t: 1 },
+  { Icon: Droplets, label: "Yağ, Sos & Baharat", t: 7 },
+  { Icon: Cookie, label: "Atıştırmalık", t: 5 },
+  { Icon: Nut, label: "Cips & Kuruyemiş", t: 2 },
+  { Icon: Candy, label: "Çikolata & Şekerleme", t: 6 },
+  { Icon: Coffee, label: "Kahve & Çay", t: 1 },
+  { Icon: IceCreamCone, label: "Dondurma", t: 4 },
+  { Icon: Snowflake, label: "Donuk Gıda", t: 3 },
+  { Icon: Citrus, label: "Zeytin & Turşu", t: 0 },
+  { Icon: SprayCan, label: "Temizlik & Deterjan", t: 7 },
+  { Icon: ScrollText, label: "Kağıt Ürünleri", t: 3 },
+  { Icon: Baby, label: "Bebek", t: 6 },
+  { Icon: PawPrint, label: "Evcil Hayvan", t: 5 },
+  { Icon: Cigarette, label: "Sigara & Tütün", t: 1 },
+  { Icon: Flame, label: "Mangal & Kömür", t: 2 },
+  { Icon: FlameKindling, label: "Çakmak, Kibrit & Tüp", t: 1 },
+  { Icon: BatteryCharging, label: "Şarj Aleti & Pil", t: 3 },
+  { Icon: Umbrella, label: "Plaj, Mayo & Terlik", t: 4 },
+  { Icon: Sun, label: "Güneş Kremi & Plaj", t: 2 },
+  { Icon: LifeBuoy, label: "Şişme Bot & Havuz", t: 4 },
+  { Icon: Bug, label: "Sinek & Böcek Kovucu", t: 0 },
 ];
 
 function prefersReduced() {
@@ -172,12 +184,14 @@ export default function CategoryGrid() {
       <div ref={railRef} className="cats" role="list">
         {CATEGORIES.map((c) => {
           const active = selected.includes(c.label);
+          const [bg, fg] = TINTS[c.t];
           return (
             <button
               key={c.label}
               type="button"
               className={`cat${active ? " is-selected" : ""}`}
               aria-pressed={active}
+              style={{ "--cat-bg": bg, "--cat-fg": fg } as React.CSSProperties}
               onClick={(e) => toggle(c.label, e.currentTarget)}
             >
               <span className="cat__icon" aria-hidden="true">
@@ -230,18 +244,32 @@ export default function CategoryGrid() {
           <span className="basket__count">{selected.length}</span>
         </span>
 
+        <div className="basket__meta">
+          <span className="basket__meta-title">
+            {selected.length === 1 ? "1 reyon" : `${selected.length} reyon`}
+          </span>
+          <span className="basket__meta-sub">listende</span>
+        </div>
+        <span className="basket__divider" aria-hidden="true" />
+
         <div className="basket__chips">
-          {selected.map((label) => (
-            <button
-              key={label}
-              type="button"
-              className="basket__chip"
-              onClick={() => setSelected((p) => p.filter((l) => l !== label))}
-            >
-              {label}
-              <X size={12} strokeWidth={2.5} />
-            </button>
-          ))}
+          {selected.map((label) => {
+            const cat = CATEGORIES.find((c) => c.label === label);
+            const fg = cat ? TINTS[cat.t][1] : "#fff";
+            return (
+              <button
+                key={label}
+                type="button"
+                className="basket__chip"
+                style={{ "--chip-fg": fg } as React.CSSProperties}
+                onClick={() => setSelected((p) => p.filter((l) => l !== label))}
+              >
+                <span className="basket__chip-dot" aria-hidden="true" />
+                {label}
+                <X size={12} strokeWidth={2.5} />
+              </button>
+            );
+          })}
         </div>
 
         <button
