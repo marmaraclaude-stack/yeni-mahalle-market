@@ -31,6 +31,8 @@ import {
   Bug,
   ChevronLeft,
   ChevronRight,
+  ChevronUp,
+  ChevronDown,
   ShoppingBasket,
   Check,
   X,
@@ -97,6 +99,7 @@ export default function CategoryGrid() {
   const [canNext, setCanNext] = useState(true);
   const [selected, setSelected] = useState<string[]>([]);
   const [bump, setBump] = useState(0);
+  const [expanded, setExpanded] = useState(false);
 
   const scrollByCol = (dir: 1 | -1) => {
     const el = railRef.current;
@@ -122,6 +125,11 @@ export default function CategoryGrid() {
       window.removeEventListener("resize", update);
     };
   }, []);
+
+  // Liste boşalınca paneli kapat
+  useEffect(() => {
+    if (selected.length === 0) setExpanded(false);
+  }, [selected.length]);
 
   // Poşete uçma animasyonu
   const flyToBasket = (iconEl: HTMLElement | null) => {
@@ -230,64 +238,117 @@ export default function CategoryGrid() {
 
       {/* Sepet barı — kategori seçilince belirir */}
       <div
-        className={`basket${selected.length ? " is-active" : ""}`}
+        className={`basket${selected.length ? " is-active" : ""}${expanded ? " is-expanded" : ""}`}
         role="region"
         aria-label="Sipariş listen"
       >
-        <span
-          ref={basketRef}
-          className={`basket__icon${bump ? " bump" : ""}`}
-          key={bump}
-          aria-hidden="true"
-        >
-          <ShoppingBasket size={20} strokeWidth={2} />
-          <span className="basket__count">{selected.length}</span>
-        </span>
+        {/* Yukarı açılan tam liste */}
+        <div className="basket__panel" role="list">
+          <div className="basket__panel-head">
+            <span className="basket__panel-title">Listendeki reyonlar</span>
+            <button
+              type="button"
+              className="basket__panel-close"
+              aria-label="Listeyi kapat"
+              onClick={() => setExpanded(false)}
+            >
+              <ChevronDown size={18} strokeWidth={2.2} />
+            </button>
+          </div>
+          <div className="basket__panel-list">
+            {selected.map((label) => {
+              const cat = CATEGORIES.find((c) => c.label === label);
+              const fg = cat ? TINTS[cat.t][1] : "#999";
+              return (
+                <div className="basket__row" role="listitem" key={label}>
+                  <span
+                    className="basket__row-dot"
+                    style={{ background: fg }}
+                    aria-hidden="true"
+                  />
+                  <span className="basket__row-label">{label}</span>
+                  <button
+                    type="button"
+                    className="basket__row-remove"
+                    aria-label={`${label} çıkar`}
+                    onClick={() => setSelected((p) => p.filter((l) => l !== label))}
+                  >
+                    <X size={15} strokeWidth={2.2} />
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+        </div>
 
-        <div className="basket__meta">
-          <span className="basket__meta-title">
-            {selected.length === 1 ? "1 reyon" : `${selected.length} reyon`}
+        <div className="basket__bar">
+          <span
+            ref={basketRef}
+            className={`basket__icon${bump ? " bump" : ""}`}
+            key={bump}
+            aria-hidden="true"
+          >
+            <ShoppingBasket size={20} strokeWidth={2} />
+            <span className="basket__count">{selected.length}</span>
           </span>
-          <span className="basket__meta-sub">listende</span>
-        </div>
-        <span className="basket__divider" aria-hidden="true" />
 
-        <div className="basket__chips">
-          {selected.map((label) => {
-            const cat = CATEGORIES.find((c) => c.label === label);
-            const fg = cat ? TINTS[cat.t][1] : "#fff";
-            return (
-              <button
-                key={label}
-                type="button"
-                className="basket__chip"
-                style={{ "--chip-fg": fg } as React.CSSProperties}
-                onClick={() => setSelected((p) => p.filter((l) => l !== label))}
-              >
-                <span className="basket__chip-dot" aria-hidden="true" />
-                {label}
-                <X size={12} strokeWidth={2.5} />
-              </button>
-            );
-          })}
-        </div>
+          <button
+            type="button"
+            className="basket__meta"
+            onClick={() => setExpanded((v) => !v)}
+            aria-expanded={expanded}
+          >
+            <span className="basket__meta-title">
+              {selected.length === 1 ? "1 reyon" : `${selected.length} reyon`}
+            </span>
+            <span className="basket__meta-sub">
+              {expanded ? "kapat" : "listeni gör"}
+              <ChevronUp size={13} strokeWidth={2.4} className="basket__meta-chev" />
+            </span>
+          </button>
 
-        <button
-          type="button"
-          className="basket__clear"
-          aria-label="Listeyi temizle"
-          onClick={() => setSelected([])}
-        >
-          <Trash2 size={16} strokeWidth={2} />
-        </button>
-        <a
-          href={waUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="btn btn--whatsapp basket__send"
-        >
-          WhatsApp&apos;tan gönder
-        </a>
+          <span className="basket__divider" aria-hidden="true" />
+
+          <div className="basket__chips">
+            {selected.map((label) => {
+              const cat = CATEGORIES.find((c) => c.label === label);
+              const fg = cat ? TINTS[cat.t][1] : "#fff";
+              return (
+                <button
+                  key={label}
+                  type="button"
+                  className="basket__chip"
+                  style={{ "--chip-fg": fg } as React.CSSProperties}
+                  onClick={() => setSelected((p) => p.filter((l) => l !== label))}
+                >
+                  <span className="basket__chip-dot" aria-hidden="true" />
+                  {label}
+                  <X size={12} strokeWidth={2.5} />
+                </button>
+              );
+            })}
+          </div>
+
+          <button
+            type="button"
+            className="basket__clear"
+            aria-label="Listeyi temizle"
+            onClick={() => {
+              setSelected([]);
+              setExpanded(false);
+            }}
+          >
+            <Trash2 size={16} strokeWidth={2} />
+          </button>
+          <a
+            href={waUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn btn--whatsapp basket__send"
+          >
+            WhatsApp&apos;tan gönder
+          </a>
+        </div>
       </div>
     </>
   );
