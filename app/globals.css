@@ -973,18 +973,18 @@ p { margin: 0; }
 /* ============================================================
    CATEGORIES — getir tarzı ikon kartlar
    ============================================================ */
-/* MOBİL: 3 satır, yatay kayan (container içinde başlar, taşmaz) */
+/* MOBİL: 3 satır, yatay kayan — tam 2 kart görünür, snap ile hizalı */
 .cats {
   display: grid;
   grid-auto-flow: column;
-  grid-template-rows: repeat(3, 1fr);
-  /* 2 kart + yarısı görünür → kullanıcı kaydırılabilir olduğunu anlar */
-  grid-auto-columns: calc((100% - 20px) / 2);
+  grid-template-rows: repeat(3, auto);
+  /* tam 2 kolon + 1 gap = görünür genişlik (yarım kart sızması yok) */
+  grid-auto-columns: calc((100% - 10px) / 2);
   gap: 10px;
   overflow-x: auto;
-  scroll-snap-type: x proximity;
+  scroll-snap-type: x mandatory;
   scrollbar-width: none;
-  padding-bottom: 4px;
+  padding-bottom: 2px;
 }
 .cats::-webkit-scrollbar { display: none; }
 .cat { scroll-snap-align: start; }

@@ -75,7 +75,10 @@ export default function CategoryGrid() {
   const scrollBy = (dir: 1 | -1) => {
     const el = railRef.current;
     if (!el) return;
-    el.scrollBy({ left: dir * el.clientWidth * 0.85, behavior: "smooth" });
+    // tam kolon adımı: kart genişliği + gap. Bir sayfa = 2 kolon.
+    const card = el.querySelector<HTMLElement>(".cat");
+    const step = card ? card.getBoundingClientRect().width + 10 : el.clientWidth / 2;
+    el.scrollBy({ left: dir * step * 2, behavior: "smooth" });
   };
 
   useEffect(() => {
