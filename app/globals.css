@@ -1344,13 +1344,62 @@ p { margin: 0; }
     left: 12px;
     right: 12px;
     width: auto;
+    max-width: none;
     transform: translateY(140%);
   }
   .basket.is-active { transform: translateY(0); }
-  .basket__bar { padding: 8px 8px 8px 12px; gap: 8px; }
+  /* 2 satır: üstte meta + sil, altta WhatsApp gönder tam genişlik */
+  .basket__bar {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    grid-template-rows: auto auto;
+    grid-template-areas:
+      "icon meta clear"
+      "send send send";
+    align-items: center;
+    gap: 8px 10px;
+    padding: 10px;
+    border-radius: 22px;
+  }
+  .basket__icon { grid-area: icon; }
+  .basket__meta { grid-area: meta; }
+  .basket__clear { grid-area: clear; }
+  .basket__send {
+    grid-area: send;
+    width: 100%;
+    height: 44px;
+    font-size: var(--fs-small);
+    padding: 0 16px;
+  }
   .basket__preview, .basket__divider { display: none; }
-  .basket__send { flex: 1; font-size: var(--fs-small); padding: 0 14px; }
   .basket__panel { max-height: 50vh; }
+
+  /* Kategori kaydırma okları — grid'in kenarına yüzer */
+  .cats__wrap { position: relative; }
+  .cats__nav {
+    margin-top: 0;
+    gap: 0;
+    pointer-events: none;
+  }
+  .cats__nav .cats__arrow {
+    position: absolute;
+    top: 50%;
+    width: 40px; height: 40px;
+    transform: translateY(-50%);
+    background: rgba(255,255,255,0.96);
+    border-color: var(--gray-200);
+    box-shadow: 0 10px 24px -10px rgba(16,16,16,0.28);
+    pointer-events: auto;
+    backdrop-filter: blur(8px);
+    z-index: 2;
+  }
+  .cats__nav .cats__arrow:first-child { left: -4px; }
+  .cats__nav .cats__arrow:last-child { right: -4px; }
+  /* Kenarda soft fade: ok varlığı + kaydırma sinyali */
+  .cats {
+    mask-image: linear-gradient(90deg, transparent 0, #000 28px, #000 calc(100% - 28px), transparent 100%);
+    -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 28px, #000 calc(100% - 28px), transparent 100%);
+  }
 }
 @media (prefers-reduced-motion: reduce) {
   .basket { transition: opacity 200ms var(--ease); }

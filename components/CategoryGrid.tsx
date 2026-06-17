@@ -189,6 +189,7 @@ export default function CategoryGrid() {
 
   return (
     <>
+      <div className="cats__wrap">
       <div ref={railRef} className="cats" role="list">
         {CATEGORIES.map((c) => {
           const active = selected.includes(c.label);
@@ -214,7 +215,7 @@ export default function CategoryGrid() {
         })}
       </div>
 
-      {/* mobil kaydırma kontrolleri */}
+      {/* mobil kaydırma kontrolleri — grid'in kenarına yüzer */}
       <div className="cats__nav" aria-hidden="true">
         <button
           type="button"
@@ -234,6 +235,7 @@ export default function CategoryGrid() {
         >
           <ChevronRight size={18} strokeWidth={2.2} />
         </button>
+      </div>
       </div>
 
       {/* Sepet barı — kategori seçilince belirir */}
