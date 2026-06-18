@@ -101,6 +101,7 @@ function prefersReduced() {
 export default function CategoryGrid() {
   const railRef = useRef<HTMLDivElement>(null);
   const basketRef = useRef<HTMLSpanElement>(null);
+  const snapTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [canPrev, setCanPrev] = useState(false);
   const [canNext, setCanNext] = useState(true);
   const [selected, setSelected] = useState<string[]>([]);
@@ -111,8 +112,15 @@ export default function CategoryGrid() {
     const el = railRef.current;
     if (!el) return;
     const card = el.querySelector<HTMLElement>(".cat");
-    const step = card ? card.getBoundingClientRect().width + 10 : el.clientWidth / 2;
-    el.scrollBy({ left: dir * step * 2, behavior: "smooth" });
+    const gap = parseFloat(getComputedStyle(el).columnGap || "10") || 10;
+    const step = (card ? card.getBoundingClientRect().width + gap : el.clientWidth / 2) * 2;
+    // iOS Safari: kaydırma sırasında snap'i kapat, sonra aç (jank önle)
+    el.style.scrollSnapType = "none";
+    el.scrollBy({ left: dir * step, behavior: "smooth" });
+    if (snapTimer.current) clearTimeout(snapTimer.current);
+    snapTimer.current = setTimeout(() => {
+      el.style.scrollSnapType = "";
+    }, 450);
   };
 
   useEffect(() => {

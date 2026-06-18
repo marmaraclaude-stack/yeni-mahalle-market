@@ -45,6 +45,7 @@ function ChevronRight() {
 
 export default function ReviewsRail() {
   const railRef = useRef<HTMLDivElement>(null);
+  const snapTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [progress, setProgress] = useState(0);
   const [canPrev, setCanPrev] = useState(false);
   const [canNext, setCanNext] = useState(true);
@@ -52,8 +53,18 @@ export default function ReviewsRail() {
   const scrollByCards = (dir: 1 | -1) => {
     const el = railRef.current;
     if (!el) return;
-    // tam görünür alan kadar adımla — snap her zaman kart sınırına oturur
-    el.scrollBy({ left: dir * el.clientWidth, behavior: "smooth" });
+    const card = el.querySelector<HTMLElement>(".review");
+    if (!card) return;
+    // tam adım = kart genişliği + gap → snap noktasına birebir otur
+    const gap = parseFloat(getComputedStyle(el).columnGap || "16") || 16;
+    const step = card.getBoundingClientRect().width + gap;
+    // iOS Safari: programatik kaydırma sırasında snap'i kapat, sonra aç
+    el.style.scrollSnapType = "none";
+    el.scrollBy({ left: dir * step, behavior: "smooth" });
+    if (snapTimer.current) clearTimeout(snapTimer.current);
+    snapTimer.current = setTimeout(() => {
+      el.style.scrollSnapType = "";
+    }, 450);
   };
 
   useEffect(() => {
