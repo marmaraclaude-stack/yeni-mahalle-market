@@ -52,9 +52,8 @@ export default function ReviewsRail() {
   const scrollByCards = (dir: 1 | -1) => {
     const el = railRef.current;
     if (!el) return;
-    const card = el.querySelector(".review");
-    const cardWidth = card ? card.clientWidth : 348;
-    el.scrollBy({ left: dir * (cardWidth + 16), behavior: "smooth" });
+    // tam görünür alan kadar adımla — snap her zaman kart sınırına oturur
+    el.scrollBy({ left: dir * el.clientWidth, behavior: "smooth" });
   };
 
   useEffect(() => {

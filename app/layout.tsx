@@ -75,6 +75,10 @@ export const metadata: Metadata = {
     "Sapanca sigara satışı",
     "Sapanca içecek su",
     "Sapanca ekmek fırın",
+    "Sapanca kişisel bakım",
+    "Sapanca eczane ürünleri",
+    "Sapanca piknik malzemeleri",
+    "Sapanca tek kullanımlık tabak çatal",
     // Turizm bölgeleri
     "Sapanca bungalov market",
     "Sapanca tatil köyü market",
