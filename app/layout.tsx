@@ -2,7 +2,6 @@ import type { Metadata, Viewport } from "next";
 import { Geist, Baloo_2 } from "next/font/google";
 import "./globals.css";
 import { BUSINESS, buildLocalBusinessJsonLd } from "@/lib/business";
-import { REVIEW_STATS } from "@/lib/reviews";
 import WhatsAppFab from "@/components/WhatsAppFab";
 
 // Gövde + UI sans — Geist (next/font, self-host).
@@ -137,10 +136,7 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const jsonLd = buildLocalBusinessJsonLd({
-    average: REVIEW_STATS.average,
-    count: REVIEW_STATS.count,
-  });
+  const jsonLd = buildLocalBusinessJsonLd();
 
   return (
     <html lang="tr" className={`${geist.variable} ${baloo.variable}`}>

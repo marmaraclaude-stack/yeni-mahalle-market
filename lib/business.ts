@@ -93,7 +93,14 @@ export const SERVICE_AREAS = [
   "Maşukiye",
 ];
 
-export function buildLocalBusinessJsonLd(rating?: { average: number; count: number }) {
+/**
+ * Google'in resmi rehberi: "self-controlled" sitelerde aggregateRating
+ * göndermek policy violation — manuel aksiyon riski (Search Console)
+ * + rich result yetkisi kaybı + arama sonuçlarından kaldırılma riski.
+ * Yıldız ratingi sadece GBP'den okunur, schema'dan gönderilmez.
+ * Ref: developers.google.com/search/docs/appearance/structured-data/review-snippet
+ */
+export function buildLocalBusinessJsonLd() {
   return {
     "@context": "https://schema.org",
     "@type": ["GroceryStore", "LocalBusiness", "Store"],
@@ -141,17 +148,6 @@ export function buildLocalBusinessJsonLd(rating?: { average: number; count: numb
         closes: BUSINESS.hours.closes,
       },
     ],
-    ...(rating && rating.count > 0
-      ? {
-          aggregateRating: {
-            "@type": "AggregateRating",
-            ratingValue: rating.average,
-            reviewCount: rating.count,
-            bestRating: 5,
-            worstRating: 1,
-          },
-        }
-      : {}),
     areaServed: SERVICE_AREAS.map((name) => ({ "@type": "Place", name })),
     sameAs: [
       BUSINESS.instagram.href,
