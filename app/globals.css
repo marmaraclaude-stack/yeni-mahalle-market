@@ -1026,9 +1026,9 @@ p { margin: 0; }
   }
   .cats__nav { display: none; }
 }
-/* MASAÜSTÜ: 9 sütun × 3 satır */
+/* MASAÜSTÜ: 10 sütun × 3 satır */
 @media (min-width: 1120px) {
-  .cats { grid-template-columns: repeat(9, 1fr); gap: 10px; }
+  .cats { grid-template-columns: repeat(10, 1fr); gap: 10px; }
 }
 .cat {
   --cat-bg: var(--accent-soft);
