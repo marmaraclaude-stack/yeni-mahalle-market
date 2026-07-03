@@ -1,10 +1,11 @@
 "use client";
 
-// Banner carousel v2 (PromoBanners'ın client alt komponenti).
-// Getir/Trendyol düzeni: masaüstünde 1 büyük kart + sıradaki kartın peek'i,
-// ince beyaz ok butonları (yalnız >=1024px), altta hap biçimli nokta
-// göstergeleri. 6 sn'de bir otomatik kayar; hover/focus'ta durur;
-// prefers-reduced-motion açıkken otomatik kayma tamamen kapalı.
+// Banner carousel v3 (PromoBanners'ın client alt komponenti).
+// Tam genişlik TEK kart düzeni: her görünümde tek kart kabın %100'ünü
+// kaplar (peek YOK, komşu kartın hiçbir parçası görünmez). Ok butonları
+// kartın iç kenarlarında dikey ortada (yalnız >=1024px), altta hap
+// biçimli nokta göstergeleri. 6 sn'de bir otomatik kayar; hover/focus'ta
+// durur; prefers-reduced-motion açıkken otomatik kayma tamamen kapalı.
 // Dokunmatikte scroll-snap ile elle kaydırılır; aktif nokta scroll
 // konumundan hesaplanır. Kart görseli: tint bazlı gradient zemin, sağda
 // dekoratif daireler + başlığa göre seçilen büyük tematik lucide ikonu.
@@ -57,7 +58,8 @@ export default function BannerCarousel({
     return () => mq.removeEventListener("change", apply);
   }, []);
 
-  // Bir slayt adımı (kart genişliği + gap) — peek düzeninde clientWidth değil.
+  // Bir slayt adımı: kart kabın %100'ü olduğundan adım = kap genişliği
+  // (+ kartlar arası gap); offsetLeft farkı ikisini birden verir.
   const getStep = useCallback(() => {
     const track = trackRef.current;
     if (!track) return 0;

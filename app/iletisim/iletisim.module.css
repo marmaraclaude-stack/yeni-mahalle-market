@@ -109,9 +109,9 @@
 .channelCard {
   display: flex;
   align-items: flex-start;
-  gap: 14px;
+  gap: 16px;
   flex: 1;
-  padding: clamp(16px, 2vw, 22px);
+  padding: clamp(18px, 2.2vw, 26px);
   background: var(--white);
   border: 1px solid var(--gray-200);
   border-radius: var(--r-lg);
@@ -127,8 +127,8 @@ a.channelCard:hover {
   display: grid;
   place-items: center;
   flex-shrink: 0;
-  width: 44px;
-  height: 44px;
+  width: 52px;
+  height: 52px;
   border-radius: 50%;
   background: var(--accent-soft);
   color: var(--accent);
@@ -270,5 +270,4 @@ a.channelCard:hover {
   color: var(--gray-700);
   font-size: var(--fs-small);
   line-height: 1.6;
-  max-width: var(--measure);
 }

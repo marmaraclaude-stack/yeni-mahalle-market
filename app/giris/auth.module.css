@@ -137,41 +137,69 @@
   }
 }
 
-/* Değer önerisi maddeleri (yalnız >=960px) */
-.valueList {
+/* 2x2 mini glass istatistik kartları (yalnız >=960px) */
+.statGrid {
   display: none;
   list-style: none;
   margin: 0;
-  padding: 26px 0 0;
-  border-top: 1px solid rgba(255, 255, 255, 0.12);
-  flex-direction: column;
-  gap: 16px;
+  padding: 0;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  max-width: 460px;
 }
 @media (min-width: 960px) {
-  .valueList {
+  .statGrid {
+    display: grid;
+  }
+}
+.statCard {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 14px 15px;
+  border-radius: var(--r-md);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  font-size: 13.5px;
+  font-weight: 500;
+  line-height: 1.35;
+  color: rgba(255, 255, 255, 0.92);
+}
+.statIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent);
+  flex-shrink: 0;
+}
+.statIcon svg {
+  width: 19px;
+  height: 19px;
+}
+
+/* Dekoratif kategori çipleri şeridi (yalnız >=960px):
+   tint'li yuvarlak ikonlar, hafif opacity ile arka planda canlılık katar */
+.chipStrip {
+  display: none;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+@media (min-width: 960px) {
+  .chipStrip {
     display: flex;
   }
 }
-.valueItem {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  font-size: 14.5px;
-  font-weight: 500;
-  color: rgba(255, 255, 255, 0.9);
-}
-.valueIcon {
+.chip {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   width: 38px;
   height: 38px;
   border-radius: 50%;
-  background: rgba(255, 90, 31, 0.16);
-  color: var(--accent);
+  opacity: 0.82;
   flex-shrink: 0;
 }
-.valueIcon svg {
+.chip svg {
   width: 17px;
   height: 17px;
 }
@@ -182,7 +210,8 @@
   align-items: center;
   gap: 10px;
   margin: 0;
-  padding-top: 20px;
+  padding-top: 18px;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
   font-size: 13.5px;
   font-weight: 500;
   color: rgba(255, 255, 255, 0.78);

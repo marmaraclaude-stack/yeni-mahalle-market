@@ -27,8 +27,8 @@ function InstagramIcon() {
   return (
     <svg
       viewBox="0 0 24 24"
-      width="20"
-      height="20"
+      width="23"
+      height="23"
       fill="none"
       stroke="currentColor"
       strokeWidth="2"
@@ -105,7 +105,7 @@ export default function IletisimPage() {
             <div className={styles.sideCol}>
               <a href={BUSINESS.phone.href} className={styles.channelCard}>
                 <span className={styles.channelIcon} aria-hidden="true">
-                  <Phone size={20} strokeWidth={1.9} />
+                  <Phone size={23} strokeWidth={1.9} />
                 </span>
                 <span className={styles.channelText}>
                   <span className={styles.channelLabel}>Telefon</span>
@@ -123,7 +123,7 @@ export default function IletisimPage() {
                   className={`${styles.channelIcon} ${styles.channelIconGreen}`}
                   aria-hidden="true"
                 >
-                  <MessageCircle size={20} strokeWidth={1.9} />
+                  <MessageCircle size={23} strokeWidth={1.9} />
                 </span>
                 <span className={styles.channelText}>
                   <span className={styles.channelLabel}>Canlı Destek</span>

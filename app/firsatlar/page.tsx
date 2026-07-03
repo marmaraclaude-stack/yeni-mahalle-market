@@ -1,12 +1,13 @@
-// Fırsatlar — /firsatlar. Üstte "Kampanyalar": aktif kupon kodları
-// (service-role ile okunur, vitrine yalnız gösterime gereken alanlar iner).
-// Altta "İndirimli Ürünler": compare_at_price dolu ve fiyattan büyük olan
-// aktif ürünler, en yüksek indirim oranı önce. DB hazır değilse veya fırsat
-// yoksa zarif boş durum gösterilir.
+// Fırsatlar — /firsatlar. Üstte "Kampanyalar": aktif kupon kodları full-width
+// yatay kampanya biletleri olarak (service-role ile okunur, vitrine yalnız
+// gösterime gereken alanlar iner). Altta "İndirimli Ürünler": compare_at_price
+// dolu ve fiyattan büyük olan aktif ürünler, en yüksek indirim oranı önce.
+// En altta ince bilgi şeridi. DB hazır değilse veya fırsat yoksa zarif boş
+// durum gösterilir.
 
 import type { Metadata } from "next";
 import Link from "next/link";
-import { BadgePercent, TicketPercent } from "lucide-react";
+import { BadgePercent, Info, TicketPercent } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { formatTL } from "@/lib/shop/types";
@@ -71,14 +72,17 @@ async function getActiveCoupons(): Promise<CampaignCoupon[]> {
   }
 }
 
-/** "%20 indirim" / "₺50,00 indirim" rozet metni. */
-function discountLabel(c: CampaignCoupon): string {
-  return c.discount_type === "percent"
-    ? `%${c.value} indirim`
-    : `${formatTL(c.value)} indirim`;
+/** Bilet sol bloğundaki büyük değer: "%10" / "₺200" (kuruş varsa "₺49,90"). */
+function bigDiscountValue(c: CampaignCoupon): string {
+  if (c.discount_type === "percent") return `%${c.value}`;
+  const amount = new Intl.NumberFormat("tr-TR", {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  }).format(c.value);
+  return `₺${amount}`;
 }
 
-/** Koşul satırı: "₺750,00 üzeri siparişlerde · Son gün: 15 Temmuz 2026" */
+/** Koşul satırı: "₺750,00 üzeri · Son gün: 15 Temmuz 2026 · Hesap başına 1 kez" */
 function couponTerms(c: CampaignCoupon): string {
   const parts: string[] = [];
   if (c.min_order_total > 0) {
@@ -93,7 +97,9 @@ function couponTerms(c: CampaignCoupon): string {
     }).format(new Date(c.expires_at));
     parts.push(`Son gün: ${date}`);
   }
-  return parts.length > 0 ? parts.join(" · ") : "Tüm siparişlerde geçerli";
+  if (parts.length === 0) parts.push("Tüm siparişlerde geçerli");
+  parts.push("Hesap başına 1 kez");
+  return parts.join(" · ");
 }
 
 export default async function FirsatlarPage() {
@@ -159,18 +165,34 @@ export default async function FirsatlarPage() {
                 Kodu kopyala, ödeme adımında kupon alanına yapıştır, indirim
                 anında düşsün.
               </p>
-              <div className={styles.couponGrid}>
+              <div className={styles.tickets}>
                 {coupons.map((c) => (
-                  <article key={c.code} className={styles.couponCard}>
-                    <span className={styles.couponBadge}>
-                      {discountLabel(c)}
-                    </span>
-                    <p className={styles.couponCode}>{c.code}</p>
-                    {c.description && (
-                      <p className={styles.couponDesc}>{c.description}</p>
-                    )}
-                    <p className={styles.couponTerms}>{couponTerms(c)}</p>
-                    <CopyCodeButton code={c.code} />
+                  <article key={c.code} className={styles.ticket}>
+                    {/* Sol: accent renk bloğu, büyük indirim değeri */}
+                    <div className={styles.ticketValue}>
+                      <span className={styles.valueBig}>
+                        {bigDiscountValue(c)}
+                      </span>
+                      <span className={styles.valueLabel}>İNDİRİM</span>
+                    </div>
+                    {/* Orta: büyük mono kod (tıklayınca kopyalar) + açıklama + koşullar */}
+                    <div className={styles.ticketBody}>
+                      <CopyCodeButton code={c.code} variant="code" />
+                      {c.description && (
+                        <p className={styles.couponDesc}>{c.description}</p>
+                      )}
+                      <p className={styles.couponTerms}>{couponTerms(c)}</p>
+                    </div>
+                    {/* Sağ: dikey buton grubu */}
+                    <div className={styles.ticketActions}>
+                      <CopyCodeButton code={c.code} />
+                      <Link
+                        href="/urunler"
+                        className={`btn btn--ghost ${styles.ticketGhost}`}
+                      >
+                        Alışverişe Başla
+                      </Link>
+                    </div>
                   </article>
                 ))}
               </div>
@@ -211,6 +233,17 @@ export default async function FirsatlarPage() {
                 ))}
               </div>
             </section>
+          )}
+
+          {/* --- İnce bilgi şeridi (kupon varken anlamlı) --- */}
+          {coupons.length > 0 && (
+            <aside className={styles.infoStrip}>
+              <Info size={15} strokeWidth={2} aria-hidden="true" />
+              <p>
+                Kuponlar ödeme adımındaki kupon alanına yapıştırılır · Her
+                kupon hesap başına 1 kez kullanılabilir
+              </p>
+            </aside>
           )}
         </div>
       </main>

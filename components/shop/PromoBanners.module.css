@@ -1,11 +1,12 @@
 /* ============================================================
-   Kampanya banner carousel v2 — Getir/Trendyol/UberEats dili.
+   Kampanya banner carousel v3 — tam genişlik TEK kart düzeni.
    Tint bazlı gradient kart; solda kicker chip + büyük başlık +
    koyu tint CTA pill; sağda dekoratif daireler + büyük tematik
-   ikon. Masaüstünde 1 büyük kart + sıradaki kartın peek'i,
-   ince beyaz ok butonları; altta hap biçimli noktalar.
-   Tint renkleri inline --bnr-bg / --bnr-fg değişkenleriyle gelir;
-   diğer token'lar globals.css'ten miras alınır.
+   ikon. Her görünümde tek kart kabın %100'ünü kaplar (peek YOK,
+   komşu kartın hiçbir parçası görünmez); ok butonları kartın iç
+   kenarlarında dikey ortada (yalnız masaüstü); altta hap biçimli
+   noktalar. Tint renkleri inline --bnr-bg / --bnr-fg
+   değişkenleriyle gelir; diğer token'lar globals.css'ten miras.
    ============================================================ */
 
 /* /urunler yerleşimi: başlık ile katalog düzeni arasında nefes payı */
@@ -23,7 +24,9 @@
   position: relative;
 }
 
-/* Kayan şerit — peek düzeni: kartlar %100'den dar, snap zorunlu */
+/* Kayan şerit — tam genişlik düzen: her kart kabın %100'ü, snap zorunlu.
+   Kartlar arası gap yalnız kaydırma sırasında görünür; duran görünümde
+   komşu karttan hiçbir parça ekranda kalmaz. */
 .track {
   display: flex;
   gap: 14px;
@@ -36,7 +39,7 @@
   display: none;
 }
 
-/* Tek slayt — mobilde %8 peek, masaüstünde %15 peek.
+/* Tek slayt — her görünümde kabın %100'ü (peek YOK).
    Yükseklik SABİT DEĞİL: içerikten gelir, min-height yalnız alt sınır.
    overflow:hidden yalnız taşan dekor dairelerini kırpar; içerik normal
    akışta olduğundan kart uzar, metin hiçbir genişlikte kesilmez.
@@ -45,7 +48,7 @@
 .slide {
   position: relative;
   --art-reserve: clamp(88px, 14vw, 176px);
-  flex: 0 0 92%;
+  flex: 0 0 100%;
   min-width: 0;
   display: flex;
   align-items: center;
@@ -55,19 +58,15 @@
   border-radius: var(--r-xl);
   overflow: hidden;
   scroll-snap-align: start;
+  scroll-snap-stop: always;
   background: linear-gradient(
     135deg,
     var(--bnr-bg) 0%,
     color-mix(in srgb, var(--bnr-bg) 34%, var(--white)) 100%
   );
-  transition: transform 220ms var(--ease);
-}
-.slide:hover {
-  transform: scale(1.01);
 }
 @media (min-width: 1024px) {
   .slide {
-    flex-basis: 85%;
     /* Sol ok butonu (left:12px + 38px) metnin uzerine binmesin */
     padding-left: clamp(58px, 5vw, 68px);
   }
@@ -78,7 +77,9 @@
   min-height: clamp(140px, 18vw, 180px);
 }
 
-/* -------- Sol içerik -------- */
+/* -------- Sol içerik --------
+   Tek kart tam genişlik olduğundan içerik ölçüsü daha ferah;
+   sağdaki dekor payı zaten padding-right ile ayrılıyor. */
 .slideCopy {
   position: relative;
   z-index: 1;
@@ -86,7 +87,7 @@
   flex-direction: column;
   align-items: flex-start;
   gap: 10px;
-  max-width: min(100%, 540px);
+  max-width: min(100%, 640px);
 }
 
 /* Kicker chip — koyu tint zemin, beyaz metin */
@@ -105,7 +106,7 @@
 
 .slideTitle {
   font-family: var(--font-display);
-  font-size: clamp(20px, 2.4vw, 30px);
+  font-size: clamp(22px, 3vw, 36px);
   font-weight: 700;
   letter-spacing: -0.025em;
   line-height: 1.2;
@@ -291,14 +292,10 @@
   outline-offset: 2px;
 }
 
-/* Hareket azaltma: elle kaydırma da yumuşatmasız, hover ölçekleme yok
+/* Hareket azaltma: elle kaydırma da yumuşatmasız
    (otomatik kayma zaten JS tarafında kapatılır) */
 @media (prefers-reduced-motion: reduce) {
   .track {
     scroll-behavior: auto;
-  }
-  .slide,
-  .slide:hover {
-    transform: none;
   }
 }

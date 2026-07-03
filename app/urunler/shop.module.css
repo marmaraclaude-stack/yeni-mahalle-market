@@ -326,7 +326,6 @@
 .cartEmptyText {
   color: var(--gray-500);
   font-size: var(--fs-small);
-  max-width: 22ch;
 }
 
 /* Dolu durum — kompakt satırlar */
@@ -831,5 +830,4 @@
 .fallback h2 { font-size: var(--fs-h3); }
 .fallback p {
   color: var(--gray-500);
-  max-width: var(--measure-narrow);
 }

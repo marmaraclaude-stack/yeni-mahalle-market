@@ -85,58 +85,142 @@
   font-variant-numeric: tabular-nums;
 }
 
-/* --- Kampanyalar: kupon kartları --- */
+/* --- Kampanyalar: full-width yatay kampanya biletleri --- */
 .campaigns {
   margin-bottom: clamp(32px, 4.5vw, 52px);
 }
-.couponGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(270px, 100%), 1fr));
+.tickets {
+  display: flex;
+  flex-direction: column;
   gap: 16px;
   margin-top: 16px;
 }
-.couponCard {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 10px;
-  padding: clamp(16px, 2vw, 22px);
+
+/* Bilet — mobil-öncelikli: dikey yığın (renk bloğu üst şerit); genişte
+   3 sütunlu yatay bilet. overflow:hidden çentik yarım dairelerini keser. */
+.ticket {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr;
+  align-items: stretch;
   background: var(--white);
   border: 1px solid var(--gray-200);
   border-radius: var(--r-lg);
+  overflow: hidden;
   transition: box-shadow 200ms var(--ease), border-color 200ms var(--ease);
 }
-.couponCard:hover {
+.ticket:hover {
   border-color: var(--gray-300);
-  box-shadow: 0 6px 16px rgba(10, 10, 10, 0.06);
+  box-shadow: 0 8px 22px rgba(10, 10, 10, 0.07);
 }
-.couponBadge {
-  padding: 3px 10px;
-  border-radius: var(--r-pill);
-  background: var(--accent-soft);
-  color: var(--accent-deep);
+
+/* Sol (mobilde üst) renk bloğu — accent gradient + perforasyon çizgisi */
+.ticketValue {
+  display: flex;
+  flex-direction: row;
+  align-items: baseline;
+  justify-content: center;
+  gap: 10px;
+  padding: 18px 20px;
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-deep) 100%);
+  color: var(--white);
+  border-bottom: 2px dashed rgba(255, 255, 255, 0.55);
+  text-align: center;
+}
+.valueBig {
+  font-family: var(--font-display);
+  font-size: clamp(34px, 4vw, 48px);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.valueLabel {
   font-size: var(--fs-micro);
   font-weight: 700;
-  letter-spacing: 0.01em;
+  letter-spacing: 0.22em;
+  opacity: 0.9;
 }
-/* Büyük kupon kodu — mono, kesikli çerçeve, seçilebilir */
-.couponCode {
+
+/* Orta gövde — çentikler (perforasyon yarım daireleri) buradan konumlanır */
+.ticketBody {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 10px;
+  min-width: 0;
+  padding: clamp(18px, 2.4vw, 26px) clamp(18px, 2.4vw, 28px);
+}
+.ticketBody::before,
+.ticketBody::after {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--white);
+  border: 1px solid var(--gray-200);
+}
+/* Mobil: çentikler üst şeridin altında, sol ve sağ kenarda */
+.ticketBody::before {
+  top: -11px;
+  left: -11px;
+}
+.ticketBody::after {
+  top: -11px;
+  right: -11px;
+}
+
+/* Büyük mono kod — tıklanınca da kopyalar */
+.codeChip {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px 14px;
   align-self: stretch;
-  padding: 12px 14px;
+  padding: 12px 16px;
   border: 1.5px dashed var(--accent);
-  border-radius: 12px;
+  border-radius: var(--r-md);
   background: var(--gray-50);
-  color: var(--ink);
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background 180ms var(--ease), border-color 180ms var(--ease);
+}
+.codeChip:hover {
+  background: var(--accent-soft);
+}
+.codeText {
   font-family: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas,
     monospace;
-  font-size: clamp(17px, 2vw, 21px);
+  font-size: clamp(19px, 2.2vw, 26px);
   font-weight: 700;
   letter-spacing: 0.08em;
-  text-align: center;
   text-transform: uppercase;
+  color: var(--ink);
   overflow-wrap: anywhere;
-  user-select: all;
 }
+.codeHint {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--gray-500);
+  font-size: var(--fs-micro);
+  font-weight: 600;
+}
+.codeChipDone,
+.codeChipDone:hover {
+  border-color: #159b57;
+  background: #eafaf0;
+}
+.codeChipDone .codeHint {
+  color: #159b57;
+}
+
 .couponDesc {
   color: var(--gray-700);
   font-size: var(--fs-small);
@@ -147,17 +231,32 @@
   font-size: var(--fs-micro);
   font-variant-numeric: tabular-nums;
 }
-/* "Kodu Kopyala" butonu — kopyalanınca yeşil onay durumu */
+
+/* Sağ (mobilde alt) dikey buton grubu */
+.ticketActions {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 10px;
+  padding: 0 clamp(18px, 2.4vw, 28px) clamp(18px, 2.4vw, 26px);
+}
+.ticketGhost {
+  width: 100%;
+  justify-content: center;
+}
+
+/* "Kodu Kopyala" — accent buton, kopyalanınca yeşil onay durumu */
 .copyBtn {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
-  margin-top: 2px;
-  padding: 9px 16px;
-  border: 1px solid var(--gray-200);
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 10px 18px;
+  border: 1px solid var(--accent);
   border-radius: var(--r-pill);
-  background: var(--white);
-  color: var(--ink);
+  background: var(--accent);
+  color: var(--white);
   font-size: var(--fs-small);
   font-weight: 600;
   cursor: pointer;
@@ -165,14 +264,66 @@
     color 180ms var(--ease);
 }
 .copyBtn:hover {
-  background: var(--gray-50);
-  border-color: var(--gray-300);
+  background: var(--accent-deep);
+  border-color: var(--accent-deep);
 }
 .copyBtnDone,
 .copyBtnDone:hover {
-  background: #eafaf0;
-  border-color: #b7e6cc;
-  color: #159b57;
+  background: #159b57;
+  border-color: #159b57;
+  color: var(--white);
+}
+
+/* Geniş ekran: yatay bilet (sol renk bloğu · gövde · buton grubu) */
+@media (min-width: 880px) {
+  .ticket {
+    grid-template-columns: minmax(170px, 220px) minmax(0, 1fr) auto;
+  }
+  .ticketValue {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: clamp(22px, 3vw, 34px) 18px;
+    border-bottom: 0;
+    border-right: 2px dashed rgba(255, 255, 255, 0.55);
+  }
+  /* Çentikler dikey ayracın üst ve alt ucuna taşınır */
+  .ticketBody::before {
+    top: -11px;
+    left: -11px;
+    right: auto;
+  }
+  .ticketBody::after {
+    top: auto;
+    bottom: -11px;
+    left: -11px;
+    right: auto;
+  }
+  .ticketActions {
+    min-width: 210px;
+    padding: clamp(18px, 2.4vw, 26px) clamp(18px, 2.4vw, 28px);
+  }
+}
+
+/* --- İnce bilgi şeridi (sayfa altı) --- */
+.infoStrip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: clamp(32px, 4.5vw, 52px);
+  padding: 12px 18px;
+  border: 1px solid var(--gray-200);
+  border-radius: var(--r-pill);
+  background: var(--gray-50);
+  color: var(--gray-500);
+  font-size: var(--fs-micro);
+  text-align: center;
+}
+.infoStrip svg {
+  flex-shrink: 0;
+  color: var(--accent);
 }
 
 /* --- Ürün gridi --- */

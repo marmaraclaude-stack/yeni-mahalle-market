@@ -1,9 +1,9 @@
 // Kampanya banner'ları — Getir/Trendyol kalıbı. Server komponent: banners
 // tablosunu ANON client ile çeker (is_active=true, sort asc). Tablo yoksa,
 // sorgu hata verirse ya da hiç aktif banner yoksa null döner (site patlamaz).
-// Görünümü BannerCarousel (client) çizer: 6 sn otomatik kayma, peek'li
-// scroll-snap düzeni, ok butonları (masaüstü), nokta göstergeleri,
-// reduced-motion desteği.
+// Görünümü BannerCarousel (client) çizer: 6 sn otomatik kayma, tam
+// genişlik tek kart scroll-snap düzeni (peek yok), ok butonları
+// (masaüstü), nokta göstergeleri, reduced-motion desteği.
 // variant: "home" → kendi section--tight + container kabuğu (ana sayfa);
 //          "catalog" → kabuksuz blok (/urunler başlığı ile katalog arası).
 

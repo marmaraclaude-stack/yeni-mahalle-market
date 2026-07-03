@@ -191,7 +191,6 @@
   margin: 0 0 8px;
   font-size: 14.5px;
   color: var(--gray-500);
-  max-width: var(--measure-narrow);
 }
 
 /* Sipariş listesi */
@@ -209,8 +208,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 14px;
-  padding: 14px 4px;
+  gap: 16px;
+  padding: 16px 6px;
   text-decoration: none;
   color: inherit;
   border-radius: var(--r-sm);
