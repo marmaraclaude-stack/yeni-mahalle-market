@@ -1,22 +1,48 @@
 "use client";
 
-// Banner carousel (PromoBanners'ın client alt komponenti).
-// Getir/Trendyol davranışı: 5 sn'de bir otomatik kayar; hover/focus'ta
-// durur; prefers-reduced-motion açıkken otomatik kayma tamamen kapalı.
-// Dokunmatikte scroll-snap ile elle kaydırılır; altta nokta göstergeleri
-// (tıklanınca ilgili slayta gider). Aktif nokta scroll konumundan hesaplanır.
+// Banner carousel v2 (PromoBanners'ın client alt komponenti).
+// Getir/Trendyol düzeni: masaüstünde 1 büyük kart + sıradaki kartın peek'i,
+// ince beyaz ok butonları (yalnız >=1024px), altta hap biçimli nokta
+// göstergeleri. 6 sn'de bir otomatik kayar; hover/focus'ta durur;
+// prefers-reduced-motion açıkken otomatik kayma tamamen kapalı.
+// Dokunmatikte scroll-snap ile elle kaydırılır; aktif nokta scroll
+// konumundan hesaplanır. Kart görseli: tint bazlı gradient zemin, sağda
+// dekoratif daireler + başlığa göre seçilen büyük tematik lucide ikonu.
 
+import type { CSSProperties, ComponentType } from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import {
+  ArrowRight,
+  BadgePercent,
+  ChevronLeft,
+  ChevronRight,
+  Sparkles,
+  Truck,
+  type LucideProps,
+} from "lucide-react";
 import type { Banner } from "@/lib/shop/types";
 import { CATEGORY_TINTS } from "@/lib/shop/categories";
 import styles from "@/components/shop/PromoBanners.module.css";
 
 /** Otomatik kayma aralığı (ms). */
-const AUTO_MS = 5000;
+const AUTO_MS = 6000;
 
-export default function BannerCarousel({ banners }: { banners: Banner[] }) {
+/** Başlıktaki anahtar kelimeye göre tematik ikon seç. */
+function bannerIcon(title: string): ComponentType<LucideProps> {
+  const t = title.toLocaleLowerCase("tr-TR");
+  if (t.includes("indirim")) return BadgePercent;
+  if (t.includes("teslimat") || t.includes("kargo")) return Truck;
+  return Sparkles;
+}
+
+export default function BannerCarousel({
+  banners,
+  variant = "home",
+}: {
+  banners: Banner[];
+  variant?: "home" | "catalog";
+}) {
   const trackRef = useRef<HTMLDivElement | null>(null);
   const [active, setActive] = useState(0);
   const [paused, setPaused] = useState(false);
@@ -31,17 +57,31 @@ export default function BannerCarousel({ banners }: { banners: Banner[] }) {
     return () => mq.removeEventListener("change", apply);
   }, []);
 
+  // Bir slayt adımı (kart genişliği + gap) — peek düzeninde clientWidth değil.
+  const getStep = useCallback(() => {
+    const track = trackRef.current;
+    if (!track) return 0;
+    const slides = track.children;
+    if (slides.length >= 2) {
+      return (
+        (slides[1] as HTMLElement).offsetLeft -
+        (slides[0] as HTMLElement).offsetLeft
+      );
+    }
+    return track.clientWidth;
+  }, []);
+
   const goTo = useCallback(
     (index: number, smooth: boolean) => {
       const track = trackRef.current;
       if (!track || banners.length === 0) return;
       const i = ((index % banners.length) + banners.length) % banners.length;
       track.scrollTo({
-        left: i * track.clientWidth,
+        left: i * getStep(),
         behavior: smooth ? "smooth" : "auto",
       });
     },
-    [banners.length],
+    [banners.length, getStep],
   );
 
   // Otomatik kayma — hover/focus'ta ve reduced-motion'da durur.
@@ -49,24 +89,27 @@ export default function BannerCarousel({ banners }: { banners: Banner[] }) {
     if (reducedMotion || paused || banners.length < 2) return;
     const id = window.setInterval(() => {
       const track = trackRef.current;
-      if (!track) return;
-      const current = Math.round(track.scrollLeft / track.clientWidth);
+      const step = getStep();
+      if (!track || step === 0) return;
+      const current = Math.round(track.scrollLeft / step);
       goTo(current + 1, true);
     }, AUTO_MS);
     return () => window.clearInterval(id);
-  }, [reducedMotion, paused, banners.length, goTo]);
+  }, [reducedMotion, paused, banners.length, goTo, getStep]);
 
   // Elle kaydırmada da aktif nokta doğru kalsın.
   function handleScroll() {
     const track = trackRef.current;
-    if (!track) return;
-    const i = Math.round(track.scrollLeft / track.clientWidth);
+    const step = getStep();
+    if (!track || step === 0) return;
+    const i = Math.round(track.scrollLeft / step);
     setActive(Math.max(0, Math.min(banners.length - 1, i)));
   }
 
   return (
     <div
       className={styles.carousel}
+      data-variant={variant}
       role="region"
       aria-roledescription="carousel"
       aria-label="Kampanyalar"
@@ -75,30 +118,67 @@ export default function BannerCarousel({ banners }: { banners: Banner[] }) {
       onFocus={() => setPaused(true)}
       onBlur={() => setPaused(false)}
     >
-      <div className={styles.track} ref={trackRef} onScroll={handleScroll}>
-        {banners.map((b) => {
-          const [bg, fg] = CATEGORY_TINTS[b.tint] ?? CATEGORY_TINTS[0];
-          const hasCta = b.cta_text.trim() !== "" && b.cta_href.trim() !== "";
-          return (
-            <article
-              key={b.id}
-              className={styles.slide}
-              style={{ background: bg, color: fg }}
+      <div className={styles.viewport}>
+        <div className={styles.track} ref={trackRef} onScroll={handleScroll}>
+          {banners.map((b, i) => {
+            const [bg, fg] = CATEGORY_TINTS[b.tint] ?? CATEGORY_TINTS[0];
+            const hasCta = b.cta_text.trim() !== "" && b.cta_href.trim() !== "";
+            const Icon = bannerIcon(b.title);
+            return (
+              <article
+                key={b.id}
+                className={styles.slide}
+                style={{ "--bnr-bg": bg, "--bnr-fg": fg } as CSSProperties}
+              >
+                <div className={styles.slideCopy}>
+                  <span className={styles.kicker}>
+                    {i % 2 === 0 ? "KAMPANYA" : "FIRSAT"}
+                  </span>
+                  <h3 className={styles.slideTitle}>{b.title}</h3>
+                  {b.subtitle && <p className={styles.slideSub}>{b.subtitle}</p>}
+                  {hasCta && (
+                    <Link href={b.cta_href} className={styles.slideCta}>
+                      {b.cta_text}
+                      <ArrowRight
+                        size={15}
+                        strokeWidth={2.2}
+                        aria-hidden="true"
+                      />
+                    </Link>
+                  )}
+                </div>
+                <div className={styles.slideArt} aria-hidden="true">
+                  <span className={styles.circleLg} />
+                  <span className={styles.circleSm} />
+                  <span className={styles.iconWrap}>
+                    <Icon className={styles.slideIcon} strokeWidth={1.5} />
+                  </span>
+                </div>
+              </article>
+            );
+          })}
+        </div>
+
+        {banners.length > 1 && (
+          <>
+            <button
+              type="button"
+              className={`${styles.arrow} ${styles.arrowPrev}`}
+              onClick={() => goTo(active - 1, !reducedMotion)}
+              aria-label="Önceki kampanya"
             >
-              <div className={styles.slideCopy}>
-                <h3 className={styles.slideTitle}>{b.title}</h3>
-                {b.subtitle && <p className={styles.slideSub}>{b.subtitle}</p>}
-                {hasCta && (
-                  <Link href={b.cta_href} className={styles.slideCta}>
-                    {b.cta_text}
-                    <ArrowRight size={15} strokeWidth={2.2} aria-hidden="true" />
-                  </Link>
-                )}
-              </div>
-              <span className={styles.slideGlow} aria-hidden="true" />
-            </article>
-          );
-        })}
+              <ChevronLeft size={20} strokeWidth={2} aria-hidden="true" />
+            </button>
+            <button
+              type="button"
+              className={`${styles.arrow} ${styles.arrowNext}`}
+              onClick={() => goTo(active + 1, !reducedMotion)}
+              aria-label="Sonraki kampanya"
+            >
+              <ChevronRight size={20} strokeWidth={2} aria-hidden="true" />
+            </button>
+          </>
+        )}
       </div>
 
       {banners.length > 1 && (

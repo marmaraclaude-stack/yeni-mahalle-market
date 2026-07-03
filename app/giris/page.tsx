@@ -1,6 +1,6 @@
 // Giriş sayfası: /giris?next=/hedef
-// Zaten oturum açıksa hedefe yönlendirir; değilse iki panelli auth kartında
-// GirisForm (client) gösterir. SiteNav üstte.
+// Zaten oturum açıksa hedefe yönlendirir; değilse tam genişlik split düzende
+// (sol marka paneli + sağ form alanı) GirisForm (client) gösterir. SiteNav üstte.
 
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -42,11 +42,9 @@ export default async function GirisPage({
     <>
       <SiteNav />
       <AuthShell>
-        <span className={styles.eyebrow}>Tekrar hoş geldin</span>
         <h1 className={styles.title}>Giriş yap</h1>
         <p className={styles.sub}>
-          Siparişlerini görüntülemek ve daha hızlı sipariş vermek için hesabına
-          giriş yap.
+          Hesabına giriş yap, kaldığın yerden devam et.
         </p>
 
         <GirisForm next={next} />

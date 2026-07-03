@@ -61,6 +61,14 @@
   }
 }
 
+/* Sol sütun: satır listesi + altında "Bunları unutma" önerileri */
+.linesCol {
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+  align-items: start;
+}
+
 /* --- Satırlar --- */
 .lines {
   list-style: none;
@@ -108,6 +116,7 @@
   justify-content: center;
   overflow: hidden;
   flex-shrink: 0;
+  color: inherit;
 }
 @media (min-width: 1024px) {
   .thumb {
@@ -131,11 +140,20 @@
   min-width: 0;
   flex: 1 1 160px;
 }
+/* Ürün adı: ürün detayına Link — hover'da accent + alt çizgi */
 .lineName {
+  justify-self: start;
   font-size: var(--fs-small);
   font-weight: 600;
   color: var(--ink);
   line-height: 1.3;
+  text-decoration: none;
+  transition: color 150ms var(--ease);
+}
+.lineName:hover {
+  color: var(--accent-deep);
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 @media (min-width: 1024px) {
   .lineInfo {
@@ -180,9 +198,10 @@
   padding: 2px;
   background: var(--gray-50);
 }
+/* Sepet sayfasında stepper diğer yüzeylerden biraz büyük (40px hedef alanı) */
 .stepBtn {
-  width: 30px;
-  height: 30px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   display: inline-flex;
   align-items: center;
@@ -198,11 +217,21 @@
   color: var(--accent);
 }
 .stepBtn svg {
-  width: 14px;
-  height: 14px;
+  width: 15px;
+  height: 15px;
+}
+@media (min-width: 1024px) {
+  .stepBtn {
+    width: 40px;
+    height: 40px;
+  }
+  .stepBtn svg {
+    width: 16px;
+    height: 16px;
+  }
 }
 .stepQty {
-  min-width: 26px;
+  min-width: 30px;
   text-align: center;
   font-size: var(--fs-small);
   font-weight: 600;
@@ -225,8 +254,8 @@
 }
 
 .removeBtn {
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   display: inline-flex;
   align-items: center;
@@ -253,7 +282,7 @@
   border-radius: var(--r-lg);
   padding: clamp(16px, 2vw, 24px);
   position: sticky;
-  top: 88px;
+  top: 84px;
 }
 
 .summaryTitle {
@@ -345,23 +374,70 @@
   pointer-events: none;
   cursor: not-allowed;
 }
+/* Girişsizken buton disabled GÖRÜNÜR ama tıklanabilir kalır → /giris?next=/odeme */
+.checkoutLocked {
+  opacity: 0.5;
+}
+.checkoutLocked:hover {
+  transform: none;
+  background: var(--accent);
+}
 
-/* Girişsiz kullanıcı notu (üyelik zorunlu) */
-.authNote {
-  margin-top: 10px;
-  font-size: var(--fs-micro);
-  color: var(--gray-500);
-  text-align: center;
-  line-height: 1.5;
+/* Girişsiz kullanıcı bloğu: özet kartı içinde, checkout butonunun ÜSTÜNDE.
+   Soluk turuncu zemin + ikon + tek satır mesaj + yan yana Giriş/Kayıt. */
+.authBox {
+  margin-top: 14px;
+  padding: 14px;
+  background: var(--accent-soft);
+  border: 1px solid rgba(255, 90, 31, 0.22);
+  border-radius: var(--r-md);
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  column-gap: 10px;
+  row-gap: 10px;
 }
-.authNote a {
+.authBoxIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--white);
   color: var(--accent-deep);
-  font-weight: 600;
-  text-decoration: underline;
-  text-underline-offset: 3px;
 }
-.authNote a:hover {
-  color: var(--accent);
+.authBoxIcon svg {
+  width: 17px;
+  height: 17px;
+}
+.authBoxText {
+  margin: 0;
+  font-size: var(--fs-small);
+  font-weight: 600;
+  color: var(--accent-deep);
+  line-height: 1.35;
+}
+.authBoxBtns {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 8px;
+}
+.authBtn {
+  flex: 1 1 0;
+  height: 38px;
+  padding: 0 14px;
+  font-size: var(--fs-small);
+  font-weight: 600;
+}
+/* Ghost buton turuncu zeminde beyaz dolgu ile daha okunur */
+.authBoxBtns :global(.btn--ghost) {
+  background: var(--white);
+}
+.authBoxBtns :global(.btn--ghost):hover {
+  background: var(--white);
+  border-color: var(--accent-deep);
+  color: var(--accent-deep);
 }
 
 .continueLink {
@@ -375,6 +451,32 @@
 }
 .continueLink:hover {
   color: var(--ink);
+}
+
+/* Sepeti Temizle: özetin altında küçük, sessiz link — hover'da kırmızı */
+.clearCart {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  width: 100%;
+  margin-top: 12px;
+  padding: 4px 0 0;
+  background: none;
+  border: none;
+  border-top: 1px solid var(--gray-100);
+  padding-top: 12px;
+  font-size: var(--fs-micro);
+  color: var(--gray-400);
+  cursor: pointer;
+  transition: color 150ms var(--ease);
+}
+.clearCart svg {
+  width: 13px;
+  height: 13px;
+}
+.clearCart:hover {
+  color: #c0392b;
 }
 
 /* --- Boş sepet: geniş hero tarzı --- */
@@ -418,4 +520,38 @@
   font-size: var(--fs-body);
   color: var(--gray-500);
   line-height: 1.55;
+}
+
+/* --- "Bunları unutma" önerileri: satır listesinin altında ProductCard grid --- */
+.suggest {
+  margin-top: 12px;
+  display: grid;
+  gap: 12px;
+}
+.suggestHead {
+  display: grid;
+  gap: 2px;
+}
+.suggestTitle {
+  font-family: var(--font-display);
+  font-size: var(--fs-h5);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  margin: 0;
+}
+.suggestSub {
+  margin: 0;
+  font-size: var(--fs-small);
+  color: var(--gray-500);
+}
+.suggestGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+@media (min-width: 640px) {
+  .suggestGrid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
 }

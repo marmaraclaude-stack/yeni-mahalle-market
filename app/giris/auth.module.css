@@ -1,47 +1,29 @@
 /* Giriş / Kayıt sayfaları ortak stilleri (global token'lardan miras alır).
-   Mobil: üstte kısa marka bandı + form kartı.
-   >=960px: iki panelli kart, solda gradient marka paneli, sağda form paneli. */
+   Full-bleed split düzen (Linear/Vercel login): kenar boşluğu ve radius YOK.
+   Mobil: üstte ince koyu marka bandı + altta tam genişlik form.
+   >=960px: sol yarı koyu gradient marka paneli (sticky, viewport'u doldurur),
+   sağ yarı beyaz form alanı (içerik ortalanmış, max 440px). */
 
 .page {
-  min-height: 80dvh;
-  background: var(--gray-50);
+  /* Nav: 68px yükseklik + 1px alt çizgi (globals .nav / .nav-shell) */
+  --auth-nav-h: 69px;
+  min-height: calc(100dvh - var(--auth-nav-h));
+  background: var(--white);
   font-family: var(--font-sans);
   color: var(--ink);
   display: flex;
   flex-direction: column;
 }
-
-/* Kabuk: genişlik standardı globals'taki .container sınıfından gelir
-   (tsx tarafında className="container ..."); burada yalnız hizalama + dikey ritim. */
-.shell {
-  flex: 1;
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  padding-block: clamp(24px, 4vw, 44px) 64px;
-}
-
-/* İki panelli auth kartı */
-.authCard {
-  width: 100%;
-  max-width: 460px;
-  background: var(--white);
-  border: 1px solid var(--gray-200);
-  border-radius: var(--r-xl);
-  overflow: hidden;
-  display: grid;
-  box-shadow: 0 12px 34px rgba(16, 16, 16, 0.06);
-}
 @media (min-width: 960px) {
-  .authCard {
-    max-width: 980px;
-    grid-template-columns: minmax(360px, 430px) minmax(0, 1fr);
-    box-shadow: 0 24px 60px rgba(16, 16, 16, 0.08);
+  .page {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: stretch;
   }
 }
 
 /* Marka paneli: derin gradient + köşede soft accent glow.
-   Mobilde kısa bant (logo + tek cümle), >=960px tam panel. */
+   Mobilde ince bant (logo + tek cümle), >=960px sol yarıyı dolduran panel. */
 .brandPanel {
   position: relative;
   overflow: hidden;
@@ -90,8 +72,24 @@
 }
 @media (min-width: 960px) {
   .brandPanel {
+    /* Sol yarı: nav altında viewport'u doldurur, form kayarken yerinde kalır */
+    position: sticky;
+    top: var(--auth-nav-h);
+    height: calc(100dvh - var(--auth-nav-h));
     gap: 18px;
-    padding: 44px 40px;
+    padding: clamp(40px, 4.5vw, 64px) clamp(36px, 5vw, 72px);
+  }
+  .brandPanel::before {
+    top: -160px;
+    right: -160px;
+    width: 480px;
+    height: 480px;
+  }
+  .brandPanel::after {
+    bottom: -200px;
+    left: -200px;
+    width: 440px;
+    height: 440px;
   }
 }
 
@@ -149,10 +147,10 @@
 }
 @media (min-width: 960px) {
   .brandValue {
-    font-size: var(--fs-h3);
+    font-size: clamp(28px, 2.6vw, 38px);
     letter-spacing: -0.035em;
-    line-height: 1.15;
-    max-width: 300px;
+    line-height: 1.12;
+    max-width: 400px;
   }
 }
 .brandTagline {
@@ -161,7 +159,7 @@
   font-size: 15px;
   line-height: 1.6;
   color: rgba(255, 255, 255, 0.72);
-  max-width: 320px;
+  max-width: 380px;
 }
 @media (min-width: 960px) {
   .brandTagline {
@@ -236,27 +234,26 @@
   fill: currentColor;
 }
 
-/* Sağ form paneli */
+/* Sağ form alanı: beyaz, tam yarı; içerik ortalanmış (max 440px) */
 .formPanel {
-  padding: clamp(24px, 3vw, 30px) clamp(18px, 2.5vw, 26px);
+  flex: 1;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  background: var(--white);
+  padding: 32px 20px 56px;
 }
 @media (min-width: 960px) {
   .formPanel {
-    padding: 44px 48px;
-    align-self: center;
-    width: 100%;
+    align-items: center;
+    padding: clamp(48px, 6vh, 72px) clamp(32px, 4vw, 64px);
   }
 }
-
-.eyebrow {
-  display: block;
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--gray-500);
-  margin-bottom: 6px;
+.formInner {
+  width: 100%;
+  max-width: 440px;
 }
+
 .title {
   margin: 0;
   font-family: var(--font-display);

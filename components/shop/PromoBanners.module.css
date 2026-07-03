@@ -1,8 +1,11 @@
 /* ============================================================
-   Kampanya banner carousel — Getir/Trendyol kalıbı.
-   Tint zeminli tam genişlik kart; solda başlık + alt metin +
-   beyaz zeminli CTA; scroll-snap kaydırma + nokta göstergeleri.
-   Renk/tipografi token'ları globals.css'ten miras alınır.
+   Kampanya banner carousel v2 — Getir/Trendyol/UberEats dili.
+   Tint bazlı gradient kart; solda kicker chip + büyük başlık +
+   koyu tint CTA pill; sağda dekoratif daireler + büyük tematik
+   ikon. Masaüstünde 1 büyük kart + sıradaki kartın peek'i,
+   ince beyaz ok butonları; altta hap biçimli noktalar.
+   Tint renkleri inline --bnr-bg / --bnr-fg değişkenleriyle gelir;
+   diğer token'lar globals.css'ten miras alınır.
    ============================================================ */
 
 /* /urunler yerleşimi: başlık ile katalog düzeni arasında nefes payı */
@@ -14,12 +17,18 @@
   position: relative;
 }
 
-/* Kayan şerit — tek kart görünür, snap zorunlu, scrollbar gizli */
+/* Ok butonlarının konum referansı: yalnız kartları sarar
+   (noktalar dışarıda kalır, oklar kartın dikey ortasına oturur) */
+.viewport {
+  position: relative;
+}
+
+/* Kayan şerit — peek düzeni: kartlar %100'den dar, snap zorunlu */
 .track {
   display: flex;
+  gap: 14px;
   overflow-x: auto;
   scroll-snap-type: x mandatory;
-  border-radius: var(--r-lg);
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
 }
@@ -27,105 +36,211 @@
   display: none;
 }
 
-/* Tek slayt — tint zemin + koyu tint metin inline style ile gelir */
+/* Tek slayt — mobilde %8 peek, masaüstünde %15 peek */
 .slide {
   position: relative;
-  flex: 0 0 100%;
-  min-width: 100%;
+  flex: 0 0 92%;
+  min-width: 0;
   display: flex;
   align-items: center;
-  min-height: 140px;
-  padding: clamp(20px, 3.2vw, 34px) clamp(20px, 4vw, 44px);
-  border-radius: var(--r-lg);
+  min-height: clamp(160px, 22vw, 220px);
+  padding: clamp(20px, 3.2vw, 36px) clamp(20px, 4vw, 48px);
+  border-radius: var(--r-xl);
   overflow: hidden;
   scroll-snap-align: start;
+  background: linear-gradient(
+    135deg,
+    var(--bnr-bg) 0%,
+    color-mix(in srgb, var(--bnr-bg) 34%, var(--white)) 100%
+  );
+  transition: transform 220ms var(--ease);
+}
+.slide:hover {
+  transform: scale(1.01);
+}
+@media (min-width: 1024px) {
+  .slide {
+    flex-basis: 85%;
+  }
 }
 
+/* Katalog varyantı: aynı görsel dil, biraz alçak */
+.carousel[data-variant="catalog"] .slide {
+  min-height: clamp(140px, 18vw, 180px);
+}
+
+/* -------- Sol içerik -------- */
 .slideCopy {
   position: relative;
   z-index: 1;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 8px;
-  max-width: 56ch;
+  gap: 10px;
+  max-width: min(100%, 540px);
 }
+
+/* Kicker chip — koyu tint zemin, beyaz metin */
+.kicker {
+  display: inline-flex;
+  align-items: center;
+  height: 24px;
+  padding: 0 12px;
+  border-radius: var(--r-pill);
+  background: var(--bnr-fg);
+  color: var(--white);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
 .slideTitle {
   font-family: var(--font-display);
-  font-size: var(--fs-h3);
+  font-size: clamp(22px, 2.6vw, 34px);
   font-weight: 700;
   letter-spacing: -0.025em;
-  line-height: 1.1;
-  color: inherit;
+  line-height: 1.08;
+  color: var(--ink);
   text-wrap: balance;
 }
+
 .slideSub {
   font-size: var(--fs-body);
   line-height: 1.45;
-  color: inherit;
-  opacity: 0.82;
+  color: var(--gray-700);
   text-wrap: pretty;
 }
 
-/* CTA — beyaz zemin, metin tint'in koyu tonunda (currentColor) */
+/* CTA — koyu tint zemin, beyaz metin pill */
 .slideCta {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  margin-top: 6px;
-  height: 40px;
-  padding: 0 20px;
+  margin-top: 4px;
+  height: 42px;
+  padding: 0 22px;
   border-radius: var(--r-pill);
-  background: var(--white);
-  color: inherit;
+  background: var(--bnr-fg);
+  color: var(--white);
   font-size: var(--fs-small);
   font-weight: 700;
   white-space: nowrap;
-  box-shadow: 0 2px 8px rgba(10, 10, 10, 0.1);
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--bnr-fg) 30%, transparent);
   transition: transform 160ms var(--ease), box-shadow 160ms var(--ease);
 }
 .slideCta:hover {
   transform: translateY(-1px);
-  box-shadow: 0 6px 14px rgba(10, 10, 10, 0.14);
+  box-shadow: 0 8px 18px color-mix(in srgb, var(--bnr-fg) 38%, transparent);
 }
 .slideCta:focus-visible {
-  outline: 2px solid currentColor;
+  outline: 2px solid var(--bnr-fg);
   outline-offset: 2px;
 }
 
-/* Sağda dekoratif soft daireler — currentColor'dan, düşük opaklık */
-.slideGlow {
+/* -------- Sağ dekoratif katman -------- */
+.slideArt {
   position: absolute;
-  top: 50%;
-  right: -70px;
-  width: 280px;
-  height: 280px;
-  transform: translateY(-50%);
-  border-radius: 50%;
-  background: currentColor;
-  opacity: 0.08;
+  inset: 0;
   pointer-events: none;
 }
-.slideGlow::before {
-  content: "";
+
+/* Büyük yarı saydam daire — sağ kenardan taşar */
+.circleLg {
   position: absolute;
   top: 50%;
-  left: -110px;
-  width: 150px;
-  height: 150px;
+  right: clamp(-90px, -6vw, -40px);
+  width: clamp(220px, 26vw, 340px);
+  height: clamp(220px, 26vw, 340px);
   transform: translateY(-50%);
   border-radius: 50%;
-  background: currentColor;
-  opacity: 0.6;
+  background: var(--bnr-fg);
+  opacity: 0.1;
 }
 
-/* Nokta göstergeleri — aktif nokta hap biçiminde uzar */
+/* Küçük eşlik dairesi — büyük dairenin sol üstüne biner */
+.circleSm {
+  position: absolute;
+  top: 12%;
+  right: clamp(130px, 16vw, 250px);
+  width: clamp(52px, 6vw, 84px);
+  height: clamp(52px, 6vw, 84px);
+  border-radius: 50%;
+  background: var(--bnr-fg);
+  opacity: 0.14;
+}
+
+/* Büyük tematik ikon — büyük dairenin merkezine yakın */
+.iconWrap {
+  position: absolute;
+  top: 50%;
+  right: clamp(20px, 5vw, 72px);
+  transform: translateY(-50%) rotate(-8deg);
+  color: var(--bnr-fg);
+  opacity: 0.55;
+}
+.slideIcon {
+  display: block;
+  width: clamp(64px, 9vw, 120px);
+  height: clamp(64px, 9vw, 120px);
+}
+
+/* Çok dar ekranda dekor metni ezmesin */
+@media (max-width: 480px) {
+  .circleSm {
+    display: none;
+  }
+  .iconWrap {
+    opacity: 0.3;
+    right: -10px;
+  }
+}
+
+/* -------- Ok butonları (yalnız masaüstü) -------- */
+.arrow {
+  display: none;
+  position: absolute;
+  top: 50%;
+  z-index: 2;
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  align-items: center;
+  justify-content: center;
+  transform: translateY(-50%);
+  border-radius: 50%;
+  border: 1px solid var(--gray-200);
+  background: var(--white);
+  color: var(--ink);
+  box-shadow: 0 4px 14px rgba(10, 10, 10, 0.12);
+  transition: transform 160ms var(--ease), box-shadow 160ms var(--ease);
+}
+.arrow:hover {
+  transform: translateY(-50%) scale(1.06);
+  box-shadow: 0 6px 18px rgba(10, 10, 10, 0.16);
+}
+.arrow:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.arrowPrev {
+  left: 12px;
+}
+.arrowNext {
+  right: 12px;
+}
+@media (min-width: 1024px) {
+  .arrow {
+    display: inline-flex;
+  }
+}
+
+/* -------- Nokta göstergeleri — aktif nokta hap biçiminde uzar -------- */
 .dots {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  margin-top: 10px;
+  margin-top: 12px;
 }
 .dot {
   width: 8px;
@@ -148,10 +263,14 @@
   outline-offset: 2px;
 }
 
-/* Hareket azaltma: elle kaydırma da yumuşatmasız olsun
+/* Hareket azaltma: elle kaydırma da yumuşatmasız, hover ölçekleme yok
    (otomatik kayma zaten JS tarafında kapatılır) */
 @media (prefers-reduced-motion: reduce) {
   .track {
     scroll-behavior: auto;
+  }
+  .slide,
+  .slide:hover {
+    transform: none;
   }
 }

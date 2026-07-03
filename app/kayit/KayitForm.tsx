@@ -4,7 +4,9 @@
 // Alan bazlı doğrulama, sol ikonlu input'lar, parola göster/gizle + gücü
 // göstergesi, loading durumu, güven notu. options.data içindeki
 // full_name / phone, DB trigger'ı ile customer_profiles satırına işlenir.
-// Session dönmezse e-posta onayı beklendiği için bilgi mesajı gösterilir.
+// E-posta onayı kapalı (autoconfirm): signUp session döner ve direkt ?next=
+// hedefine yönlendirilir. Session dönmezse (onay tekrar açılırsa) fallback
+// olarak "e-postanı onayla" bilgi mesajı gösterilir.
 
 import { useState, type FormEvent } from "react";
 import Link from "next/link";
@@ -122,13 +124,13 @@ export default function KayitForm({ next }: { next: string }) {
     }
 
     if (data.session) {
-      // E-posta onayı kapalı: direkt oturum açıldı.
+      // Normal yol (autoconfirm): oturum anında açıldı, direkt hedefe git.
       router.push(next);
       router.refresh();
       return;
     }
 
-    // E-posta onayı açık: kullanıcıya bilgi ver.
+    // Fallback: e-posta onayı açıksa kullanıcıya bilgi ver.
     setAwaitingConfirm(true);
     setPending(false);
   }
@@ -305,10 +307,10 @@ export default function KayitForm({ next }: { next: string }) {
           {pending ? (
             <>
               <span className={styles.spinner} aria-hidden="true" />
-              Kayıt yapılıyor...
+              Hesap oluşturuluyor...
             </>
           ) : (
-            "Kayıt ol"
+            "Hesap oluştur"
           )}
         </button>
       </form>

@@ -1,8 +1,9 @@
 // Kampanya banner'ları — Getir/Trendyol kalıbı. Server komponent: banners
 // tablosunu ANON client ile çeker (is_active=true, sort asc). Tablo yoksa,
 // sorgu hata verirse ya da hiç aktif banner yoksa null döner (site patlamaz).
-// Görünümü BannerCarousel (client) çizer: 5 sn otomatik kayma, nokta
-// göstergeleri, scroll-snap dokunmatik kaydırma, reduced-motion desteği.
+// Görünümü BannerCarousel (client) çizer: 6 sn otomatik kayma, peek'li
+// scroll-snap düzeni, ok butonları (masaüstü), nokta göstergeleri,
+// reduced-motion desteği.
 // variant: "home" → kendi section--tight + container kabuğu (ana sayfa);
 //          "catalog" → kabuksuz blok (/urunler başlığı ile katalog arası).
 
@@ -40,7 +41,7 @@ export default async function PromoBanners({
     return (
       <section className="section--tight" aria-label="Kampanyalar">
         <div className="container">
-          <BannerCarousel banners={banners} />
+          <BannerCarousel banners={banners} variant="home" />
         </div>
       </section>
     );
@@ -48,7 +49,7 @@ export default async function PromoBanners({
 
   return (
     <div className={styles.catalogWrap}>
-      <BannerCarousel banners={banners} />
+      <BannerCarousel banners={banners} variant="catalog" />
     </div>
   );
 }

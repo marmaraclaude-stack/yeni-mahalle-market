@@ -1,6 +1,8 @@
 // Kayıt sayfası: /kayit?next=/hedef
-// Zaten oturum açıksa hedefe yönlendirir; değilse iki panelli auth kartında
-// KayitForm (client) gösterir. SiteNav üstte.
+// Zaten oturum açıksa hedefe yönlendirir; değilse tam genişlik split düzende
+// (sol marka paneli + sağ form alanı) KayitForm (client) gösterir. SiteNav üstte.
+// E-posta onayı Supabase'de kapalı (autoconfirm): kayıt anında oturum açar,
+// varsayılan hedef /urunler.
 
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -19,7 +21,7 @@ export const metadata: Metadata = {
 /** Açık yönlendirme (open redirect) engeli: sadece site içi yollar. */
 function safeNext(raw: string | undefined): string {
   if (raw && raw.startsWith("/") && !raw.startsWith("//")) return raw;
-  return "/hesap";
+  return "/urunler";
 }
 
 export default async function KayitPage({
@@ -42,11 +44,9 @@ export default async function KayitPage({
     <>
       <SiteNav />
       <AuthShell>
-        <span className={styles.eyebrow}>Aramıza katıl</span>
-        <h1 className={styles.title}>Kayıt ol</h1>
+        <h1 className={styles.title}>Hesap oluştur</h1>
         <p className={styles.sub}>
-          Sipariş verebilmek için hesap gerekli. Hesabını oluştur, siparişini
-          saniyeler içinde ver.
+          Bir dakikadan kısa sürer, hemen sipariş vermeye başla.
         </p>
 
         <KayitForm next={next} />

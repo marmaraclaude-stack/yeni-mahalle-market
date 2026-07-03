@@ -243,6 +243,23 @@ export async function createOrder(
   if (rawCouponCode) {
     const coupon = await validateCoupon(rawCouponCode, subtotal);
     if (!coupon.ok) return { ok: false, error: coupon.error };
+
+    // Kupon kullanıcı başına 1 kez: aynı hesabın iptal edilmemiş bir
+    // siparişinde bu kod zaten kullanıldıysa reddet ("ilk siparişe özel"
+    // kuponlar bu kuralla çalışır).
+    const { count: priorUse } = await admin
+      .from("orders")
+      .select("id", { count: "exact", head: true })
+      .eq("user_id", userId)
+      .eq("coupon_code", coupon.code)
+      .neq("status", "cancelled");
+    if ((priorUse ?? 0) > 0) {
+      return {
+        ok: false,
+        error: "Bu kupon hesabınızda daha önce kullanılmış.",
+      };
+    }
+
     couponCode = coupon.code;
     discountTotal = coupon.discount;
   }
