@@ -33,13 +33,6 @@ function InstagramIcon() {
     </svg>
   );
 }
-function WhatsAppIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-      <path d="M20 12a8 8 0 1 1-3.2-6.4L20 4l-1.4 3.3A8 8 0 0 1 20 12Zm-5.2 2.1-1.3-.5a.7.7 0 0 0-.7.1l-.8.8a5.6 5.6 0 0 1-2.5-2.5l.8-.8a.7.7 0 0 0 .1-.7l-.5-1.3a.7.7 0 0 0-.8-.4l-1.2.3a.7.7 0 0 0-.5.8 6.7 6.7 0 0 0 6 6 .7.7 0 0 0 .8-.5l.3-1.2a.7.7 0 0 0-.4-.8Z" />
-    </svg>
-  );
-}
 function MapPinIcon() {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
@@ -110,18 +103,13 @@ export default function Home() {
                 </h1>
 
                 <p className="hero__sub">
-                  Taze meyve sebze, şarküteri ve günlük ihtiyaç. WhatsApp&apos;tan
-                  listeyi gönder, kapına getirelim.
+                  Taze meyve sebze, şarküteri ve günlük ihtiyaç. Online
+                  siparişini oluştur, kapına getirelim.
                 </p>
 
                 <div className="hero__ctas">
-                  <a
-                    href={BUSINESS.whatsapp.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="btn btn--whatsapp"
-                  >
-                    <WhatsAppIcon /> WhatsApp&apos;tan sipariş ver
+                  <a href="/urunler" className="btn btn--accent">
+                    Alışverişe Başla <ArrowRight />
                   </a>
                   <a href="#hizmetler" className="btn btn--ghost">
                     Hizmetleri gör <ArrowRight />
@@ -219,21 +207,17 @@ export default function Home() {
             <div id="hizmetler" className="features__row features__row--reverse">
               <div className="features__copy">
                 <h2 className="features__h">
-                  Listeyi yaz, gerisi bizde.
+                  Sorun mu var? Canlı destek yanında.
                 </h2>
                 <p className="features__p">
-                  WhatsApp&apos;tan ya da telefondan ulaş. Stoktan teyit eder,
-                  eksik olanı sorar, tezgâhtan özenle toplarız.
+                  Sağ alttaki baloncuğa tıkla, anında yazışalım. Stoktan teyit
+                  eder, eksik olanı sorar, tezgâhtan özenle toplarız. Dilersen
+                  telefonla da ulaşabilirsin.
                 </p>
                 <div>
-                  <a
-                    href={BUSINESS.whatsapp.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="btn-apple btn-apple--wa"
-                  >
-                    <span className="btn-apple__label">WhatsApp&apos;tan başla</span>
-                    <span className="btn-apple__icon" aria-hidden="true"><WhatsAppIcon /></span>
+                  <a href={BUSINESS.phone.href} className="btn-apple">
+                    <span className="btn-apple__label">{BUSINESS.phone.display}</span>
+                    <span className="btn-apple__icon" aria-hidden="true"><PhoneIcon /></span>
                   </a>
                 </div>
               </div>
@@ -264,7 +248,7 @@ export default function Home() {
                       <span className="track__node"><Check size={15} strokeWidth={2.6} /></span>
                       <span className="track__body">
                         <span className="track__label">Sipariş alındı</span>
-                        <span className="track__sub">WhatsApp&apos;tan ulaştı</span>
+                        <span className="track__sub">Online mağazadan ulaştı</span>
                       </span>
                       <span className="track__time">18:42</span>
                     </li>
@@ -317,7 +301,7 @@ export default function Home() {
 
             <CategoryGrid />
 
-            {/* Online mağaza CTA — kategori seç-WhatsApp akışına ek, tam katalog */}
+            {/* Online mağaza CTA — tam katalog */}
             <div className="section__more">
               <a href="/urunler" className="btn btn--accent">
                 Tüm ürünleri incele · Online sipariş
@@ -367,16 +351,11 @@ export default function Home() {
             </div>
 
             <div className="cta__grid">
-              <a
-                href={BUSINESS.whatsapp.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="cta-card cta-card--primary"
-              >
-                <span className="cta-card__icon"><WhatsAppIcon /></span>
-                <span className="cta-card__eyebrow">WhatsApp</span>
-                <span className="cta-card__title">Sipariş ver</span>
-                <span className="cta-card__detail">Mesajla, gerisi bizde</span>
+              <a href="/urunler" className="cta-card">
+                <span className="cta-card__icon"><ShoppingBasket strokeWidth={1.8} /></span>
+                <span className="cta-card__eyebrow">Online Sipariş</span>
+                <span className="cta-card__title">Alışverişe Başla</span>
+                <span className="cta-card__detail">Sepetini oluştur, gerisi bizde</span>
                 <span className="cta-card__arrow" aria-hidden="true"><ArrowUR /></span>
               </a>
               <a href={BUSINESS.phone.href} className="cta-card">
@@ -431,14 +410,6 @@ export default function Home() {
                 >
                   <InstagramIcon />
                 </a>
-                <a
-                  href={BUSINESS.whatsapp.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="WhatsApp"
-                >
-                  <WhatsAppIcon />
-                </a>
                 <a href={BUSINESS.phone.href} aria-label="Telefon">
                   <PhoneIcon />
                 </a>
@@ -469,11 +440,11 @@ export default function Home() {
                 <li><a href={BUSINESS.phone.href}>{BUSINESS.phone.display}</a></li>
                 <li>
                   <a
-                    href={BUSINESS.whatsapp.href}
+                    href={BUSINESS.instagram.href}
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    WhatsApp
+                    {BUSINESS.instagram.handle}
                   </a>
                 </li>
               </ul>

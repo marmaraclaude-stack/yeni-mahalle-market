@@ -79,7 +79,7 @@ export default function OrderDetails({
             <strong>Sipariş iptal edildi</strong>
             <p>
               {cancelledAt ? `${formatWhen(cancelledAt)} · ` : ""}
-              Sorularınız için bizi arayabilir veya WhatsApp&apos;tan
+              Sorularınız için bizi arayabilir veya canlı destekten
               yazabilirsiniz.
             </p>
           </div>
@@ -154,6 +154,14 @@ export default function OrderDetails({
               {order.delivery_fee > 0 ? formatTL(order.delivery_fee) : "Ücretsiz"}
             </dd>
           </div>
+          {Number(order.discount_total) > 0 && (
+            <div className={`${styles.totalRow} ${styles.totalDiscount}`}>
+              <dt>
+                İndirim{order.coupon_code ? ` (${order.coupon_code})` : ""}
+              </dt>
+              <dd>-{formatTL(Number(order.discount_total))}</dd>
+            </div>
+          )}
           <div className={`${styles.totalRow} ${styles.totalGrand}`}>
             <dt>Toplam</dt>
             <dd>{formatTL(order.total)}</dd>

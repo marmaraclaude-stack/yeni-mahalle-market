@@ -10,6 +10,7 @@ import { headers } from "next/headers";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { categoryBySlug } from "@/lib/shop/categories";
+import { validateCoupon } from "@/lib/shop/coupons";
 import {
   initializeCheckoutForm,
   isIyzicoConfigured,
@@ -40,6 +41,8 @@ export interface CreateOrderPayload {
   note: string;
   paymentMethod: PaymentMethod;
   lines: CreateOrderLine[];
+  /** Opsiyonel kupon kodu — sunucuda YENİDEN doğrulanır. */
+  couponCode?: string;
 }
 
 export type CreateOrderResult =
@@ -88,6 +91,23 @@ async function getRequestOrigin(): Promise<string> {
   const proto =
     h.get("x-forwarded-proto") ?? (host.startsWith("localhost") ? "http" : "https");
   return `${proto}://${host}`;
+}
+
+/**
+ * Kupon kullanım sayacını artır — DB fonksiyonu atomik çalışır
+ * (update ... set used_count = used_count + 1). Sayaç artmasa bile
+ * sipariş geçerli kalır; hata yutulur.
+ */
+async function bumpCouponUsage(
+  admin: ReturnType<typeof createAdminClient>,
+  code: string | null,
+): Promise<void> {
+  if (!code) return;
+  try {
+    await admin.rpc("increment_coupon_usage", { p_code: code });
+  } catch {
+    // Kritik değil — sipariş zaten oluştu.
+  }
 }
 
 export async function createOrder(
@@ -215,8 +235,20 @@ export async function createOrder(
       error: `Minimum sipariş tutarı ${formatTL(settings.min_order_total)}. Sepetinize ürün ekleyin.`,
     };
 
+  // --- 3.5) Kupon (opsiyonel) — sunucuda YENİDEN doğrula, client sonucuna güvenme.
+  // Kod gönderilmiş ama doğrulanamıyorsa kuponsuz devam ETME: hata dön.
+  const rawCouponCode = payload.couponCode?.trim() ?? "";
+  let couponCode: string | null = null;
+  let discountTotal = 0;
+  if (rawCouponCode) {
+    const coupon = await validateCoupon(rawCouponCode, subtotal);
+    if (!coupon.ok) return { ok: false, error: coupon.error };
+    couponCode = coupon.code;
+    discountTotal = coupon.discount;
+  }
+
   const deliveryFee = calcDeliveryFee(settings, subtotal);
-  const total = round2(subtotal + deliveryFee);
+  const total = Math.max(0, round2(subtotal + deliveryFee - discountTotal));
 
   // --- 4) Sipariş yaz — user_id her siparişte set (adım 0'da doğrulandı).
   // order_no çakışırsa yeniden dene ---
@@ -234,6 +266,8 @@ export async function createOrder(
         address_note: addressNote,
         items_subtotal: subtotal,
         delivery_fee: deliveryFee,
+        coupon_code: couponCode,
+        discount_total: discountTotal,
         total,
         payment_method: method,
         payment_status: "pending",
@@ -293,6 +327,8 @@ export async function createOrder(
         .update({ iyzico_token: init.token })
         .eq("id", order.id);
 
+      await bumpCouponUsage(admin, couponCode);
+
       return { ok: true, orderNo: order.order_no, paymentPageUrl: init.paymentPageUrl };
     } catch {
       // Ödeme sayfası açılamadıysa yarım sipariş bırakma (cascade: items + events silinir).
@@ -304,6 +340,8 @@ export async function createOrder(
       };
     }
   }
+
+  await bumpCouponUsage(admin, couponCode);
 
   return { ok: true, orderNo: order.order_no, paymentPageUrl: null };
 }

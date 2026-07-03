@@ -50,6 +50,8 @@ export interface Order {
   address_note: string;
   items_subtotal: number;
   delivery_fee: number;
+  coupon_code: string | null;
+  discount_total: number;
   total: number;
   payment_method: PaymentMethod;
   payment_status: PaymentStatus;
@@ -77,6 +79,22 @@ export interface OrderEvent {
   order_id: string;
   status: string;
   note: string;
+  created_at: string;
+}
+
+export type CouponDiscountType = "percent" | "fixed";
+
+/** Kupon — coupons tablosu (yalnız service-role okur/yazar). */
+export interface Coupon {
+  code: string; // BÜYÜK harf saklanır (örn. HOSGELDIN20)
+  description: string;
+  discount_type: CouponDiscountType;
+  value: number; // percent: %X, fixed: ₺X
+  min_order_total: number; // 0 = alt sınır yok
+  max_uses: number | null; // null = sınırsız
+  used_count: number;
+  is_active: boolean;
+  expires_at: string | null; // null = süresiz
   created_at: string;
 }
 

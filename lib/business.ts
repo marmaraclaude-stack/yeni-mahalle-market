@@ -152,11 +152,7 @@ export function buildLocalBusinessJsonLd() {
       },
     ],
     areaServed: SERVICE_AREAS.map((name) => ({ "@type": "Place", name })),
-    sameAs: [
-      BUSINESS.instagram.href,
-      BUSINESS.whatsapp.href,
-      BUSINESS.googleMapsCidUrl,
-    ],
+    sameAs: [BUSINESS.instagram.href, BUSINESS.googleMapsCidUrl],
     hasOfferCatalog: {
       "@type": "OfferCatalog",
       name: "Ürün Kategorileri",
@@ -169,7 +165,7 @@ export function buildLocalBusinessJsonLd() {
       "@type": "Offer",
       name: "Adrese teslim market alışverişi",
       description:
-        "Mahalle içi ücretsiz, adrese teslim market alışverişi. WhatsApp veya telefonla sipariş.",
+        "Mahalle içi ücretsiz, adrese teslim market alışverişi. Online veya telefonla sipariş.",
       areaServed: "Sapanca, Sakarya",
       availability: "https://schema.org/InStock",
     },

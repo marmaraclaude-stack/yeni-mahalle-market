@@ -20,7 +20,7 @@ const DEFAULT_SETTINGS: ShopSettings = {
   iyzico_enabled: false,
   ordering_open: true,
   closed_message:
-    "Şu an online sipariş alamıyoruz. WhatsApp üzerinden yazabilirsiniz.",
+    "Şu an online sipariş alamıyoruz. Canlı destekten bize yazabilirsiniz.",
 };
 
 async function saveSettingsAction(formData: FormData) {
@@ -90,103 +90,105 @@ export default async function AdminSettingsPage({
         </div>
       ) : (
         <form action={saveSettingsAction} className={styles.settingsForm}>
-          <section className={styles.panel}>
-            <h2 className={styles.panelTitle}>Teslimat &amp; Sepet</h2>
-            <div className={styles.fieldGrid}>
-              <div className={styles.field}>
-                <label className={styles.label} htmlFor="delivery_fee">
-                  Teslimat ücreti (TL)
-                </label>
-                <input
-                  id="delivery_fee"
-                  name="delivery_fee"
-                  inputMode="decimal"
-                  defaultValue={String(settings.delivery_fee)}
-                  className={styles.input}
-                />
+          <div className={styles.settingsGrid}>
+            <section className={styles.panel}>
+              <h2 className={styles.panelTitle}>Teslimat &amp; Sepet</h2>
+              <div className={styles.fieldGrid}>
+                <div className={styles.field}>
+                  <label className={styles.label} htmlFor="delivery_fee">
+                    Teslimat ücreti (TL)
+                  </label>
+                  <input
+                    id="delivery_fee"
+                    name="delivery_fee"
+                    inputMode="decimal"
+                    defaultValue={String(settings.delivery_fee)}
+                    className={styles.input}
+                  />
+                </div>
+                <div className={styles.field}>
+                  <label className={styles.label} htmlFor="free_delivery_over">
+                    Ücretsiz teslimat limiti (TL, 0 = hepsi ücretsiz)
+                  </label>
+                  <input
+                    id="free_delivery_over"
+                    name="free_delivery_over"
+                    inputMode="decimal"
+                    defaultValue={String(settings.free_delivery_over)}
+                    className={styles.input}
+                  />
+                </div>
+                <div className={styles.field}>
+                  <label className={styles.label} htmlFor="min_order_total">
+                    Minimum sepet tutarı (TL)
+                  </label>
+                  <input
+                    id="min_order_total"
+                    name="min_order_total"
+                    inputMode="decimal"
+                    defaultValue={String(settings.min_order_total)}
+                    className={styles.input}
+                  />
+                </div>
               </div>
-              <div className={styles.field}>
-                <label className={styles.label} htmlFor="free_delivery_over">
-                  Ücretsiz teslimat limiti (TL, 0 = hepsi ücretsiz)
-                </label>
-                <input
-                  id="free_delivery_over"
-                  name="free_delivery_over"
-                  inputMode="decimal"
-                  defaultValue={String(settings.free_delivery_over)}
-                  className={styles.input}
-                />
-              </div>
-              <div className={styles.field}>
-                <label className={styles.label} htmlFor="min_order_total">
-                  Minimum sepet tutarı (TL)
-                </label>
-                <input
-                  id="min_order_total"
-                  name="min_order_total"
-                  inputMode="decimal"
-                  defaultValue={String(settings.min_order_total)}
-                  className={styles.input}
-                />
-              </div>
-            </div>
-          </section>
+            </section>
 
-          <section className={styles.panel}>
-            <h2 className={styles.panelTitle}>Ödeme Yöntemleri</h2>
-            <div className={styles.checkList}>
-              <label className={styles.checkLabel}>
-                <input
-                  type="checkbox"
-                  name="cod_cash_enabled"
-                  defaultChecked={settings.cod_cash_enabled}
-                />
-                Kapıda nakit
-              </label>
-              <label className={styles.checkLabel}>
-                <input
-                  type="checkbox"
-                  name="cod_card_enabled"
-                  defaultChecked={settings.cod_card_enabled}
-                />
-                Kapıda kart
-              </label>
-              <label className={styles.checkLabel}>
-                <input
-                  type="checkbox"
-                  name="iyzico_enabled"
-                  defaultChecked={settings.iyzico_enabled}
-                />
-                Online kart (iyzico) · API anahtarları da tanımlı olmalı
-              </label>
-            </div>
-          </section>
+            <section className={styles.panel}>
+              <h2 className={styles.panelTitle}>Ödeme Yöntemleri</h2>
+              <div className={styles.checkList}>
+                <label className={styles.checkLabel}>
+                  <input
+                    type="checkbox"
+                    name="cod_cash_enabled"
+                    defaultChecked={settings.cod_cash_enabled}
+                  />
+                  Kapıda nakit
+                </label>
+                <label className={styles.checkLabel}>
+                  <input
+                    type="checkbox"
+                    name="cod_card_enabled"
+                    defaultChecked={settings.cod_card_enabled}
+                  />
+                  Kapıda kart
+                </label>
+                <label className={styles.checkLabel}>
+                  <input
+                    type="checkbox"
+                    name="iyzico_enabled"
+                    defaultChecked={settings.iyzico_enabled}
+                  />
+                  Online kart (iyzico) · API anahtarları da tanımlı olmalı
+                </label>
+              </div>
+            </section>
 
-          <section className={styles.panel}>
-            <h2 className={styles.panelTitle}>Sipariş Alımı</h2>
-            <div className={styles.checkList}>
-              <label className={styles.checkLabel}>
-                <input
-                  type="checkbox"
-                  name="ordering_open"
-                  defaultChecked={settings.ordering_open}
+            <section className={styles.panel}>
+              <h2 className={styles.panelTitle}>Sipariş Alımı</h2>
+              <div className={styles.checkList}>
+                <label className={styles.checkLabel}>
+                  <input
+                    type="checkbox"
+                    name="ordering_open"
+                    defaultChecked={settings.ordering_open}
+                  />
+                  Online sipariş alımı AÇIK
+                </label>
+              </div>
+              <div className={styles.field}>
+                <label className={styles.label} htmlFor="closed_message">
+                  Kapalıyken gösterilecek mesaj
+                </label>
+                <textarea
+                  id="closed_message"
+                  name="closed_message"
+                  rows={3}
+                  defaultValue={settings.closed_message}
+                  className={styles.textarea}
                 />
-                Online sipariş alımı AÇIK
-              </label>
-            </div>
-            <div className={styles.field}>
-              <label className={styles.label} htmlFor="closed_message">
-                Kapalıyken gösterilecek mesaj
-              </label>
-              <textarea
-                id="closed_message"
-                name="closed_message"
-                rows={3}
-                defaultValue={settings.closed_message}
-                className={styles.textarea}
-              />
-            </div>
-          </section>
+              </div>
+            </section>
+          </div>
 
           <div>
             <button

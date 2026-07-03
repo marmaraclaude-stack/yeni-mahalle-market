@@ -1,6 +1,6 @@
 "use client";
 
-// Sepet görünümü — satır düzenleme (adet +/−, kaldır), toplamlar, ödeme adımına geçiş.
+// Sepet görünümü: satır düzenleme (adet +/−, kaldır), toplamlar, ödeme adımına geçiş.
 
 import Link from "next/link";
 import {
@@ -34,7 +34,7 @@ export default function CartView({
 }: CartViewProps) {
   const { lines, count, subtotal, setQty, remove } = useCart();
 
-  // 0 = ücretsiz teslimat eşiği yok (ücret her siparişe uygulanır) — settings.calcDeliveryFee ile aynı kural
+  // 0 = ücretsiz teslimat eşiği yok (ücret her siparişe uygulanır): settings.calcDeliveryFee ile aynı kural
   const fee =
     freeDeliveryOver > 0 && subtotal >= freeDeliveryOver ? 0 : deliveryFee;
   const total = Math.round((subtotal + fee) * 100) / 100;
@@ -47,8 +47,14 @@ export default function CartView({
         <div className={styles.container}>
           <h1 className={styles.title}>Sepetim</h1>
           <div className={styles.empty}>
-            <ShoppingBasket aria-hidden="true" className={styles.emptyIcon} />
-            <p>Sepetiniz şu an boş.</p>
+            <span className={styles.emptyBadge} aria-hidden="true">
+              <ShoppingBasket />
+            </span>
+            <h2 className={styles.emptyTitle}>Sepetiniz şu an boş</h2>
+            <p className={styles.emptyText}>
+              Taze ürünler ve mahalle fiyatları sizi bekliyor. Alışverişe
+              başlayın, siparişinizi kapınıza getirelim.
+            </p>
             <Link href="/urunler" className="btn btn--accent">
               Alışverişe Başla <ArrowRight aria-hidden="true" />
             </Link>

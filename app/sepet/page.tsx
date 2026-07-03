@@ -1,4 +1,4 @@
-// Sepet sayfası — server component: mağaza ayarlarını (teslimat ücreti, min sepet)
+// Sepet sayfası: server component: mağaza ayarlarını (teslimat ücreti, min sepet)
 // ve auth durumunu okuyup client CartView'a geçirir. Sipariş vermek üyelik
 // gerektirir; girişsiz kullanıcıya CartView'da bilgilendirme notu gösterilir.
 // Sepet içeriği localStorage'da (CartProvider).

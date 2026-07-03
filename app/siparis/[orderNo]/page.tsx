@@ -93,7 +93,8 @@ export default async function OrderTrackingPage({
             <AlertTriangle aria-hidden="true" />
             <p>
               <strong>Ödeme tamamlanamadı.</strong> Kartınızdan çekim yapılmadı.
-              Bizi arayarak veya WhatsApp&apos;tan yazarak yardım alabilirsiniz.
+              Bizi arayarak veya sağ alttaki canlı destekten yazarak yardım
+              alabilirsiniz.
             </p>
           </div>
         )}

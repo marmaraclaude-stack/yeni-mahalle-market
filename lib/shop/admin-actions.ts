@@ -49,6 +49,48 @@ export interface NewProductInput {
 /** shop_settings güncellemesi (id hariç kısmi). */
 export type SettingsPatch = Partial<Omit<ShopSettings, "id">>;
 
+/** coupons tablosunun satır tipi (kolon adları migration ile birebir). */
+export interface Coupon {
+  code: string;
+  description: string;
+  discount_type: "percent" | "fixed";
+  value: number;
+  min_order_total: number;
+  max_uses: number | null;
+  used_count: number;
+  is_active: boolean;
+  expires_at: string | null;
+  created_at: string;
+}
+
+/** createCoupon girdisi — expires_at "YYYY-AA-GG" (boş/null = süresiz). */
+export interface NewCouponInput {
+  code: string;
+  description?: string;
+  discount_type: "percent" | "fixed";
+  value: number;
+  min_order_total?: number;
+  max_uses?: number | null;
+  expires_at?: string | null;
+}
+
+/** updateCoupon için kısmi alanlar — code (PK) değiştirilemez. */
+export interface CouponPatch {
+  description?: string;
+  discount_type?: "percent" | "fixed";
+  value?: number;
+  min_order_total?: number;
+  max_uses?: number | null;
+  expires_at?: string | null; // "YYYY-AA-GG" veya null (süresiz)
+  is_active?: boolean;
+}
+
+/** Kupon action'larının dönüş tipi — hata mesajı client'a güvenle taşınır. */
+export interface CouponActionResult {
+  ok: boolean;
+  error?: string;
+}
+
 const ORDER_STATUSES: OrderStatus[] = [
   "new",
   "confirmed",
@@ -465,4 +507,211 @@ export async function updateSettings(patch: SettingsPatch): Promise<void> {
   // Ayarlar vitrin ve ödeme akışını da etkiler.
   revalidatePath("/odeme");
   revalidatePath("/sepet");
+}
+
+// ------------------------------------------------------------
+// Kuponlar
+// ------------------------------------------------------------
+
+const COUPON_CODE_RE = /^[A-Z0-9]{3,20}$/;
+
+/** Kodu büyük harfe çevirip doğrula; geçersizse null. */
+function normalizeCouponCode(raw: string): string | null {
+  const code = raw.trim().toUpperCase();
+  return COUPON_CODE_RE.test(code) ? code : null;
+}
+
+/** coupons tablosu henüz kurulmamışsa anlaşılır Türkçe mesaj üret. */
+function couponDbError(
+  error: { code?: string; message: string },
+  fallback: string,
+): string {
+  const missingTable =
+    error.code === "42P01" || // Postgres: undefined_table
+    error.code === "PGRST205" || // PostgREST: tablo şema önbelleğinde yok
+    /coupons/i.test(error.message) &&
+      /does not exist|could not find the table|schema cache/i.test(error.message);
+  if (missingTable) {
+    return "Kupon tablosu kurulmamış, migration'ı çalıştırın.";
+  }
+  return `${fallback}: ${error.message}`;
+}
+
+/**
+ * "YYYY-AA-GG" tarihini gün SONU (Türkiye saati) timestamptz'e çevir —
+ * kupon seçilen günün sonuna kadar geçerli kalır. Boş/null = süresiz.
+ * Geçersiz biçimde string yerine hata mesajı dönmek için { error } kullanılır.
+ */
+function parseExpiresAt(
+  raw: string | null | undefined,
+): { value: string | null } | { error: string } {
+  if (raw === undefined || raw === null || raw.trim() === "") {
+    return { value: null };
+  }
+  const day = raw.trim();
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(day)) {
+    return { error: "Geçersiz son kullanma tarihi." };
+  }
+  return { value: `${day}T23:59:59+03:00` };
+}
+
+/** İndirim değerini tipine göre doğrula; sorun varsa hata mesajı döner. */
+function validateCouponValue(
+  discountType: "percent" | "fixed",
+  value: number,
+): string | null {
+  if (discountType !== "percent" && discountType !== "fixed") {
+    return "Geçersiz indirim tipi.";
+  }
+  if (!Number.isFinite(value) || value <= 0) {
+    return "İndirim değeri sıfırdan büyük olmalı.";
+  }
+  if (discountType === "percent" && value > 100) {
+    return "Yüzde indirim 100'den büyük olamaz.";
+  }
+  return null;
+}
+
+/** Yeni kupon oluştur — kod büyük harfe çevrilir, [A-Z0-9]{3,20} olmalı. */
+export async function createCoupon(
+  input: NewCouponInput,
+): Promise<CouponActionResult> {
+  await requireAdmin();
+
+  const code = normalizeCouponCode(input.code);
+  if (!code) {
+    return {
+      ok: false,
+      error: "Kupon kodu 3-20 karakter, sadece harf (A-Z) ve rakam olmalı.",
+    };
+  }
+  const valueError = validateCouponValue(input.discount_type, input.value);
+  if (valueError) return { ok: false, error: valueError };
+
+  const minOrder = input.min_order_total ?? 0;
+  if (!Number.isFinite(minOrder) || minOrder < 0) {
+    return { ok: false, error: "Geçersiz minimum sepet tutarı." };
+  }
+  const maxUses = input.max_uses ?? null;
+  if (maxUses !== null && (!Number.isInteger(maxUses) || maxUses < 1)) {
+    return { ok: false, error: "Maksimum kullanım en az 1 olmalı (boş = sınırsız)." };
+  }
+  const expires = parseExpiresAt(input.expires_at);
+  if ("error" in expires) return { ok: false, error: expires.error };
+
+  const supabase = createAdminClient();
+  const { error } = await supabase.from("coupons").insert({
+    code,
+    description: (input.description ?? "").trim(),
+    discount_type: input.discount_type,
+    value: input.value,
+    min_order_total: minOrder,
+    max_uses: maxUses,
+    expires_at: expires.value,
+  });
+  if (error) {
+    if (error.code === "23505") {
+      return { ok: false, error: `"${code}" kodlu bir kupon zaten var.` };
+    }
+    return { ok: false, error: couponDbError(error, "Kupon eklenemedi") };
+  }
+  revalidatePath("/admin/kuponlar");
+  return { ok: true };
+}
+
+/** Kupon alanlarını kısmi güncelle (code hariç — PK). */
+export async function updateCoupon(
+  code: string,
+  patch: CouponPatch,
+): Promise<CouponActionResult> {
+  await requireAdmin();
+
+  const normalized = normalizeCouponCode(code);
+  if (!normalized) return { ok: false, error: "Geçersiz kupon kodu." };
+
+  const clean: Record<string, unknown> = {};
+  if (patch.description !== undefined) clean.description = patch.description.trim();
+  if (patch.discount_type !== undefined || patch.value !== undefined) {
+    // Tip ve değer birlikte doğrulanır; eksik olan mevcut satırdan okunmaz,
+    // bu yüzden ikisinden biri değişiyorsa ikisi de gönderilmelidir.
+    if (patch.discount_type === undefined || patch.value === undefined) {
+      return {
+        ok: false,
+        error: "İndirim tipi ve değeri birlikte güncellenmeli.",
+      };
+    }
+    const valueError = validateCouponValue(patch.discount_type, patch.value);
+    if (valueError) return { ok: false, error: valueError };
+    clean.discount_type = patch.discount_type;
+    clean.value = patch.value;
+  }
+  if (patch.min_order_total !== undefined) {
+    if (!Number.isFinite(patch.min_order_total) || patch.min_order_total < 0) {
+      return { ok: false, error: "Geçersiz minimum sepet tutarı." };
+    }
+    clean.min_order_total = patch.min_order_total;
+  }
+  if (patch.max_uses !== undefined) {
+    if (
+      patch.max_uses !== null &&
+      (!Number.isInteger(patch.max_uses) || patch.max_uses < 1)
+    ) {
+      return { ok: false, error: "Maksimum kullanım en az 1 olmalı (boş = sınırsız)." };
+    }
+    clean.max_uses = patch.max_uses;
+  }
+  if (patch.expires_at !== undefined) {
+    const expires = parseExpiresAt(patch.expires_at);
+    if ("error" in expires) return { ok: false, error: expires.error };
+    clean.expires_at = expires.value;
+  }
+  if (patch.is_active !== undefined) clean.is_active = patch.is_active;
+  if (Object.keys(clean).length === 0) return { ok: true };
+
+  const supabase = createAdminClient();
+  const { error } = await supabase
+    .from("coupons")
+    .update(clean)
+    .eq("code", normalized);
+  if (error) {
+    return { ok: false, error: couponDbError(error, "Kupon güncellenemedi") };
+  }
+  revalidatePath("/admin/kuponlar");
+  return { ok: true };
+}
+
+/** Kuponu aktif/pasif yap. */
+export async function toggleCoupon(
+  code: string,
+  active: boolean,
+): Promise<CouponActionResult> {
+  await requireAdmin();
+  const normalized = normalizeCouponCode(code);
+  if (!normalized) return { ok: false, error: "Geçersiz kupon kodu." };
+
+  const supabase = createAdminClient();
+  const { error } = await supabase
+    .from("coupons")
+    .update({ is_active: active })
+    .eq("code", normalized);
+  if (error) {
+    return { ok: false, error: couponDbError(error, "Kupon durumu değiştirilemedi") };
+  }
+  revalidatePath("/admin/kuponlar");
+  return { ok: true };
+}
+
+/** Kuponu kalıcı olarak sil. */
+export async function deleteCoupon(code: string): Promise<CouponActionResult> {
+  await requireAdmin();
+  const normalized = normalizeCouponCode(code);
+  if (!normalized) return { ok: false, error: "Geçersiz kupon kodu." };
+
+  const supabase = createAdminClient();
+  const { error } = await supabase.from("coupons").delete().eq("code", normalized);
+  if (error) {
+    return { ok: false, error: couponDbError(error, "Kupon silinemedi") };
+  }
+  revalidatePath("/admin/kuponlar");
+  return { ok: true };
 }

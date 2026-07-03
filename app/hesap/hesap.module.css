@@ -1,4 +1,4 @@
-/* Hesabım sayfası stilleri — global token'lardan miras alır. */
+/* Hesabım sayfası stilleri: global token'lardan miras alır. */
 
 .page {
   min-height: 100dvh;
@@ -7,51 +7,24 @@
   color: var(--ink);
 }
 
-/* Üst bar */
-.topbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 14px var(--gutter);
-  background: var(--white);
-  border-bottom: 1px solid var(--gray-200);
-}
-.brand {
-  font-family: var(--font-brand);
-  font-weight: 700;
-  font-size: 18px;
-  color: var(--ink);
-  text-decoration: none;
-}
-.topLinks {
-  display: flex;
-  gap: 18px;
-}
-.topLinks a {
-  font-size: 14px;
-  color: var(--gray-700);
-  text-decoration: none;
-  transition: color 160ms var(--ease);
-}
-.topLinks a:hover {
-  color: var(--accent);
-}
-
 /* Genişlik standardı: sayfa kabuğu ana sayfayla aynı (--container + --gutter).
-   Okunabilirlik için içerik sütunu (kartlar) ortada dar tutulur. */
+   Mobil: kartlar alt alta; >=1024px: profil kartı solda sabit sütun,
+   sipariş listesi kalan genişliği doldurur. */
 .container {
-  max-width: var(--container);
+  max-width: calc(var(--container) + var(--gutter) * 2);
   margin-inline: auto;
   padding: 28px var(--gutter) 64px;
   display: flex;
   flex-direction: column;
   gap: 16px;
 }
-.container > * {
-  width: 100%;
-  max-width: 880px;
-  margin-inline: auto;
+@media (min-width: 1024px) {
+  .container {
+    display: grid;
+    grid-template-columns: 360px minmax(0, 1fr);
+    gap: 24px;
+    align-items: start;
+  }
 }
 
 /* Profil kartı */
@@ -64,6 +37,16 @@
   border: 1px solid var(--gray-200);
   border-radius: var(--r-lg);
   padding: 22px;
+}
+@media (min-width: 1024px) {
+  .profileCard {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 18px;
+    padding: 28px;
+    position: sticky;
+    top: 88px;
+  }
 }
 .avatar {
   display: flex;
@@ -79,6 +62,16 @@
 .avatar svg {
   width: 24px;
   height: 24px;
+}
+@media (min-width: 1024px) {
+  .avatar {
+    width: 64px;
+    height: 64px;
+  }
+  .avatar svg {
+    width: 28px;
+    height: 28px;
+  }
 }
 .profileInfo {
   flex: 1;
@@ -242,7 +235,7 @@
   color: var(--gray-400);
 }
 
-/* Durum rozeti */
+/* Durum rozetleri: her sipariş durumu ayrı renk (ORDER_STATUS_LABELS) */
 .statusChip {
   display: inline-flex;
   align-items: center;
@@ -252,7 +245,19 @@
   font-weight: 600;
   white-space: nowrap;
 }
-.stActive {
+.stNew {
+  background: #eaf2fd;
+  color: #1d5fbf;
+}
+.stConfirmed {
+  background: #e8f6f8;
+  color: #0e7490;
+}
+.stPreparing {
+  background: #fdf4e3;
+  color: #b17708;
+}
+.stOnTheWay {
   background: var(--accent-soft);
   color: var(--accent-deep);
 }

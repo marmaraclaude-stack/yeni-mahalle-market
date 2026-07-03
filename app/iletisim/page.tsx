@@ -1,9 +1,9 @@
-// İletişim — /iletisim. Telefon / WhatsApp / Instagram kartları, adres +
+// İletişim — /iletisim. Telefon / Canlı Destek / Instagram kartları, adres +
 // Google Maps embed, çalışma saatleri ve yol tarifi butonu. Tüm veriler
 // lib/business.ts (BUSINESS) kaynağından gelir; sayfa tamamen statik.
 
 import type { Metadata } from "next";
-import { Clock, MapPin, Navigation, Phone } from "lucide-react";
+import { Clock, MapPin, MessageCircle, Navigation, Phone } from "lucide-react";
 import { BUSINESS } from "@/lib/business";
 import SiteNav from "@/components/SiteNav";
 import styles from "./iletisim.module.css";
@@ -11,7 +11,7 @@ import styles from "./iletisim.module.css";
 export const metadata: Metadata = {
   title: "İletişim",
   description:
-    "Yeni Mahalle Market iletişim: telefon, WhatsApp, Instagram, adres ve çalışma saatleri. Sapanca Yeni Mahalle, Kurtuluş Caddesi.",
+    "Yeni Mahalle Market iletişim: telefon, canlı destek, Instagram, adres ve çalışma saatleri. Sapanca Yeni Mahalle, Kurtuluş Caddesi.",
 };
 
 function InstagramIcon() {
@@ -28,20 +28,6 @@ function InstagramIcon() {
       <rect x="3" y="3" width="18" height="18" rx="5" />
       <circle cx="12" cy="12" r="4" />
       <circle cx="17.5" cy="6.5" r="1" fill="currentColor" />
-    </svg>
-  );
-}
-
-function WhatsAppIcon() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      width="20"
-      height="20"
-      fill="currentColor"
-      aria-hidden="true"
-    >
-      <path d="M20 12a8 8 0 1 1-3.2-6.4L20 4l-1.4 3.3A8 8 0 0 1 20 12Zm-5.2 2.1-1.3-.5a.7.7 0 0 0-.7.1l-.8.8a5.6 5.6 0 0 1-2.5-2.5l.8-.8a.7.7 0 0 0 .1-.7l-.5-1.3a.7.7 0 0 0-.8-.4l-1.2.3a.7.7 0 0 0-.5.8 6.7 6.7 0 0 0 6 6 .7.7 0 0 0 .8-.5l.3-1.2a.7.7 0 0 0-.4-.8Z" />
     </svg>
   );
 }
@@ -74,23 +60,20 @@ export default function IletisimPage() {
               </span>
             </a>
 
-            <a
-              href={BUSINESS.whatsapp.href}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={styles.card}
-            >
+            <div className={styles.card}>
               <span
                 className={`${styles.cardIcon} ${styles.cardIconGreen}`}
                 aria-hidden="true"
               >
-                <WhatsAppIcon />
+                <MessageCircle size={20} strokeWidth={1.9} />
               </span>
               <span className={styles.cardText}>
-                <span className={styles.cardLabel}>WhatsApp</span>
-                <span className={styles.cardValue}>Hemen mesaj yaz</span>
+                <span className={styles.cardLabel}>Canlı Destek</span>
+                <span className={styles.cardValue}>
+                  Sağ alttaki baloncuğa tıkla, anında yazışalım
+                </span>
               </span>
-            </a>
+            </div>
 
             <a
               href={BUSINESS.instagram.href}

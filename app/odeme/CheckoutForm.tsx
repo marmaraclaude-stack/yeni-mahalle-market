@@ -8,8 +8,16 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
-import { ArrowRight, Banknote, CreditCard, Lock, ShoppingBasket } from "lucide-react";
+import {
+  ArrowRight,
+  Banknote,
+  CreditCard,
+  Lock,
+  ShoppingBasket,
+  TicketPercent,
+} from "lucide-react";
 import { useCart } from "@/components/shop/CartProvider";
+import { validateCoupon } from "@/lib/shop/coupons";
 import { createOrder } from "@/lib/shop/order-actions";
 import { formatTL, PAYMENT_METHOD_LABELS, type PaymentMethod } from "@/lib/shop/types";
 import styles from "./odeme.module.css";
@@ -43,6 +51,12 @@ function MethodIcon({ method }: { method: PaymentMethod }) {
   return <Lock aria-hidden="true" />;
 }
 
+interface AppliedCoupon {
+  code: string;
+  description: string;
+  discount: number;
+}
+
 export default function CheckoutForm({
   defaults,
   methods,
@@ -58,11 +72,47 @@ export default function CheckoutForm({
   const [error, setError] = useState<string | null>(null);
   const [method, setMethod] = useState<PaymentMethod | null>(methods[0] ?? null);
 
+  // Kupon: input + uygulanan kupon + hata durumu. Sunucu createOrder'da
+  // kuponu YENİDEN doğrular; buradaki indirim yalnız gösterim içindir.
+  const [couponInput, setCouponInput] = useState("");
+  const [coupon, setCoupon] = useState<AppliedCoupon | null>(null);
+  const [couponError, setCouponError] = useState<string | null>(null);
+  const [couponPending, startCouponTransition] = useTransition();
+
   // 0 = ücretsiz teslimat eşiği yok — settings.calcDeliveryFee ile aynı kural
   const fee =
     freeDeliveryOver > 0 && subtotal >= freeDeliveryOver ? 0 : deliveryFee;
-  const total = Math.round((subtotal + fee) * 100) / 100;
+  const discount = coupon ? Math.min(coupon.discount, subtotal) : 0;
+  const total = Math.max(
+    0,
+    Math.round((subtotal + fee - discount) * 100) / 100,
+  );
   const belowMin = minOrderTotal > 0 && subtotal < minOrderTotal;
+
+  function applyCoupon() {
+    const code = couponInput.trim();
+    if (!code || couponPending) return;
+    setCouponError(null);
+    startCouponTransition(async () => {
+      const result = await validateCoupon(code, subtotal);
+      if (!result.ok) {
+        setCoupon(null);
+        setCouponError(result.error);
+        return;
+      }
+      setCoupon({
+        code: result.code,
+        description: result.description,
+        discount: result.discount,
+      });
+      setCouponInput("");
+    });
+  }
+
+  function removeCoupon() {
+    setCoupon(null);
+    setCouponError(null);
+  }
 
   // Sipariş vermeye kapalıysa / sepet boşsa form yerine bilgi göster.
   if (!orderingOpen) {
@@ -121,6 +171,7 @@ export default function CheckoutForm({
       note: String(form.get("note") ?? ""),
       paymentMethod: method,
       lines: lines.map((l) => ({ productId: l.productId, qty: l.qty })),
+      couponCode: coupon?.code,
     };
 
     startTransition(async () => {
@@ -218,8 +269,8 @@ export default function CheckoutForm({
               <h2 className={styles.cardTitle}>Ödeme Yöntemi</h2>
               {methods.length === 0 ? (
                 <p className={styles.warn} role="status">
-                  Şu an çevrimiçi ödeme yöntemi tanımlı değil. Lütfen WhatsApp
-                  üzerinden sipariş verin.
+                  Şu an çevrimiçi ödeme yöntemi tanımlı değil. Canlı destekten
+                  bize yazabilirsiniz.
                 </p>
               ) : (
                 <div
@@ -269,6 +320,70 @@ export default function CheckoutForm({
                 </li>
               ))}
             </ul>
+
+            <div className={styles.coupon}>
+              {coupon ? (
+                <div className={styles.couponApplied} role="status">
+                  <TicketPercent aria-hidden="true" className={styles.couponIcon} />
+                  <span className={styles.couponInfo}>
+                    <strong>{coupon.code}</strong>
+                    {coupon.description && <span>{coupon.description}</span>}
+                  </span>
+                  <span className={styles.couponAmount}>
+                    -{formatTL(discount)}
+                  </span>
+                  <button
+                    type="button"
+                    className={styles.couponRemove}
+                    onClick={removeCoupon}
+                  >
+                    Kaldır
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <label htmlFor="couponCode" className={styles.couponLabel}>
+                    Kupon Kodu
+                  </label>
+                  <div className={styles.couponRow}>
+                    <input
+                      id="couponCode"
+                      type="text"
+                      className={styles.couponInput}
+                      value={couponInput}
+                      onChange={(e) => {
+                        setCouponInput(e.target.value.toUpperCase());
+                        setCouponError(null);
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          applyCoupon();
+                        }
+                      }}
+                      placeholder="Kupon kodunuz varsa girin"
+                      autoComplete="off"
+                      spellCheck={false}
+                      maxLength={20}
+                    />
+                    <button
+                      type="button"
+                      className={styles.couponBtn}
+                      onClick={applyCoupon}
+                      disabled={couponPending || !couponInput.trim()}
+                    >
+                      {couponPending ? "Kontrol ediliyor…" : "Uygula"}
+                    </button>
+                  </div>
+                </>
+              )}
+              {couponError && (
+                <p className={styles.couponError} role="alert">
+                  {couponError}
+                </p>
+              )}
+            </div>
+
             <dl className={styles.totals}>
               <div className={styles.totalRow}>
                 <dt>Ara Toplam</dt>
@@ -278,6 +393,12 @@ export default function CheckoutForm({
                 <dt>Teslimat Ücreti</dt>
                 <dd>{fee === 0 ? "Ücretsiz" : formatTL(fee)}</dd>
               </div>
+              {coupon && discount > 0 && (
+                <div className={`${styles.totalRow} ${styles.discountRow}`}>
+                  <dt>İndirim ({coupon.code})</dt>
+                  <dd>-{formatTL(discount)}</dd>
+                </div>
+              )}
               <div className={`${styles.totalRow} ${styles.grandTotal}`}>
                 <dt>Toplam</dt>
                 <dd>{formatTL(total)}</dd>

@@ -1,6 +1,6 @@
 "use client";
 
-// Çıkış butonu — browser client ile signOut, ardından ana sayfaya dön.
+// Çıkış butonu: browser client ile signOut, ardından ana sayfaya dön.
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";

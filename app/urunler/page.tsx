@@ -141,17 +141,12 @@ export default async function UrunlerPage({
                   </span>
                   <h2>Katalog hazırlanıyor</h2>
                   <p>
-                    Online ürün listemiz çok yakında burada. Şimdilik siparişini
-                    WhatsApp üzerinden verebilirsin, her zamanki gibi kapına
-                    getirelim.
+                    Online ürün listemiz çok yakında burada. Şimdilik sağ
+                    alttaki baloncuktan canlı desteğe yazabilir ya da bizi
+                    arayabilirsin, her zamanki gibi kapına getirelim.
                   </p>
-                  <a
-                    href={BUSINESS.whatsapp.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="btn btn--whatsapp"
-                  >
-                    WhatsApp&apos;tan sipariş ver
+                  <a href={BUSINESS.phone.href} className="btn btn--accent">
+                    Bizi ara: {BUSINESS.phone.display}
                   </a>
                 </section>
               ) : q ? (

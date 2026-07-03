@@ -1,6 +1,6 @@
 "use client";
 
-// Yüzen sepet butonu — sağ altta, WhatsApp butonunun (wa-fab) hemen ÜSTÜNDE.
+// Yüzen sepet butonu — sağ altta, canlı destek balonunun (ChatWidget) hemen ÜSTÜNDE.
 // Sepet boşken görünmez; adet rozeti taşır, tıklayınca /sepet'e gider.
 // Admin panelinde (/admin*) müşteri UI'ı olduğu için hiç render edilmez.
 

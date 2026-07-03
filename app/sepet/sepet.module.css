@@ -1,4 +1,4 @@
-/* Sepet sayfası stilleri — global token'lar (globals.css) üzerine CSS Module. */
+/* Sepet sayfası stilleri: global token'lar (globals.css) üzerine CSS Module. */
 
 .page {
   min-height: 60vh;
@@ -6,9 +6,10 @@
   background: var(--gray-50);
 }
 
-/* Genişlik standardı: ana sayfayla aynı dil (--container + --gutter). */
+/* Genişlik standardı: ana sayfayla aynı dil (--container + --gutter).
+   Gutter --container'ın dışına eklenir; içerik net --container kadar olur. */
 .container {
-  max-width: var(--container);
+  max-width: calc(var(--container) + var(--gutter) * 2);
   margin-inline: auto;
   padding-inline: var(--gutter);
 }
@@ -38,23 +39,22 @@
   margin-bottom: 16px;
 }
 
-/* Mobile-first: tek sütun; genişte satırlar + özet sidebar yan yana.
-   Geniş ekranda ferah 2 kolonlu grid (içerik + özet). */
+/* Mobile-first: tek sütun; genişte satır listesi kalan TÜM alanı doldurur,
+   özet sağda sabit 400px sütun. Sayfa --container genişliğini gerçekten kullanır. */
 .layout {
   display: grid;
   gap: 20px;
   align-items: start;
 }
-@media (min-width: 880px) {
+@media (min-width: 1024px) {
   .layout {
-    grid-template-columns: 1fr 340px;
-    gap: 24px;
+    grid-template-columns: minmax(0, 1fr) 400px;
+    gap: 32px;
   }
 }
-@media (min-width: 1200px) {
+@media (min-width: 1280px) {
   .layout {
-    grid-template-columns: 1fr 400px;
-    gap: 40px;
+    gap: 48px;
   }
 }
 
@@ -81,6 +81,12 @@
 .line:hover {
   box-shadow: 0 6px 18px rgba(16, 16, 16, 0.06);
 }
+@media (min-width: 1024px) {
+  .line {
+    gap: 18px;
+    padding: 16px 22px;
+  }
+}
 
 .thumb {
   width: 56px;
@@ -92,6 +98,12 @@
   justify-content: center;
   overflow: hidden;
   flex-shrink: 0;
+}
+@media (min-width: 1024px) {
+  .thumb {
+    width: 72px;
+    height: 72px;
+  }
 }
 .thumb img {
   width: 100%;
@@ -115,6 +127,18 @@
   color: var(--ink);
   line-height: 1.3;
 }
+@media (min-width: 1024px) {
+  .lineInfo {
+    gap: 3px;
+  }
+  .lineName {
+    font-size: var(--fs-body);
+  }
+  .lineMeta,
+  .lineUnitPrice {
+    font-size: var(--fs-small);
+  }
+}
 .lineMeta {
   font-size: var(--fs-micro);
   color: var(--gray-500);
@@ -130,6 +154,11 @@
   align-items: center;
   gap: 12px;
   margin-left: auto;
+}
+@media (min-width: 1024px) {
+  .lineActions {
+    gap: 20px;
+  }
 }
 
 .stepper {
@@ -177,6 +206,12 @@
   font-weight: 700;
   color: var(--ink);
   font-variant-numeric: tabular-nums;
+}
+@media (min-width: 1024px) {
+  .lineTotal {
+    min-width: 96px;
+    font-size: var(--fs-body);
+  }
 }
 
 .removeBtn {
@@ -297,20 +332,45 @@
   color: var(--ink);
 }
 
-/* --- Boş sepet --- */
+/* --- Boş sepet: geniş hero tarzı --- */
 .empty {
   background: var(--white);
   border: 1px solid var(--gray-200);
-  border-radius: var(--r-lg);
-  padding: 48px 24px;
+  border-radius: var(--r-xl);
+  padding: clamp(48px, 9vw, 96px) 24px;
   display: grid;
   justify-items: center;
-  gap: 14px;
+  gap: 8px;
   text-align: center;
   color: var(--gray-700);
 }
-.emptyIcon {
+.emptyBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  background: var(--accent-soft);
+  color: var(--accent);
+  margin-bottom: 10px;
+}
+.emptyBadge svg {
   width: 40px;
   height: 40px;
-  color: var(--gray-300);
+}
+.emptyTitle {
+  font-family: var(--font-display);
+  font-size: var(--fs-h3);
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  color: var(--ink);
+  margin: 0;
+}
+.emptyText {
+  margin: 0 0 14px;
+  max-width: 440px;
+  font-size: var(--fs-body);
+  color: var(--gray-500);
+  line-height: 1.55;
 }

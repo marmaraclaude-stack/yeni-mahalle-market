@@ -12,6 +12,7 @@ import {
   Package,
   Settings,
   ShoppingBag,
+  Ticket,
   type LucideIcon,
 } from "lucide-react";
 import styles from "../admin.module.css";
@@ -23,7 +24,12 @@ interface NavItem {
   isActive: (pathname: string) => boolean;
 }
 
-const SHOP_PREFIXES = ["/admin/siparisler", "/admin/urunler", "/admin/ayarlar"];
+const SHOP_PREFIXES = [
+  "/admin/siparisler",
+  "/admin/urunler",
+  "/admin/kuponlar",
+  "/admin/ayarlar",
+];
 
 const ITEMS: NavItem[] = [
   {
@@ -43,6 +49,12 @@ const ITEMS: NavItem[] = [
     label: "Ürünler",
     icon: Package,
     isActive: (p) => p.startsWith("/admin/urunler"),
+  },
+  {
+    href: "/admin/kuponlar",
+    label: "Kuponlar",
+    icon: Ticket,
+    isActive: (p) => p.startsWith("/admin/kuponlar"),
   },
   {
     href: "/admin/ayarlar",

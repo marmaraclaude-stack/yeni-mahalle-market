@@ -1,10 +1,11 @@
-/* Yüzen sepet butonu — wa-fab ile aynı 56px daire dili, accent turuncu.
-   WhatsApp butonu sağ altta (bottom: clamp(16px,3vw,28px)); bu buton onun üstünde. */
+/* Yüzen sepet butonu — 56px daire, accent turuncu.
+   Canlı destek balonu (ChatWidget .fab, 60px) sağ altta bottom: clamp(16px,3vw,28px)
+   konumunda; bu buton onun ÜSTÜNDE durur (60px balon + 12px boşluk = 72px offset). */
 
 .fab {
   position: fixed;
   right: clamp(16px, 3vw, 28px);
-  bottom: calc(clamp(16px, 3vw, 28px) + 68px);
+  bottom: calc(clamp(16px, 3vw, 28px) + 72px);
   width: 56px;
   height: 56px;
   border-radius: 50%;

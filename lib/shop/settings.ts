@@ -14,7 +14,7 @@ export const DEFAULT_SHOP_SETTINGS: ShopSettings = {
   iyzico_enabled: false,
   ordering_open: true,
   closed_message:
-    "Şu an online sipariş alamıyoruz. WhatsApp üzerinden yazabilirsiniz.",
+    "Şu an online sipariş alamıyoruz. Canlı destekten bize yazabilirsiniz.",
 };
 
 export async function getShopSettings(): Promise<ShopSettings> {

@@ -1,5 +1,5 @@
 /* ============================================================
-   İletişim (/iletisim) — telefon/WhatsApp/Instagram kartları,
+   İletişim (/iletisim) — telefon/canlı destek/Instagram kartları,
    adres + harita, çalışma saatleri. Token'lar globals.css'ten.
    ============================================================ */
 
@@ -25,7 +25,7 @@
   max-width: var(--measure);
 }
 
-/* --- Hızlı iletişim kartları: telefon / WhatsApp / Instagram --- */
+/* --- Hızlı iletişim kartları: telefon / canlı destek / Instagram --- */
 .cards {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -59,9 +59,10 @@
   background: var(--accent-soft);
   color: var(--accent);
 }
+/* Canlı destek — çevrimiçi yeşili */
 .cardIconGreen {
-  background: rgba(37, 211, 102, 0.15);
-  color: #128c4b;
+  background: #eafaf0;
+  color: #159b57;
 }
 .cardIconPink {
   background: #fce7f3;

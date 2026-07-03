@@ -1,7 +1,9 @@
-/* Giriş / Kayıt sayfaları ortak stilleri — global token'lardan miras alır. */
+/* Giriş / Kayıt sayfaları ortak stilleri (global token'lardan miras alır).
+   Mobil: tek form kartı. >=960px: iki panelli kart, solda koyu marka paneli,
+   sağda form paneli. */
 
 .page {
-  min-height: 100dvh;
+  min-height: 80dvh;
   background: var(--gray-50);
   font-family: var(--font-sans);
   color: var(--ink);
@@ -9,56 +11,129 @@
   flex-direction: column;
 }
 
-/* Üst bar */
-.topbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 14px var(--gutter);
-  background: var(--white);
-  border-bottom: 1px solid var(--gray-200);
-}
-.brand {
-  font-family: var(--font-brand);
-  font-weight: 700;
-  font-size: 18px;
-  color: var(--ink);
-  text-decoration: none;
-}
-.topLinks {
-  display: flex;
-  gap: 18px;
-}
-.topLinks a {
-  font-size: 14px;
-  color: var(--gray-700);
-  text-decoration: none;
-  transition: color 160ms var(--ease);
-}
-.topLinks a:hover {
-  color: var(--accent);
-}
-
-/* Kabuk: genişlik standardı (--container + --gutter); form kartı ortada dar kalır. */
+/* Kabuk: genişlik standardı (--container + --gutter); kart ortada. */
 .shell {
   flex: 1;
   width: 100%;
-  max-width: var(--container);
+  max-width: calc(var(--container) + var(--gutter) * 2);
   margin-inline: auto;
   display: flex;
   align-items: flex-start;
   justify-content: center;
-  padding: clamp(28px, 7vh, 72px) var(--gutter) 64px;
+  padding: clamp(24px, 6vh, 64px) var(--gutter) 64px;
 }
-.card {
+
+/* İki panelli auth kartı */
+.authCard {
   width: 100%;
-  max-width: 420px;
+  max-width: 460px;
   background: var(--white);
   border: 1px solid var(--gray-200);
-  border-radius: var(--r-lg);
+  border-radius: var(--r-xl);
+  overflow: hidden;
+  display: grid;
+}
+@media (min-width: 960px) {
+  .authCard {
+    max-width: 980px;
+    grid-template-columns: minmax(360px, 430px) minmax(0, 1fr);
+    box-shadow: 0 24px 60px rgba(16, 16, 16, 0.08);
+  }
+}
+
+/* Sol marka paneli (yalnız >=960px görünür) */
+.brandPanel {
+  display: none;
+}
+@media (min-width: 960px) {
+  .brandPanel {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    background: #0a0a0a;
+    color: var(--white);
+    padding: 44px 40px;
+  }
+}
+.brandHead {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.brandLogo {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: var(--white);
+  padding: 3px;
+  flex-shrink: 0;
+}
+.brandName {
+  font-family: var(--font-brand);
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--white);
+}
+.brandTagline {
+  margin: 4px 0 0;
+  font-size: 15px;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.72);
+  max-width: 320px;
+}
+
+/* Değer önerisi maddeleri: panelin altına yaslanır */
+.valueList {
+  list-style: none;
+  margin: auto 0 0;
+  padding: 26px 0 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.valueItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 14.5px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.9);
+}
+.valueIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: rgba(255, 90, 31, 0.16);
+  color: var(--accent);
+  flex-shrink: 0;
+}
+.valueIcon svg {
+  width: 17px;
+  height: 17px;
+}
+
+/* Sağ form paneli */
+.formPanel {
   padding: 30px 26px;
 }
+@media (min-width: 960px) {
+  .formPanel {
+    padding: 44px 48px;
+    align-self: center;
+    width: 100%;
+  }
+}
+@media (max-width: 520px) {
+  .formPanel {
+    padding: 24px 18px;
+  }
+}
+
 .eyebrow {
   display: block;
   font-size: 11px;
@@ -86,12 +161,12 @@
 .form {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 15px;
 }
 .field {
   display: flex;
   flex-direction: column;
-  gap: 7px;
+  gap: 6px;
 }
 .fieldLabel {
   font-size: 11px;
@@ -101,9 +176,11 @@
   color: var(--gray-500);
 }
 .input {
+  width: 100%;
+  height: 48px;
   font: inherit;
   font-size: 15px;
-  padding: 12px 14px;
+  padding: 0 14px;
   border: 1px solid var(--gray-300);
   border-radius: var(--r-md);
   background: var(--white);
@@ -115,12 +192,61 @@
   border-color: var(--accent);
   box-shadow: 0 0 0 3px var(--accent-soft);
 }
+.inputInvalid {
+  border-color: #c0392b;
+}
+.inputInvalid:focus {
+  border-color: #c0392b;
+  box-shadow: 0 0 0 3px #fdeceb;
+}
+
+/* Parola göster/gizle */
+.inputWrap {
+  position: relative;
+}
+.inputWrap .input {
+  padding-right: 46px;
+}
+.pwToggle {
+  position: absolute;
+  top: 50%;
+  right: 6px;
+  transform: translateY(-50%);
+  width: 36px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--gray-500);
+  cursor: pointer;
+  transition: color 150ms var(--ease), background 150ms var(--ease);
+}
+.pwToggle:hover {
+  color: var(--ink);
+  background: var(--gray-100);
+}
+.pwToggle svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* Alan altı hata mesajı */
+.fieldError {
+  margin: 0;
+  font-size: 12.5px;
+  color: #c0392b;
+  line-height: 1.4;
+}
 .hint {
-  margin: -6px 0 0;
+  margin: 0;
   font-size: 12px;
   color: var(--gray-500);
 }
 
+/* Form geneli hata kutusu (ör. hatalı parola) */
 .error {
   margin: 0;
   font-size: 13.5px;
@@ -130,6 +256,52 @@
   border-radius: var(--r-sm);
   padding: 10px 12px;
   line-height: 1.45;
+}
+
+/* Büyük accent submit + loading */
+.submit {
+  width: 100%;
+  height: 50px;
+  margin-top: 4px;
+  font-size: 15px;
+  font-weight: 600;
+}
+.submit:disabled {
+  opacity: 0.75;
+  cursor: wait;
+  transform: none;
+}
+.spinner {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  border-top-color: var(--white);
+  animation: spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Kayıt güven notu */
+.trustNote {
+  margin: 14px 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  font-size: 12.5px;
+  color: var(--gray-500);
+  text-align: center;
+}
+.trustNote svg {
+  width: 14px;
+  height: 14px;
+  color: #159b57;
+  flex-shrink: 0;
 }
 
 /* Kayıt sonrası "e-postanı onayla" durumu */
@@ -158,7 +330,7 @@
   line-height: 1.5;
 }
 
-/* Alt geçiş bağlantısı (giriş ↔ kayıt) */
+/* Alt geçiş bağlantısı (giriş / kayıt) */
 .switchLine {
   margin: 20px 0 0;
   padding-top: 18px;
@@ -174,10 +346,4 @@
 }
 .switchLine a:hover {
   text-decoration: underline;
-}
-
-@media (max-width: 520px) {
-  .card {
-    padding: 22px 18px;
-  }
 }

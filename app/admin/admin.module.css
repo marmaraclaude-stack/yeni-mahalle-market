@@ -420,6 +420,11 @@
 .badge--delivered { background: #e8f7ee; color: #157347; border-color: #bfe6cf; }
 .badge--cancelled { background: #fdeceb; color: #a32020; border-color: #f3c8c8; }
 
+/* Kupon durum rozetleri */
+.badge--active { background: #e8f7ee; color: #157347; border-color: #bfe6cf; }
+.badge--off { background: var(--gray-100); color: var(--gray-700); border-color: var(--gray-200); }
+.badge--expired { background: #fdeceb; color: #a32020; border-color: #f3c8c8; }
+
 /* Ödeme rozetleri */
 .pill {
   display: inline-block;
@@ -1086,11 +1091,18 @@
 }
 
 /* ---- Ayarlar ---- */
+/* Tam genişlik: 720px kapak kaldırıldı; kartlar geniş ekranda yan yana. */
 .settingsForm {
   display: flex;
   flex-direction: column;
   gap: 16px;
-  max-width: 720px;
+}
+
+.settingsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 16px;
+  align-items: start;
 }
 
 .fieldGrid {
@@ -1102,6 +1114,44 @@
 .field { display: flex; flex-direction: column; }
 
 .field .label { margin-bottom: 6px; }
+
+/* ============================================================
+   Kuponlar
+   ============================================================ */
+.couponForm {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 10px 12px;
+  align-items: end;
+}
+
+/* Buton, alanlarla aynı taban hizasında dursun. */
+.couponFormSubmit {
+  display: flex;
+  align-items: flex-end;
+}
+
+.couponCode {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 13.5px;
+  letter-spacing: 0.06em;
+  color: var(--black);
+}
+
+/* Kod alanı büyük harf yazsın (değer sunucuda da büyük harfe çevrilir). */
+.couponCodeInput {
+  text-transform: uppercase;
+  font-family: var(--font-mono);
+  letter-spacing: 0.05em;
+}
+
+.couponUses {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
 
 /* ============================================================
    Sohbet listesi (SessionList — sınıf adları korunur)

@@ -1,4 +1,4 @@
-// Hesabım — /hesap
+// Hesabım: /hesap
 // Server component: oturum yoksa /giris'e yönlendirir. Profil bilgisi +
 // kendi siparişleri (RLS ile anon server client) + çıkış butonu.
 
@@ -45,10 +45,22 @@ function formatDate(iso: string): string {
   });
 }
 
+/** Her sipariş durumu için ayrı renk rozeti. */
 function statusClass(status: OrderStatus): string {
-  if (status === "cancelled") return styles.stCancelled;
-  if (status === "delivered") return styles.stDone;
-  return styles.stActive;
+  switch (status) {
+    case "new":
+      return styles.stNew;
+    case "confirmed":
+      return styles.stConfirmed;
+    case "preparing":
+      return styles.stPreparing;
+    case "on_the_way":
+      return styles.stOnTheWay;
+    case "delivered":
+      return styles.stDone;
+    case "cancelled":
+      return styles.stCancelled;
+  }
 }
 
 export default async function HesapPage() {
@@ -61,7 +73,7 @@ export default async function HesapPage() {
     redirect("/giris?next=/hesap");
   }
 
-  // Profil + siparişler — RLS yalnız kullanıcının kendi satırlarını döndürür.
+  // Profil + siparişler: RLS yalnız kullanıcının kendi satırlarını döndürür.
   const [profileRes, ordersRes] = await Promise.all([
     supabase
       .from("customer_profiles")

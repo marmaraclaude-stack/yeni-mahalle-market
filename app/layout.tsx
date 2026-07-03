@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Geist, Baloo_2 } from "next/font/google";
 import "./globals.css";
 import { BUSINESS, buildLocalBusinessJsonLd } from "@/lib/business";
-import WhatsAppFab from "@/components/WhatsAppFab";
+import ChatWidget from "@/components/ChatWidget";
 import { CartProvider } from "@/components/shop/CartProvider";
 import CartFab from "@/components/shop/CartFab";
 
@@ -63,7 +63,7 @@ export const metadata: Metadata = {
     "Sapanca eve teslim market",
     "Sapanca market siparişi",
     "Sapanca online market",
-    "Sapanca WhatsApp market sipariş",
+    "Sapanca market online sipariş",
     "Sapanca su siparişi",
     "Sapanca markete telefonla sipariş",
     // Kategoriler
@@ -161,7 +161,8 @@ export default function RootLayout({
         />
         <CartProvider>
           {children}
-          <WhatsAppFab />
+          {/* Canlı destek balonu — sağ alt köşe (admin dışında). */}
+          <ChatWidget />
           <CartFab />
         </CartProvider>
       </body>

@@ -1,6 +1,11 @@
 "use client";
 
+// Ana sayfa kategori vitrini — her kart /urunler?k=<slug> linkidir.
+// Slug'lar lib/shop/categories.ts SHOP_CATEGORIES ile birebir aynı sırada.
+// Mobilde yatay kaydırma + ok kontrolleri; masaüstünde grid (globals.css .cats).
+
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import {
   Carrot,
   Beef,
@@ -34,17 +39,11 @@ import {
   Utensils,
   ChevronLeft,
   ChevronRight,
-  ChevronUp,
-  ChevronDown,
-  ShoppingBasket,
-  Check,
-  X,
-  Trash2,
   type LucideIcon,
 } from "lucide-react";
-import { BUSINESS } from "@/lib/business";
+import { SHOP_CATEGORIES } from "@/lib/shop/categories";
 
-type Cat = { Icon: LucideIcon; label: string; t: number };
+type Cat = { Icon: LucideIcon; label: string; slug: string; t: number };
 
 // Yumuşak pastel paleti [arka plan, ön plan] — kategori grubuna göre.
 const TINTS: [string, string][] = [
@@ -58,55 +57,52 @@ const TINTS: [string, string][] = [
   ["#e7f6f2", "#11917a"], // 7 deniz yeşili
 ];
 
-const CATEGORIES: Cat[] = [
-  { Icon: Carrot, label: "Meyve & Sebze", t: 0 },
-  { Icon: Beef, label: "Şarküteri & Et", t: 1 },
-  { Icon: Croissant, label: "Ekmek & Fırın", t: 2 },
-  { Icon: Milk, label: "Süt & Kahvaltılık", t: 3 },
-  { Icon: CupSoda, label: "İçecek & Su", t: 4 },
-  { Icon: Wheat, label: "Bakliyat & Makarna", t: 2 },
-  { Icon: Soup, label: "Konserve & Hazır Yemek", t: 1 },
-  { Icon: Droplets, label: "Yağ, Sos & Baharat", t: 7 },
-  { Icon: Cookie, label: "Atıştırmalık", t: 5 },
-  { Icon: Nut, label: "Cips & Kuruyemiş", t: 2 },
-  { Icon: Candy, label: "Çikolata & Şekerleme", t: 6 },
-  { Icon: Coffee, label: "Kahve & Çay", t: 1 },
-  { Icon: IceCreamCone, label: "Dondurma", t: 4 },
-  { Icon: Snowflake, label: "Donuk Gıda", t: 3 },
-  { Icon: Citrus, label: "Zeytin & Turşu", t: 0 },
-  { Icon: SprayCan, label: "Temizlik & Deterjan", t: 7 },
-  { Icon: ScrollText, label: "Kağıt Ürünleri", t: 3 },
-  { Icon: Sparkles, label: "Kişisel Bakım", t: 6 },
-  { Icon: Pill, label: "Vitamin & İlk Yardım", t: 0 },
-  { Icon: Utensils, label: "Tek Kullanımlık & Piknik", t: 2 },
-  { Icon: Baby, label: "Bebek", t: 6 },
-  { Icon: PawPrint, label: "Evcil Hayvan", t: 5 },
-  { Icon: Cigarette, label: "Sigara & Tütün", t: 1 },
-  { Icon: Flame, label: "Mangal & Kömür", t: 2 },
-  { Icon: FlameKindling, label: "Çakmak, Kibrit & Tüp", t: 1 },
-  { Icon: BatteryCharging, label: "Şarj Aleti & Pil", t: 3 },
-  { Icon: Umbrella, label: "Plaj, Mayo & Terlik", t: 4 },
-  { Icon: Sun, label: "Güneş Kremi & Plaj", t: 2 },
-  { Icon: LifeBuoy, label: "Şişme Bot & Havuz", t: 4 },
-  { Icon: Bug, label: "Sinek & Böcek Kovucu", t: 0 },
+// İkonlar SHOP_CATEGORIES ile aynı sırada — index üzerinden eşlenir.
+const ICONS: LucideIcon[] = [
+  Carrot,
+  Beef,
+  Croissant,
+  Milk,
+  CupSoda,
+  Wheat,
+  Soup,
+  Droplets,
+  Cookie,
+  Nut,
+  Candy,
+  Coffee,
+  IceCreamCone,
+  Snowflake,
+  Citrus,
+  SprayCan,
+  ScrollText,
+  Sparkles,
+  Pill,
+  Utensils,
+  Baby,
+  PawPrint,
+  Cigarette,
+  Flame,
+  FlameKindling,
+  BatteryCharging,
+  Umbrella,
+  Sun,
+  LifeBuoy,
+  Bug,
 ];
 
-function prefersReduced() {
-  return (
-    typeof window !== "undefined" &&
-    window.matchMedia?.("(prefers-reduced-motion: reduce)").matches
-  );
-}
+const CATEGORIES: Cat[] = SHOP_CATEGORIES.map((c, i) => ({
+  Icon: ICONS[i],
+  label: c.name,
+  slug: c.slug,
+  t: c.tint,
+}));
 
 export default function CategoryGrid() {
   const railRef = useRef<HTMLDivElement>(null);
-  const basketRef = useRef<HTMLSpanElement>(null);
   const snapTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [canPrev, setCanPrev] = useState(false);
   const [canNext, setCanNext] = useState(true);
-  const [selected, setSelected] = useState<string[]>([]);
-  const [bump, setBump] = useState(0);
-  const [expanded, setExpanded] = useState(false);
 
   const scrollByCol = (dir: 1 | -1) => {
     const el = railRef.current;
@@ -140,91 +136,25 @@ export default function CategoryGrid() {
     };
   }, []);
 
-  // Liste boşalınca paneli kapat
-  useEffect(() => {
-    if (selected.length === 0) setExpanded(false);
-  }, [selected.length]);
-
-  // Poşete uçma animasyonu
-  const flyToBasket = (iconEl: HTMLElement | null) => {
-    const target = basketRef.current;
-    if (!iconEl || !target || prefersReduced()) return;
-    const a = iconEl.getBoundingClientRect();
-    const b = target.getBoundingClientRect();
-    const clone = iconEl.cloneNode(true) as HTMLElement;
-    Object.assign(clone.style, {
-      position: "fixed",
-      left: `${a.left}px`,
-      top: `${a.top}px`,
-      width: `${a.width}px`,
-      height: `${a.height}px`,
-      margin: "0",
-      zIndex: "80",
-      pointerEvents: "none",
-      borderRadius: "14px",
-    } as CSSStyleDeclaration);
-    document.body.appendChild(clone);
-    const dx = b.left + b.width / 2 - (a.left + a.width / 2);
-    const dy = b.top + b.height / 2 - (a.top + a.height / 2);
-    const anim = clone.animate(
-      [
-        { transform: "translate(0,0) scale(1)", opacity: 1 },
-        {
-          transform: `translate(${dx * 0.5}px, ${dy * 0.5 - 80}px) scale(0.7)`,
-          opacity: 1,
-          offset: 0.55,
-        },
-        { transform: `translate(${dx}px, ${dy}px) scale(0.12)`, opacity: 0.2 },
-      ],
-      { duration: 620, easing: "cubic-bezier(.45,0,.35,1)" },
-    );
-    anim.onfinish = () => {
-      clone.remove();
-      setBump((n) => n + 1);
-    };
-  };
-
-  const toggle = (label: string, cardEl: HTMLButtonElement) => {
-    setSelected((prev) => {
-      if (prev.includes(label)) return prev.filter((l) => l !== label);
-      // ekleme → uç
-      flyToBasket(cardEl.querySelector<HTMLElement>(".cat__icon"));
-      return [...prev, label];
-    });
-  };
-
-  const waUrl =
-    selected.length > 0
-      ? `${BUSINESS.whatsapp.href}?text=${encodeURIComponent(
-          "Merhaba, şu kategorilerden sipariş vermek istiyorum:\n" +
-            selected.map((s) => "• " + s).join("\n"),
-        )}`
-      : BUSINESS.whatsapp.href;
-
   return (
-    <>
-      <div className="cats__wrap">
+    <div className="cats__wrap">
       <div ref={railRef} className="cats" role="list">
         {CATEGORIES.map((c) => {
-          const active = selected.includes(c.label);
           const [bg, fg] = TINTS[c.t];
           return (
-            <button
-              key={c.label}
-              type="button"
-              className={`cat${active ? " is-selected" : ""}`}
-              aria-pressed={active}
+            <Link
+              key={c.slug}
+              href={`/urunler?k=${c.slug}`}
+              className="cat"
+              role="listitem"
               style={{ "--cat-bg": bg, "--cat-fg": fg } as React.CSSProperties}
-              onClick={(e) => toggle(c.label, e.currentTarget)}
+              aria-label={`${c.label} ürünlerini gör`}
             >
               <span className="cat__icon" aria-hidden="true">
                 <c.Icon size={24} strokeWidth={1.6} />
               </span>
               <span className="cat__label">{c.label}</span>
-              <span className="cat__check" aria-hidden="true">
-                <Check size={13} strokeWidth={3} />
-              </span>
-            </button>
+            </Link>
           );
         })}
       </div>
@@ -250,124 +180,6 @@ export default function CategoryGrid() {
           <ChevronRight size={18} strokeWidth={2.2} />
         </button>
       </div>
-      </div>
-
-      {/* Sepet barı — kategori seçilince belirir */}
-      <div
-        className={`basket${selected.length ? " is-active" : ""}${expanded ? " is-expanded" : ""}`}
-        role="region"
-        aria-label="Sipariş listen"
-      >
-        {/* Yukarı açılan tam liste */}
-        <div className="basket__panel" role="list">
-          <div className="basket__panel-head">
-            <span className="basket__panel-title">Listendeki kategoriler</span>
-            <button
-              type="button"
-              className="basket__panel-close"
-              aria-label="Listeyi kapat"
-              onClick={() => setExpanded(false)}
-            >
-              <ChevronDown size={18} strokeWidth={2.2} />
-            </button>
-          </div>
-          <div className="basket__panel-list">
-            {selected.map((label) => {
-              const cat = CATEGORIES.find((c) => c.label === label);
-              const fg = cat ? TINTS[cat.t][1] : "#999";
-              return (
-                <div className="basket__row" role="listitem" key={label}>
-                  <span
-                    className="basket__row-dot"
-                    style={{ background: fg }}
-                    aria-hidden="true"
-                  />
-                  <span className="basket__row-label">{label}</span>
-                  <button
-                    type="button"
-                    className="basket__row-remove"
-                    aria-label={`${label} çıkar`}
-                    onClick={() => setSelected((p) => p.filter((l) => l !== label))}
-                  >
-                    <X size={15} strokeWidth={2.2} />
-                  </button>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-
-        <div className="basket__bar">
-          <span
-            ref={basketRef}
-            className={`basket__icon${bump ? " bump" : ""}`}
-            key={bump}
-            aria-hidden="true"
-          >
-            <ShoppingBasket size={20} strokeWidth={2} />
-            <span className="basket__count">{selected.length}</span>
-          </span>
-
-          <button
-            type="button"
-            className="basket__meta"
-            onClick={() => setExpanded((v) => !v)}
-            aria-expanded={expanded}
-          >
-            <span className="basket__meta-title">
-              {selected.length === 1 ? "1 kategori" : `${selected.length} kategori`}
-            </span>
-            <span className="basket__meta-sub">
-              {expanded ? "kapat" : "listeni gör"}
-              <ChevronUp size={13} strokeWidth={2.4} className="basket__meta-chev" />
-            </span>
-          </button>
-
-          {/* Mini renk önizlemesi — ilk 4 kategorinin tonu */}
-          {selected.length > 0 && (
-            <span className="basket__preview" aria-hidden="true">
-              {selected.slice(0, 4).map((label) => {
-                const cat = CATEGORIES.find((c) => c.label === label);
-                const fg = cat ? TINTS[cat.t][1] : "#fff";
-                return (
-                  <span
-                    key={label}
-                    className="basket__preview-dot"
-                    style={{ background: fg }}
-                  />
-                );
-              })}
-              {selected.length > 4 && (
-                <span className="basket__preview-more">
-                  +{selected.length - 4}
-                </span>
-              )}
-            </span>
-          )}
-
-          <span className="basket__divider" aria-hidden="true" />
-
-          <button
-            type="button"
-            className="basket__clear"
-            aria-label="Listeyi temizle"
-            onClick={() => {
-              setSelected([]);
-              setExpanded(false);
-            }}
-          >
-            <Trash2 size={16} strokeWidth={2} />
-          </button>
-          <a
-            href={waUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn btn--whatsapp basket__send"
-          >
-            WhatsApp&apos;tan gönder
-          </a>
-        </div>
-      </div>
-    </>
+    </div>
   );
 }
