@@ -15,6 +15,7 @@ import {
   type OrderStatus,
   type PaymentMethod,
 } from "@/lib/shop/types";
+import SiteNav from "@/components/SiteNav";
 import LogoutButton from "./LogoutButton";
 import styles from "./hesap.module.css";
 
@@ -79,18 +80,10 @@ export default async function HesapPage() {
   const displayName = profile?.full_name || user.email || "Müşteri";
 
   return (
-    <main className={styles.page}>
-      <header className={styles.topbar}>
-        <Link href="/" className={styles.brand}>
-          Yeni Mahalle Market
-        </Link>
-        <nav className={styles.topLinks} aria-label="Sayfa bağlantıları">
-          <Link href="/urunler">Ürünler</Link>
-          <Link href="/sepet">Sepet</Link>
-        </nav>
-      </header>
-
-      <div className={styles.container}>
+    <>
+      <SiteNav />
+      <main className={styles.page}>
+        <div className={styles.container}>
         {/* Profil kartı */}
         <section className={styles.profileCard} aria-label="Profil bilgileri">
           <div className={styles.avatar} aria-hidden="true">
@@ -160,7 +153,8 @@ export default async function HesapPage() {
             </ul>
           )}
         </section>
-      </div>
-    </main>
+        </div>
+      </main>
+    </>
   );
 }

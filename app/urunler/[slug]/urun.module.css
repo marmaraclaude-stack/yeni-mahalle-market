@@ -9,34 +9,22 @@
   min-height: 60vh;
 }
 
-/* --- Breadcrumb --- */
-.crumbs {
-  display: flex;
+/* --- Kategori pill etiketi (başlığın üstünde, tint renkli link) --- */
+.catPill {
+  align-self: flex-start;
+  display: inline-flex;
   align-items: center;
   gap: 6px;
-  flex-wrap: wrap;
-  margin-bottom: 20px;
-  font-size: var(--fs-small);
-  color: var(--gray-500);
+  padding: 5px 12px;
+  border-radius: var(--r-pill);
+  font-size: var(--fs-micro);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  transition: filter 160ms var(--ease), transform 160ms var(--ease);
 }
-.crumbs a {
-  color: var(--gray-500);
-  transition: color 180ms var(--ease);
-}
-.crumbs a:hover { color: var(--ink); }
-.crumbs svg {
-  flex-shrink: 0;
-  color: var(--gray-400);
-}
-.crumbCurrent {
-  color: var(--ink);
-  font-weight: 500;
-  /* Uzun ürün adları breadcrumb'ı taşırmasın */
-  max-width: 32ch;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
+.catPill:hover { filter: brightness(0.95); }
+.catPill:active { transform: scale(0.97); }
+.catPill svg { flex-shrink: 0; }
 
 /* --- Üst bölüm: görsel + bilgi --- */
 .hero {
@@ -164,21 +152,22 @@
   align-items: center;
   gap: 12px;
   flex-wrap: wrap;
-  margin-top: 10px;
+  margin-top: 12px;
 }
 .qty {
   display: inline-flex;
   align-items: center;
-  height: 48px;
+  height: 52px;
   border: 1px solid var(--gray-200);
   border-radius: var(--r-pill);
   background: var(--white);
   overflow: hidden;
+  flex-shrink: 0;
 }
 .qtyBtn {
   display: grid;
   place-items: center;
-  width: 44px;
+  width: 46px;
   height: 100%;
   color: var(--gray-700);
   transition: background 160ms var(--ease), color 160ms var(--ease);
@@ -204,18 +193,34 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  height: 48px;
-  padding: 0 28px;
-  min-width: 200px;
+  height: 52px;
+  padding: 0 24px;
+  min-width: 220px;
+  flex: 1 1 220px;
+  max-width: 420px;
   border-radius: var(--r-pill);
   background: var(--accent);
   color: var(--white);
   font-size: var(--fs-body);
-  font-weight: 600;
-  transition: background 180ms var(--ease), transform 180ms var(--ease);
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  box-shadow: 0 8px 20px -8px rgba(255, 90, 31, 0.55);
+  transition: background 180ms var(--ease), transform 180ms var(--ease),
+    box-shadow 180ms var(--ease);
 }
-.addBtn:hover:not(:disabled) { background: var(--accent-deep); }
+.addBtn:hover:not(:disabled) {
+  background: var(--accent-deep);
+  box-shadow: 0 10px 24px -8px rgba(255, 90, 31, 0.6);
+}
 .addBtn:active:not(:disabled) { transform: scale(0.98); }
+/* Buton içinde toplam fiyat (adet x fiyat) sağa yaslı */
+.addBtnPrice {
+  margin-left: auto;
+  padding-left: 12px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.95;
+}
 .addBtnDone,
 .addBtnDone:hover:not(:disabled) {
   background: #159b57;
@@ -225,6 +230,7 @@
 .addBtnMuted:hover:not(:disabled) {
   background: var(--gray-100);
   color: var(--gray-500);
+  box-shadow: none;
   cursor: not-allowed;
 }
 .storeNote {
@@ -254,7 +260,7 @@
   max-width: var(--measure);
 }
 
-/* --- Benzer ürünler --- */
+/* --- Benzer ürünler: yatay kaydırılabilir rail --- */
 .similar {
   margin-top: 56px;
 }
@@ -263,14 +269,23 @@
   font-weight: 600;
   margin-bottom: 16px;
 }
-.similarGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+.rail {
+  display: flex;
   gap: 12px;
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  padding-bottom: 10px;
+  /* Scrollbar gizli (Getir raili gibi), kaydırma dokunmatik/tekerlekle */
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
 }
-@media (min-width: 720px) {
-  .similarGrid {
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 16px;
-  }
+.rail::-webkit-scrollbar { display: none; }
+.railItem {
+  flex: 0 0 168px;
+  min-width: 0;
+  scroll-snap-align: start;
+  display: flex;
+}
+.railItem > * {
+  width: 100%;
 }

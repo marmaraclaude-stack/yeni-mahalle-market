@@ -4,10 +4,10 @@
 // ?yeni=1 → "sipariş alındı" banner'ı, ?odeme=ok|hata → iyzico dönüş banner'ı.
 
 import type { Metadata } from "next";
-import Link from "next/link";
 import { AlertTriangle, CheckCircle2, PartyPopper } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { BUSINESS } from "@/lib/business";
+import SiteNav from "@/components/SiteNav";
 import type { Order, OrderEvent, OrderItem } from "@/lib/shop/types";
 import OrderDetails from "./OrderDetails";
 import GuestTracking from "./GuestTracking";
@@ -65,18 +65,10 @@ export default async function OrderTrackingPage({
     owned.status !== "cancelled";
 
   return (
-    <main className={styles.page}>
-      <header className={styles.topbar}>
-        <Link href="/" className={styles.brand}>
-          Yeni Mahalle Market
-        </Link>
-        <nav className={styles.topLinks} aria-label="Sayfa bağlantıları">
-          <Link href="/urunler">Ürünler</Link>
-          <Link href="/hesap">Hesabım</Link>
-        </nav>
-      </header>
-
-      <div className={styles.container}>
+    <>
+      <SiteNav />
+      <main className={styles.page}>
+        <div className={styles.container}>
         {/* Banner'lar */}
         {isNew && (
           <div className={`${styles.banner} ${styles.bannerSuccess}`} role="status">
@@ -124,7 +116,8 @@ export default async function OrderTrackingPage({
           <a href={BUSINESS.phone.href}>{BUSINESS.phone.display}</a> numarasından bize
           ulaşabilirsiniz.
         </p>
-      </div>
-    </main>
+        </div>
+      </main>
+    </>
   );
 }

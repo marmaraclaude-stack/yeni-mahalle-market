@@ -1,5 +1,10 @@
+// Admin kabuğu — masaüstünde sol sidebar (marka + ikonlu menü + alt aksiyonlar),
+// mobilde üst bar + yatay kaydırılabilir sekmeler (admin.module.css medya sorgusu).
+// Oturum yoksa /admin/login'e yönlendirir.
+
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import { ExternalLink, LogOut } from "lucide-react";
 import { isAuthenticated, logoutAction } from "../actions";
 import AdminNav from "./AdminNav";
 import styles from "../admin.module.css";
@@ -19,24 +24,26 @@ export default async function AuthedAdminLayout({
 
   return (
     <div className={styles.shell}>
-      <header className={styles.bar}>
-        <Link href="/admin" style={{ textDecoration: "none" }}>
-          <span className={styles.bar__brand}>Yeni Mahalle</span>
-          <span className={styles.bar__brandSub}>Admin · Panel</span>
+      <aside className={styles.sidebar}>
+        <Link href="/admin" className={styles.brand}>
+          <span className={styles.brandName}>Yeni Mahalle</span>
+          <span className={styles.brandSub}>Market · Admin</span>
         </Link>
-        <div className={styles.bar__actions}>
-          <Link href="/" className={styles.btnLink}>
-            Siteyi aç
+        <AdminNav />
+        <div className={styles.sidebarFoot}>
+          <Link href="/" className={styles.footLink}>
+            <ExternalLink size={15} aria-hidden />
+            Siteyi Aç
           </Link>
-          <form action={logoutAction}>
-            <button type="submit" className={styles.btnLink}>
+          <form action={logoutAction} className={styles.footForm}>
+            <button type="submit" className={styles.footLink}>
+              <LogOut size={15} aria-hidden />
               Çıkış
             </button>
           </form>
         </div>
-      </header>
-      <AdminNav />
-      <div className={styles.content}>{children}</div>
+      </aside>
+      <main className={styles.content}>{children}</main>
     </div>
   );
 }

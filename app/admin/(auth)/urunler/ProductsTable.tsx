@@ -1,12 +1,15 @@
 "use client";
 
-// Ürün tablosu — satır içi fiyat/stok düzenleme (Kaydet → updateProduct),
-// anında aktif/pasif toggle (toggleProductActive), yeni ürün ekleme formu,
+// Ürün tablosu — üst araç çubuğu (sunucudan gelen filtre slotu + "Yeni Ürün"
+// accent butonu), collapse'lı yeni ürün formu (createProduct), satır içi
+// fiyat/stok düzenleme (updateProduct), aktif/pasif toggle (toggleProductActive),
 // görsel küçük önizleme ve tam düzenleme sayfasına "Düzenle" linki.
+// Tablo başlıkları kaydırma alanında sabittir (sticky).
 
 import { useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { Plus, X } from "lucide-react";
 import {
   createProduct,
   toggleProductActive,
@@ -156,8 +159,17 @@ function ProductRow({ product }: { product: Product }) {
   );
 }
 
-export default function ProductsTable({ products }: { products: Product[] }) {
+export default function ProductsTable({
+  products,
+  filterSlot,
+  openForm = false,
+}: {
+  products: Product[];
+  filterSlot?: React.ReactNode;
+  openForm?: boolean;
+}) {
   const router = useRouter();
+  const [showForm, setShowForm] = useState(openForm);
   const [busy, setBusy] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [, startTransition] = useTransition();
@@ -196,86 +208,104 @@ export default function ProductsTable({ products }: { products: Product[] }) {
 
   return (
     <>
-      {/* Yeni ürün formu */}
-      <section className={styles.panel} style={{ marginBottom: 20 }}>
-        <h2 className={styles.panelTitle}>Yeni Ürün Ekle</h2>
-        <form onSubmit={handleCreate} className={styles.newProductForm}>
-          <select
-            name="category_slug"
-            required
-            defaultValue=""
-            className={styles.select}
-            aria-label="Kategori"
-          >
-            <option value="" disabled>
-              Kategori seçin…
-            </option>
-            {SHOP_CATEGORIES.map((c) => (
-              <option key={c.slug} value={c.slug}>
-                {c.name}
-              </option>
-            ))}
-          </select>
-          <input
-            name="name"
-            required
-            placeholder="Ürün adı *"
-            className={styles.input}
-            aria-label="Ürün adı"
-          />
-          <input
-            name="brand"
-            placeholder="Marka"
-            className={styles.input}
-            aria-label="Marka"
-          />
-          <input
-            name="size_text"
-            placeholder="Gramaj (örn. 1 L, 350 g)"
-            className={styles.input}
-            aria-label="Gramaj"
-          />
-          <input
-            name="price"
-            required
-            inputMode="decimal"
-            placeholder="Fiyat (TL) *"
-            className={styles.input}
-            aria-label="Fiyat"
-          />
-          <button
-            type="submit"
-            disabled={busy}
-            className={`${styles.actionBtn} ${styles["actionBtn--primary"]}`}
-          >
-            {busy ? "Ekleniyor…" : "Ekle"}
-          </button>
-        </form>
-        {formError && <p className={styles.formError}>{formError}</p>}
-      </section>
+      {/* Üst araç çubuğu: filtre (sunucu GET formu) + Yeni Ürün accent butonu */}
+      <div className={styles.toolbar}>
+        {filterSlot}
+        <button
+          type="button"
+          onClick={() => setShowForm((v) => !v)}
+          className={styles.accentBtn}
+          aria-expanded={showForm}
+        >
+          {showForm ? (
+            <X size={15} strokeWidth={2.4} aria-hidden />
+          ) : (
+            <Plus size={15} strokeWidth={2.4} aria-hidden />
+          )}
+          {showForm ? "Formu Kapat" : "Yeni Ürün"}
+        </button>
+      </div>
 
-      {/* Ürün tablosu */}
+      {/* Yeni ürün formu (collapse) */}
+      {showForm && (
+        <section className={styles.panel} style={{ marginBottom: 16 }}>
+          <h2 className={styles.panelTitle}>Yeni Ürün Ekle</h2>
+          <form onSubmit={handleCreate} className={styles.newProductForm}>
+            <select
+              name="category_slug"
+              required
+              defaultValue=""
+              className={styles.select}
+              aria-label="Kategori"
+            >
+              <option value="" disabled>
+                Kategori seçin…
+              </option>
+              {SHOP_CATEGORIES.map((c) => (
+                <option key={c.slug} value={c.slug}>
+                  {c.name}
+                </option>
+              ))}
+            </select>
+            <input
+              name="name"
+              required
+              placeholder="Ürün adı *"
+              className={styles.input}
+              aria-label="Ürün adı"
+            />
+            <input
+              name="brand"
+              placeholder="Marka"
+              className={styles.input}
+              aria-label="Marka"
+            />
+            <input
+              name="size_text"
+              placeholder="Gramaj (örn. 1 L, 350 g)"
+              className={styles.input}
+              aria-label="Gramaj"
+            />
+            <input
+              name="price"
+              required
+              inputMode="decimal"
+              placeholder="Fiyat (TL) *"
+              className={styles.input}
+              aria-label="Fiyat"
+            />
+            <button type="submit" disabled={busy} className={styles.accentBtn}>
+              {busy ? "Ekleniyor…" : "Ekle"}
+            </button>
+          </form>
+          {formError && <p className={styles.formError}>{formError}</p>}
+        </section>
+      )}
+
+      {/* Ürün tablosu — başlıklar kaydırma alanında sabit */}
       {products.length === 0 ? (
         <div className={styles.empty}>Bu filtrede ürün yok.</div>
       ) : (
-        <div className={styles.tableWrap}>
-          <table className={styles.table}>
-            <thead>
-              <tr>
-                <th>Ürün</th>
-                <th>Kategori</th>
-                <th>Fiyat (TL)</th>
-                <th>Stok</th>
-                <th>Durum</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              {products.map((p) => (
-                <ProductRow key={p.id} product={p} />
-              ))}
-            </tbody>
-          </table>
+        <div className={styles.tableCard}>
+          <div className={styles.tableScroll}>
+            <table className={styles.table}>
+              <thead>
+                <tr>
+                  <th>Ürün</th>
+                  <th>Kategori</th>
+                  <th>Fiyat (TL)</th>
+                  <th>Stok</th>
+                  <th>Durum</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {products.map((p) => (
+                  <ProductRow key={p.id} product={p} />
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
     </>

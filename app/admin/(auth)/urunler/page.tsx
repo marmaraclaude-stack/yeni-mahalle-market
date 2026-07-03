@@ -1,7 +1,8 @@
-// Admin — ürün yönetimi. Kategori filtresi + arama sunucuda (searchParams),
-// satır içi düzenleme ve yeni ürün formu client'taki ProductsTable'da.
+// Admin — ürün yönetimi. Arama + kategori filtresi üst satırda tek GET formu
+// (sunucuda filtrelenir); "Yeni Ürün" accent butonu ve collapse formu ile
+// satır içi düzenleme client'taki ProductsTable'da. ?yeni=1 formu açık başlatır.
 
-import Link from "next/link";
+import { Search } from "lucide-react";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { SHOP_CATEGORIES } from "@/lib/shop/categories";
 import type { Product } from "@/lib/shop/types";
@@ -14,9 +15,9 @@ export const metadata = { title: "Ürünler" };
 export default async function AdminProductsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ k?: string; q?: string }>;
+  searchParams: Promise<{ k?: string; q?: string; yeni?: string }>;
 }) {
-  const { k, q } = await searchParams;
+  const { k, q, yeni } = await searchParams;
   const category = k ?? "";
   const search = (q ?? "").trim();
 
@@ -44,13 +45,41 @@ export default async function AdminProductsPage({
     loadError = e instanceof Error ? e.message : "Bilinmeyen hata";
   }
 
-  const buildHref = (slug: string) => {
-    const params = new URLSearchParams();
-    if (slug) params.set("k", slug);
-    if (search) params.set("q", search);
-    const qs = params.toString();
-    return qs ? `/admin/urunler?${qs}` : "/admin/urunler";
-  };
+  // Arama + kategori filtresi (GET formu — sunucuda filtrelenir).
+  // ProductsTable'daki araç çubuğuna slot olarak geçilir.
+  const filterSlot = (
+    <form method="get" action="/admin/urunler" className={styles.toolbarFilter}>
+      <div className={styles.searchWrap}>
+        <span className={styles.searchIcon} aria-hidden>
+          <Search size={15} />
+        </span>
+        <input
+          type="search"
+          name="q"
+          defaultValue={search}
+          placeholder="Ürün adında ara"
+          aria-label="Ürün ara"
+          className={styles.input}
+        />
+      </div>
+      <select
+        name="k"
+        defaultValue={category}
+        className={styles.select}
+        aria-label="Kategori filtresi"
+      >
+        <option value="">Tüm kategoriler</option>
+        {SHOP_CATEGORIES.map((c) => (
+          <option key={c.slug} value={c.slug}>
+            {c.name}
+          </option>
+        ))}
+      </select>
+      <button type="submit" className={styles.actionBtn}>
+        Filtrele
+      </button>
+    </form>
+  );
 
   return (
     <>
@@ -59,44 +88,6 @@ export default async function AdminProductsPage({
         {loadError ? "Katalog yüklenemedi." : `${products.length} ürün listeleniyor.`}
       </p>
 
-      {/* Arama (GET formu — sunucuda filtrelenir) */}
-      <form method="get" action="/admin/urunler" className={styles.searchRow}>
-        {category && <input type="hidden" name="k" value={category} />}
-        <input
-          type="search"
-          name="q"
-          defaultValue={search}
-          placeholder="Ürün adında ara…"
-          aria-label="Ürün ara"
-          className={styles.input}
-        />
-        <button
-          type="submit"
-          className={`${styles.actionBtn} ${styles["actionBtn--primary"]}`}
-        >
-          Ara
-        </button>
-      </form>
-
-      {/* Kategori filtresi */}
-      <div className={styles.chips}>
-        <Link
-          href={buildHref("")}
-          className={`${styles.chip} ${!category ? styles["chip--active"] : ""}`}
-        >
-          Tümü
-        </Link>
-        {SHOP_CATEGORIES.map((c) => (
-          <Link
-            key={c.slug}
-            href={buildHref(c.slug)}
-            className={`${styles.chip} ${category === c.slug ? styles["chip--active"] : ""}`}
-          >
-            {c.name}
-          </Link>
-        ))}
-      </div>
-
       {loadError ? (
         <div className={styles.empty}>
           Ürünler yüklenemedi. Veritabanı kurulumu yapılmamış olabilir.
@@ -104,7 +95,11 @@ export default async function AdminProductsPage({
           <small>{loadError}</small>
         </div>
       ) : (
-        <ProductsTable products={products} />
+        <ProductsTable
+          products={products}
+          filterSlot={filterSlot}
+          openForm={yeni === "1"}
+        />
       )}
     </>
   );

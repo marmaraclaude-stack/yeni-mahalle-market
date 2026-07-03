@@ -109,7 +109,7 @@ export default function SessionDetail({ session, initialMessages }: Props) {
     <>
       <div style={{ marginBottom: 14 }}>
         <Link
-          href="/admin"
+          href="/admin/sohbetler"
           style={{ fontSize: 13, color: "var(--muted)", letterSpacing: "0.04em" }}
         >
           ← Tüm sohbetler

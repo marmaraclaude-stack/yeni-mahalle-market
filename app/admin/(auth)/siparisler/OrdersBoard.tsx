@@ -34,6 +34,12 @@ const FILTERS: { key: OrderStatus | "all"; label: string }[] = [
   { key: "cancelled", label: "İptal" },
 ];
 
+/** Renkli durum rozeti sınıfı (new=amber, confirmed=camgöbeği, preparing=mavi,
+ *  on_the_way=mor, delivered=yeşil, cancelled=kırmızı). */
+function statusBadgeClass(status: OrderStatus): string {
+  return `${styles.badge} ${styles[`badge--${status}`]}`;
+}
+
 function formatDateTime(iso: string): string {
   try {
     return new Date(iso).toLocaleString("tr-TR", {
@@ -104,6 +110,12 @@ export default function OrdersBoard({ orders }: { orders: Order[] }) {
               onClick={() => setFilter(f.key)}
               className={`${styles.chip} ${filter === f.key ? styles["chip--active"] : ""}`}
             >
+              {f.key !== "all" && (
+                <span
+                  className={`${styles.chipDot} ${styles[`chipDot--${f.key}`]}`}
+                  aria-hidden
+                />
+              )}
               {f.label} <span className={styles.chipCount}>{count}</span>
             </button>
           );
@@ -130,7 +142,7 @@ export default function OrdersBoard({ orders }: { orders: Order[] }) {
                     >
                       {o.order_no}
                     </Link>
-                    <span className={`${styles.pill} ${styles["pill--muted"]}`}>
+                    <span className={statusBadgeClass(o.status)}>
                       {ORDER_STATUS_LABELS[o.status]}
                     </span>
                     <span className={`${styles.pill} ${paymentPillClass(o.payment_status)}`}>

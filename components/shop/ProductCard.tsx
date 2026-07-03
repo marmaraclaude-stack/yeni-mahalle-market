@@ -1,8 +1,11 @@
-// Ürün kartı — vitrin. Görsel yoksa kategori tint'li lucide placeholder basar.
-// Görsel + başlık alanı /urunler/[slug] detayına link; AddToCartButton linkin
-// DIŞINDA durur, tıklaması navigasyonu tetiklemez.
+// Ürün kartı — Getir tarzı kompakt vitrin kartı. Üstte kare görsel alanı
+// (görsel yoksa kategori tint'li lucide placeholder), görselin sağ üst köşesine
+// bindirilmiş yuvarlak "+" sepete ekle butonu (Link'in DIŞINDA — tıklaması
+// navigasyonu tetiklemez), altta fiyat (accent, bold), ad (2 satır clamp), gramaj.
+// variant: "grid" (esnek genişlik, varsayılan) | "rail" (sabit ~168px, scroll-snap).
 // Kebab-case lucide ikon haritası buradan export edilir (CategoryRail de kullanır).
 
+import { createElement } from "react";
 import Link from "next/link";
 import type { Product } from "@/lib/shop/types";
 import { formatTL } from "@/lib/shop/types";
@@ -84,20 +87,28 @@ export function iconFor(name: string): LucideIcon {
   return CATEGORY_ICONS[name] ?? ShoppingBasket;
 }
 
-export default function ProductCard({ product }: { product: Product }) {
+export default function ProductCard({
+  product,
+  variant = "grid",
+}: {
+  product: Product;
+  variant?: "grid" | "rail";
+}) {
   const cat = categoryBySlug(product.category_slug);
   const [tintBg, tintFg] = CATEGORY_TINTS[cat?.tint ?? 0] ?? CATEGORY_TINTS[0];
-  const Icon = iconFor(cat?.icon ?? "shopping-basket");
 
   const compareAt = product.compare_at_price;
   const discounted = compareAt !== null && compareAt > product.price;
+  const meta = [product.brand, product.size_text].filter(Boolean).join(" · ");
 
   return (
-    <article className={styles.card}>
-      {/* Görsel + başlık alanı ürün detayına götürür; buton linkin dışında */}
+    <article
+      className={`${styles.card}${variant === "rail" ? ` ${styles.cardRail}` : ""}`}
+    >
+      {/* Kartın tamamı ürün detayına götürür; "+" butonu linkin dışında */}
       <Link href={`/urunler/${product.slug}`} className={styles.cardLink}>
         <div
-          className={styles.thumb}
+          className={`${styles.thumb}${!product.in_stock ? ` ${styles.thumbOut}` : ""}`}
           style={
             product.image_url
               ? undefined
@@ -107,29 +118,24 @@ export default function ProductCard({ product }: { product: Product }) {
           {product.image_url ? (
             <img src={product.image_url} alt={product.name} loading="lazy" />
           ) : (
-            <Icon size={42} strokeWidth={1.4} aria-hidden="true" />
+            createElement(iconFor(cat?.icon ?? "shopping-basket"), {
+              size: 40,
+              strokeWidth: 1.4,
+              "aria-hidden": true,
+            })
           )}
 
-          {discounted && <span className={styles.badge}>İndirim</span>}
-          {!discounted && product.is_featured && (
+          {product.in_stock && discounted && (
+            <span className={styles.badge}>İndirim</span>
+          )}
+          {product.in_stock && !discounted && product.is_featured && (
             <span className={`${styles.badge} ${styles.badgeFeatured}`}>
               Popüler
             </span>
           )}
-          {!product.in_stock && (
-            <span className={styles.badgeOut}>Stokta yok</span>
-          )}
         </div>
 
         <div className={styles.cardBody}>
-          {(product.brand || product.size_text) && (
-            <p className={styles.meta}>
-              {product.brand}
-              {product.brand && product.size_text ? " · " : ""}
-              {product.size_text}
-            </p>
-          )}
-          <h3 className={styles.name}>{product.name}</h3>
           <p className={styles.priceRow}>
             <span className={styles.price}>{formatTL(product.price)}</span>
             {discounted && (
@@ -139,6 +145,8 @@ export default function ProductCard({ product }: { product: Product }) {
               <span className={styles.unit}>/ {product.unit}</span>
             )}
           </p>
+          <h3 className={styles.name}>{product.name}</h3>
+          <p className={styles.size}>{meta}</p>
         </div>
       </Link>
 

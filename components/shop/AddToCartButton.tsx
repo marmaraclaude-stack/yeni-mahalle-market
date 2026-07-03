@@ -1,10 +1,13 @@
 "use client";
 
-// Sepete ekle butonu — CartProvider'daki useCart sözleşmesini tüketir.
-// Kategori orderable değilse (örn. sigara-tutun) veya stok yoksa disabled.
+// Yuvarlak "+" sepete ekle butonu — ürün kartında görselin sağ üst köşesine
+// bindirilir (konum shop.module.css .plusBtn ile gelir). Kart linkinin DIŞINDA
+// render edildiği için tıklaması navigasyonu tetiklemez. Tıklanınca kısa ✓
+// animasyonu oynar. Kategori orderable değilse (örn. sigara-tutun) veya stok
+// yoksa buton yerine küçük gri rozet basılır.
 
 import { useEffect, useRef, useState } from "react";
-import { Check, PackageX, Plus, Store } from "lucide-react";
+import { Check, Plus } from "lucide-react";
 import type { Product } from "@/lib/shop/types";
 import { categoryBySlug } from "@/lib/shop/categories";
 import { useCart } from "@/components/shop/CartProvider";
@@ -27,29 +30,17 @@ export default function AddToCartButton({ product }: { product: Product }) {
 
   if (!orderable) {
     return (
-      <button
-        type="button"
-        className={`${styles.addBtn} ${styles.addBtnMuted}`}
-        disabled
+      <span
+        className={styles.cornerBadge}
         title="Bu ürün yalnızca mağazadan satın alınabilir"
       >
-        <Store size={15} strokeWidth={2} aria-hidden="true" />
         Mağazadan alınır
-      </button>
+      </span>
     );
   }
 
   if (!product.in_stock) {
-    return (
-      <button
-        type="button"
-        className={`${styles.addBtn} ${styles.addBtnMuted}`}
-        disabled
-      >
-        <PackageX size={15} strokeWidth={2} aria-hidden="true" />
-        Stokta yok
-      </button>
-    );
+    return <span className={styles.cornerBadge}>Stokta yok</span>;
   }
 
   const handleAdd = () => {
@@ -62,16 +53,15 @@ export default function AddToCartButton({ product }: { product: Product }) {
   return (
     <button
       type="button"
-      className={`${styles.addBtn}${added ? ` ${styles.addBtnDone}` : ""}`}
+      className={`${styles.plusBtn}${added ? ` ${styles.plusBtnDone}` : ""}`}
       onClick={handleAdd}
       aria-label={`${product.name}, sepete ekle`}
     >
       {added ? (
-        <Check size={15} strokeWidth={2.4} aria-hidden="true" />
+        <Check size={16} strokeWidth={2.6} aria-hidden="true" />
       ) : (
-        <Plus size={15} strokeWidth={2.4} aria-hidden="true" />
+        <Plus size={16} strokeWidth={2.4} aria-hidden="true" />
       )}
-      {added ? "Eklendi" : "Sepete Ekle"}
     </button>
   );
 }

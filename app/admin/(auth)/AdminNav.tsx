@@ -1,40 +1,60 @@
 "use client";
 
-// Admin sekme navigasyonu — aktif sekmeyi mevcut yola göre vurgular.
+// Admin navigasyonu — aktif bağlantıyı mevcut yola göre vurgular.
+// Masaüstünde dikey sidebar linkleri, mobilde yatay kaydırılabilir sekmeler
+// (aynı markup; görünüm admin.module.css'teki medya sorgusuyla değişir).
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import {
+  LayoutDashboard,
+  MessageCircle,
+  Package,
+  Settings,
+  ShoppingBag,
+  type LucideIcon,
+} from "lucide-react";
 import styles from "../admin.module.css";
 
-interface Tab {
+interface NavItem {
   href: string;
   label: string;
+  icon: LucideIcon;
   isActive: (pathname: string) => boolean;
 }
 
 const SHOP_PREFIXES = ["/admin/siparisler", "/admin/urunler", "/admin/ayarlar"];
 
-const TABS: Tab[] = [
-  { href: "/admin", label: "Panel", isActive: (p) => p === "/admin" },
+const ITEMS: NavItem[] = [
+  {
+    href: "/admin",
+    label: "Panel",
+    icon: LayoutDashboard,
+    isActive: (p) => p === "/admin",
+  },
   {
     href: "/admin/siparisler",
     label: "Siparişler",
+    icon: ShoppingBag,
     isActive: (p) => p.startsWith("/admin/siparisler"),
   },
   {
     href: "/admin/urunler",
     label: "Ürünler",
+    icon: Package,
     isActive: (p) => p.startsWith("/admin/urunler"),
   },
   {
     href: "/admin/ayarlar",
     label: "Ayarlar",
+    icon: Settings,
     isActive: (p) => p.startsWith("/admin/ayarlar"),
   },
   {
-    // Chat listesi panel sayfasında (SessionList); sohbet detayı /admin/[sessionId].
-    href: "/admin#sohbetler",
-    label: "Chat",
+    // Sohbet listesi /admin/sohbetler; sohbet detayı /admin/[sessionId].
+    href: "/admin/sohbetler",
+    label: "Sohbetler",
+    icon: MessageCircle,
     isActive: (p) =>
       p !== "/admin" &&
       p.startsWith("/admin/") &&
@@ -46,16 +66,24 @@ export default function AdminNav() {
   const pathname = usePathname() ?? "";
 
   return (
-    <nav className={styles.tabs} aria-label="Admin bölümleri">
-      {TABS.map((tab) => (
-        <Link
-          key={tab.label}
-          href={tab.href}
-          className={`${styles.tab} ${tab.isActive(pathname) ? styles["tab--active"] : ""}`}
-        >
-          {tab.label}
-        </Link>
-      ))}
+    <nav className={styles.nav} aria-label="Admin bölümleri">
+      {ITEMS.map((item) => {
+        const Icon = item.icon;
+        const active = item.isActive(pathname);
+        return (
+          <Link
+            key={item.label}
+            href={item.href}
+            className={`${styles.navLink} ${active ? styles["navLink--active"] : ""}`}
+            aria-current={active ? "page" : undefined}
+          >
+            <span className={styles.navIcon} aria-hidden>
+              <Icon size={17} strokeWidth={2} />
+            </span>
+            {item.label}
+          </Link>
+        );
+      })}
     </nav>
   );
 }

@@ -14,6 +14,7 @@ import {
   Store,
 } from "lucide-react";
 import type { Product } from "@/lib/shop/types";
+import { formatTL } from "@/lib/shop/types";
 import { categoryBySlug } from "@/lib/shop/categories";
 import { useCart } from "@/components/shop/CartProvider";
 import styles from "./urun.module.css";
@@ -109,11 +110,19 @@ export default function DetailActions({ product }: { product: Product }) {
         aria-label={`${product.name}, ${qty} adet sepete ekle`}
       >
         {added ? (
-          <Check size={17} strokeWidth={2.4} aria-hidden="true" />
+          <>
+            <Check size={17} strokeWidth={2.4} aria-hidden="true" />
+            Sepete eklendi
+          </>
         ) : (
-          <ShoppingBasket size={17} strokeWidth={2.1} aria-hidden="true" />
+          <>
+            <ShoppingBasket size={17} strokeWidth={2.1} aria-hidden="true" />
+            Sepete Ekle
+            <span className={styles.addBtnPrice}>
+              {formatTL(Math.round(product.price * qty * 100) / 100)}
+            </span>
+          </>
         )}
-        {added ? "Sepete eklendi" : "Sepete Ekle"}
       </button>
     </div>
   );

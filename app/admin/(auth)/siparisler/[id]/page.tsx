@@ -103,11 +103,28 @@ export default async function AdminOrderDetailPage({
         ← Siparişler
       </Link>
       <h1 className={styles.title}>{order.order_no}</h1>
-      <p className={styles.subtitle}>
-        {formatDateTime(order.created_at)} · {ORDER_STATUS_LABELS[order.status]} ·{" "}
-        {PAYMENT_METHOD_LABELS[order.payment_method]} ·{" "}
-        {PAYMENT_STATUS_LABELS[order.payment_status]}
+      <p className={styles.subtitle} style={{ marginBottom: 16 }}>
+        {formatDateTime(order.created_at)} ·{" "}
+        {PAYMENT_METHOD_LABELS[order.payment_method]}
       </p>
+
+      {/* Renkli durum + ödeme rozetleri */}
+      <div className={styles.orderTop} style={{ marginBottom: 18 }}>
+        <span className={`${styles.badge} ${styles[`badge--${order.status}`]}`}>
+          {ORDER_STATUS_LABELS[order.status]}
+        </span>
+        <span
+          className={`${styles.pill} ${
+            order.payment_status === "paid"
+              ? styles["pill--ok"]
+              : order.payment_status === "pending"
+                ? styles["pill--warn"]
+                : styles["pill--err"]
+          }`}
+        >
+          {PAYMENT_STATUS_LABELS[order.payment_status]}
+        </span>
+      </div>
 
       {/* Durum butonları */}
       <div className={styles.orderActions} style={{ marginBottom: 24 }}>

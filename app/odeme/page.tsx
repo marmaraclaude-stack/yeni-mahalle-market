@@ -8,6 +8,7 @@ import { createClient } from "@/lib/supabase/server";
 import { isIyzicoConfigured } from "@/lib/shop/iyzico";
 import { getShopSettings } from "@/lib/shop/settings";
 import type { PaymentMethod } from "@/lib/shop/types";
+import SiteNav from "@/components/SiteNav";
 import CheckoutForm, { type CheckoutDefaults } from "./CheckoutForm";
 
 export const metadata: Metadata = {
@@ -72,14 +73,17 @@ export default async function OdemePage() {
   if (settings.iyzico_enabled && isIyzicoConfigured()) methods.push("iyzico");
 
   return (
-    <CheckoutForm
-      defaults={defaults}
-      methods={methods}
-      deliveryFee={settings.delivery_fee}
-      freeDeliveryOver={settings.free_delivery_over}
-      minOrderTotal={settings.min_order_total}
-      orderingOpen={settings.ordering_open}
-      closedMessage={settings.closed_message}
-    />
+    <>
+      <SiteNav />
+      <CheckoutForm
+        defaults={defaults}
+        methods={methods}
+        deliveryFee={settings.delivery_fee}
+        freeDeliveryOver={settings.free_delivery_over}
+        minOrderTotal={settings.min_order_total}
+        orderingOpen={settings.ordering_open}
+        closedMessage={settings.closed_message}
+      />
+    </>
   );
 }
