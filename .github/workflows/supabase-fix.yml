@@ -1,0 +1,47 @@
+# TEK SEFERLİK: banners migration'ını uygula + doğrula.
+name: supabase-fix
+
+on:
+  workflow_dispatch:
+    inputs:
+      sbp_token:
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Uygula + doğrula
+        env:
+          SBP: ${{ inputs.sbp_token }}
+        run: |
+          set -uo pipefail
+          echo "::add-mask::$SBP"
+          AUTH="Authorization: Bearer $SBP"
+          REF="vkaknwulaatzgucclvzn"
+          mkdir -p .diagnostic
+          R=.diagnostic/supabase-diag.txt
+          : > $R
+          jq -n --rawfile q supabase/migrations/20260703400000_banners.sql '{query: $q}' > /tmp/b.json
+          HTTP=$(curl -s -o /tmp/r.json -w "%{http_code}" -X POST -H "$AUTH" -H "Content-Type: application/json" \
+            --data @/tmp/b.json "https://api.supabase.com/v1/projects/$REF/database/query")
+          echo "banners migration -> HTTP $HTTP $([ $HTTP -ge 300 ] && head -c 300 /tmp/r.json)" | tee -a $R
+          Q="select count(*) as banner_sayisi, count(*) filter (where is_active) as aktif from public.banners;"
+          jq -n --arg q "$Q" '{query: $q}' > /tmp/b.json
+          curl -s -X POST -H "$AUTH" -H "Content-Type: application/json" \
+            --data @/tmp/b.json "https://api.supabase.com/v1/projects/$REF/database/query" | tee -a $R
+          echo "" | tee -a $R
+      - name: Raporu yaz
+        if: always()
+        run: |
+          git config user.name "supabase-fix-bot"
+          git config user.email "noreply@github.com"
+          git pull --rebase || true
+          git add .diagnostic/supabase-diag.txt
+          git commit -m "diag: banners migration raporu" || exit 0
+          git push
