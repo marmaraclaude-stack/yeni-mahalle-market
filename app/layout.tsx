@@ -3,6 +3,8 @@ import { Geist, Baloo_2 } from "next/font/google";
 import "./globals.css";
 import { BUSINESS, buildLocalBusinessJsonLd } from "@/lib/business";
 import WhatsAppFab from "@/components/WhatsAppFab";
+import { CartProvider } from "@/components/shop/CartProvider";
+import CartFab from "@/components/shop/CartFab";
 
 // Gövde + UI sans — Geist (next/font, self-host).
 const geist = Geist({
@@ -157,8 +159,11 @@ export default function RootLayout({
           // eslint-disable-next-line react/no-danger
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
-        {children}
-        <WhatsAppFab />
+        <CartProvider>
+          {children}
+          <WhatsAppFab />
+          <CartFab />
+        </CartProvider>
       </body>
     </html>
   );

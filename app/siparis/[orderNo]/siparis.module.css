@@ -1,0 +1,475 @@
+/* Sipariş takip sayfası stilleri — global token'lardan miras alır. */
+
+.page {
+  min-height: 100dvh;
+  background: var(--gray-50);
+  font-family: var(--font-sans);
+  color: var(--ink);
+}
+
+/* Üst bar */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px var(--gutter);
+  background: var(--white);
+  border-bottom: 1px solid var(--gray-200);
+}
+.brand {
+  font-family: var(--font-brand);
+  font-weight: 700;
+  font-size: 18px;
+  color: var(--ink);
+  text-decoration: none;
+}
+.topLinks {
+  display: flex;
+  gap: 18px;
+}
+.topLinks a {
+  font-size: var(--fs-small, 14px);
+  color: var(--gray-700);
+  text-decoration: none;
+  transition: color 160ms var(--ease);
+}
+.topLinks a:hover {
+  color: var(--accent);
+}
+
+.container {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 28px var(--gutter) 64px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Banner'lar */
+.banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: var(--r-md);
+  border: 1px solid;
+  font-size: 14px;
+  line-height: 1.5;
+}
+.banner svg {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.banner p {
+  margin: 0;
+}
+.bannerSuccess {
+  background: #eafaf0;
+  border-color: #bfe9d2;
+  color: #0c6b3d;
+}
+.bannerError {
+  background: #fdeceb;
+  border-color: #f4c4be;
+  color: #a33325;
+}
+
+/* Ortak kart dili */
+.card {
+  background: var(--white);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--r-lg);
+  padding: 20px;
+}
+.cardTitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 16px;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.cardTitle svg {
+  width: 17px;
+  height: 17px;
+  color: var(--accent);
+}
+
+.details {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Başlık kartı */
+.headCard {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+  background: var(--white);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--r-lg);
+  padding: 20px;
+}
+.eyebrow {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--gray-500);
+  margin-bottom: 4px;
+}
+.orderNo {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(24px, 4vw, 32px);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+}
+.headMeta {
+  margin: 6px 0 0;
+  font-size: 13px;
+  color: var(--gray-500);
+}
+
+/* Durum rozeti */
+.statusChip {
+  display: inline-flex;
+  align-items: center;
+  padding: 7px 14px;
+  border-radius: var(--r-pill);
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.statusChipActive {
+  background: var(--accent-soft);
+  color: var(--accent-deep);
+}
+.statusChipDone {
+  background: #eafaf0;
+  color: #159b57;
+}
+.statusChipCancelled {
+  background: #fdeceb;
+  color: #c0392b;
+}
+
+/* İptal kutusu */
+.cancelledBox {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 16px 18px;
+  border-radius: var(--r-lg);
+  background: #fdeceb;
+  border: 1px solid #f4c4be;
+  color: #8c2a1e;
+}
+.cancelledBox svg {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  color: #c0392b;
+}
+.cancelledBox strong {
+  display: block;
+  font-size: 15px;
+}
+.cancelledBox p {
+  margin: 3px 0 0;
+  font-size: 13.5px;
+  line-height: 1.5;
+}
+
+/* Zaman çizelgesi */
+.timelineMuted {
+  opacity: 0.55;
+}
+.timeline {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+.step {
+  position: relative;
+  display: flex;
+  gap: 14px;
+  padding-bottom: 22px;
+}
+.step:last-child {
+  padding-bottom: 0;
+}
+/* Adımlar arası dikey çizgi */
+.step:not(:last-child)::before {
+  content: "";
+  position: absolute;
+  left: 13px;
+  top: 28px;
+  bottom: 2px;
+  width: 2px;
+  background: var(--gray-200);
+  border-radius: 2px;
+}
+.stepDone:not(:last-child)::before {
+  background: #159b57;
+}
+.stepDot {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--gray-100);
+  border: 2px solid var(--gray-300);
+  color: var(--white);
+  flex-shrink: 0;
+}
+.stepDot svg {
+  width: 14px;
+  height: 14px;
+}
+.stepDone .stepDot {
+  background: #159b57;
+  border-color: #159b57;
+}
+.stepCurrent .stepDot {
+  background: var(--accent);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px var(--accent-soft);
+}
+.stepBody {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-top: 3px;
+}
+.stepLabel {
+  font-size: 14.5px;
+  font-weight: 500;
+  color: var(--gray-500);
+}
+.stepDone .stepLabel {
+  color: var(--ink);
+  font-weight: 600;
+}
+.stepCurrent .stepLabel {
+  color: var(--accent-deep);
+}
+.stepTime {
+  font-size: 12.5px;
+  color: var(--gray-500);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Kalemler */
+.items {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+.item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--gray-100);
+}
+.item:first-child {
+  padding-top: 0;
+}
+.itemInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.itemName {
+  font-size: 14.5px;
+  font-weight: 500;
+}
+.itemQty {
+  font-size: 12.5px;
+  color: var(--gray-500);
+  font-variant-numeric: tabular-nums;
+}
+.itemTotal {
+  font-size: 14.5px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* Toplamlar */
+.totals {
+  margin: 14px 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.totalRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  font-size: 14px;
+  color: var(--gray-700);
+}
+.totalRow dt,
+.totalRow dd {
+  margin: 0;
+}
+.totalRow dd {
+  font-variant-numeric: tabular-nums;
+}
+.totalGrand {
+  padding-top: 10px;
+  border-top: 1px solid var(--gray-200);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--ink);
+}
+.paymentLine {
+  margin: 14px 0 0;
+  font-size: 13px;
+  color: var(--gray-500);
+}
+.paymentPaid {
+  color: #159b57;
+  font-weight: 600;
+}
+.paymentPending {
+  color: #cf8910;
+  font-weight: 600;
+}
+.paymentFailed {
+  color: #c0392b;
+  font-weight: 600;
+}
+
+/* Teslimat */
+.addressName {
+  margin: 0;
+  font-size: 14.5px;
+  font-weight: 600;
+}
+.addressLine {
+  margin: 4px 0 0;
+  font-size: 14px;
+  color: var(--gray-700);
+  line-height: 1.5;
+}
+.addressNote {
+  margin: 6px 0 0;
+  font-size: 13px;
+  color: var(--gray-500);
+}
+
+/* Misafir doğrulama kartı */
+.verifyCard {
+  background: var(--white);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--r-lg);
+  padding: 28px 24px;
+}
+.verifyTitle {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(24px, 4vw, 32px);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+}
+.verifySub {
+  margin: 10px 0 20px;
+  font-size: 14px;
+  color: var(--gray-700);
+  line-height: 1.55;
+  max-width: var(--measure-narrow);
+}
+.verifyForm {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-width: 380px;
+}
+
+/* Form alanları */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+.fieldLabel {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--gray-500);
+}
+.input {
+  font: inherit;
+  font-size: 15px;
+  padding: 12px 14px;
+  border: 1px solid var(--gray-300);
+  border-radius: var(--r-md);
+  background: var(--white);
+  color: var(--ink);
+  transition: border-color 160ms var(--ease), box-shadow 160ms var(--ease);
+}
+.input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+.formError {
+  margin: 0;
+  font-size: 13.5px;
+  color: #c0392b;
+  background: #fdeceb;
+  border: 1px solid #f4c4be;
+  border-radius: var(--r-sm);
+  padding: 10px 12px;
+  line-height: 1.45;
+}
+
+/* Yardım satırı */
+.helpLine {
+  margin: 8px 0 0;
+  font-size: 13px;
+  color: var(--gray-500);
+  text-align: center;
+}
+.helpLine a {
+  color: var(--accent-deep);
+  font-weight: 600;
+  text-decoration: none;
+}
+.helpLine a:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 520px) {
+  .container {
+    padding-top: 18px;
+  }
+  .card,
+  .headCard,
+  .verifyCard {
+    padding: 16px;
+  }
+}

@@ -4,12 +4,14 @@ import { useEffect, useState } from "react";
 import { Menu, X } from "lucide-react";
 import { BUSINESS } from "@/lib/business";
 
+// Hash linkler "/#..." — /urunler gibi alt sayfalardan da çalışsın.
 const LINKS = [
-  { label: "Konum", href: "#konum" },
-  { label: "Hizmetler", href: "#hizmetler" },
-  { label: "Ürünler", href: "#urunler" },
-  { label: "Yorumlar", href: "#yorumlar" },
-  { label: "İletişim", href: "#iletisim" },
+  { label: "Ürünler", href: "/urunler" },
+  { label: "Konum", href: "/#konum" },
+  { label: "Hizmetler", href: "/#hizmetler" },
+  { label: "Yorumlar", href: "/#yorumlar" },
+  { label: "İletişim", href: "/#iletisim" },
+  { label: "Hesabım", href: "/hesap" },
 ];
 
 function WhatsAppIcon() {

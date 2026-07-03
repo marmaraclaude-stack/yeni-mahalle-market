@@ -316,6 +316,16 @@ export default function Home() {
             <Carousel />
 
             <CategoryGrid />
+
+            {/* Online mağaza CTA — kategori seç-WhatsApp akışına ek, tam katalog */}
+            <div className="section__more">
+              <a href="/urunler" className="btn btn--accent">
+                Tüm ürünleri incele · Online sipariş
+              </a>
+              <p className="section__more-note">
+                Fiyatları gör, sepetini oluştur, kapıda veya online öde.
+              </p>
+            </div>
           </div>
         </section>
 

@@ -1,0 +1,180 @@
+/* Giriş / Kayıt sayfaları ortak stilleri — global token'lardan miras alır. */
+
+.page {
+  min-height: 100dvh;
+  background: var(--gray-50);
+  font-family: var(--font-sans);
+  color: var(--ink);
+  display: flex;
+  flex-direction: column;
+}
+
+/* Üst bar */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px var(--gutter);
+  background: var(--white);
+  border-bottom: 1px solid var(--gray-200);
+}
+.brand {
+  font-family: var(--font-brand);
+  font-weight: 700;
+  font-size: 18px;
+  color: var(--ink);
+  text-decoration: none;
+}
+.topLinks {
+  display: flex;
+  gap: 18px;
+}
+.topLinks a {
+  font-size: 14px;
+  color: var(--gray-700);
+  text-decoration: none;
+  transition: color 160ms var(--ease);
+}
+.topLinks a:hover {
+  color: var(--accent);
+}
+
+/* Kart */
+.shell {
+  flex: 1;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: clamp(28px, 7vh, 72px) var(--gutter) 64px;
+}
+.card {
+  width: 100%;
+  max-width: 420px;
+  background: var(--white);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--r-lg);
+  padding: 30px 26px;
+}
+.eyebrow {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--gray-500);
+  margin-bottom: 6px;
+}
+.title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(24px, 4vw, 30px);
+  font-weight: 700;
+  letter-spacing: -0.015em;
+}
+.sub {
+  margin: 8px 0 22px;
+  font-size: 14px;
+  color: var(--gray-700);
+  line-height: 1.55;
+}
+
+/* Form */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+.fieldLabel {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--gray-500);
+}
+.input {
+  font: inherit;
+  font-size: 15px;
+  padding: 12px 14px;
+  border: 1px solid var(--gray-300);
+  border-radius: var(--r-md);
+  background: var(--white);
+  color: var(--ink);
+  transition: border-color 160ms var(--ease), box-shadow 160ms var(--ease);
+}
+.input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+.hint {
+  margin: -6px 0 0;
+  font-size: 12px;
+  color: var(--gray-500);
+}
+
+.error {
+  margin: 0;
+  font-size: 13.5px;
+  color: #c0392b;
+  background: #fdeceb;
+  border: 1px solid #f4c4be;
+  border-radius: var(--r-sm);
+  padding: 10px 12px;
+  line-height: 1.45;
+}
+
+/* Kayıt sonrası "e-postanı onayla" durumu */
+.confirmBox {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 16px;
+  border-radius: var(--r-md);
+  background: #eafaf0;
+  border: 1px solid #bfe9d2;
+  color: #0c6b3d;
+}
+.confirmBox svg {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+}
+.confirmBox strong {
+  display: block;
+  font-size: 15px;
+}
+.confirmBox p {
+  margin: 4px 0 0;
+  font-size: 13.5px;
+  line-height: 1.5;
+}
+
+/* Alt geçiş bağlantısı (giriş ↔ kayıt) */
+.switchLine {
+  margin: 20px 0 0;
+  padding-top: 18px;
+  border-top: 1px solid var(--gray-100);
+  font-size: 13.5px;
+  color: var(--gray-700);
+  text-align: center;
+}
+.switchLine a {
+  color: var(--accent-deep);
+  font-weight: 600;
+  text-decoration: none;
+}
+.switchLine a:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 520px) {
+  .card {
+    padding: 22px 18px;
+  }
+}

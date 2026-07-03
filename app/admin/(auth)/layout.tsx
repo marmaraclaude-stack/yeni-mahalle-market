@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { isAuthenticated, logoutAction } from "../actions";
+import AdminNav from "./AdminNav";
 import styles from "../admin.module.css";
 
 export const metadata = {
@@ -21,7 +22,7 @@ export default async function AuthedAdminLayout({
       <header className={styles.bar}>
         <Link href="/admin" style={{ textDecoration: "none" }}>
           <span className={styles.bar__brand}>Yeni Mahalle</span>
-          <span className={styles.bar__brandSub}>Admin · Sohbet</span>
+          <span className={styles.bar__brandSub}>Admin · Panel</span>
         </Link>
         <div className={styles.bar__actions}>
           <Link href="/" className={styles.btnLink}>
@@ -34,6 +35,7 @@ export default async function AuthedAdminLayout({
           </form>
         </div>
       </header>
+      <AdminNav />
       <div className={styles.content}>{children}</div>
     </div>
   );

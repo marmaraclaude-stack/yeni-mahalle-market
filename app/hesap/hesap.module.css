@@ -1,0 +1,272 @@
+/* Hesabım sayfası stilleri — global token'lardan miras alır. */
+
+.page {
+  min-height: 100dvh;
+  background: var(--gray-50);
+  font-family: var(--font-sans);
+  color: var(--ink);
+}
+
+/* Üst bar */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px var(--gutter);
+  background: var(--white);
+  border-bottom: 1px solid var(--gray-200);
+}
+.brand {
+  font-family: var(--font-brand);
+  font-weight: 700;
+  font-size: 18px;
+  color: var(--ink);
+  text-decoration: none;
+}
+.topLinks {
+  display: flex;
+  gap: 18px;
+}
+.topLinks a {
+  font-size: 14px;
+  color: var(--gray-700);
+  text-decoration: none;
+  transition: color 160ms var(--ease);
+}
+.topLinks a:hover {
+  color: var(--accent);
+}
+
+.container {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 28px var(--gutter) 64px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Profil kartı */
+.profileCard {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  background: var(--white);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--r-lg);
+  padding: 22px;
+}
+.avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--accent-soft);
+  color: var(--accent-deep);
+  flex-shrink: 0;
+}
+.avatar svg {
+  width: 24px;
+  height: 24px;
+}
+.profileInfo {
+  flex: 1;
+  min-width: 200px;
+}
+.eyebrow {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--gray-500);
+  margin-bottom: 3px;
+}
+.name {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(20px, 3.4vw, 26px);
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  overflow-wrap: anywhere;
+}
+.meta {
+  margin: 5px 0 0;
+  font-size: 13.5px;
+  color: var(--gray-500);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+.meta svg {
+  width: 13px;
+  height: 13px;
+}
+
+/* Çıkış butonu */
+.logoutBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 18px;
+  border: 1px solid var(--gray-200);
+  border-radius: var(--r-pill);
+  background: transparent;
+  color: var(--gray-700);
+  font: inherit;
+  font-size: 13.5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color 160ms var(--ease), color 160ms var(--ease);
+}
+.logoutBtn svg {
+  width: 15px;
+  height: 15px;
+}
+.logoutBtn:hover {
+  border-color: #c0392b;
+  color: #c0392b;
+}
+.logoutBtn:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+/* Sipariş kartı */
+.card {
+  background: var(--white);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--r-lg);
+  padding: 22px;
+}
+.cardTitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 14px;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.cardTitle svg {
+  width: 17px;
+  height: 17px;
+  color: var(--accent);
+}
+
+/* Boş durum */
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 10px 0 4px;
+}
+.empty p {
+  margin: 0;
+  font-size: 14.5px;
+  color: var(--gray-700);
+}
+
+/* Sipariş listesi */
+.orderList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+.orderList li + li {
+  border-top: 1px solid var(--gray-100);
+}
+.orderRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 14px 4px;
+  text-decoration: none;
+  color: inherit;
+  border-radius: var(--r-sm);
+  transition: background 160ms var(--ease);
+}
+.orderRow:hover {
+  background: var(--gray-50);
+}
+.orderMain {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+.orderNo {
+  font-size: 15px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.orderRow:hover .orderNo {
+  color: var(--accent-deep);
+}
+.orderDate {
+  font-size: 12.5px;
+  color: var(--gray-500);
+}
+.orderSide {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+.orderTotal {
+  font-size: 14.5px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.chevron {
+  width: 16px;
+  height: 16px;
+  color: var(--gray-400);
+}
+
+/* Durum rozeti */
+.statusChip {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 11px;
+  border-radius: var(--r-pill);
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.stActive {
+  background: var(--accent-soft);
+  color: var(--accent-deep);
+}
+.stDone {
+  background: #eafaf0;
+  color: #159b57;
+}
+.stCancelled {
+  background: #fdeceb;
+  color: #c0392b;
+}
+
+@media (max-width: 560px) {
+  .container {
+    padding-top: 18px;
+  }
+  .profileCard,
+  .card {
+    padding: 16px;
+  }
+  .orderSide .orderTotal {
+    display: none;
+  }
+}

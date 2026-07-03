@@ -1,0 +1,49 @@
+/* Yüzen sepet butonu — wa-fab ile aynı 56px daire dili, accent turuncu.
+   WhatsApp butonu sağ altta (bottom: clamp(16px,3vw,28px)); bu buton onun üstünde. */
+
+.fab {
+  position: fixed;
+  right: clamp(16px, 3vw, 28px);
+  bottom: calc(clamp(16px, 3vw, 28px) + 68px);
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--white);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.3) inset,
+    0 16px 40px rgba(255, 90, 31, 0.36),
+    0 4px 12px rgba(16, 16, 16, 0.14);
+  transition: transform 220ms var(--ease), background 200ms var(--ease);
+}
+.fab:hover {
+  transform: translateY(-3px) scale(1.04);
+  background: var(--accent-deep);
+}
+.fab svg {
+  width: 24px;
+  height: 24px;
+}
+
+.badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 5px;
+  border-radius: var(--r-pill);
+  background: var(--white);
+  color: var(--accent);
+  border: 1px solid var(--accent-soft);
+  font-size: var(--fs-micro);
+  font-weight: 700;
+  line-height: 20px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  box-shadow: 0 2px 6px rgba(16, 16, 16, 0.16);
+}

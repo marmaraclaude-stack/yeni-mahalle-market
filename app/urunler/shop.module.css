@@ -1,0 +1,324 @@
+/* ============================================================
+   Vitrin (/urunler) — katalog sayfası stilleri.
+   Renk/tipografi token'ları globals.css'ten miras alınır.
+   ============================================================ */
+
+.page {
+  padding: 28px 0 80px;
+  min-height: 60vh;
+}
+
+/* --- Sayfa başı --- */
+.head {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+.back {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  width: fit-content;
+  font-size: var(--fs-small);
+  color: var(--gray-500);
+  transition: color 180ms var(--ease);
+}
+.back:hover { color: var(--ink); }
+.title {
+  font-size: var(--fs-h2);
+}
+.sub {
+  color: var(--gray-500);
+  font-size: var(--fs-lead);
+  max-width: var(--measure);
+}
+
+/* --- Araç çubuğu: arama + kategori raili --- */
+.toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin: 8px 0 12px;
+}
+
+.search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 48px;
+  max-width: 560px;
+  padding: 0 6px 0 16px;
+  background: var(--white);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--r-pill);
+  transition: border-color 180ms var(--ease), box-shadow 180ms var(--ease);
+}
+.search:focus-within {
+  border-color: var(--ink);
+  box-shadow: 0 6px 20px -14px rgba(0, 0, 0, 0.25);
+}
+.searchIcon {
+  flex-shrink: 0;
+  color: var(--gray-400);
+}
+.searchInput {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  font: inherit;
+  font-size: var(--fs-body);
+  color: var(--ink);
+}
+.searchInput::placeholder { color: var(--gray-400); }
+.searchBtn {
+  flex-shrink: 0;
+  height: 36px;
+  padding: 0 18px;
+  border-radius: var(--r-pill);
+  background: var(--ink);
+  color: var(--white);
+  font-size: var(--fs-small);
+  font-weight: 500;
+  transition: background 180ms var(--ease);
+}
+.searchBtn:hover { background: var(--ink-2); }
+
+/* Kategori raili — yatay kaydırılabilir chip listesi */
+.rail {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 4px 2px 10px;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+.rail::-webkit-scrollbar { display: none; }
+
+.chip {
+  /* Tint değerleri chip başına inline CSS değişkeniyle gelir */
+  --chip-bg: var(--gray-100);
+  --chip-fg: var(--gray-700);
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  flex-shrink: 0;
+  height: 38px;
+  padding: 0 14px;
+  border-radius: var(--r-pill);
+  border: 1px solid var(--gray-200);
+  background: var(--white);
+  color: var(--gray-700);
+  font-size: var(--fs-small);
+  font-weight: 500;
+  white-space: nowrap;
+  transition: background 180ms var(--ease), border-color 180ms var(--ease),
+    color 180ms var(--ease);
+}
+.chip svg { color: var(--chip-fg); }
+.chip:hover {
+  background: var(--gray-50);
+  border-color: var(--gray-300);
+}
+.chipActive,
+.chipActive:hover {
+  background: var(--chip-bg);
+  border-color: var(--chip-fg);
+  color: var(--chip-fg);
+  font-weight: 600;
+}
+
+/* --- Sonuç sayacı --- */
+.count {
+  margin: 4px 0 14px;
+  color: var(--gray-500);
+  font-size: var(--fs-small);
+  font-variant-numeric: tabular-nums;
+}
+
+/* --- Ürün gridi --- */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 12px;
+}
+@media (min-width: 720px) {
+  .grid {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 16px;
+  }
+}
+
+/* --- Ürün kartı --- */
+.card {
+  display: flex;
+  flex-direction: column;
+  background: var(--white);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--r-lg);
+  padding: 10px 10px 12px;
+  transition: box-shadow 200ms var(--ease), transform 200ms var(--ease),
+    border-color 200ms var(--ease);
+}
+.card:hover {
+  border-color: var(--gray-300);
+  box-shadow: 0 14px 30px -20px rgba(0, 0, 0, 0.2);
+  transform: translateY(-2px);
+}
+
+.thumb {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  display: grid;
+  place-items: center;
+  border-radius: var(--r-md);
+  background: var(--gray-50);
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+.thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.badge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  padding: 3px 9px;
+  border-radius: var(--r-pill);
+  background: var(--accent);
+  color: var(--white);
+  font-size: var(--fs-micro);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+.badgeFeatured {
+  background: var(--ink);
+}
+/* Stok yok — görselin üstüne yarı saydam örtü */
+.badgeOut {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgba(255, 255, 255, 0.72);
+  color: var(--gray-700);
+  font-size: var(--fs-small);
+  font-weight: 600;
+}
+
+.cardBody {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex: 1;
+}
+.meta {
+  color: var(--gray-500);
+  font-size: var(--fs-micro);
+  letter-spacing: 0.01em;
+}
+.name {
+  font-size: var(--fs-h5);
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+}
+.priceRow {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  flex-wrap: wrap;
+  margin-top: 6px;
+}
+.price {
+  font-size: 16.5px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.compare {
+  color: var(--gray-400);
+  font-size: var(--fs-micro);
+  font-variant-numeric: tabular-nums;
+}
+.unit {
+  color: var(--gray-500);
+  font-size: var(--fs-micro);
+}
+
+/* --- Sepete ekle butonu --- */
+.addBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  height: 38px;
+  margin-top: 10px;
+  border-radius: var(--r-pill);
+  background: var(--accent-soft);
+  color: var(--accent-deep);
+  font-size: var(--fs-small);
+  font-weight: 600;
+  transition: background 180ms var(--ease), color 180ms var(--ease),
+    transform 180ms var(--ease);
+}
+.addBtn:hover:not(:disabled) {
+  background: var(--accent);
+  color: var(--white);
+}
+.addBtn:active:not(:disabled) { transform: scale(0.97); }
+.addBtnDone,
+.addBtnDone:hover:not(:disabled) {
+  background: #eafaf0;
+  color: #159b57;
+}
+.addBtnMuted {
+  background: var(--gray-100);
+  color: var(--gray-500);
+  cursor: not-allowed;
+}
+
+/* --- Boş durum --- */
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 56px 20px;
+  text-align: center;
+  color: var(--gray-500);
+  border: 1px dashed var(--gray-300);
+  border-radius: var(--r-lg);
+}
+
+/* --- DB hazır değil: zarif fallback --- */
+.fallback {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 64px 24px;
+  text-align: center;
+  background: var(--gray-50);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--r-xl);
+}
+.fallbackIcon {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+.fallback h2 { font-size: var(--fs-h3); }
+.fallback p {
+  color: var(--gray-500);
+  max-width: var(--measure-narrow);
+}
