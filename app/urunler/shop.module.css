@@ -168,6 +168,16 @@
   transform: translateY(-2px);
 }
 
+/* Görsel + başlık alanını saran detay linki — buton bu linkin dışında kalır */
+.cardLink {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  color: inherit;
+}
+.cardLink:hover .name { color: var(--accent-deep); }
+
 .thumb {
   position: relative;
   aspect-ratio: 1 / 1;

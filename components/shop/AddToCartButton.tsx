@@ -64,7 +64,7 @@ export default function AddToCartButton({ product }: { product: Product }) {
       type="button"
       className={`${styles.addBtn}${added ? ` ${styles.addBtnDone}` : ""}`}
       onClick={handleAdd}
-      aria-label={`${product.name} — sepete ekle`}
+      aria-label={`${product.name}, sepete ekle`}
     >
       {added ? (
         <Check size={15} strokeWidth={2.4} aria-hidden="true" />

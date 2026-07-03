@@ -105,23 +105,23 @@ export default async function AdminHome() {
     {
       href: "/admin/siparisler",
       label: "Bugünkü Sipariş",
-      value: stats.todayOrders === null ? "—" : String(stats.todayOrders),
+      value: stats.todayOrders === null ? "-" : String(stats.todayOrders),
     },
     {
       href: "/admin/siparisler",
       label: "Bekleyen Sipariş",
-      value: stats.pendingOrders === null ? "—" : String(stats.pendingOrders),
+      value: stats.pendingOrders === null ? "-" : String(stats.pendingOrders),
       highlight: (stats.pendingOrders ?? 0) > 0,
     },
     {
       href: "/admin/siparisler",
       label: "Bugünkü Ciro",
-      value: stats.todayRevenue === null ? "—" : formatTL(stats.todayRevenue),
+      value: stats.todayRevenue === null ? "-" : formatTL(stats.todayRevenue),
     },
     {
       href: "/admin/urunler",
       label: "Aktif Ürün",
-      value: stats.activeProducts === null ? "—" : String(stats.activeProducts),
+      value: stats.activeProducts === null ? "-" : String(stats.activeProducts),
     },
   ];
 

@@ -157,7 +157,7 @@ export default async function AdminSettingsPage({
                   name="iyzico_enabled"
                   defaultChecked={settings.iyzico_enabled}
                 />
-                Online kart (iyzico) — API anahtarları da tanımlı olmalı
+                Online kart (iyzico) · API anahtarları da tanımlı olmalı
               </label>
             </div>
           </section>

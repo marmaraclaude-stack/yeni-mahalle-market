@@ -8,6 +8,12 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "images.pexels.com" },
     ],
   },
+  experimental: {
+    serverActions: {
+      // Admin panelinden ürün görseli yükleme (4MB dosya + form alanları)
+      bodySizeLimit: "5mb",
+    },
+  },
 };
 
 export default nextConfig;

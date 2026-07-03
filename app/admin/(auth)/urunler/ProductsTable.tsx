@@ -1,16 +1,18 @@
 "use client";
 
 // Ürün tablosu — satır içi fiyat/stok düzenleme (Kaydet → updateProduct),
-// anında aktif/pasif toggle (toggleProductActive) ve yeni ürün ekleme formu.
+// anında aktif/pasif toggle (toggleProductActive), yeni ürün ekleme formu,
+// görsel küçük önizleme ve tam düzenleme sayfasına "Düzenle" linki.
 
 import { useState, useTransition } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   createProduct,
   toggleProductActive,
   updateProduct,
 } from "@/lib/shop/admin-actions";
-import { SHOP_CATEGORIES, categoryBySlug } from "@/lib/shop/categories";
+import { SHOP_CATEGORIES, CATEGORY_TINTS, categoryBySlug } from "@/lib/shop/categories";
 import { formatTL } from "@/lib/shop/types";
 import type { Product } from "@/lib/shop/types";
 import styles from "../../admin.module.css";
@@ -60,15 +62,40 @@ function ProductRow({ product }: { product: Product }) {
     });
   }
 
+  const category = categoryBySlug(product.category_slug);
+  const [tintBg, tintFg] = CATEGORY_TINTS[category?.tint ?? 0];
+
   return (
     <tr className={product.is_active ? "" : styles.rowInactive}>
       <td>
-        <div className={styles.prodName}>{product.name}</div>
-        <div className={styles.prodMeta}>
-          {[product.brand, product.size_text].filter(Boolean).join(" · ") || "—"}
+        <div className={styles.prodCell}>
+          {product.image_url ? (
+            <img
+              src={product.image_url}
+              alt=""
+              width={44}
+              height={44}
+              loading="lazy"
+              className={styles.thumb}
+            />
+          ) : (
+            <span
+              className={styles.thumbEmpty}
+              style={{ background: tintBg, color: tintFg }}
+              aria-hidden
+            >
+              {product.name.charAt(0).toLocaleUpperCase("tr-TR")}
+            </span>
+          )}
+          <div>
+            <div className={styles.prodName}>{product.name}</div>
+            <div className={styles.prodMeta}>
+              {[product.brand, product.size_text].filter(Boolean).join(" · ") || "·"}
+            </div>
+          </div>
         </div>
       </td>
-      <td>{categoryBySlug(product.category_slug)?.name ?? product.category_slug}</td>
+      <td>{category?.name ?? product.category_slug}</td>
       <td>
         <input
           type="text"
@@ -107,14 +134,23 @@ function ProductRow({ product }: { product: Product }) {
         </button>
       </td>
       <td>
-        <button
-          type="button"
-          onClick={save}
-          disabled={!dirty || busy}
-          className={`${styles.actionBtn} ${styles["actionBtn--primary"]}`}
-        >
-          {busy ? "…" : "Kaydet"}
-        </button>
+        <div className={styles.cellActions}>
+          <button
+            type="button"
+            onClick={save}
+            disabled={!dirty || busy}
+            className={`${styles.actionBtn} ${styles["actionBtn--primary"]}`}
+          >
+            {busy ? "…" : "Kaydet"}
+          </button>
+          <Link
+            href={`/admin/urunler/${product.id}`}
+            className={styles.actionBtn}
+            aria-label={`${product.name} ürününü düzenle`}
+          >
+            Düzenle
+          </Link>
+        </div>
       </td>
     </tr>
   );

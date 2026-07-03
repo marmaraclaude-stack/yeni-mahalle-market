@@ -52,8 +52,8 @@ export default async function KayitPage({
           <span className={styles.eyebrow}>Yeni Mahalle Market</span>
           <h1 className={styles.title}>Kayıt ol</h1>
           <p className={styles.sub}>
-            Hesap oluştur; adres ve telefon bilgilerinle bir dahaki siparişini
-            saniyeler içinde ver.
+            Sipariş verebilmek için hesap gerekli. Hesap oluştur; adres ve
+            telefon bilgilerinle siparişini saniyeler içinde ver.
           </p>
 
           <KayitForm next={next} />

@@ -132,7 +132,7 @@ export default function Home() {
               <div className="hero__visual">
                 <img
                   src="/Hero.png"
-                  alt="Yeni Mahalle Market — Sapanca Kurtuluş Caddesi"
+                  alt="Yeni Mahalle Market · Sapanca Kurtuluş Caddesi"
                   className="hero__photo"
                   width={1200}
                   height={900}

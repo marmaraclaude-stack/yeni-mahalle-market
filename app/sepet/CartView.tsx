@@ -16,6 +16,7 @@ import { formatTL } from "@/lib/shop/types";
 import styles from "./sepet.module.css";
 
 interface CartViewProps {
+  loggedIn: boolean;
   deliveryFee: number;
   freeDeliveryOver: number;
   minOrderTotal: number;
@@ -24,6 +25,7 @@ interface CartViewProps {
 }
 
 export default function CartView({
+  loggedIn,
   deliveryFee,
   freeDeliveryOver,
   minOrderTotal,
@@ -183,6 +185,13 @@ export default function CartView({
               >
                 Siparişi Tamamla <ArrowRight aria-hidden="true" />
               </span>
+            )}
+            {!loggedIn && (
+              <p className={styles.authNote} role="note">
+                Sipariş vermek için giriş yapman gerekiyor ·{" "}
+                <Link href="/giris?next=/odeme">Giriş yap</Link> /{" "}
+                <Link href="/kayit?next=/odeme">Kayıt ol</Link>
+              </p>
             )}
             <Link href="/urunler" className={styles.continueLink}>
               Alışverişe devam et

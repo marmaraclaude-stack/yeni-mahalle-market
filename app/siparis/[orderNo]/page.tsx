@@ -83,7 +83,7 @@ export default async function OrderTrackingPage({
             <PartyPopper aria-hidden="true" />
             <p>
               <strong>Siparişiniz alındı 🎉</strong> Sipariş numaranız{" "}
-              <b>{orderNo}</b> — durumunu bu sayfadan takip edebilirsiniz.
+              <b>{orderNo}</b>. Durumunu bu sayfadan takip edebilirsiniz.
             </p>
           </div>
         )}

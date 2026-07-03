@@ -17,7 +17,7 @@ export default function CartFab() {
     <Link
       href="/sepet"
       className={styles.fab}
-      aria-label={`Sepete git — sepette ${count} ürün var`}
+      aria-label={`Sepete git, sepette ${count} ürün var`}
     >
       <ShoppingCart aria-hidden="true" />
       <span className={styles.badge} aria-hidden="true">

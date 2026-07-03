@@ -73,7 +73,7 @@ export default function KayitForm({ next }: { next: string }) {
       <div className={styles.confirmBox} role="status">
         <MailCheck aria-hidden="true" />
         <div>
-          <strong>Neredeyse hazır — e-postanı onayla</strong>
+          <strong>Neredeyse hazır, e-postanı onayla</strong>
           <p>
             Gelen kutuna bir onay bağlantısı gönderdik. Bağlantıya tıkladıktan
             sonra <Link href="/giris">giriş yapabilirsin</Link>.

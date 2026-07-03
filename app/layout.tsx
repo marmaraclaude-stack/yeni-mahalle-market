@@ -104,7 +104,7 @@ export const metadata: Metadata = {
         url: "/Hero.png",
         width: 1200,
         height: 900,
-        alt: `${BUSINESS.name} — Sapanca Kurtuluş Caddesi`,
+        alt: `${BUSINESS.name} · Sapanca Kurtuluş Caddesi`,
       },
     ],
   },

@@ -40,9 +40,12 @@
   color: var(--accent);
 }
 
-/* Kart */
+/* Kabuk: genişlik standardı (--container + --gutter); form kartı ortada dar kalır. */
 .shell {
   flex: 1;
+  width: 100%;
+  max-width: var(--container);
+  margin-inline: auto;
   display: flex;
   align-items: flex-start;
   justify-content: center;

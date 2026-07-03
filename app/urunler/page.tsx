@@ -30,7 +30,7 @@ export async function generateMetadata({
   const sp = await searchParams;
   const cat = categoryBySlug(first(sp.k) ?? "");
   return {
-    title: cat ? `${cat.name} — Ürünler` : "Ürünler",
+    title: cat ? `${cat.name} · Ürünler` : "Ürünler",
     description:
       "Yeni Mahalle Market online katalog: market ürünlerini seç, sepetine ekle, Sapanca içinde adresine gelsin.",
   };
@@ -96,7 +96,7 @@ export default async function UrunlerPage({
             {category ? category.name : "Market Ürünleri"}
           </h1>
           <p className={styles.sub}>
-            Seç, sepete ekle — Sapanca içinde kapına gelsin.
+            Seç, sepete ekle, Sapanca içinde kapına gelsin.
           </p>
         </header>
 
@@ -113,7 +113,7 @@ export default async function UrunlerPage({
             <h2>Katalog hazırlanıyor</h2>
             <p>
               Online ürün listemiz çok yakında burada. Şimdilik siparişini
-              WhatsApp üzerinden verebilirsin — her zamanki gibi kapına
+              WhatsApp üzerinden verebilirsin, her zamanki gibi kapına
               getirelim.
             </p>
             <a

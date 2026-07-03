@@ -1,6 +1,8 @@
 "use client";
 
 // Checkout formu — teslimat bilgileri + ödeme yöntemi seçimi + createOrder action.
+// Sayfa yalnız girişli kullanıcıya açılır (page.tsx redirect'i); bilgiler
+// profilden ön-dolu gelir ama input'lar düzenlenebilir kalır.
 // Kapıda ödeme → /siparis/[orderNo]?yeni=1; iyzico → ödeme sayfasına yönlendirme.
 
 import Link from "next/link";
@@ -17,7 +19,6 @@ export interface CheckoutDefaults {
   phone: string;
   address: string;
   addressNote: string;
-  loggedIn: boolean;
 }
 
 interface CheckoutFormProps {
@@ -87,7 +88,7 @@ export default function CheckoutForm({
           <h1 className={styles.title}>Siparişi Tamamla</h1>
           <div className={styles.notice}>
             <ShoppingBasket aria-hidden="true" className={styles.noticeIcon} />
-            <p>Sepetiniz boş — önce sepete ürün ekleyin.</p>
+            <p>Sepetiniz boş. Önce sepete ürün ekleyin.</p>
             <Link href="/urunler" className="btn btn--accent">
               Alışverişe Başla <ArrowRight aria-hidden="true" />
             </Link>
@@ -147,9 +148,9 @@ export default function CheckoutForm({
           <div className={styles.formCol}>
             <section className={styles.card}>
               <h2 className={styles.cardTitle}>Teslimat Bilgileri</h2>
-              {defaults.loggedIn && (
+              {(defaults.name || defaults.phone || defaults.address) && (
                 <p className={styles.prefillNote}>
-                  Bilgileriniz hesabınızdan dolduruldu — gerekirse düzenleyin.
+                  Bilgileriniz hesabınızdan dolduruldu, gerekirse düzenleyin.
                 </p>
               )}
               <div className={styles.fields}>
@@ -188,7 +189,7 @@ export default function CheckoutForm({
                     rows={3}
                     autoComplete="street-address"
                     defaultValue={defaults.address}
-                    placeholder="Mahalle, cadde/sokak, bina ve daire no — Sapanca"
+                    placeholder="Mahalle, cadde/sokak, bina ve daire no · Sapanca"
                   />
                 </div>
                 <div className={styles.field}>

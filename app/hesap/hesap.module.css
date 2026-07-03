@@ -38,13 +38,20 @@
   color: var(--accent);
 }
 
+/* Genişlik standardı: sayfa kabuğu ana sayfayla aynı (--container + --gutter).
+   Okunabilirlik için içerik sütunu (kartlar) ortada dar tutulur. */
 .container {
-  max-width: 720px;
-  margin: 0 auto;
+  max-width: var(--container);
+  margin-inline: auto;
   padding: 28px var(--gutter) 64px;
   display: flex;
   flex-direction: column;
   gap: 16px;
+}
+.container > * {
+  width: 100%;
+  max-width: 880px;
+  margin-inline: auto;
 }
 
 /* Profil kartı */

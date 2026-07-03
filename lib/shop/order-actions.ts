@@ -1,6 +1,7 @@
 "use server";
 
 // Sipariş Server Action'ları — createOrder + getOrderForTracking.
+// ÜYELİK ZORUNLU: createOrder yalnız girişli kullanıcı için çalışır (sunucuda doğrulanır).
 // Fiyatlar ASLA client'tan alınmaz: ürünler DB'den çekilir, toplamlar sunucuda hesaplanır.
 // Tüm yazmalar service-role client ile (RLS'te insert policy bilinçli olarak yok).
 
@@ -92,6 +93,24 @@ async function getRequestOrigin(): Promise<string> {
 export async function createOrder(
   payload: CreateOrderPayload,
 ): Promise<CreateOrderResult> {
+  // --- 0) ÜYELİK ZORUNLU: sunucu tarafı auth kontrolü ---
+  // Client kontrolüne güvenilmez; oturum yoksa sipariş oluşturulmaz.
+  let userId: string | null = null;
+  let userEmail: string | null = null;
+  try {
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    userId = user?.id ?? null;
+    userEmail = user?.email ?? null;
+  } catch {
+    userId = null;
+  }
+  if (!userId) {
+    return { ok: false, error: "Sipariş için giriş yapmalısınız." };
+  }
+
   // --- 1) Form doğrulama ---
   const customerName = payload.customerName?.trim() ?? "";
   const phone = payload.phone?.trim() ?? "";
@@ -199,21 +218,8 @@ export async function createOrder(
   const deliveryFee = calcDeliveryFee(settings, subtotal);
   const total = round2(subtotal + deliveryFee);
 
-  // --- 4) Giriş yapmış kullanıcıyı bağla (varsa) ---
-  let userId: string | null = null;
-  let userEmail: string | null = null;
-  try {
-    const supabase = await createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    userId = user?.id ?? null;
-    userEmail = user?.email ?? null;
-  } catch {
-    // auth okunamazsa misafir sipariş olarak devam et
-  }
-
-  // --- 5) Sipariş yaz — order_no çakışırsa yeniden dene ---
+  // --- 4) Sipariş yaz — user_id her siparişte set (adım 0'da doğrulandı).
+  // order_no çakışırsa yeniden dene ---
   let order: Order | null = null;
   for (let attempt = 0; attempt < 5 && !order; attempt++) {
     const orderNo = randomOrderNo();
@@ -259,7 +265,7 @@ export async function createOrder(
     return { ok: false, error: "Sipariş kaydedilemedi. Lütfen tekrar deneyin." };
   }
 
-  // --- 6) Online ödeme ise iyzico Checkout Form başlat ---
+  // --- 5) Online ödeme ise iyzico Checkout Form başlat ---
   if (method === "iyzico") {
     try {
       const origin = await getRequestOrigin();

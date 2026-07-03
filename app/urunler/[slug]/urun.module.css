@@ -1,0 +1,276 @@
+/* ============================================================
+   Ürün detay sayfası (/urunler/[slug]) stilleri.
+   Getir hissi: ferah, temiz, hızlı sepete ekleme.
+   Token'lar globals.css'ten miras alınır.
+   ============================================================ */
+
+.page {
+  padding: 24px 0 80px;
+  min-height: 60vh;
+}
+
+/* --- Breadcrumb --- */
+.crumbs {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+  font-size: var(--fs-small);
+  color: var(--gray-500);
+}
+.crumbs a {
+  color: var(--gray-500);
+  transition: color 180ms var(--ease);
+}
+.crumbs a:hover { color: var(--ink); }
+.crumbs svg {
+  flex-shrink: 0;
+  color: var(--gray-400);
+}
+.crumbCurrent {
+  color: var(--ink);
+  font-weight: 500;
+  /* Uzun ürün adları breadcrumb'ı taşırmasın */
+  max-width: 32ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* --- Üst bölüm: görsel + bilgi --- */
+.hero {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+  align-items: start;
+}
+@media (min-width: 880px) {
+  .hero {
+    grid-template-columns: minmax(0, 460px) minmax(0, 1fr);
+    gap: 48px;
+  }
+}
+
+.media {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  display: grid;
+  place-items: center;
+  max-width: 460px;
+  border: 1px solid var(--gray-200);
+  border-radius: var(--r-xl);
+  background: var(--gray-50);
+  overflow: hidden;
+}
+.media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.mediaBadge {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  padding: 5px 12px;
+  border-radius: var(--r-pill);
+  background: var(--accent);
+  color: var(--white);
+  font-size: var(--fs-micro);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+/* Stok yok — görselin üstüne yarı saydam örtü */
+.mediaOut {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgba(255, 255, 255, 0.72);
+  color: var(--gray-700);
+  font-size: var(--fs-body);
+  font-weight: 600;
+}
+
+/* --- Bilgi sütunu --- */
+.info {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.meta {
+  color: var(--gray-500);
+  font-size: var(--fs-small);
+  letter-spacing: 0.01em;
+}
+.title {
+  font-size: var(--fs-h3);
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+}
+
+.priceRow {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 2px;
+}
+.price {
+  font-size: clamp(24px, 3vw, 30px);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.compare {
+  color: var(--gray-400);
+  font-size: var(--fs-body);
+  font-variant-numeric: tabular-nums;
+}
+.unit {
+  color: var(--gray-500);
+  font-size: var(--fs-small);
+}
+.discount {
+  align-self: center;
+  padding: 3px 10px;
+  border-radius: var(--r-pill);
+  background: var(--accent-soft);
+  color: var(--accent-deep);
+  font-size: var(--fs-micro);
+  font-weight: 700;
+}
+
+/* Stok durumu */
+.stock {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--fs-small);
+  font-weight: 500;
+}
+.stockIn { color: #159b57; }
+.stockOut { color: var(--gray-500); }
+.stockDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+/* --- Aksiyonlar: adet seçici + sepete ekle --- */
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+.qty {
+  display: inline-flex;
+  align-items: center;
+  height: 48px;
+  border: 1px solid var(--gray-200);
+  border-radius: var(--r-pill);
+  background: var(--white);
+  overflow: hidden;
+}
+.qtyBtn {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 100%;
+  color: var(--gray-700);
+  transition: background 160ms var(--ease), color 160ms var(--ease);
+}
+.qtyBtn:hover:not(:disabled) {
+  background: var(--gray-100);
+  color: var(--ink);
+}
+.qtyBtn:disabled {
+  color: var(--gray-300);
+  cursor: not-allowed;
+}
+.qtyValue {
+  min-width: 34px;
+  text-align: center;
+  font-size: var(--fs-body);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.addBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 48px;
+  padding: 0 28px;
+  min-width: 200px;
+  border-radius: var(--r-pill);
+  background: var(--accent);
+  color: var(--white);
+  font-size: var(--fs-body);
+  font-weight: 600;
+  transition: background 180ms var(--ease), transform 180ms var(--ease);
+}
+.addBtn:hover:not(:disabled) { background: var(--accent-deep); }
+.addBtn:active:not(:disabled) { transform: scale(0.98); }
+.addBtnDone,
+.addBtnDone:hover:not(:disabled) {
+  background: #159b57;
+  color: var(--white);
+}
+.addBtnMuted,
+.addBtnMuted:hover:not(:disabled) {
+  background: var(--gray-100);
+  color: var(--gray-500);
+  cursor: not-allowed;
+}
+.storeNote {
+  width: 100%;
+  color: var(--gray-500);
+  font-size: var(--fs-small);
+}
+
+/* --- Açıklama --- */
+.desc {
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px solid var(--gray-200);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.desc h2 {
+  font-size: var(--fs-h5);
+  font-weight: 600;
+  color: var(--gray-700);
+}
+.desc p {
+  color: var(--gray-500);
+  font-size: var(--fs-body);
+  line-height: 1.6;
+  max-width: var(--measure);
+}
+
+/* --- Benzer ürünler --- */
+.similar {
+  margin-top: 56px;
+}
+.similarHead {
+  font-size: var(--fs-h4);
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+.similarGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 12px;
+}
+@media (min-width: 720px) {
+  .similarGrid {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 16px;
+  }
+}

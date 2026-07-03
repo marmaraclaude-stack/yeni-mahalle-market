@@ -1,6 +1,9 @@
 // Ürün kartı — vitrin. Görsel yoksa kategori tint'li lucide placeholder basar.
+// Görsel + başlık alanı /urunler/[slug] detayına link; AddToCartButton linkin
+// DIŞINDA durur, tıklaması navigasyonu tetiklemez.
 // Kebab-case lucide ikon haritası buradan export edilir (CategoryRail de kullanır).
 
+import Link from "next/link";
 import type { Product } from "@/lib/shop/types";
 import { formatTL } from "@/lib/shop/types";
 import { CATEGORY_TINTS, categoryBySlug } from "@/lib/shop/categories";
@@ -91,50 +94,53 @@ export default function ProductCard({ product }: { product: Product }) {
 
   return (
     <article className={styles.card}>
-      <div
-        className={styles.thumb}
-        style={
-          product.image_url
-            ? undefined
-            : { background: tintBg, color: tintFg }
-        }
-      >
-        {product.image_url ? (
-          <img src={product.image_url} alt={product.name} loading="lazy" />
-        ) : (
-          <Icon size={42} strokeWidth={1.4} aria-hidden="true" />
-        )}
+      {/* Görsel + başlık alanı ürün detayına götürür; buton linkin dışında */}
+      <Link href={`/urunler/${product.slug}`} className={styles.cardLink}>
+        <div
+          className={styles.thumb}
+          style={
+            product.image_url
+              ? undefined
+              : { background: tintBg, color: tintFg }
+          }
+        >
+          {product.image_url ? (
+            <img src={product.image_url} alt={product.name} loading="lazy" />
+          ) : (
+            <Icon size={42} strokeWidth={1.4} aria-hidden="true" />
+          )}
 
-        {discounted && <span className={styles.badge}>İndirim</span>}
-        {!discounted && product.is_featured && (
-          <span className={`${styles.badge} ${styles.badgeFeatured}`}>
-            Popüler
-          </span>
-        )}
-        {!product.in_stock && (
-          <span className={styles.badgeOut}>Stokta yok</span>
-        )}
-      </div>
+          {discounted && <span className={styles.badge}>İndirim</span>}
+          {!discounted && product.is_featured && (
+            <span className={`${styles.badge} ${styles.badgeFeatured}`}>
+              Popüler
+            </span>
+          )}
+          {!product.in_stock && (
+            <span className={styles.badgeOut}>Stokta yok</span>
+          )}
+        </div>
 
-      <div className={styles.cardBody}>
-        {(product.brand || product.size_text) && (
-          <p className={styles.meta}>
-            {product.brand}
-            {product.brand && product.size_text ? " · " : ""}
-            {product.size_text}
+        <div className={styles.cardBody}>
+          {(product.brand || product.size_text) && (
+            <p className={styles.meta}>
+              {product.brand}
+              {product.brand && product.size_text ? " · " : ""}
+              {product.size_text}
+            </p>
+          )}
+          <h3 className={styles.name}>{product.name}</h3>
+          <p className={styles.priceRow}>
+            <span className={styles.price}>{formatTL(product.price)}</span>
+            {discounted && (
+              <s className={styles.compare}>{formatTL(compareAt)}</s>
+            )}
+            {product.unit !== "adet" && (
+              <span className={styles.unit}>/ {product.unit}</span>
+            )}
           </p>
-        )}
-        <h3 className={styles.name}>{product.name}</h3>
-        <p className={styles.priceRow}>
-          <span className={styles.price}>{formatTL(product.price)}</span>
-          {discounted && (
-            <s className={styles.compare}>{formatTL(compareAt)}</s>
-          )}
-          {product.unit !== "adet" && (
-            <span className={styles.unit}>/ {product.unit}</span>
-          )}
-        </p>
-      </div>
+        </div>
+      </Link>
 
       <AddToCartButton product={product} />
     </article>
