@@ -1,6 +1,10 @@
-== 1) Sitenin kullandığı Supabase ref'i ==
-Site ref(ler)i: BULUNAMADI
-== 2) Token hesabındaki projeler ==
-ppebggmvyqursnaropau  Instagram
-vkaknwulaatzgucclvzn  Yeni Mahalle Market
-SONUC: Site ref'i tespit edilemedi.
+== 1) Site ref taraması (derin) ==
+Bulunan ref(ler):  
+Anon key bulundu mu: hayır
+== 3) Hedef projeye (vkaknwulaatzgucclvzn) chat şeması (idempotent değil, hata olabilir) ==
+chat_schema -> HTTP 400 {"message":"Failed to run sql query: ERROR:  42P07: relation \"chat_sessions\" already exists\n"}
+== 4) Hedef proje doğrulama ==
+[{"kategoriler":30,"urunler":284}]
+== 5) Hedef projenin URL'i (Vercel için) ==
+https://vkaknwulaatzgucclvzn.supabase.co
+SONUC: TAMAM
