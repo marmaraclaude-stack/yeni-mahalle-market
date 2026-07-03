@@ -1,0 +1,2 @@
+banners migration -> HTTP 201 
+[{"banner_sayisi":3,"aktif":3}]
