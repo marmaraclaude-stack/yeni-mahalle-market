@@ -7,12 +7,11 @@
   color: var(--ink);
 }
 
-/* Genişlik standardı: sayfa kabuğu ana sayfayla aynı (--container + --gutter).
+/* Genişlik standardı: kabuk globals'taki .container sınıfını kullanır
+   (tsx tarafında className="container ..."); burada yalnız dikey ritim.
    Mobilde içerik sütunu okunabilirlik için dar; >=1024px tam genişlik grid. */
 .container {
-  max-width: calc(var(--container) + var(--gutter) * 2);
-  margin-inline: auto;
-  padding: 28px var(--gutter) 64px;
+  padding-block: clamp(24px, 4vw, 44px) 64px;
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -68,7 +67,7 @@
   background: var(--white);
   border: 1px solid var(--gray-200);
   border-radius: var(--r-lg);
-  padding: 20px;
+  padding: clamp(16px, 2vw, 24px);
 }
 .cardTitle {
   display: flex;
@@ -119,10 +118,6 @@
   .details > section:nth-of-type(3) {
     grid-column: 1;
   }
-  .card,
-  .headCard {
-    padding: 24px;
-  }
   .step {
     padding-bottom: 26px;
   }
@@ -138,7 +133,7 @@
   background: var(--white);
   border: 1px solid var(--gray-200);
   border-radius: var(--r-lg);
-  padding: 20px;
+  padding: clamp(16px, 2vw, 24px);
 }
 .eyebrow {
   display: block;
@@ -271,6 +266,23 @@
   background: var(--accent);
   border-color: var(--accent);
   box-shadow: 0 0 0 4px var(--accent-soft);
+}
+/* Aktif adım: hafif nabız animasyonu */
+@media (prefers-reduced-motion: no-preference) {
+  .stepCurrent .stepDot {
+    animation: stepPulse 1.8s var(--ease) infinite;
+  }
+}
+@keyframes stepPulse {
+  0% {
+    box-shadow: 0 0 0 4px var(--accent-soft), 0 0 0 4px rgba(255, 90, 31, 0.28);
+  }
+  70% {
+    box-shadow: 0 0 0 4px var(--accent-soft), 0 0 0 12px rgba(255, 90, 31, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 4px var(--accent-soft), 0 0 0 4px rgba(255, 90, 31, 0);
+  }
 }
 .stepBody {
   display: flex;
@@ -413,7 +425,7 @@
   background: var(--white);
   border: 1px solid var(--gray-200);
   border-radius: var(--r-lg);
-  padding: 28px 24px;
+  padding: clamp(20px, 2.5vw, 28px) clamp(16px, 2vw, 24px);
 }
 .verifyTitle {
   margin: 0;
@@ -492,13 +504,3 @@
   text-decoration: underline;
 }
 
-@media (max-width: 520px) {
-  .container {
-    padding-top: 18px;
-  }
-  .card,
-  .headCard,
-  .verifyCard {
-    padding: 16px;
-  }
-}

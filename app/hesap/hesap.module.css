@@ -7,13 +7,12 @@
   color: var(--ink);
 }
 
-/* Genişlik standardı: sayfa kabuğu ana sayfayla aynı (--container + --gutter).
+/* Genişlik standardı: kabuk globals'taki .container sınıfını kullanır
+   (tsx tarafında className="container ..."); burada yalnız dikey ritim.
    Mobil: kartlar alt alta; >=1024px: profil kartı solda sabit sütun,
    sipariş listesi kalan genişliği doldurur. */
 .container {
-  max-width: calc(var(--container) + var(--gutter) * 2);
-  margin-inline: auto;
-  padding: 28px var(--gutter) 64px;
+  padding-block: clamp(24px, 4vw, 44px) 64px;
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -36,14 +35,13 @@
   background: var(--white);
   border: 1px solid var(--gray-200);
   border-radius: var(--r-lg);
-  padding: 22px;
+  padding: clamp(16px, 2vw, 24px);
 }
 @media (min-width: 1024px) {
   .profileCard {
     flex-direction: column;
     align-items: flex-start;
     gap: 18px;
-    padding: 28px;
     position: sticky;
     top: 88px;
   }
@@ -143,7 +141,7 @@
   background: var(--white);
   border: 1px solid var(--gray-200);
   border-radius: var(--r-lg);
-  padding: 22px;
+  padding: clamp(16px, 2vw, 24px);
 }
 .cardTitle {
   display: flex;
@@ -160,18 +158,40 @@
   color: var(--accent);
 }
 
-/* Boş durum */
+/* Boş durum — ikon + başlık + açıklama + CTA, ortalanmış */
 .empty {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: 14px;
-  padding: 10px 0 4px;
+  align-items: center;
+  gap: 8px;
+  padding: clamp(28px, 4vw, 48px) 20px;
+  text-align: center;
+}
+.emptyIcon {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--accent-soft);
+  color: var(--accent);
+  margin-bottom: 4px;
+}
+.emptyIcon svg {
+  width: 26px;
+  height: 26px;
+}
+.emptyTitle {
+  margin: 0;
+  font-size: var(--fs-body);
+  font-weight: 600;
+  color: var(--ink);
 }
 .empty p {
-  margin: 0;
+  margin: 0 0 8px;
   font-size: 14.5px;
-  color: var(--gray-700);
+  color: var(--gray-500);
+  max-width: var(--measure-narrow);
 }
 
 /* Sipariş listesi */
@@ -271,13 +291,6 @@
 }
 
 @media (max-width: 560px) {
-  .container {
-    padding-top: 18px;
-  }
-  .profileCard,
-  .card {
-    padding: 16px;
-  }
   .orderSide .orderTotal {
     display: none;
   }

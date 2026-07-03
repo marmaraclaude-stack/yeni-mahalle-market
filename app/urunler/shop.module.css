@@ -19,15 +19,19 @@
   display: flex;
   flex-direction: column;
   gap: 14px;
-  padding: 24px 0 16px;
+  padding: clamp(24px, 4vw, 44px) 0 clamp(18px, 2.5vw, 28px);
 }
 .headText {
   display: flex;
   flex-direction: column;
   gap: 6px;
 }
+/* Sayfa başlığı ritmi: H1 = fs-h2, 700, -0.035em (tüm alt sayfalarda aynı) */
 .title {
-  font-size: clamp(24px, 3vw, 34px);
+  font-family: var(--font-display);
+  font-size: var(--fs-h2);
+  font-weight: 700;
+  letter-spacing: -0.035em;
 }
 .sub {
   color: var(--gray-500);
@@ -88,6 +92,23 @@
   transition: background 180ms var(--ease);
 }
 .searchBtn:hover { background: var(--accent-deep); }
+.searchBtn:active { transform: scale(0.98); }
+
+/* Arama temizle (x) — dolu aramada görünür, JS'siz link */
+.searchClear {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  color: var(--gray-400);
+  transition: color 140ms var(--ease), background 140ms var(--ease);
+}
+.searchClear:hover {
+  color: var(--ink);
+  background: var(--gray-100);
+}
 
 /* ============================================================
    Kategori pill barı — SADECE mobil/tablet (<1024px).
@@ -442,7 +463,7 @@
 /* ============================================================
    Orta alan: kategori bölümleri ("Tümü") + grid (kategori/arama)
    ============================================================ */
-.section { margin-bottom: 30px; }
+.section { margin-bottom: clamp(28px, 4vw, 48px); }
 .section:last-child { margin-bottom: 0; }
 .sectionHead {
   display: flex;
@@ -468,11 +489,17 @@
   border-radius: 10px;
   /* tint renkleri inline style ile gelir */
 }
+/* Ürün adedi rozeti — bölüm başlığının yanında pill */
 .sectionCount {
+  flex-shrink: 0;
+  padding: 3px 10px;
+  border-radius: var(--r-pill);
+  background: var(--gray-100);
   color: var(--gray-500);
-  font-size: var(--fs-small);
-  font-weight: 500;
+  font-size: var(--fs-micro);
+  font-weight: 600;
   white-space: nowrap;
+  font-variant-numeric: tabular-nums;
 }
 .seeAll {
   display: inline-flex;
@@ -509,14 +536,14 @@
   flex-direction: column;
   min-width: 0;
   background: var(--white);
-  border: 1px solid var(--gray-100);
+  border: 1px solid var(--gray-200);
   border-radius: var(--r-md);
   padding: 8px 8px 12px;
   transition: box-shadow 200ms var(--ease), border-color 200ms var(--ease);
 }
 .card:hover {
-  border-color: var(--gray-200);
-  box-shadow: 0 12px 24px -18px rgba(0, 0, 0, 0.22);
+  border-color: var(--gray-300);
+  box-shadow: 0 6px 16px rgba(10, 10, 10, 0.06);
 }
 /* Rail modu: sabit genişlik + snap noktası (detay sayfası raili kullanır) */
 .cardRail {

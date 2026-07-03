@@ -95,7 +95,7 @@ export default async function HesapPage() {
     <>
       <SiteNav />
       <main className={styles.page}>
-        <div className={styles.container}>
+        <div className={`container ${styles.container}`}>
         {/* Profil kartı */}
         <section className={styles.profileCard} aria-label="Profil bilgileri">
           <div className={styles.avatar} aria-hidden="true">
@@ -125,7 +125,14 @@ export default async function HesapPage() {
 
           {orders.length === 0 ? (
             <div className={styles.empty}>
-              <p>Henüz bir siparişin yok.</p>
+              <span className={styles.emptyIcon} aria-hidden="true">
+                <ShoppingBasket />
+              </span>
+              <p className={styles.emptyTitle}>Henüz bir siparişin yok</p>
+              <p>
+                İlk siparişini ver, Sapanca içinde kapına getirelim. Verdiğin
+                siparişleri burada takip edebilirsin.
+              </p>
               <Link href="/urunler" className="btn btn--accent">
                 Alışverişe başla
               </Link>

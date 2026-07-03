@@ -15,7 +15,7 @@ const VALUES = [
 export default function AuthShell({ children }: { children: ReactNode }) {
   return (
     <main className={styles.page}>
-      <div className={styles.shell}>
+      <div className={`container ${styles.shell}`}>
         <div className={styles.authCard}>
           <aside className={styles.brandPanel} aria-label="Yeni Mahalle Market">
             <div className={styles.brandHead}>

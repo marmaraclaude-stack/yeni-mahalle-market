@@ -7,6 +7,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Menu, UserRound, X } from "lucide-react";
 import { BUSINESS } from "@/lib/business";
 import { createClient } from "@/lib/supabase/client";
@@ -20,9 +21,15 @@ const LINKS = [
 ];
 
 export default function SiteNav() {
+  const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   // null = henüz bilinmiyor (ilk yükleme) — masaüstünde iskelet gösterilir
   const [authed, setAuthed] = useState<boolean | null>(null);
+
+  // Aktif sayfa: "/" tam eşleşir, diğerleri alt yolları da kapsar
+  const isActive = (href: string) =>
+    href === "/" ? pathname === "/" : pathname?.startsWith(href) ?? false;
 
   // Auth durumu: ilk okuma + oturum değişikliklerini dinle
   useEffect(() => {
@@ -58,8 +65,16 @@ export default function SiteNav() {
     };
   }, [open]);
 
+  // Sayfa kaydırılınca sticky nav'a hafif gölge
+  useEffect(() => {
+    const update = () => setScrolled(window.scrollY > 4);
+    update();
+    window.addEventListener("scroll", update, { passive: true });
+    return () => window.removeEventListener("scroll", update);
+  }, []);
+
   return (
-    <div className="nav-shell">
+    <div className={`nav-shell${scrolled ? " is-scrolled" : ""}`}>
       <div className="container">
         <header className="nav" aria-label="Üst menü">
           <Link href="/" className="brand" aria-label={BUSINESS.name} onClick={() => setOpen(false)}>
@@ -72,7 +87,12 @@ export default function SiteNav() {
 
           <nav className="nav__links" aria-label="Ana menü">
             {LINKS.map((l) => (
-              <Link key={l.label} href={l.href} className="nav__link">
+              <Link
+                key={l.label}
+                href={l.href}
+                className="nav__link"
+                aria-current={isActive(l.href) ? "page" : undefined}
+              >
                 {l.label}
               </Link>
             ))}
@@ -131,7 +151,13 @@ export default function SiteNav() {
         </div>
         <nav className="nav-panel__links" aria-label="Mobil menü">
           {LINKS.map((l) => (
-            <Link key={l.label} href={l.href} className="nav-panel__link" onClick={() => setOpen(false)}>
+            <Link
+              key={l.label}
+              href={l.href}
+              className="nav-panel__link"
+              aria-current={isActive(l.href) ? "page" : undefined}
+              onClick={() => setOpen(false)}
+            >
               {l.label}
             </Link>
           ))}

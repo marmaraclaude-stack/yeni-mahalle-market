@@ -2,30 +2,38 @@
 
 .page {
   min-height: 60vh;
-  padding: var(--section-y) 0;
+  padding: 0 0 var(--section-y);
   background: var(--gray-50);
 }
 
-/* Genişlik standardı: ana sayfayla aynı dil (--container + --gutter).
-   Gutter --container'ın dışına eklenir; içerik net --container kadar olur. */
-.container {
-  max-width: calc(var(--container) + var(--gutter) * 2);
-  margin-inline: auto;
-  padding-inline: var(--gutter);
-}
+/* Genişlik standardı: kabuk globals'taki .container sınıfını kullanır
+   (tsx tarafında className="container") — tüm sayfalarla birebir aynı. */
 
+/* Sayfa başlığı ritmi: üst boşluk + H1 + gri açıklama (tüm alt sayfalarda aynı) */
+.head {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: clamp(24px, 4vw, 44px) 0 clamp(18px, 2.5vw, 28px);
+}
 .title {
   font-family: var(--font-display);
-  font-size: var(--fs-h3);
+  font-size: var(--fs-h2);
   font-weight: 700;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.035em;
   color: var(--ink);
-  margin-bottom: 20px;
+}
+.sub {
+  color: var(--gray-500);
+  font-size: var(--fs-body);
+  max-width: var(--measure);
 }
 
 .countNote {
+  font-family: var(--font-sans);
   font-size: var(--fs-body);
   font-weight: 500;
+  letter-spacing: 0;
   color: var(--gray-500);
 }
 
@@ -43,18 +51,13 @@
    özet sağda sabit 400px sütun. Sayfa --container genişliğini gerçekten kullanır. */
 .layout {
   display: grid;
-  gap: 20px;
+  gap: 16px;
   align-items: start;
 }
 @media (min-width: 1024px) {
   .layout {
     grid-template-columns: minmax(0, 1fr) 400px;
-    gap: 32px;
-  }
-}
-@media (min-width: 1280px) {
-  .layout {
-    gap: 48px;
+    gap: 24px;
   }
 }
 
@@ -64,7 +67,7 @@
   margin: 0;
   padding: 0;
   display: grid;
-  gap: 10px;
+  gap: 12px;
 }
 
 .line {
@@ -76,10 +79,17 @@
   border: 1px solid var(--gray-200);
   border-radius: var(--r-lg);
   padding: 12px 14px;
-  transition: box-shadow 180ms var(--ease);
+  transition: box-shadow 180ms var(--ease), border-color 180ms var(--ease),
+    opacity 200ms var(--ease);
 }
 .line:hover {
-  box-shadow: 0 6px 18px rgba(16, 16, 16, 0.06);
+  border-color: var(--gray-300);
+  box-shadow: 0 6px 16px rgba(10, 10, 10, 0.06);
+}
+/* Satır kaldırılırken yumuşak çıkış */
+.lineRemoving {
+  opacity: 0;
+  pointer-events: none;
 }
 @media (min-width: 1024px) {
   .line {
@@ -241,7 +251,7 @@
   background: var(--white);
   border: 1px solid var(--gray-200);
   border-radius: var(--r-lg);
-  padding: 20px;
+  padding: clamp(16px, 2vw, 24px);
   position: sticky;
   top: 88px;
 }

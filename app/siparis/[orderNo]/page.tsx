@@ -68,7 +68,7 @@ export default async function OrderTrackingPage({
     <>
       <SiteNav />
       <main className={styles.page}>
-        <div className={styles.container}>
+        <div className={`container ${styles.container}`}>
         {/* Banner'lar */}
         {isNew && (
           <div className={`${styles.banner} ${styles.bannerSuccess}`} role="status">

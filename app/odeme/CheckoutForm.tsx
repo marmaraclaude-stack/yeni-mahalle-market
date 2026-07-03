@@ -118,8 +118,10 @@ export default function CheckoutForm({
   if (!orderingOpen) {
     return (
       <main className={styles.page}>
-        <div className={styles.container}>
-          <h1 className={styles.title}>Siparişi Tamamla</h1>
+        <div className="container">
+          <header className={styles.head}>
+            <h1 className={styles.title}>Siparişi Tamamla</h1>
+          </header>
           <div className={styles.notice} role="status">
             <p>{closedMessage}</p>
             <Link href="/urunler" className="btn btn--ghost">
@@ -134,8 +136,10 @@ export default function CheckoutForm({
   if (lines.length === 0 && !pending) {
     return (
       <main className={styles.page}>
-        <div className={styles.container}>
-          <h1 className={styles.title}>Siparişi Tamamla</h1>
+        <div className="container">
+          <header className={styles.head}>
+            <h1 className={styles.title}>Siparişi Tamamla</h1>
+          </header>
           <div className={styles.notice}>
             <ShoppingBasket aria-hidden="true" className={styles.noticeIcon} />
             <p>Sepetiniz boş. Önce sepete ürün ekleyin.</p>
@@ -192,13 +196,23 @@ export default function CheckoutForm({
 
   return (
     <main className={styles.page}>
-      <div className={styles.container}>
-        <h1 className={styles.title}>Siparişi Tamamla</h1>
+      <div className="container">
+        <header className={styles.head}>
+          <h1 className={styles.title}>Siparişi Tamamla</h1>
+          <p className={styles.sub}>
+            Teslimat bilgilerini doldur, ödeme yöntemini seç, siparişini gönder.
+          </p>
+        </header>
 
         <form className={styles.layout} onSubmit={handleSubmit}>
           <div className={styles.formCol}>
             <section className={styles.card}>
-              <h2 className={styles.cardTitle}>Teslimat Bilgileri</h2>
+              <h2 className={styles.cardTitle}>
+                <span className={styles.stepNum} aria-hidden="true">
+                  1
+                </span>
+                Teslimat Bilgileri
+              </h2>
               {(defaults.name || defaults.phone || defaults.address) && (
                 <p className={styles.prefillNote}>
                   Bilgileriniz hesabınızdan dolduruldu, gerekirse düzenleyin.
@@ -266,7 +280,12 @@ export default function CheckoutForm({
             </section>
 
             <section className={styles.card}>
-              <h2 className={styles.cardTitle}>Ödeme Yöntemi</h2>
+              <h2 className={styles.cardTitle}>
+                <span className={styles.stepNum} aria-hidden="true">
+                  2
+                </span>
+                Ödeme Yöntemi
+              </h2>
               {methods.length === 0 ? (
                 <p className={styles.warn} role="status">
                   Şu an çevrimiçi ödeme yöntemi tanımlı değil. Canlı destekten
@@ -307,7 +326,12 @@ export default function CheckoutForm({
           </div>
 
           <aside className={styles.summary} aria-label="Sipariş özeti">
-            <h2 className={styles.cardTitle}>Sipariş Özeti</h2>
+            <h2 className={styles.cardTitle}>
+              <span className={styles.stepNum} aria-hidden="true">
+                3
+              </span>
+              Sipariş Özeti
+            </h2>
             <ul className={styles.summaryLines}>
               {lines.map((line) => (
                 <li key={line.productId}>

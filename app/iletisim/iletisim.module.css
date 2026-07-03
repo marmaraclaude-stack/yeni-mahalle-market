@@ -14,10 +14,14 @@
   display: flex;
   flex-direction: column;
   gap: 6px;
-  padding: 28px 0 22px;
+  padding: clamp(24px, 4vw, 44px) 0 clamp(18px, 2.5vw, 28px);
 }
+/* Sayfa başlığı ritmi: H1 = fs-h2, 700, -0.035em (tüm alt sayfalarda aynı) */
 .title {
-  font-size: clamp(24px, 3vw, 34px);
+  font-family: var(--font-display);
+  font-size: var(--fs-h2);
+  font-weight: 700;
+  letter-spacing: -0.035em;
 }
 .sub {
   color: var(--gray-500);
@@ -29,25 +33,24 @@
 .cards {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 14px;
-  margin-bottom: 14px;
+  gap: 16px;
+  margin-bottom: 16px;
 }
 .card {
   display: flex;
   align-items: center;
   gap: 14px;
-  padding: 18px;
+  padding: clamp(16px, 2vw, 24px);
   background: var(--white);
   border: 1px solid var(--gray-200);
   border-radius: var(--r-lg);
   color: inherit;
-  transition: box-shadow 200ms var(--ease), border-color 200ms var(--ease),
-    transform 200ms var(--ease);
+  transition: box-shadow 200ms var(--ease), border-color 200ms var(--ease);
 }
-.card:hover {
+/* Hover gölgesi yalnız etkileşimli (link) kartlarda */
+a.card:hover {
   border-color: var(--gray-300);
-  box-shadow: 0 14px 28px -20px rgba(0, 0, 0, 0.25);
-  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(10, 10, 10, 0.06);
 }
 .cardIcon {
   display: grid;
@@ -89,7 +92,7 @@
 /* --- Harita + bilgi kolonu --- */
 .mapGrid {
   display: grid;
-  gap: 14px;
+  gap: 16px;
 }
 @media (min-width: 900px) {
   .mapGrid {
@@ -115,13 +118,13 @@
 .infoCol {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 16px;
 }
 .infoCard {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  padding: 20px;
+  padding: clamp(16px, 2vw, 24px);
   background: var(--white);
   border: 1px solid var(--gray-200);
   border-radius: var(--r-lg);

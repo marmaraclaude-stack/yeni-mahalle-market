@@ -1,1 +1,0 @@
-[{"sepet_satiri":0,"kupon":0,"orders_yeni_kolon":2,"kapali_mesaji":"Şu an online sipariş alamıyoruz. Canlı destekten bize yazabi"}]

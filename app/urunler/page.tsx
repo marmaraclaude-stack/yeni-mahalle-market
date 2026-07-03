@@ -154,8 +154,11 @@ export default async function UrunlerPage({
                 <section className={styles.section}>
                   <div className={styles.sectionHead}>
                     <h2 className={styles.sectionTitle}>
-                      &quot;{q}&quot; için {products.length} sonuç
+                      &quot;{q}&quot; için sonuçlar
                     </h2>
+                    <span className={styles.sectionCount}>
+                      {products.length} sonuç
+                    </span>
                   </div>
                   <ProductGrid
                     products={products}

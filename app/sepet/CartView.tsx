@@ -3,6 +3,7 @@
 // Sepet görünümü: satır düzenleme (adet +/−, kaldır), toplamlar, ödeme adımına geçiş.
 
 import Link from "next/link";
+import { useState } from "react";
 import {
   ArrowRight,
   Minus,
@@ -34,6 +35,17 @@ export default function CartView({
 }: CartViewProps) {
   const { lines, count, subtotal, setQty, remove } = useCart();
 
+  // Kaldırılan satır önce yumuşakça solar, sonra sepetten çıkar (görsel geçiş).
+  const [removingId, setRemovingId] = useState<string | null>(null);
+  function removeWithFade(productId: string) {
+    if (removingId) return;
+    setRemovingId(productId);
+    window.setTimeout(() => {
+      remove(productId);
+      setRemovingId(null);
+    }, 200);
+  }
+
   // 0 = ücretsiz teslimat eşiği yok (ücret her siparişe uygulanır): settings.calcDeliveryFee ile aynı kural
   const fee =
     freeDeliveryOver > 0 && subtotal >= freeDeliveryOver ? 0 : deliveryFee;
@@ -44,8 +56,13 @@ export default function CartView({
   if (lines.length === 0) {
     return (
       <main className={styles.page}>
-        <div className={styles.container}>
-          <h1 className={styles.title}>Sepetim</h1>
+        <div className="container">
+          <header className={styles.head}>
+            <h1 className={styles.title}>Sepetim</h1>
+            <p className={styles.sub}>
+              Ürünlerini gözden geçir, adetleri düzenle, siparişini tamamla.
+            </p>
+          </header>
           <div className={styles.empty}>
             <span className={styles.emptyBadge} aria-hidden="true">
               <ShoppingBasket />
@@ -66,10 +83,15 @@ export default function CartView({
 
   return (
     <main className={styles.page}>
-      <div className={styles.container}>
-        <h1 className={styles.title}>
-          Sepetim <span className={styles.countNote}>({count} ürün)</span>
-        </h1>
+      <div className="container">
+        <header className={styles.head}>
+          <h1 className={styles.title}>
+            Sepetim <span className={styles.countNote}>({count} ürün)</span>
+          </h1>
+          <p className={styles.sub}>
+            Ürünlerini gözden geçir, adetleri düzenle, siparişini tamamla.
+          </p>
+        </header>
 
         {!orderingOpen && (
           <p className={styles.closedBanner} role="status">
@@ -83,7 +105,12 @@ export default function CartView({
               const category = categoryBySlug(line.categorySlug);
               const [bg, fg] = CATEGORY_TINTS[category?.tint ?? 0];
               return (
-                <li key={line.productId} className={styles.line}>
+                <li
+                  key={line.productId}
+                  className={`${styles.line} ${
+                    removingId === line.productId ? styles.lineRemoving : ""
+                  }`}
+                >
                   <div
                     className={styles.thumb}
                     style={
@@ -140,7 +167,7 @@ export default function CartView({
                     <button
                       type="button"
                       className={styles.removeBtn}
-                      onClick={() => remove(line.productId)}
+                      onClick={() => removeWithFade(line.productId)}
                       aria-label={`${line.name} ürününü sepetten kaldır`}
                     >
                       <Trash2 aria-hidden="true" />

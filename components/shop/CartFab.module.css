@@ -25,6 +25,19 @@
   transform: translateY(-3px) scale(1.04);
   background: var(--accent-deep);
 }
+
+/* Sepete ürün eklenince kısa bump — CartFab.tsx count değişiminde ekler */
+.fabBump {
+  animation: fabBump 450ms var(--ease-spring);
+}
+@keyframes fabBump {
+  0% { transform: scale(1); }
+  35% { transform: scale(1.16); }
+  100% { transform: scale(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .fabBump { animation: none; }
+}
 .fab svg {
   width: 24px;
   height: 24px;

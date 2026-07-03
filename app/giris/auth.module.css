@@ -11,16 +11,14 @@
   flex-direction: column;
 }
 
-/* Kabuk: genişlik standardı (--container + --gutter); kart ortada. */
+/* Kabuk: genişlik standardı globals'taki .container sınıfından gelir
+   (tsx tarafında className="container ..."); burada yalnız hizalama + dikey ritim. */
 .shell {
   flex: 1;
-  width: 100%;
-  max-width: calc(var(--container) + var(--gutter) * 2);
-  margin-inline: auto;
   display: flex;
   align-items: flex-start;
   justify-content: center;
-  padding: clamp(24px, 6vh, 64px) var(--gutter) 64px;
+  padding-block: clamp(24px, 4vw, 44px) 64px;
 }
 
 /* İki panelli auth kartı */
@@ -119,18 +117,13 @@
 
 /* Sağ form paneli */
 .formPanel {
-  padding: 30px 26px;
+  padding: clamp(24px, 3vw, 30px) clamp(18px, 2.5vw, 26px);
 }
 @media (min-width: 960px) {
   .formPanel {
     padding: 44px 48px;
     align-self: center;
     width: 100%;
-  }
-}
-@media (max-width: 520px) {
-  .formPanel {
-    padding: 24px 18px;
   }
 }
 
@@ -146,9 +139,9 @@
 .title {
   margin: 0;
   font-family: var(--font-display);
-  font-size: clamp(24px, 4vw, 30px);
+  font-size: var(--fs-h3);
   font-weight: 700;
-  letter-spacing: -0.015em;
+  letter-spacing: -0.035em;
 }
 .sub {
   margin: 8px 0 22px;
