@@ -1,1 +1,0 @@
-[{"title":"İlk siparişine 200 TL indirim","subtitle":"HOSGELDIN200 koduyla, 750 TL üzeri ilk siparişinde geçerli"},{"title":"1500 TL üzeri teslimat ücretsiz","subtitle":"Sapanca içi siparişin 30 dakika içinde kapında"},{"title":"Her hafta 20 üründe indirim","subtitle":"Fırsat ürünlerini kaçırma, stoklar sınırlı"}]
