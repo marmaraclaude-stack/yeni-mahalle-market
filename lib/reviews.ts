@@ -84,9 +84,8 @@ export const REVIEWS: Review[] = [
   },
 ];
 
+// Gerçek Google Business Profile verisi; placeholder yorum listesinden TÜRETME.
 export const REVIEW_STATS = {
-  count: REVIEWS.length,
-  average: Number(
-    (REVIEWS.reduce((s, r) => s + r.rating, 0) / REVIEWS.length).toFixed(1),
-  ),
+  count: 86,
+  average: 4.2,
 };

@@ -242,7 +242,7 @@ export default async function UrunDetayPage({ params }: { params: Params }) {
 
               <p className={styles.delivery}>
                 <Bike size={17} strokeWidth={2} aria-hidden="true" />
-                Sapanca içine aynı gün teslimat · {BUSINESS.hours.opens} -{" "}
+                Sapanca içi 30 dakikada teslimat · {BUSINESS.hours.opens} -{" "}
                 {BUSINESS.hours.closes}
               </p>
             </div>

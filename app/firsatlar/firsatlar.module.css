@@ -1,5 +1,6 @@
 /* ============================================================
-   Fırsatlar (/firsatlar) — indirimli ürünler sayfası stilleri.
+   Fırsatlar (/firsatlar) — kampanyalar (kupon kartları) +
+   indirimli ürünler sayfası stilleri.
    Renk/tipografi token'ları globals.css'ten miras alınır.
    ============================================================ */
 
@@ -43,10 +44,38 @@
   font-size: var(--fs-body);
   max-width: var(--measure);
 }
+
+/* --- Bölüm başlığı (Kampanyalar / İndirimli Ürünler ortak dili) --- */
+.sectionHead {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.sectionIcon {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+.sectionTitle {
+  font-family: var(--font-display);
+  font-size: var(--fs-h3);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+.sectionSub {
+  margin-top: 6px;
+  color: var(--gray-500);
+  font-size: var(--fs-small);
+  max-width: var(--measure);
+}
 /* Adet rozeti — /urunler bölüm rozetleriyle aynı dil */
 .count {
-  align-self: flex-start;
-  margin-top: 4px;
   padding: 3px 10px;
   border-radius: var(--r-pill);
   background: var(--gray-100);
@@ -56,11 +85,102 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* --- Kampanyalar: kupon kartları --- */
+.campaigns {
+  margin-bottom: clamp(32px, 4.5vw, 52px);
+}
+.couponGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(270px, 100%), 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+.couponCard {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  padding: clamp(16px, 2vw, 22px);
+  background: var(--white);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--r-lg);
+  transition: box-shadow 200ms var(--ease), border-color 200ms var(--ease);
+}
+.couponCard:hover {
+  border-color: var(--gray-300);
+  box-shadow: 0 6px 16px rgba(10, 10, 10, 0.06);
+}
+.couponBadge {
+  padding: 3px 10px;
+  border-radius: var(--r-pill);
+  background: var(--accent-soft);
+  color: var(--accent-deep);
+  font-size: var(--fs-micro);
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+/* Büyük kupon kodu — mono, kesikli çerçeve, seçilebilir */
+.couponCode {
+  align-self: stretch;
+  padding: 12px 14px;
+  border: 1.5px dashed var(--accent);
+  border-radius: 12px;
+  background: var(--gray-50);
+  color: var(--ink);
+  font-family: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas,
+    monospace;
+  font-size: clamp(17px, 2vw, 21px);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-align: center;
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+  user-select: all;
+}
+.couponDesc {
+  color: var(--gray-700);
+  font-size: var(--fs-small);
+  line-height: 1.5;
+}
+.couponTerms {
+  color: var(--gray-500);
+  font-size: var(--fs-micro);
+  font-variant-numeric: tabular-nums;
+}
+/* "Kodu Kopyala" butonu — kopyalanınca yeşil onay durumu */
+.copyBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 2px;
+  padding: 9px 16px;
+  border: 1px solid var(--gray-200);
+  border-radius: var(--r-pill);
+  background: var(--white);
+  color: var(--ink);
+  font-size: var(--fs-small);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 180ms var(--ease), border-color 180ms var(--ease),
+    color 180ms var(--ease);
+}
+.copyBtn:hover {
+  background: var(--gray-50);
+  border-color: var(--gray-300);
+}
+.copyBtnDone,
+.copyBtnDone:hover {
+  background: #eafaf0;
+  border-color: #b7e6cc;
+  color: #159b57;
+}
+
 /* --- Ürün gridi --- */
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
   gap: 12px;
+  margin-top: 16px;
 }
 @media (min-width: 720px) {
   .grid {

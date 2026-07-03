@@ -1,6 +1,7 @@
 /* ============================================================
-   İletişim (/iletisim) — telefon/canlı destek/Instagram kartları,
-   adres + harita, çalışma saatleri. Token'lar globals.css'ten.
+   İletişim (/iletisim) — solda harita kartı (adres + yol tarifi),
+   sağda kanal kartları, çalışma saatleri şeridi ve mini SSS.
+   Token'lar globals.css'ten.
    ============================================================ */
 
 .page {
@@ -29,18 +30,88 @@
   max-width: var(--measure);
 }
 
-/* --- Hızlı iletişim kartları: telefon / canlı destek / Instagram --- */
-.cards {
+/* --- Ana blok: harita + kanal kartları --- */
+.mainGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 16px;
-  margin-bottom: 16px;
 }
-.card {
+@media (min-width: 900px) {
+  .mainGrid {
+    grid-template-columns: 1.6fr 1fr;
+    align-items: stretch;
+  }
+}
+
+/* Harita kartı: üstte adres satırı + yol tarifi, altta iframe */
+.mapCard {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--gray-200);
+  border-radius: var(--r-xl);
+  overflow: hidden;
+  background: var(--gray-50);
+}
+.mapTop {
   display: flex;
   align-items: center;
   gap: 14px;
-  padding: clamp(16px, 2vw, 24px);
+  flex-wrap: wrap;
+  padding: clamp(14px, 1.8vw, 20px) clamp(16px, 2vw, 22px);
+  background: var(--white);
+  border-bottom: 1px solid var(--gray-200);
+}
+.mapPin {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+.mapAddr {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 200px;
+}
+.mapLabel {
+  color: var(--gray-500);
+  font-size: var(--fs-micro);
+  font-weight: 600;
+}
+.mapText {
+  font-size: var(--fs-body);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.4;
+}
+.dirBtn {
+  flex-shrink: 0;
+}
+.mapFrame {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 340px;
+  border: 0;
+  flex: 1;
+}
+
+/* Sağ kolon: telefon / canlı destek / Instagram kartları */
+.sideCol {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.channelCard {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  flex: 1;
+  padding: clamp(16px, 2vw, 22px);
   background: var(--white);
   border: 1px solid var(--gray-200);
   border-radius: var(--r-lg);
@@ -48,11 +119,11 @@
   transition: box-shadow 200ms var(--ease), border-color 200ms var(--ease);
 }
 /* Hover gölgesi yalnız etkileşimli (link) kartlarda */
-a.card:hover {
+a.channelCard:hover {
   border-color: var(--gray-300);
   box-shadow: 0 6px 16px rgba(10, 10, 10, 0.06);
 }
-.cardIcon {
+.channelIcon {
   display: grid;
   place-items: center;
   flex-shrink: 0;
@@ -63,100 +134,141 @@ a.card:hover {
   color: var(--accent);
 }
 /* Canlı destek — çevrimiçi yeşili */
-.cardIconGreen {
+.channelIconGreen {
   background: #eafaf0;
   color: #159b57;
 }
-.cardIconPink {
+.channelIconPink {
   background: #fce7f3;
   color: #be185d;
 }
-.cardText {
+.channelText {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 3px;
   min-width: 0;
 }
-.cardLabel {
+.channelLabel {
   color: var(--gray-500);
   font-size: var(--fs-micro);
   font-weight: 600;
 }
-.cardValue {
+/* Telefon: büyük, tıklanır numara */
+.phoneNumber {
+  font-family: var(--font-display);
+  font-size: var(--fs-h3);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+.channelValue {
   font-weight: 600;
   font-size: var(--fs-body);
   letter-spacing: -0.01em;
   overflow-wrap: anywhere;
 }
+.channelNote {
+  color: var(--gray-500);
+  font-size: var(--fs-small);
+}
 
-/* --- Harita + bilgi kolonu --- */
-.mapGrid {
-  display: grid;
-  gap: 16px;
-}
-@media (min-width: 900px) {
-  .mapGrid {
-    grid-template-columns: 1.6fr 1fr;
-    align-items: stretch;
-  }
-}
-.mapCard {
-  border: 1px solid var(--gray-200);
-  border-radius: var(--r-xl);
-  overflow: hidden;
-  min-height: 340px;
+/* --- Çalışma saatleri şeridi --- */
+.hoursStrip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-top: 16px;
+  padding: clamp(14px, 1.8vw, 20px) clamp(16px, 2vw, 22px);
   background: var(--gray-50);
-}
-.mapCard iframe {
-  display: block;
-  width: 100%;
-  height: 100%;
-  min-height: 340px;
-  border: 0;
-}
-
-.infoCol {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-.infoCard {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  padding: clamp(16px, 2vw, 24px);
-  background: var(--white);
   border: 1px solid var(--gray-200);
   border-radius: var(--r-lg);
 }
-.infoHead {
+.hoursLeft {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 14px;
+}
+.hoursIcon {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+.hoursText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.hoursTitle {
   font-size: var(--fs-body);
   font-weight: 700;
   letter-spacing: -0.01em;
 }
-.infoIcon {
-  display: grid;
-  place-items: center;
-  flex-shrink: 0;
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  background: var(--accent-soft);
-  color: var(--accent);
-}
-.infoText {
-  color: var(--gray-700);
-  font-size: var(--fs-body);
-  line-height: 1.5;
-}
-.infoNote {
+.hoursDetail {
   color: var(--gray-500);
   font-size: var(--fs-small);
 }
-.dirBtn {
-  margin-top: 4px;
-  align-self: flex-start;
+
+/* --- Mini SSS --- */
+.faq {
+  margin-top: clamp(32px, 4.5vw, 52px);
+}
+.faqTitle {
+  font-family: var(--font-display);
+  font-size: var(--fs-h3);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-bottom: 14px;
+}
+.faqList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.faqItem {
+  background: var(--white);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--r-lg);
+  padding: 0 clamp(16px, 2vw, 22px);
+  transition: border-color 200ms var(--ease);
+}
+.faqItem[open] {
+  border-color: var(--gray-300);
+}
+.faqQ {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 0;
+  font-size: var(--fs-body);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  cursor: pointer;
+  list-style: none;
+}
+.faqQ::-webkit-details-marker {
+  display: none;
+}
+.faqChevron {
+  flex-shrink: 0;
+  color: var(--gray-400);
+  transition: transform 200ms var(--ease);
+}
+.faqItem[open] .faqChevron {
+  transform: rotate(180deg);
+}
+.faqA {
+  padding: 0 0 16px;
+  color: var(--gray-700);
+  font-size: var(--fs-small);
+  line-height: 1.6;
+  max-width: var(--measure);
 }

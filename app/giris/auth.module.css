@@ -1,6 +1,6 @@
 /* Giriş / Kayıt sayfaları ortak stilleri (global token'lardan miras alır).
    Full-bleed split düzen (Linear/Vercel login): kenar boşluğu ve radius YOK.
-   Mobil: üstte ince koyu marka bandı + altta tam genişlik form.
+   Mobil: üstte ince koyu marka bandı (tek cümle) + altta tam genişlik form.
    >=960px: sol yarı koyu gradient marka paneli (sticky, viewport'u doldurur),
    sağ yarı beyaz form alanı (içerik ortalanmış, max 440px). */
 
@@ -23,7 +23,7 @@
 }
 
 /* Marka paneli: derin gradient + köşede soft accent glow.
-   Mobilde ince bant (logo + tek cümle), >=960px sol yarıyı dolduran panel. */
+   Mobilde ince bant (tek cümle), >=960px sol yarıyı dolduran panel. */
 .brandPanel {
   position: relative;
   overflow: hidden;
@@ -93,38 +93,8 @@
   }
 }
 
-.brandHead {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-.brandLogo {
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  background: var(--white);
-  padding: 3px;
-  flex-shrink: 0;
-}
-.brandName {
-  font-family: var(--font-brand);
-  font-size: 17px;
-  font-weight: 700;
-  letter-spacing: -0.01em;
-  color: var(--white);
-}
-@media (min-width: 960px) {
-  .brandLogo {
-    width: 44px;
-    height: 44px;
-    border-radius: 12px;
-  }
-  .brandName {
-    font-size: 20px;
-  }
-}
-
-/* Ortadaki büyük değer cümlesi + destek metni */
+/* Ortadaki büyük değer cümlesi + destek metni
+   (logo/wordmark yok: nav'da zaten var; panel değer cümlesiyle başlar) */
 .brandCenter {
   display: flex;
   flex-direction: column;
@@ -232,6 +202,10 @@
   width: 14px;
   height: 14px;
   fill: currentColor;
+}
+/* 4,2 puan için 5. yıldız soluk (dolu değil) */
+.proofStars svg.proofStarDim {
+  color: rgba(255, 255, 255, 0.28);
 }
 
 /* Sağ form alanı: beyaz, tam yarı; içerik ortalanmış (max 440px) */

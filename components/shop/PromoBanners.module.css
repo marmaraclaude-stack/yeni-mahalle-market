@@ -36,15 +36,22 @@
   display: none;
 }
 
-/* Tek slayt — mobilde %8 peek, masaüstünde %15 peek */
+/* Tek slayt — mobilde %8 peek, masaüstünde %15 peek.
+   Yükseklik SABİT DEĞİL: içerikten gelir, min-height yalnız alt sınır.
+   overflow:hidden yalnız taşan dekor dairelerini kırpar; içerik normal
+   akışta olduğundan kart uzar, metin hiçbir genişlikte kesilmez.
+   --art-reserve: sağdaki dekor ikon alanı için içerik payı
+   (ikon genişliği ~9vw + sağ ofset ~5vw ile birebir hizalı). */
 .slide {
   position: relative;
+  --art-reserve: clamp(88px, 14vw, 176px);
   flex: 0 0 92%;
   min-width: 0;
   display: flex;
   align-items: center;
-  min-height: clamp(160px, 22vw, 220px);
-  padding: clamp(20px, 3.2vw, 36px) clamp(20px, 4vw, 48px);
+  min-height: clamp(150px, 20vw, 210px);
+  padding: clamp(20px, 3vw, 32px) clamp(20px, 4vw, 44px);
+  padding-right: calc(clamp(14px, 2vw, 24px) + var(--art-reserve));
   border-radius: var(--r-xl);
   overflow: hidden;
   scroll-snap-align: start;
@@ -61,6 +68,8 @@
 @media (min-width: 1024px) {
   .slide {
     flex-basis: 85%;
+    /* Sol ok butonu (left:12px + 38px) metnin uzerine binmesin */
+    padding-left: clamp(58px, 5vw, 68px);
   }
 }
 
@@ -96,19 +105,24 @@
 
 .slideTitle {
   font-family: var(--font-display);
-  font-size: clamp(22px, 2.6vw, 34px);
+  font-size: clamp(20px, 2.4vw, 30px);
   font-weight: 700;
   letter-spacing: -0.025em;
-  line-height: 1.08;
+  line-height: 1.2;
   color: var(--ink);
   text-wrap: balance;
 }
 
+/* Alt metin en çok 2 satır — kart yüksekliği kontrollü kalır */
 .slideSub {
   font-size: var(--fs-body);
   line-height: 1.45;
   color: var(--gray-700);
   text-wrap: pretty;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
 }
 
 /* CTA — koyu tint zemin, beyaz metin pill */
@@ -124,6 +138,7 @@
   color: var(--white);
   font-size: var(--fs-small);
   font-weight: 700;
+  max-width: 100%;
   white-space: nowrap;
   box-shadow: 0 4px 12px color-mix(in srgb, var(--bnr-fg) 30%, transparent);
   transition: transform 160ms var(--ease), box-shadow 160ms var(--ease);
@@ -137,10 +152,11 @@
   outline-offset: 2px;
 }
 
-/* -------- Sağ dekoratif katman -------- */
+/* -------- Sağ dekoratif katman — her zaman içeriğin ALTINDA -------- */
 .slideArt {
   position: absolute;
   inset: 0;
+  z-index: 0;
   pointer-events: none;
 }
 
@@ -184,14 +200,26 @@
   height: clamp(64px, 9vw, 120px);
 }
 
-/* Çok dar ekranda dekor metni ezmesin */
-@media (max-width: 480px) {
+/* Dar ekranda dekor küçülür/gizlenir, içerik payı da ona göre daralır */
+@media (max-width: 640px) {
+  .slide {
+    --art-reserve: 40px;
+  }
   .circleSm {
     display: none;
   }
+  .circleLg {
+    width: 170px;
+    height: 170px;
+    right: -80px;
+  }
   .iconWrap {
-    opacity: 0.3;
+    opacity: 0.28;
     right: -10px;
+  }
+  .slideIcon {
+    width: 58px;
+    height: 58px;
   }
 }
 

@@ -464,7 +464,7 @@ export default function CheckoutForm({
               </li>
               <li>
                 <Truck size={16} strokeWidth={2} aria-hidden="true" />
-                Aynı gün teslimat
+                30 dakikada kapında
               </li>
               <li>
                 <Banknote size={16} strokeWidth={2} aria-hidden="true" />
