@@ -1,4 +1,4 @@
-# TEK SEFERLİK: cart_items + coupons migration'larını uygula, doğrula, raporla.
+# TEK SEFERLİK: kurulum doğrulaması (salt okuma).
 name: supabase-fix
 
 on:
@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Migration uygula + doğrula
+      - name: Doğrula
         env:
           SBP: ${{ inputs.sbp_token }}
         run: |
@@ -27,37 +27,24 @@ jobs:
           mkdir -p .diagnostic
           R=.diagnostic/supabase-diag.txt
           : > $R
-
-          echo "== Token kontrolü ==" | tee -a $R
-          CODE=$(curl -s -o /dev/null -w "%{http_code}" -H "$AUTH" "https://api.supabase.com/v1/projects/$REF")
-          echo "proje erişimi: HTTP $CODE" | tee -a $R
-          if [ "$CODE" != "200" ]; then
-            echo "SONUC: TOKEN GEÇERSİZ (revoke edilmiş olabilir). Yeni token gerekli." | tee -a $R
-            exit 0
-          fi
-
-          run_sql () {
-            jq -n --rawfile q "$1" '{query: $q}' > /tmp/b.json
-            HTTP=$(curl -s -o /tmp/r.json -w "%{http_code}" -X POST -H "$AUTH" -H "Content-Type: application/json" \
-              --data @/tmp/b.json "https://api.supabase.com/v1/projects/$REF/database/query")
-            echo "$1 -> HTTP $HTTP $([ $HTTP -ge 300 ] && head -c 300 /tmp/r.json)" | tee -a $R
-          }
-          run_sql supabase/migrations/20260703200000_cart_items.sql
-          run_sql supabase/migrations/20260703300000_coupons.sql
-
-          echo "== Doğrulama ==" | tee -a $R
-          jq -n '{query:"select (select count(*) from public.cart_items) as sepet_satiri, (select count(*) from public.coupons) as kupon, (select count(*) from information_schema.columns where table_name = ''orders'' and column_name in (''coupon_code'',''discount_total'')) as orders_yeni_kolon, (select left(closed_message, 40) from public.shop_settings where id = 1) as kapali_mesaji;"}' > /tmp/b.json
+          cat > /tmp/q.sql <<'SQL'
+select
+  (select count(*) from public.cart_items) as sepet_satiri,
+  (select count(*) from public.coupons) as kupon,
+  (select count(*) from information_schema.columns
+    where table_name = 'orders' and column_name in ('coupon_code','discount_total')) as orders_yeni_kolon,
+  (select left(closed_message, 60) from public.shop_settings where id = 1) as kapali_mesaji;
+SQL
+          jq -n --rawfile q /tmp/q.sql '{query: $q}' > /tmp/b.json
           curl -s -X POST -H "$AUTH" -H "Content-Type: application/json" \
             --data @/tmp/b.json "https://api.supabase.com/v1/projects/$REF/database/query" | tee -a $R
           echo "" | tee -a $R
-          echo "SONUC: TAMAM" | tee -a $R
-
-      - name: Raporu repoya yaz
+      - name: Raporu yaz
         if: always()
         run: |
           git config user.name "supabase-fix-bot"
           git config user.email "noreply@github.com"
           git pull --rebase || true
           git add .diagnostic/supabase-diag.txt
-          git commit -m "diag: cart_items + coupons migration raporu" || exit 0
+          git commit -m "diag: kurulum doğrulama raporu" || exit 0
           git push
