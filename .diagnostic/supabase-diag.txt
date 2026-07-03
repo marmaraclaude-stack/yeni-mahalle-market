@@ -1,0 +1,6 @@
+== 1) Sitenin kullandığı Supabase ref'i ==
+Site ref(ler)i: BULUNAMADI
+== 2) Token hesabındaki projeler ==
+ppebggmvyqursnaropau  Instagram
+vkaknwulaatzgucclvzn  Yeni Mahalle Market
+SONUC: Site ref'i tespit edilemedi.
