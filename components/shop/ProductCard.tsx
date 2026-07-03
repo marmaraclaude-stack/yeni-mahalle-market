@@ -1,7 +1,8 @@
-// Ürün kartı — Getir tarzı kompakt vitrin kartı. Üstte kare görsel alanı
-// (görsel yoksa kategori tint'li lucide placeholder), görselin sağ üst köşesine
-// bindirilmiş yuvarlak "+" sepete ekle butonu (Link'in DIŞINDA — tıklaması
-// navigasyonu tetiklemez), altta fiyat (accent, bold), ad (2 satır clamp), gramaj.
+// Ürün kartı — Getir kart dili. Üstte kare görsel alanı (görsel yoksa kategori
+// tint'li lucide placeholder), sağ üst köşede kare-yuvarlak "+" sepete ekle
+// butonu (Link'in DIŞINDA — tıklaması navigasyonu tetiklemez), altta fiyat
+// (accent bold; indirimde eski fiyat üstü çizili solda), ad (2 satır clamp,
+// normal ağırlık), gramaj (gri, küçük).
 // variant: "grid" (esnek genişlik, varsayılan) | "rail" (sabit ~168px, scroll-snap).
 // Kebab-case lucide ikon haritası buradan export edilir (CategoryRail de kullanır).
 
@@ -128,19 +129,14 @@ export default function ProductCard({
           {product.in_stock && discounted && (
             <span className={styles.badge}>İndirim</span>
           )}
-          {product.in_stock && !discounted && product.is_featured && (
-            <span className={`${styles.badge} ${styles.badgeFeatured}`}>
-              Popüler
-            </span>
-          )}
         </div>
 
         <div className={styles.cardBody}>
           <p className={styles.priceRow}>
-            <span className={styles.price}>{formatTL(product.price)}</span>
             {discounted && (
               <s className={styles.compare}>{formatTL(compareAt)}</s>
             )}
+            <span className={styles.price}>{formatTL(product.price)}</span>
             {product.unit !== "adet" && (
               <span className={styles.unit}>/ {product.unit}</span>
             )}

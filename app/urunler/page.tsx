@@ -1,7 +1,10 @@
-// Vitrin — /urunler. Getir tarzı: "Tümü" görünümünde kategori bölümleri
-// (başlık + Tümünü Gör + yatay kaydırılabilir ürün raili), kategori seçili
-// veya arama varken grid. Tek sorguda tüm aktif ürünler çekilir, gruplama
-// sunucuda yapılır. Next.js 16: searchParams bir Promise — await edilmeli.
+// Vitrin — /urunler. Getir web düzeni: masaüstünde (≥1024px) --container
+// içinde [sol kategori sidebar 240px sticky] + [orta ürün alanı] + [sağ
+// "Sepetim" paneli 300px sticky]; mobilde yatay pill bar + 2-3 kolonlu grid.
+// Orta alan: kategori seçili → grid (başlık + adet); "Tümü" → kategori
+// bölümleri (her birinde ilk 6 ürün grid + "Tümünü Gör"); arama → grid +
+// "N sonuç". Tek sorguda tüm aktif ürünler çekilir, gruplama sunucuda yapılır.
+// Next.js 16: searchParams bir Promise — await edilmeli.
 // DB hazır değilse sayfa patlamaz: "Katalog hazırlanıyor" fallback'i.
 
 import type { Metadata } from "next";
@@ -17,10 +20,15 @@ import {
 import { BUSINESS } from "@/lib/business";
 import SiteNav from "@/components/SiteNav";
 import CategoryRail from "@/components/shop/CategoryRail";
+import CategorySidebar from "@/components/shop/CategorySidebar";
+import CartPanel from "@/components/shop/CartPanel";
 import SearchBox from "@/components/shop/SearchBox";
 import ProductGrid from "@/components/shop/ProductGrid";
 import ProductCard, { iconFor } from "@/components/shop/ProductCard";
 import styles from "./shop.module.css";
+
+/** "Tümü" görünümünde her kategori bölümünde gösterilen ürün sayısı. */
+const SECTION_LIMIT = 6;
 
 type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>;
 
@@ -117,123 +125,133 @@ export default async function UrunlerPage({
           </header>
         </div>
 
-        {/* Sticky kategori pill barı (navbar altı) */}
+        {/* Mobil/tablet: sticky kategori pill barı (masaüstünde gizli) */}
         <CategoryRail active={category?.slug} q={q || undefined} />
 
-        <div className={`container ${styles.content}`}>
-          {dbError ? (
-            <section className={styles.fallback} aria-live="polite">
-              <span className={styles.fallbackIcon} aria-hidden="true">
-                <ShoppingBasket size={26} strokeWidth={1.8} />
-              </span>
-              <h2>Katalog hazırlanıyor</h2>
-              <p>
-                Online ürün listemiz çok yakında burada. Şimdilik siparişini
-                WhatsApp üzerinden verebilirsin, her zamanki gibi kapına
-                getirelim.
-              </p>
-              <a
-                href={BUSINESS.whatsapp.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn btn--whatsapp"
-              >
-                WhatsApp&apos;tan sipariş ver
-              </a>
-            </section>
-          ) : q ? (
-            /* Arama sonuçları: grid + "X sonuç" başlığı */
-            <section className={styles.section}>
-              <div className={styles.sectionHead}>
-                <h2 className={styles.sectionTitle}>
-                  &quot;{q}&quot; için {products.length} sonuç
-                </h2>
-              </div>
-              <ProductGrid
-                products={products}
-                emptyText={`"${q}" aramasına uygun ürün bulunamadı.`}
-              />
-            </section>
-          ) : category ? (
-            /* Kategori seçili: o kategorinin tüm ürünleri grid */
-            (() => {
-              const [bg, fg] =
-                CATEGORY_TINTS[category.tint] ?? CATEGORY_TINTS[0];
-              const Icon = iconFor(category.icon);
-              return (
+        <div className="container">
+          <div className={styles.layout}>
+            {/* Masaüstü: sol kategori sidebar'ı */}
+            <CategorySidebar active={category?.slug} q={q || undefined} />
+
+            <div className={styles.main}>
+              {dbError ? (
+                <section className={styles.fallback} aria-live="polite">
+                  <span className={styles.fallbackIcon} aria-hidden="true">
+                    <ShoppingBasket size={26} strokeWidth={1.8} />
+                  </span>
+                  <h2>Katalog hazırlanıyor</h2>
+                  <p>
+                    Online ürün listemiz çok yakında burada. Şimdilik siparişini
+                    WhatsApp üzerinden verebilirsin, her zamanki gibi kapına
+                    getirelim.
+                  </p>
+                  <a
+                    href={BUSINESS.whatsapp.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn btn--whatsapp"
+                  >
+                    WhatsApp&apos;tan sipariş ver
+                  </a>
+                </section>
+              ) : q ? (
+                /* Arama sonuçları: grid + "N sonuç" başlığı */
                 <section className={styles.section}>
                   <div className={styles.sectionHead}>
                     <h2 className={styles.sectionTitle}>
-                      <span
-                        className={styles.sectionIcon}
-                        style={{ background: bg, color: fg }}
-                        aria-hidden="true"
-                      >
-                        <Icon size={18} strokeWidth={1.9} />
-                      </span>
-                      {category.name}
+                      &quot;{q}&quot; için {products.length} sonuç
                     </h2>
-                    <span className={styles.sectionCount}>
-                      {products.length} ürün
-                    </span>
                   </div>
                   <ProductGrid
                     products={products}
-                    emptyText="Bu kategoride henüz ürün yok."
+                    emptyText={`"${q}" aramasına uygun ürün bulunamadı.`}
                   />
                 </section>
-              );
-            })()
-          ) : sections.length === 0 ? (
-            <ProductGrid products={[]} emptyText="Henüz ürün eklenmedi." />
-          ) : (
-            /* "Tümü": kategori bölümleri — başlık + Tümünü Gör + ürün raili */
-            sections.map(({ cat, items }) => {
-              const [bg, fg] = CATEGORY_TINTS[cat.tint] ?? CATEGORY_TINTS[0];
-              const Icon = iconFor(cat.icon);
-              return (
-                <section
-                  key={cat.slug}
-                  className={styles.section}
-                  aria-label={cat.name}
-                >
-                  <div className={styles.sectionHead}>
-                    <h2 className={styles.sectionTitle}>
-                      <span
-                        className={styles.sectionIcon}
-                        style={{ background: bg, color: fg }}
-                        aria-hidden="true"
-                      >
-                        <Icon size={18} strokeWidth={1.9} />
-                      </span>
-                      {cat.name}
-                    </h2>
-                    <Link
-                      href={`/urunler?k=${cat.slug}`}
-                      className={styles.seeAll}
-                      aria-label={`${cat.name}: tümünü gör`}
-                    >
-                      Tümünü Gör
-                      <ChevronRight
-                        size={15}
-                        strokeWidth={2.2}
-                        aria-hidden="true"
+              ) : category ? (
+                /* Kategori seçili: o kategorinin tüm ürünleri grid */
+                (() => {
+                  const [bg, fg] =
+                    CATEGORY_TINTS[category.tint] ?? CATEGORY_TINTS[0];
+                  const Icon = iconFor(category.icon);
+                  return (
+                    <section className={styles.section}>
+                      <div className={styles.sectionHead}>
+                        <h2 className={styles.sectionTitle}>
+                          <span
+                            className={styles.sectionIcon}
+                            style={{ background: bg, color: fg }}
+                            aria-hidden="true"
+                          >
+                            <Icon size={18} strokeWidth={1.9} />
+                          </span>
+                          {category.name}
+                        </h2>
+                        <span className={styles.sectionCount}>
+                          {products.length} ürün
+                        </span>
+                      </div>
+                      <ProductGrid
+                        products={products}
+                        emptyText="Bu kategoride henüz ürün yok."
                       />
-                    </Link>
-                  </div>
-                  <div
-                    className={styles.productRail}
-                    role="region"
-                    aria-label={`${cat.name} ürünleri`}
-                  >
-                    {items.map((p) => (
-                      <ProductCard key={p.id} product={p} variant="rail" />
-                    ))}
-                  </div>
-                </section>
-              );
-            })
-          )}
+                    </section>
+                  );
+                })()
+              ) : sections.length === 0 ? (
+                <ProductGrid products={[]} emptyText="Henüz ürün eklenmedi." />
+              ) : (
+                /* "Tümü": kategori bölümleri — ilk 6 ürün grid + Tümünü Gör */
+                sections.map(({ cat, items }) => {
+                  const [bg, fg] =
+                    CATEGORY_TINTS[cat.tint] ?? CATEGORY_TINTS[0];
+                  const Icon = iconFor(cat.icon);
+                  return (
+                    <section
+                      key={cat.slug}
+                      className={styles.section}
+                      aria-label={cat.name}
+                    >
+                      <div className={styles.sectionHead}>
+                        <h2 className={styles.sectionTitle}>
+                          <span
+                            className={styles.sectionIcon}
+                            style={{ background: bg, color: fg }}
+                            aria-hidden="true"
+                          >
+                            <Icon size={18} strokeWidth={1.9} />
+                          </span>
+                          {cat.name}
+                        </h2>
+                        <span className={styles.sectionCount}>
+                          {items.length} ürün
+                        </span>
+                        <Link
+                          href={`/urunler?k=${cat.slug}`}
+                          className={styles.seeAll}
+                          aria-label={`${cat.name}: tümünü gör`}
+                        >
+                          Tümünü Gör
+                          <ChevronRight
+                            size={15}
+                            strokeWidth={2.2}
+                            aria-hidden="true"
+                          />
+                        </Link>
+                      </div>
+                      <div className={styles.grid}>
+                        {items.slice(0, SECTION_LIMIT).map((p) => (
+                          <ProductCard key={p.id} product={p} />
+                        ))}
+                      </div>
+                    </section>
+                  );
+                })
+              )}
+            </div>
+
+            {/* Masaüstü: sağ "Sepetim" paneli */}
+            <CartPanel />
+          </div>
         </div>
       </main>
     </>

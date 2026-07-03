@@ -1,8 +1,8 @@
 "use client";
 
-// Ürün detay aksiyonları — adet seçici (+/-) ve "Sepete Ekle".
-// useCart sözleşmesini tüketir. Orderable olmayan kategori (örn. sigara-tutun)
-// için buton disabled + "mağazadan alınır" notu gösterilir.
+// Ürün detay aksiyonları — adet seçici (+/-) ve "Sepete Ekle" (buton içinde
+// canlı toplam: adet x fiyat). useCart sözleşmesini tüketir. Orderable olmayan
+// kategori (örn. sigara-tutun) için buton disabled + "mağazadan alınır" notu.
 
 import { useEffect, useRef, useState } from "react";
 import {

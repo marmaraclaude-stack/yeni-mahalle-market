@@ -2,18 +2,21 @@
 // Next.js 16: params bir Promise — await edilmeli.
 // Ürün anon client'la slug üzerinden çekilir (is_active=true);
 // bulunamazsa (veya DB hazır değilse) notFound().
-// Üstte gerçek site navbar'ı (SiteNav); breadcrumb yok — kategori adı
-// başlığın üstünde tint renkli pill etiket olarak vitrindeki filtreye linkler.
-// Altta "Benzer Ürünler": gerçek benzerlik skoruyla sıralanmış yatay rail.
+// Düzen (Getir sadeliği): --container içinde 2 kolonlu BEYAZ KART —
+// solda büyük görsel (tint placeholder), sağda kategori pill + ad + fiyat +
+// stok + adet/sepet aksiyonları + teslimat notu. Açıklama varsa altta
+// "Ürün Hakkında" kartı; en altta skorlamalı "Benzer Ürünler" raili.
 
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { cache } from "react";
+import { Bike } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import type { Product } from "@/lib/shop/types";
 import { formatTL } from "@/lib/shop/types";
 import { CATEGORY_TINTS, categoryBySlug } from "@/lib/shop/categories";
+import { BUSINESS } from "@/lib/business";
 import ProductCard, { iconFor } from "@/components/shop/ProductCard";
 import SiteNav from "@/components/SiteNav";
 import DetailActions from "./DetailActions";
@@ -162,14 +165,18 @@ export default async function UrunDetayPage({ params }: { params: Params }) {
     ? Math.round((1 - product.price / compareAt) * 100)
     : 0;
 
+  const metaText = [product.brand, product.size_text]
+    .filter(Boolean)
+    .join(" · ");
+
   return (
     <>
       <SiteNav />
 
       <main className={styles.page}>
         <div className="container">
-          {/* Görsel + bilgi */}
-          <section className={styles.hero}>
+          {/* Beyaz kart: solda görsel, sağda bilgi + aksiyonlar */}
+          <section className={styles.heroCard}>
             <div
               className={styles.media}
               style={
@@ -185,10 +192,7 @@ export default async function UrunDetayPage({ params }: { params: Params }) {
                   loading="lazy"
                 />
               ) : (
-                <Icon size={96} strokeWidth={1.2} aria-hidden="true" />
-              )}
-              {discounted && product.in_stock && (
-                <span className={styles.mediaBadge}>%{discountPct} indirim</span>
+                <Icon size={112} strokeWidth={1.1} aria-hidden="true" />
               )}
               {!product.in_stock && (
                 <span className={styles.mediaOut}>Stokta yok</span>
@@ -207,22 +211,17 @@ export default async function UrunDetayPage({ params }: { params: Params }) {
                 </Link>
               )}
 
-              {(product.brand || product.size_text) && (
-                <p className={styles.meta}>
-                  {product.brand}
-                  {product.brand && product.size_text ? " · " : ""}
-                  {product.size_text}
-                </p>
-              )}
               <h1 className={styles.title}>{product.name}</h1>
+
+              {metaText && <p className={styles.meta}>{metaText}</p>}
 
               <p className={styles.priceRow}>
                 <span className={styles.price}>{formatTL(product.price)}</span>
-                {discounted && (
-                  <s className={styles.compare}>{formatTL(compareAt)}</s>
-                )}
                 {product.unit !== "adet" && (
                   <span className={styles.unit}>/ {product.unit}</span>
+                )}
+                {discounted && (
+                  <s className={styles.compare}>{formatTL(compareAt)}</s>
                 )}
                 {discounted && (
                   <span className={styles.discount}>%{discountPct} indirim</span>
@@ -241,14 +240,23 @@ export default async function UrunDetayPage({ params }: { params: Params }) {
 
               <DetailActions product={product} />
 
-              {product.description && (
-                <div className={styles.desc}>
-                  <h2>Ürün Açıklaması</h2>
-                  <p>{product.description}</p>
-                </div>
-              )}
+              <p className={styles.delivery}>
+                <Bike size={17} strokeWidth={2} aria-hidden="true" />
+                Sapanca içine aynı gün teslimat · {BUSINESS.hours.opens} -{" "}
+                {BUSINESS.hours.closes}
+              </p>
             </div>
           </section>
+
+          {/* Açıklama — ayrı beyaz kart */}
+          {product.description && (
+            <section className={styles.descCard} aria-labelledby="urun-hakkinda">
+              <h2 id="urun-hakkinda" className={styles.descHead}>
+                Ürün Hakkında
+              </h2>
+              <p className={styles.descText}>{product.description}</p>
+            </section>
+          )}
 
           {/* Benzer ürünler — yatay kaydırılabilir rail */}
           {similar.length > 0 && (

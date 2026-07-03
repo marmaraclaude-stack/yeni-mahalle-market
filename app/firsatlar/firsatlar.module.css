@@ -1,0 +1,86 @@
+/* ============================================================
+   Fırsatlar (/firsatlar) — indirimli ürünler sayfası stilleri.
+   Renk/tipografi token'ları globals.css'ten miras alınır.
+   ============================================================ */
+
+.page {
+  padding: 0 0 80px;
+  min-height: 70vh;
+  background: var(--white);
+}
+
+/* --- Sayfa başı --- */
+.head {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 28px 0 20px;
+}
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.titleIcon {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+.title {
+  font-size: clamp(24px, 3vw, 34px);
+}
+.sub {
+  color: var(--gray-500);
+  font-size: var(--fs-body);
+  max-width: var(--measure);
+}
+.count {
+  color: var(--gray-500);
+  font-size: var(--fs-small);
+  font-weight: 500;
+}
+
+/* --- Ürün gridi --- */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 10px;
+}
+@media (min-width: 720px) {
+  .grid {
+    grid-template-columns: repeat(auto-fill, minmax(168px, 1fr));
+    gap: 14px;
+  }
+}
+
+/* --- Boş durum --- */
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 64px 24px;
+  text-align: center;
+  background: var(--gray-50);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--r-xl);
+}
+.emptyIcon {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+.empty h2 { font-size: var(--fs-h3); }
+.empty p {
+  color: var(--gray-500);
+  max-width: var(--measure-narrow);
+}

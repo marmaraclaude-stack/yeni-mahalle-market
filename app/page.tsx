@@ -455,9 +455,10 @@ export default function Home() {
             <div className="footer__col">
               <h4>Site</h4>
               <ul>
-                <li><a href="#konum">Konum</a></li>
+                <li><a href="/urunler">Ürünler</a></li>
+                <li><a href="/firsatlar">Fırsatlar</a></li>
+                <li><a href="/iletisim">İletişim</a></li>
                 <li><a href="#hizmetler">Hizmetler</a></li>
-                <li><a href="#urunler">Ürünler</a></li>
                 <li><a href="#yorumlar">Yorumlar</a></li>
               </ul>
             </div>

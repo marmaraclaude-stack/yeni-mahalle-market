@@ -1,13 +1,12 @@
 "use client";
 
-// Kategori pill barı — sticky (navbar altı), yatay kaydırılabilir, scroll-snap.
-// Masaüstünde kenar okları: ReviewsRail'deki exact-step scrollBy + snap-disable
-// deseni. Link tabanlı; aktif pill accent dolgulu. Arama terimi (q) kategori
-// değişirken korunur.
+// Kategori pill barı — YALNIZ mobil/tablet (<1024px; gizleme shop.module.css
+// .catbar ile, masaüstünde yerini CategorySidebar alır). Sticky (navbar altı),
+// yatay kaydırılabilir, scroll-snap. Link tabanlı; aktif pill accent dolgulu.
+// Arama terimi (q) kategori değişirken korunur.
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useEffect, useRef } from "react";
 import { CATEGORY_TINTS, SHOP_CATEGORIES } from "@/lib/shop/categories";
 import { iconFor } from "@/components/shop/ProductCard";
 import styles from "@/app/urunler/shop.module.css";
@@ -28,42 +27,6 @@ export default function CategoryRail({
   q?: string;
 }) {
   const railRef = useRef<HTMLElement>(null);
-  const snapTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const [canPrev, setCanPrev] = useState(false);
-  const [canNext, setCanNext] = useState(false);
-
-  const scrollByStep = (dir: 1 | -1) => {
-    const el = railRef.current;
-    if (!el) return;
-    // Görünür genişliğe yakın bir adım — pill genişlikleri değişken olduğundan
-    // kart bazlı değil sayfa bazlı adım kullanılır
-    const step = Math.max(el.clientWidth - 96, 160);
-    // iOS Safari: programatik kaydırma sırasında snap'i kapat, sonra aç
-    el.style.scrollSnapType = "none";
-    el.scrollBy({ left: dir * step, behavior: "smooth" });
-    if (snapTimer.current) clearTimeout(snapTimer.current);
-    snapTimer.current = setTimeout(() => {
-      el.style.scrollSnapType = "";
-    }, 450);
-  };
-
-  useEffect(() => {
-    const el = railRef.current;
-    if (!el) return;
-    const update = () => {
-      const max = el.scrollWidth - el.clientWidth;
-      setCanPrev(el.scrollLeft > 4);
-      setCanNext(el.scrollLeft < max - 4);
-    };
-    update();
-    el.addEventListener("scroll", update, { passive: true });
-    window.addEventListener("resize", update);
-    return () => {
-      el.removeEventListener("scroll", update);
-      window.removeEventListener("resize", update);
-      if (snapTimer.current) clearTimeout(snapTimer.current);
-    };
-  }, []);
 
   // Aktif pill ilk yüklemede görünür alana gelsin
   useEffect(() => {
@@ -76,17 +39,7 @@ export default function CategoryRail({
 
   return (
     <div className={styles.catbar}>
-      <div className={`container ${styles.catbarInner}`}>
-        <button
-          type="button"
-          className={styles.catArrow}
-          aria-label="Kategorileri geri kaydır"
-          onClick={() => scrollByStep(-1)}
-          disabled={!canPrev}
-        >
-          <ChevronLeft size={16} strokeWidth={2.2} aria-hidden="true" />
-        </button>
-
+      <div className="container">
         <nav ref={railRef} className={styles.catRail} aria-label="Kategoriler">
           <Link
             href={buildHref(null, q)}
@@ -118,16 +71,6 @@ export default function CategoryRail({
             );
           })}
         </nav>
-
-        <button
-          type="button"
-          className={styles.catArrow}
-          aria-label="Kategorileri ileri kaydır"
-          onClick={() => scrollByStep(1)}
-          disabled={!canNext}
-        >
-          <ChevronRight size={16} strokeWidth={2.2} aria-hidden="true" />
-        </button>
       </div>
     </div>
   );

@@ -1,10 +1,17 @@
+"use client";
+
+import { usePathname } from "next/navigation";
 import { BUSINESS } from "@/lib/business";
 
 /**
  * Floating WhatsApp button — sag alt kose.
  * Eski Supabase-backed chat widget'in yerine geldi.
+ * Admin panelinde (/admin*) render edilmez.
  */
 export default function WhatsAppFab() {
+  const pathname = usePathname();
+  if (pathname?.startsWith("/admin")) return null;
+
   return (
     <a
       href={BUSINESS.whatsapp.href}

@@ -1,7 +1,8 @@
 "use client";
 
-// Yuvarlak "+" sepete ekle butonu — ürün kartında görselin sağ üst köşesine
-// bindirilir (konum shop.module.css .plusBtn ile gelir). Kart linkinin DIŞINDA
+// Kare-yuvarlak "+" sepete ekle butonu — Getir dili: beyaz zemin, ince gri
+// border, accent ikon; kartın sağ üst köşesine bindirilir (konum
+// shop.module.css .plusBtn ile gelir). Kart linkinin DIŞINDA
 // render edildiği için tıklaması navigasyonu tetiklemez. Tıklanınca kısa ✓
 // animasyonu oynar. Kategori orderable değilse (örn. sigara-tutun) veya stok
 // yoksa buton yerine küçük gri rozet basılır.

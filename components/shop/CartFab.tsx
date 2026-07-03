@@ -2,15 +2,19 @@
 
 // Yüzen sepet butonu — sağ altta, WhatsApp butonunun (wa-fab) hemen ÜSTÜNDE.
 // Sepet boşken görünmez; adet rozeti taşır, tıklayınca /sepet'e gider.
+// Admin panelinde (/admin*) müşteri UI'ı olduğu için hiç render edilmez.
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { ShoppingCart } from "lucide-react";
 import { useCart } from "@/components/shop/CartProvider";
 import styles from "./CartFab.module.css";
 
 export default function CartFab() {
+  const pathname = usePathname();
   const { count } = useCart();
 
+  if (pathname?.startsWith("/admin")) return null;
   if (count === 0) return null;
 
   return (

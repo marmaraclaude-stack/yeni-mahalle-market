@@ -1,0 +1,43 @@
+/* ============================================================
+   SiteNav ek stilleri — auth-aware butonlar.
+   globals.css'e dokunulmaz; .btn/.nav sınıflarının üzerine gelir.
+   ============================================================ */
+
+/* Masaüstü: sağdaki Giriş Yap / Kayıt Ol / Hesabım alanı */
+.auth {
+  display: none;
+  align-items: center;
+  gap: 8px;
+}
+@media (min-width: 921px) {
+  .auth { display: inline-flex; }
+}
+
+/* Nav içinde .btn biraz kompakt dursun */
+.authBtn {
+  height: 40px;
+  padding: 0 18px;
+}
+
+/* Auth durumu henüz bilinmiyorken yer tutucu (buton zıplaması olmasın) */
+.authSkeleton {
+  display: inline-block;
+  width: 186px;
+  height: 40px;
+  border-radius: var(--r-pill);
+  background: var(--gray-100);
+}
+
+/* Mobil panel: alttaki auth butonları */
+.panelAuth {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-top: 24px;
+}
+.panelBtn {
+  width: 100%;
+  height: 54px;
+  font-size: var(--fs-body);
+}

@@ -20,6 +20,16 @@ Kod tarafı hazır. Sitenin online sipariş alabilmesi için **iki manuel adım*
 
 > Sıra önemli: önce schema, sonra seed.
 
+### Ek: hesaba bağlı sepet tablosu (cart_items) — 1 dk
+
+Sepetlerin hesaba bağlanması için bir SQL daha gerekiyor. SQL Editor'de
+yeni bir query aç, şu dosyanın tamamını yapıştır → **Run**:
+`supabase/migrations/20260703200000_cart_items.sql`
+
+Bu tablo kurulmadan da site çalışır: sepet tarayıcıda (localStorage) tutulmaya
+devam eder. Kurulunca giriş yapmış müşterilerin sepeti hesabına kaydedilir ve
+cihazlar arasında taşınır.
+
 ## Adım 2 — Vercel: ortam değişkenleri (2 dk)
 
 Vercel → proje → **Settings → Environment Variables**. Şunların var olduğundan emin ol

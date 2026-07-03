@@ -15,6 +15,25 @@
   background: var(--cream);
   display: flex;
   align-items: stretch;
+  font-family: var(--font-sans);
+}
+
+/* Admin kabuğunda TÜM tipografi Geist: globals'taki display font ve
+   geniş/negatif letter-spacing başlıklarda override edilir. */
+.shell h1,
+.shell h2,
+.shell h3,
+.shell h4,
+.shell h5,
+.shell h6,
+.loginShell h1,
+.loginShell h2,
+.loginShell h3,
+.loginShell h4,
+.loginShell h5,
+.loginShell h6 {
+  font-family: var(--font-sans);
+  letter-spacing: -0.015em;
 }
 
 /* ---- Sol sidebar ---- */
@@ -88,7 +107,7 @@
 
 .navLink--active {
   color: var(--white);
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.12);
   font-weight: 600;
 }
 
@@ -96,11 +115,18 @@
   content: "";
   position: absolute;
   left: -14px;
-  top: 8px;
-  bottom: 8px;
-  width: 3px;
-  border-radius: 0 3px 3px 0;
+  top: 7px;
+  bottom: 7px;
+  width: 4px;
+  border-radius: 0 4px 4px 0;
   background: var(--orange);
+}
+
+/* Odak halkaları: sidebar linkleri (koyu zemin) */
+.navLink:focus-visible,
+.footLink:focus-visible {
+  outline: 2px solid var(--orange);
+  outline-offset: 2px;
 }
 
 .navLink--active .navIcon { color: var(--orange); }
@@ -146,15 +172,13 @@
   background: rgba(255, 255, 255, 0.06);
 }
 
-/* ---- İçerik alanı ---- */
+/* ---- İçerik alanı: tam genişlik, 24-32px padding ---- */
 .content {
   flex: 1;
   min-width: 0;
   width: 100%;
-  padding: clamp(22px, 3.5vw, 40px) clamp(18px, 3.5vw, 40px) 56px;
+  padding: clamp(24px, 2.5vw, 32px) clamp(24px, 2.5vw, 32px) 56px;
 }
-
-.content > * { max-width: 1160px; }
 
 .title {
   font-family: var(--font-sans);
@@ -187,9 +211,17 @@
    ============================================================ */
 .statGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 12px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
   margin-bottom: 20px;
+}
+
+@media (max-width: 1100px) {
+  .statGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 520px) {
+  .statGrid { grid-template-columns: 1fr; }
 }
 
 .statCard {
@@ -203,6 +235,7 @@
   position: relative;
   text-decoration: none;
   color: inherit;
+  box-shadow: 0 1px 2px rgba(10, 10, 10, 0.04);
   transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
 }
 
@@ -253,7 +286,7 @@
 
 .dashGrid {
   display: grid;
-  grid-template-columns: minmax(0, 2fr) minmax(260px, 1fr);
+  grid-template-columns: minmax(0, 2fr) minmax(300px, 1fr);
   gap: 16px;
   align-items: start;
 }
@@ -479,6 +512,7 @@
   background: var(--white);
   border: 1px solid rgba(10, 10, 10, 0.08);
   border-radius: var(--r-lg);
+  box-shadow: 0 1px 2px rgba(10, 10, 10, 0.04);
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
@@ -618,6 +652,27 @@
 .accentBtn:disabled { opacity: 0.5; cursor: not-allowed; }
 
 /* ============================================================
+   Odak halkaları (açık zemin): klavye gezinmesi için net görünürlük
+   ============================================================ */
+.statCard:focus-visible,
+.row:focus-visible,
+.orderCard:focus-visible,
+.quickLink:focus-visible,
+.panelLink:focus-visible,
+.orderNo:focus-visible,
+.backLink:focus-visible,
+.telLink:focus-visible,
+.chip:focus-visible,
+.actionBtn:focus-visible,
+.accentBtn:focus-visible,
+.pillBtn:focus-visible,
+.threadSend:focus-visible,
+.fileInput:focus-visible {
+  outline: 2px solid var(--orange);
+  outline-offset: 2px;
+}
+
+/* ============================================================
    Detay sayfaları
    ============================================================ */
 .backLink {
@@ -643,6 +698,7 @@
   border: 1px solid rgba(10, 10, 10, 0.08);
   border-radius: var(--r-lg);
   padding: 20px 22px;
+  box-shadow: 0 1px 2px rgba(10, 10, 10, 0.04);
 }
 
 .panelTitle {
@@ -685,6 +741,7 @@
   border: 1px solid rgba(10, 10, 10, 0.08);
   border-radius: var(--r-lg);
   overflow: hidden;
+  box-shadow: 0 1px 2px rgba(10, 10, 10, 0.04);
 }
 
 .tableScroll {
@@ -722,6 +779,9 @@
 }
 
 .table tbody tr:last-child td { border-bottom: none; }
+
+/* Satır hover: bağlantılı tablolar okunur kalsın */
+.table tbody tr:hover td { background: rgba(10, 10, 10, 0.025); }
 
 .table tfoot td {
   border-bottom: none;
@@ -1063,6 +1123,7 @@
   cursor: pointer;
   text-decoration: none;
   color: inherit;
+  box-shadow: 0 1px 2px rgba(10, 10, 10, 0.04);
   transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
   align-items: center;
 }
@@ -1276,6 +1337,7 @@
   padding: 32px;
   background: var(--black);
   color: var(--white);
+  font-family: var(--font-sans);
 }
 
 .loginCard {
