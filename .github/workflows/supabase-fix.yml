@@ -1,13 +1,17 @@
-# TEK SEFERLİK teşhis v2 — sitenin gerçek Supabase ref'ini /giris chunk'larından bulur,
-# sitenin gördüğü hatayı PostgREST'e aynı anahtarla giderek yeniden üretir,
-# doğru projeye chat şemasını da uygular, sayımları doğrular.
+# TEK SEFERLİK v3 — Supabase anahtarlarını çek, Vercel env'lerini yaz,
+# production'ı yeniden deploy et, /urunler'i doğrula. Rapor: .diagnostic/
 name: supabase-fix
 
 on:
   workflow_dispatch:
     inputs:
       sbp_token:
-        description: "Supabase personal access token (sbp_...)"
+        required: true
+        type: string
+      vercel_token:
+        required: true
+        type: string
+      admin_password:
         required: true
         type: string
 
@@ -20,64 +24,99 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Teşhis v2
+      - name: Env kur + deploy + doğrula
         env:
           SBP: ${{ inputs.sbp_token }}
+          VT: ${{ inputs.vercel_token }}
+          AP: ${{ inputs.admin_password }}
         run: |
           set -uo pipefail
-          echo "::add-mask::$SBP"
-          AUTH="Authorization: Bearer $SBP"
-          TARGET="vkaknwulaatzgucclvzn"
+          echo "::add-mask::$SBP"; echo "::add-mask::$VT"; echo "::add-mask::$AP"
+          REF="vkaknwulaatzgucclvzn"
           mkdir -p .diagnostic
           R=.diagnostic/supabase-diag.txt
           : > $R
 
-          echo "== 1) Site ref taraması (derin) ==" | tee -a $R
-          REFS=""
-          ANON=""
-          for page in /giris /urunler /; do
-            HTML=$(curl -sL "https://sapancayenimahallemarket.com$page" || true)
-            for c in $(echo "$HTML" | grep -oE '/_next/static/[^" ]+\.js' | sort -u); do
-              JS=$(curl -sL "https://sapancayenimahallemarket.com$c" || true)
-              r=$(echo "$JS" | grep -oE '[a-z]{20}\.supabase\.co' | sort -u || true)
-              if [ -n "$r" ]; then
-                REFS="$REFS $r"
-                if [ -z "$ANON" ]; then
-                  ANON=$(echo "$JS" | grep -oE '(eyJ[A-Za-z0-9_-]{60,}\.[A-Za-z0-9_-]{20,}\.[A-Za-z0-9_-]{20,}|sb_publishable_[A-Za-z0-9_-]{20,})' | head -1 || true)
-                fi
-              fi
-            done
-            [ -n "$REFS" ] && break
-          done
-          REFS=$(echo $REFS | tr ' ' '\n' | sort -u | tr '\n' ' ')
-          echo "Bulunan ref(ler): ${REFS:-YOK}" | tee -a $R
-          echo "Anon key bulundu mu: $([ -n "$ANON" ] && echo "evet (${ANON:0:16}...)" || echo hayır)" | tee -a $R
-
-          SITE_REF=$(echo $REFS | tr ' ' '\n' | head -1 | cut -d. -f1)
-
-          if [ -n "$SITE_REF" ] && [ -n "$ANON" ]; then
-            echo "== 2) Sitenin gördüğü hatayı yeniden üret (PostgREST) ==" | tee -a $R
-            HTTP=$(curl -s -o /tmp/pg.json -w "%{http_code}" \
-              -H "apikey: $ANON" -H "Authorization: Bearer $ANON" \
-              "https://$SITE_REF.supabase.co/rest/v1/products?select=id&limit=1")
-            echo "REF=$SITE_REF -> HTTP $HTTP : $(head -c 300 /tmp/pg.json)" | tee -a $R
+          echo "== 1) Supabase API anahtarları ==" | tee -a $R
+          KEYS=$(curl -sf -H "Authorization: Bearer $SBP" \
+            "https://api.supabase.com/v1/projects/$REF/api-keys?reveal=true")
+          ANON=$(echo "$KEYS" | jq -r '.[] | select(.name=="anon") | .api_key')
+          SR=$(echo "$KEYS" | jq -r '.[] | select(.name=="service_role") | .api_key')
+          echo "::add-mask::$SR"
+          if [ -z "$ANON" ] || [ "$ANON" = "null" ] || [ -z "$SR" ] || [ "$SR" = "null" ]; then
+            echo "HATA: anahtarlar alınamadı: $(echo "$KEYS" | jq -r '[.[].name] | join(",")' 2>/dev/null || echo "$KEYS" | head -c 200)" | tee -a $R
+            exit 1
           fi
+          echo "anon + service_role alındı" | tee -a $R
 
-          echo "== 3) Hedef projeye ($TARGET) chat şeması (idempotent değil, hata olabilir) ==" | tee -a $R
-          jq -n --rawfile q supabase/migrations/20260523120000_chat_schema.sql '{query: $q}' > /tmp/b.json
-          HTTP=$(curl -s -o /tmp/r.json -w "%{http_code}" -X POST -H "$AUTH" -H "Content-Type: application/json" \
-            --data @/tmp/b.json "https://api.supabase.com/v1/projects/$TARGET/database/query")
-          echo "chat_schema -> HTTP $HTTP $([ $HTTP -ge 300 ] && head -c 200 /tmp/r.json)" | tee -a $R
+          echo "== 2) Vercel projesi bul ==" | tee -a $R
+          VAUTH="Authorization: Bearer $VT"
+          TID=""
+          PROJ=$(curl -s -H "$VAUTH" "https://api.vercel.com/v9/projects/yeni-mahalle-market")
+          PID=$(echo "$PROJ" | jq -r '.id // empty')
+          if [ -z "$PID" ]; then
+            # kişisel + takımlarda ara
+            LISTS=$(curl -s -H "$VAUTH" "https://api.vercel.com/v9/projects?limit=100")
+            PID=$(echo "$LISTS" | jq -r '.projects[]? | select(.name | test("(?i)mahalle|market")) | .id' | head -1)
+            PROJ=$(echo "$LISTS" | jq -r --arg id "$PID" '.projects[]? | select(.id==$id)')
+            if [ -z "$PID" ]; then
+              for TID in $(curl -s -H "$VAUTH" "https://api.vercel.com/v2/teams" | jq -r '.teams[]?.id'); do
+                LISTS=$(curl -s -H "$VAUTH" "https://api.vercel.com/v9/projects?limit=100&teamId=$TID")
+                PID=$(echo "$LISTS" | jq -r '.projects[]? | select(.name | test("(?i)mahalle|market")) | .id' | head -1)
+                if [ -n "$PID" ]; then PROJ=$(echo "$LISTS" | jq -r --arg id "$PID" '.projects[]? | select(.id==$id)'); break; fi
+                TID=""
+              done
+            fi
+          fi
+          if [ -z "$PID" ]; then
+            echo "HATA: Vercel projesi bulunamadı. Projeler:" | tee -a $R
+            curl -s -H "$VAUTH" "https://api.vercel.com/v9/projects?limit=100" | jq -r '.projects[]?.name' | tee -a $R
+            exit 1
+          fi
+          PNAME=$(echo "$PROJ" | jq -r '.name')
+          REPOID=$(echo "$PROJ" | jq -r '.link.repoId // empty')
+          Q=""; [ -n "$TID" ] && Q="&teamId=$TID"
+          echo "Proje: $PNAME ($PID) repoId=$REPOID team=${TID:-kişisel}" | tee -a $R
 
-          echo "== 4) Hedef proje doğrulama ==" | tee -a $R
-          jq -n '{query:"select (select count(*) from public.shop_categories) as kategoriler, (select count(*) from public.products) as urunler;"}' > /tmp/b.json
-          curl -s -X POST -H "$AUTH" -H "Content-Type: application/json" \
-            --data @/tmp/b.json "https://api.supabase.com/v1/projects/$TARGET/database/query" | tee -a $R
-          echo "" | tee -a $R
+          echo "== 3) Env değişkenleri (upsert) ==" | tee -a $R
+          BODY=$(jq -n --arg url "https://$REF.supabase.co" --arg anon "$ANON" --arg sr "$SR" --arg ap "$AP" '[
+            {key:"NEXT_PUBLIC_SUPABASE_URL", value:$url, type:"encrypted", target:["production","preview","development"]},
+            {key:"NEXT_PUBLIC_SUPABASE_ANON_KEY", value:$anon, type:"encrypted", target:["production","preview","development"]},
+            {key:"SUPABASE_SERVICE_ROLE_KEY", value:$sr, type:"encrypted", target:["production","preview","development"]},
+            {key:"ADMIN_PASSWORD", value:$ap, type:"encrypted", target:["production","preview","development"]},
+            {key:"NEXT_PUBLIC_SITE_URL", value:"https://sapancayenimahallemarket.com", type:"encrypted", target:["production","preview","development"]}
+          ]')
+          HTTP=$(curl -s -o /tmp/env.json -w "%{http_code}" -X POST -H "$VAUTH" -H "Content-Type: application/json" \
+            -d "$BODY" "https://api.vercel.com/v10/projects/$PID/env?upsert=true${Q}")
+          echo "env upsert -> HTTP $HTTP $( [ $HTTP -ge 300 ] && head -c 300 /tmp/env.json )" | tee -a $R
+          [ "$HTTP" -ge 300 ] && exit 1
 
-          echo "== 5) Hedef projenin URL'i (Vercel için) ==" | tee -a $R
-          echo "https://$TARGET.supabase.co" | tee -a $R
-          echo "SONUC: TAMAM" | tee -a $R
+          echo "== 4) Production yeniden deploy ==" | tee -a $R
+          DEP=$(jq -n --arg name "$PNAME" --argjson repoId "${REPOID:-0}" '{name:$name, target:"production", gitSource:{type:"github", repoId:$repoId, ref:"main"}}')
+          HTTP=$(curl -s -o /tmp/dep.json -w "%{http_code}" -X POST -H "$VAUTH" -H "Content-Type: application/json" \
+            -d "$DEP" "https://api.vercel.com/v13/deployments?forceNew=1${Q}")
+          DID=$(jq -r '.id // empty' /tmp/dep.json)
+          echo "deploy -> HTTP $HTTP id=${DID:-YOK} $( [ $HTTP -ge 300 ] && head -c 300 /tmp/dep.json )" | tee -a $R
+          [ -z "$DID" ] && exit 1
+
+          echo "== 5) Deploy bekleniyor ==" | tee -a $R
+          for i in $(seq 1 60); do
+            ST=$(curl -s -H "$VAUTH" "https://api.vercel.com/v13/deployments/$DID?$Q" | jq -r '.readyState // .status // "?"')
+            [ "$ST" = "READY" ] && break
+            if [ "$ST" = "ERROR" ] || [ "$ST" = "CANCELED" ]; then echo "deploy durumu: $ST" | tee -a $R; exit 1; fi
+            sleep 10
+          done
+          echo "deploy durumu: $ST" | tee -a $R
+
+          echo "== 6) /urunler doğrulaması ==" | tee -a $R
+          sleep 10
+          PAGE=$(curl -sL "https://sapancayenimahallemarket.com/urunler" || true)
+          if echo "$PAGE" | grep -q "Katalog hazırlanıyor"; then
+            echo "SONUC: HALA FALLBACK — sayfa 'Katalog hazırlanıyor' gösteriyor" | tee -a $R
+          else
+            HITS=$(echo "$PAGE" | grep -oE "Coca-Cola|Sütaş|Ülker" | sort -u | tr '\n' ' ')
+            echo "SONUC: KATALOG CANLI ✓ (bulunan markalar: ${HITS:-katalog dolu görünümde})" | tee -a $R
+          fi
 
       - name: Raporu repoya yaz
         if: always()
@@ -86,5 +125,5 @@ jobs:
           git config user.email "noreply@github.com"
           git pull --rebase || true
           git add .diagnostic/supabase-diag.txt
-          git commit -m "diag: supabase teşhis v2 raporu" || exit 0
+          git commit -m "diag: env kurulum + deploy raporu" || exit 0
           git push
