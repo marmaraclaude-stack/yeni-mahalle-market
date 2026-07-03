@@ -1,0 +1,65 @@
+# TEK SEFERLİK kurulum köprüsü — Claude Code ortamının ağı api.supabase.com'a
+# kapalı olduğu için migration'lar GitHub runner üzerinden uygulanır.
+# Kurulum bitince bu dosya silinecek.
+name: supabase-setup
+
+on:
+  workflow_dispatch:
+    inputs:
+      sbp_token:
+        description: "Supabase personal access token (sbp_...)"
+        required: true
+        type: string
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Migration'ları uygula
+        env:
+          SBP: ${{ inputs.sbp_token }}
+        run: |
+          set -euo pipefail
+          echo "::add-mask::$SBP"
+          AUTH="Authorization: Bearer $SBP"
+
+          echo "== Projeler listeleniyor =="
+          PROJECTS=$(curl -sf -H "$AUTH" https://api.supabase.com/v1/projects)
+          echo "$PROJECTS" | jq -r '.[] | "\(.id)  \(.name)"'
+
+          # Market projesini isimden bul (yeni/mahalle/market/sapanca geçen)
+          MATCHES=$(echo "$PROJECTS" | jq -r '[.[] | select(.name | test("(?i)yeni|mahalle|market|sapanca"))] | length')
+          if [ "$MATCHES" -ne 1 ]; then
+            echo "HATA: Eşleşen proje sayısı $MATCHES (tam 1 olmalı). Yukarıdaki listeden ref'i elle seçin."
+            exit 1
+          fi
+          REF=$(echo "$PROJECTS" | jq -r '.[] | select(.name | test("(?i)yeni|mahalle|market|sapanca")) | .id')
+          NAME=$(echo "$PROJECTS" | jq -r '.[] | select(.name | test("(?i)yeni|mahalle|market|sapanca")) | .name')
+          echo "== Hedef proje: $NAME ($REF) =="
+
+          run_sql () {
+            local file="$1"
+            echo "== Uygulanıyor: $file =="
+            jq -n --rawfile q "$file" '{query: $q}' > /tmp/body.json
+            HTTP=$(curl -s -o /tmp/resp.json -w "%{http_code}" -X POST \
+              -H "$AUTH" -H "Content-Type: application/json" \
+              --data @/tmp/body.json \
+              "https://api.supabase.com/v1/projects/$REF/database/query")
+            if [ "$HTTP" -ge 300 ]; then
+              echo "HATA ($HTTP):"; cat /tmp/resp.json; exit 1
+            fi
+            echo "OK ($HTTP)"
+          }
+
+          run_sql supabase/migrations/20260703100000_eticaret_schema.sql
+          run_sql supabase/migrations/20260703100001_eticaret_seed.sql
+
+          echo "== Doğrulama =="
+          jq -n '{query: "select (select count(*) from public.shop_categories) as kategoriler, (select count(*) from public.products) as urunler, (select count(*) from public.shop_settings) as ayarlar;"}' > /tmp/body.json
+          curl -sf -X POST -H "$AUTH" -H "Content-Type: application/json" \
+            --data @/tmp/body.json \
+            "https://api.supabase.com/v1/projects/$REF/database/query"
+          echo ""
+          echo "== KURULUM TAMAM =="
