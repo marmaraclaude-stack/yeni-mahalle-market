@@ -1,0 +1,7 @@
+== Token kontrolü ==
+proje erişimi: HTTP 200
+supabase/migrations/20260703200000_cart_items.sql -> HTTP 201 
+supabase/migrations/20260703300000_coupons.sql -> HTTP 201 
+== Doğrulama ==
+{"message":"Failed to run sql query: ERROR:  42703: column \"orders\" does not exist\nLINE 1: select (select count(*) from public.cart_items) as sepet_satiri, (select count(*) from public.coupons) as kupon, (select count(*) from information_schema.columns where table_name = orders and column_name in (coupon_code,discount_total)) as orders_yeni_kolon, (select left(closed_message, 40) from public.shop_settings where id = 1) as kapali_mesaji;\n                                                                                                                                                                                             ^\n"}
+SONUC: TAMAM
