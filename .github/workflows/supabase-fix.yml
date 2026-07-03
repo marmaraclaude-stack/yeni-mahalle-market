@@ -1,8 +1,6 @@
-# TEK SEFERLİK teşhis + düzeltme köprüsü.
-# 1) Canlı sitenin JS'inden gerçekte kullandığı Supabase proje ref'ini bulur
-# 2) Token'ın hesabındaki projelerle karşılaştırır
-# 3) Doğru projeye migration'ları uygular ve doğrular
-# 4) Raporu .diagnostic/supabase-diag.txt olarak repoya yazar (log erişimi kapalı olduğu için)
+# TEK SEFERLİK teşhis v2 — sitenin gerçek Supabase ref'ini /giris chunk'larından bulur,
+# sitenin gördüğü hatayı PostgREST'e aynı anahtarla giderek yeniden üretir,
+# doğru projeye chat şemasını da uygular, sayımları doğrular.
 name: supabase-fix
 
 on:
@@ -22,69 +20,63 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Teşhis + düzeltme
+      - name: Teşhis v2
         env:
           SBP: ${{ inputs.sbp_token }}
         run: |
           set -uo pipefail
           echo "::add-mask::$SBP"
           AUTH="Authorization: Bearer $SBP"
+          TARGET="vkaknwulaatzgucclvzn"
           mkdir -p .diagnostic
           R=.diagnostic/supabase-diag.txt
           : > $R
 
-          echo "== 1) Sitenin kullandığı Supabase ref'i ==" | tee -a $R
-          HTML=$(curl -sL https://sapancayenimahallemarket.com/ || true)
-          SITE_REFS=$(echo "$HTML" | grep -oE '[a-z]{20}\.supabase\.co' | sort -u || true)
-          if [ -z "$SITE_REFS" ]; then
-            # HTML'de yoksa JS chunk'larını tara
-            CHUNKS=$(echo "$HTML" | grep -oE '/_next/static/[^"]+\.js' | sort -u | head -20)
-            for c in $CHUNKS; do
-              SITE_REFS=$(curl -sL "https://sapancayenimahallemarket.com$c" | grep -oE '[a-z]{20}\.supabase\.co' | sort -u || true)
-              [ -n "$SITE_REFS" ] && break
+          echo "== 1) Site ref taraması (derin) ==" | tee -a $R
+          REFS=""
+          ANON=""
+          for page in /giris /urunler /; do
+            HTML=$(curl -sL "https://sapancayenimahallemarket.com$page" || true)
+            for c in $(echo "$HTML" | grep -oE '/_next/static/[^" ]+\.js' | sort -u); do
+              JS=$(curl -sL "https://sapancayenimahallemarket.com$c" || true)
+              r=$(echo "$JS" | grep -oE '[a-z]{20}\.supabase\.co' | sort -u || true)
+              if [ -n "$r" ]; then
+                REFS="$REFS $r"
+                if [ -z "$ANON" ]; then
+                  ANON=$(echo "$JS" | grep -oE '(eyJ[A-Za-z0-9_-]{60,}\.[A-Za-z0-9_-]{20,}\.[A-Za-z0-9_-]{20,}|sb_publishable_[A-Za-z0-9_-]{20,})' | head -1 || true)
+                fi
+              fi
             done
-          fi
-          echo "Site ref(ler)i: ${SITE_REFS:-BULUNAMADI}" | tee -a $R
-          SITE_REF=$(echo "$SITE_REFS" | head -1 | cut -d. -f1)
+            [ -n "$REFS" ] && break
+          done
+          REFS=$(echo $REFS | tr ' ' '\n' | sort -u | tr '\n' ' ')
+          echo "Bulunan ref(ler): ${REFS:-YOK}" | tee -a $R
+          echo "Anon key bulundu mu: $([ -n "$ANON" ] && echo "evet (${ANON:0:16}...)" || echo hayır)" | tee -a $R
 
-          echo "== 2) Token hesabındaki projeler ==" | tee -a $R
-          PROJECTS=$(curl -sf -H "$AUTH" https://api.supabase.com/v1/projects || echo "[]")
-          echo "$PROJECTS" | jq -r '.[] | "\(.id)  \(.name)"' | tee -a $R
+          SITE_REF=$(echo $REFS | tr ' ' '\n' | head -1 | cut -d. -f1)
 
-          if [ -z "$SITE_REF" ]; then
-            echo "SONUC: Site ref'i tespit edilemedi." | tee -a $R
-            exit 0
-          fi
-
-          IN_ACCOUNT=$(echo "$PROJECTS" | jq -r --arg r "$SITE_REF" '[.[] | select(.id == $r)] | length')
-          if [ "$IN_ACCOUNT" -ne 1 ]; then
-            echo "SONUC: Sitenin projesi ($SITE_REF) bu token'ın hesabında YOK. Site başka bir Supabase hesabına bağlı." | tee -a $R
-            exit 0
+          if [ -n "$SITE_REF" ] && [ -n "$ANON" ]; then
+            echo "== 2) Sitenin gördüğü hatayı yeniden üret (PostgREST) ==" | tee -a $R
+            HTTP=$(curl -s -o /tmp/pg.json -w "%{http_code}" \
+              -H "apikey: $ANON" -H "Authorization: Bearer $ANON" \
+              "https://$SITE_REF.supabase.co/rest/v1/products?select=id&limit=1")
+            echo "REF=$SITE_REF -> HTTP $HTTP : $(head -c 300 /tmp/pg.json)" | tee -a $R
           fi
 
-          echo "== 3) Doğru projeye ($SITE_REF) migration uygulanıyor ==" | tee -a $R
-          run_sql () {
-            jq -n --rawfile q "$1" '{query: $q}' > /tmp/body.json
-            HTTP=$(curl -s -o /tmp/resp.json -w "%{http_code}" -X POST \
-              -H "$AUTH" -H "Content-Type: application/json" \
-              --data @/tmp/body.json \
-              "https://api.supabase.com/v1/projects/$SITE_REF/database/query")
-            echo "  $1 -> HTTP $HTTP" | tee -a $R
-            if [ "$HTTP" -ge 300 ]; then
-              echo "  Yanıt: $(cat /tmp/resp.json | head -c 500)" | tee -a $R
-              return 1
-            fi
-            return 0
-          }
-          run_sql supabase/migrations/20260703100000_eticaret_schema.sql || echo "  (schema hatası — tablolar zaten var olabilir, seed'e geçiliyor)" | tee -a $R
-          run_sql supabase/migrations/20260703100001_eticaret_seed.sql || true
+          echo "== 3) Hedef projeye ($TARGET) chat şeması (idempotent değil, hata olabilir) ==" | tee -a $R
+          jq -n --rawfile q supabase/migrations/20260523120000_chat_schema.sql '{query: $q}' > /tmp/b.json
+          HTTP=$(curl -s -o /tmp/r.json -w "%{http_code}" -X POST -H "$AUTH" -H "Content-Type: application/json" \
+            --data @/tmp/b.json "https://api.supabase.com/v1/projects/$TARGET/database/query")
+          echo "chat_schema -> HTTP $HTTP $([ $HTTP -ge 300 ] && head -c 200 /tmp/r.json)" | tee -a $R
 
-          echo "== 4) Doğrulama ==" | tee -a $R
-          jq -n '{query: "select (select count(*) from public.shop_categories) as kategoriler, (select count(*) from public.products) as urunler;"}' > /tmp/body.json
+          echo "== 4) Hedef proje doğrulama ==" | tee -a $R
+          jq -n '{query:"select (select count(*) from public.shop_categories) as kategoriler, (select count(*) from public.products) as urunler;"}' > /tmp/b.json
           curl -s -X POST -H "$AUTH" -H "Content-Type: application/json" \
-            --data @/tmp/body.json \
-            "https://api.supabase.com/v1/projects/$SITE_REF/database/query" | tee -a $R
+            --data @/tmp/b.json "https://api.supabase.com/v1/projects/$TARGET/database/query" | tee -a $R
           echo "" | tee -a $R
+
+          echo "== 5) Hedef projenin URL'i (Vercel için) ==" | tee -a $R
+          echo "https://$TARGET.supabase.co" | tee -a $R
           echo "SONUC: TAMAM" | tee -a $R
 
       - name: Raporu repoya yaz
@@ -92,6 +84,7 @@ jobs:
         run: |
           git config user.name "supabase-fix-bot"
           git config user.email "noreply@github.com"
+          git pull --rebase || true
           git add .diagnostic/supabase-diag.txt
-          git commit -m "diag: supabase kurulum raporu" || exit 0
+          git commit -m "diag: supabase teşhis v2 raporu" || exit 0
           git push
