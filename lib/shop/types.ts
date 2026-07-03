@@ -98,6 +98,23 @@ export interface Coupon {
   created_at: string;
 }
 
+/**
+ * Kampanya banner'ı — banners tablosu.
+ * Vitrin anon client ile yalnız aktifleri okur (RLS: is_active = true);
+ * yazmalar service-role (admin Server Action) üzerinden yapılır.
+ */
+export interface Banner {
+  id: string;
+  title: string;
+  subtitle: string;
+  cta_text: string; // boş = buton yok
+  cta_href: string; // /firsatlar, /urunler?k=... vb.
+  tint: number; // CATEGORY_TINTS index (0-7) zemin
+  is_active: boolean;
+  sort: number;
+  created_at: string;
+}
+
 export interface ShopSettings {
   id: 1;
   delivery_fee: number;

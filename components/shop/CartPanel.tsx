@@ -3,7 +3,9 @@
 // Sağ "Sepetim" paneli — Getir web düzeni, yalnız masaüstünde görünür
 // (gizleme shop.module.css .cartPanel ile). Boş durum: ikon + "Sepetin şu an
 // boş". Dolu: kompakt satırlar (küçük thumb, ad 1 satır, mini adet stepper,
-// satır fiyatı), altta Toplam + "Siparişi Tamamla" (/sepet).
+// satır fiyatı), altta ücretsiz teslimat ilerlemesi (deliveryFee > 0 ve
+// freeDeliveryOver > 0 iken) + Toplam + "Siparişi Tamamla" (/sepet).
+// Settings prop'ları sunucudan gelir (app/urunler/page.tsx → getShopSettings).
 // Hydration: sunucuda sepet boş kabul edilir (CartProvider localStorage'ı
 // yalnız client'ta okur), panel client'ta doğal olarak güncellenir.
 
@@ -16,8 +18,18 @@ import { useCart } from "@/components/shop/CartProvider";
 import { iconFor } from "@/components/shop/ProductCard";
 import styles from "@/app/urunler/shop.module.css";
 
-export default function CartPanel() {
+export default function CartPanel({
+  deliveryFee = 0,
+  freeDeliveryOver = 0,
+}: {
+  deliveryFee?: number;
+  freeDeliveryOver?: number;
+}) {
   const { lines, count, subtotal, setQty } = useCart();
+
+  // Teslimat zaten hep ücretsizse (fee 0) veya eşik tanımsızsa bar gereksiz.
+  const showFreeShip = deliveryFee > 0 && freeDeliveryOver > 0;
+  const freeShipDone = subtotal >= freeDeliveryOver;
 
   return (
     <aside className={styles.cartPanel} aria-label="Sepetim">
@@ -110,6 +122,33 @@ export default function CartPanel() {
           </ul>
 
           <div className={styles.cartFoot}>
+            {showFreeShip && (
+              <div className={styles.freeShip} aria-live="polite">
+                {freeShipDone ? (
+                  <p
+                    className={`${styles.freeShipText} ${styles.freeShipTextDone}`}
+                  >
+                    Teslimat ücretsiz!
+                  </p>
+                ) : (
+                  <p className={styles.freeShipText}>
+                    Ücretsiz teslimata{" "}
+                    <strong>{formatTL(freeDeliveryOver - subtotal)}</strong>{" "}
+                    kaldı
+                  </p>
+                )}
+                <span className={styles.freeShipBar} aria-hidden="true">
+                  <span
+                    className={`${styles.freeShipFill}${
+                      freeShipDone ? ` ${styles.freeShipFillDone}` : ""
+                    }`}
+                    style={{
+                      width: `${Math.min(100, (subtotal / freeDeliveryOver) * 100)}%`,
+                    }}
+                  />
+                </span>
+              </div>
+            )}
             <p className={styles.cartTotalRow}>
               <span className={styles.cartTotalLabel}>Toplam</span>
               <span className={styles.cartTotalValue}>

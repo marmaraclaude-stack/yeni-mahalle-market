@@ -13,8 +13,10 @@ import {
   Banknote,
   CreditCard,
   Lock,
+  ShieldCheck,
   ShoppingBasket,
   TicketPercent,
+  Truck,
 } from "lucide-react";
 import { useCart } from "@/components/shop/CartProvider";
 import { validateCoupon } from "@/lib/shop/coupons";
@@ -453,6 +455,23 @@ export default function CheckoutForm({
                   : "Siparişi Gönder"}
               {!pending && <ArrowRight aria-hidden="true" />}
             </button>
+
+            {/* Güven satırı — dönüşüm için ikonlu üçlü */}
+            <ul className={styles.trustRow} aria-label="Alışveriş güvenceleri">
+              <li>
+                <ShieldCheck size={16} strokeWidth={2} aria-hidden="true" />
+                Bilgilerin güvende
+              </li>
+              <li>
+                <Truck size={16} strokeWidth={2} aria-hidden="true" />
+                Aynı gün teslimat
+              </li>
+              <li>
+                <Banknote size={16} strokeWidth={2} aria-hidden="true" />
+                Kapıda ödeme
+              </li>
+            </ul>
+
             <Link href="/sepet" className={styles.backLink}>
               Sepete geri dön
             </Link>

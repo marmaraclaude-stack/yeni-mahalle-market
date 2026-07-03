@@ -7,6 +7,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
+  GalleryHorizontal,
   LayoutDashboard,
   MessageCircle,
   Package,
@@ -28,6 +29,7 @@ const SHOP_PREFIXES = [
   "/admin/siparisler",
   "/admin/urunler",
   "/admin/kuponlar",
+  "/admin/bannerlar",
   "/admin/ayarlar",
 ];
 
@@ -55,6 +57,12 @@ const ITEMS: NavItem[] = [
     label: "Kuponlar",
     icon: Ticket,
     isActive: (p) => p.startsWith("/admin/kuponlar"),
+  },
+  {
+    href: "/admin/bannerlar",
+    label: "Bannerlar",
+    icon: GalleryHorizontal,
+    isActive: (p) => p.startsWith("/admin/bannerlar"),
   },
   {
     href: "/admin/ayarlar",

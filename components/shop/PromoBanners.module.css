@@ -1,0 +1,157 @@
+/* ============================================================
+   Kampanya banner carousel — Getir/Trendyol kalıbı.
+   Tint zeminli tam genişlik kart; solda başlık + alt metin +
+   beyaz zeminli CTA; scroll-snap kaydırma + nokta göstergeleri.
+   Renk/tipografi token'ları globals.css'ten miras alınır.
+   ============================================================ */
+
+/* /urunler yerleşimi: başlık ile katalog düzeni arasında nefes payı */
+.catalogWrap {
+  margin-bottom: 6px;
+}
+
+.carousel {
+  position: relative;
+}
+
+/* Kayan şerit — tek kart görünür, snap zorunlu, scrollbar gizli */
+.track {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  border-radius: var(--r-lg);
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+.track::-webkit-scrollbar {
+  display: none;
+}
+
+/* Tek slayt — tint zemin + koyu tint metin inline style ile gelir */
+.slide {
+  position: relative;
+  flex: 0 0 100%;
+  min-width: 100%;
+  display: flex;
+  align-items: center;
+  min-height: 140px;
+  padding: clamp(20px, 3.2vw, 34px) clamp(20px, 4vw, 44px);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  scroll-snap-align: start;
+}
+
+.slideCopy {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  max-width: 56ch;
+}
+.slideTitle {
+  font-family: var(--font-display);
+  font-size: var(--fs-h3);
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: 1.1;
+  color: inherit;
+  text-wrap: balance;
+}
+.slideSub {
+  font-size: var(--fs-body);
+  line-height: 1.45;
+  color: inherit;
+  opacity: 0.82;
+  text-wrap: pretty;
+}
+
+/* CTA — beyaz zemin, metin tint'in koyu tonunda (currentColor) */
+.slideCta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+  height: 40px;
+  padding: 0 20px;
+  border-radius: var(--r-pill);
+  background: var(--white);
+  color: inherit;
+  font-size: var(--fs-small);
+  font-weight: 700;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(10, 10, 10, 0.1);
+  transition: transform 160ms var(--ease), box-shadow 160ms var(--ease);
+}
+.slideCta:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 14px rgba(10, 10, 10, 0.14);
+}
+.slideCta:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
+/* Sağda dekoratif soft daireler — currentColor'dan, düşük opaklık */
+.slideGlow {
+  position: absolute;
+  top: 50%;
+  right: -70px;
+  width: 280px;
+  height: 280px;
+  transform: translateY(-50%);
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.08;
+  pointer-events: none;
+}
+.slideGlow::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: -110px;
+  width: 150px;
+  height: 150px;
+  transform: translateY(-50%);
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.6;
+}
+
+/* Nokta göstergeleri — aktif nokta hap biçiminde uzar */
+.dots {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 10px;
+}
+.dot {
+  width: 8px;
+  height: 8px;
+  padding: 0;
+  border-radius: var(--r-pill);
+  background: var(--gray-300);
+  transition: background 200ms var(--ease), width 200ms var(--ease);
+}
+.dot:hover {
+  background: var(--gray-400);
+}
+.dotActive,
+.dotActive:hover {
+  width: 22px;
+  background: var(--accent);
+}
+.dot:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Hareket azaltma: elle kaydırma da yumuşatmasız olsun
+   (otomatik kayma zaten JS tarafında kapatılır) */
+@media (prefers-reduced-motion: reduce) {
+  .track {
+    scroll-behavior: auto;
+  }
+}

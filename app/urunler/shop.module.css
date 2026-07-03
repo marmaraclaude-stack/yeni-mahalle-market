@@ -416,6 +416,42 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* Ücretsiz teslimat ilerlemesi — free_delivery_over > 0 iken panel altında.
+   Eşiğin altında turuncu bar + kalan tutar; eşik aşılınca yeşil dolu bar. */
+.freeShip {
+  display: grid;
+  gap: 6px;
+}
+.freeShipText {
+  font-size: var(--fs-micro);
+  font-weight: 600;
+  color: var(--gray-700);
+}
+.freeShipText strong {
+  color: var(--accent-deep);
+  font-variant-numeric: tabular-nums;
+}
+.freeShipTextDone {
+  color: #159b57;
+}
+.freeShipBar {
+  display: block;
+  height: 6px;
+  border-radius: var(--r-pill);
+  background: var(--gray-200);
+  overflow: hidden;
+}
+.freeShipFill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--accent);
+  transition: width 300ms var(--ease);
+}
+.freeShipFillDone {
+  background: #159b57;
+}
+
 /* Panel altı: toplam + CTA */
 .cartFoot {
   display: flex;
@@ -641,6 +677,50 @@
   0% { transform: scale(0.7); }
   60% { transform: scale(1.14); }
   100% { transform: scale(1); }
+}
+
+/* Kart içi adet stepper — ürün sepetteyken "+" butonunun yerini alır
+   (Getir davranışı). Beyaz zemin, ince border, kartın sağ üst köşesinde. */
+.cardStepper {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  background: var(--white);
+  border: 1px solid var(--gray-200);
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  animation: plusPop 260ms var(--ease);
+}
+.cardStepBtn {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 32px;
+  color: var(--accent);
+  transition: background 140ms var(--ease), color 140ms var(--ease);
+}
+.cardStepBtn:hover {
+  background: var(--accent-soft);
+  color: var(--accent-deep);
+}
+.cardStepBtn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+.cardStepQty {
+  min-width: 18px;
+  text-align: center;
+  font-size: var(--fs-micro);
+  font-weight: 700;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+@media (prefers-reduced-motion: reduce) {
+  .cardStepper { animation: none; }
 }
 
 /* Orderable değil / stok yok — buton yerine küçük gri rozet */

@@ -53,6 +53,11 @@ export default function CartView({
   const belowMin = minOrderTotal > 0 && subtotal < minOrderTotal;
   const canCheckout = lines.length > 0 && !belowMin && orderingOpen;
 
+  // Ücretsiz teslimat ilerlemesi — teslimat zaten hep ücretsizse (fee 0)
+  // veya eşik tanımsızsa gösterilmez.
+  const showFreeShip = deliveryFee > 0 && freeDeliveryOver > 0;
+  const freeShipDone = freeDeliveryOver > 0 && subtotal >= freeDeliveryOver;
+
   if (lines.length === 0) {
     return (
       <main className={styles.page}>
@@ -180,6 +185,35 @@ export default function CartView({
 
           <aside className={styles.summary} aria-label="Sipariş özeti">
             <h2 className={styles.summaryTitle}>Sipariş Özeti</h2>
+
+            {showFreeShip && (
+              <div className={styles.freeShip} aria-live="polite">
+                {freeShipDone ? (
+                  <p
+                    className={`${styles.freeShipText} ${styles.freeShipTextDone}`}
+                  >
+                    Teslimat ücretsiz!
+                  </p>
+                ) : (
+                  <p className={styles.freeShipText}>
+                    Ücretsiz teslimata{" "}
+                    <strong>{formatTL(freeDeliveryOver - subtotal)}</strong>{" "}
+                    kaldı
+                  </p>
+                )}
+                <span className={styles.freeShipBar} aria-hidden="true">
+                  <span
+                    className={`${styles.freeShipFill}${
+                      freeShipDone ? ` ${styles.freeShipFillDone}` : ""
+                    }`}
+                    style={{
+                      width: `${Math.min(100, (subtotal / freeDeliveryOver) * 100)}%`,
+                    }}
+                  />
+                </span>
+              </div>
+            )}
+
             <dl className={styles.summaryRows}>
               <div className={styles.summaryRow}>
                 <dt>Ara Toplam</dt>
@@ -195,11 +229,6 @@ export default function CartView({
               </div>
             </dl>
 
-            {fee > 0 && freeDeliveryOver > 0 && (
-              <p className={styles.hint}>
-                {formatTL(freeDeliveryOver)} üzeri siparişlerde teslimat ücretsiz.
-              </p>
-            )}
             {belowMin && (
               <p className={styles.warn} role="status">
                 Minimum sipariş tutarı {formatTL(minOrderTotal)}. Sepetinize{" "}

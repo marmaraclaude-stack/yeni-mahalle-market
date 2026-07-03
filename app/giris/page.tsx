@@ -52,10 +52,12 @@ export default async function GirisPage({
         <GirisForm next={next} />
 
         <p className={styles.switchLine}>
-          Hesabın yok mu?{" "}
-          <Link href={`/kayit?next=${encodeURIComponent(next)}`}>
-            Hemen kayıt ol
-          </Link>
+          <span>
+            Hesabın yok mu?{" "}
+            <Link href={`/kayit?next=${encodeURIComponent(next)}`}>
+              Hemen kayıt ol
+            </Link>
+          </span>
         </p>
       </AuthShell>
     </>

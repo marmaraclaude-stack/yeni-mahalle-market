@@ -1,19 +1,47 @@
 "use client";
 
 // Kayıt formu: Supabase browser client ile e-posta + parola kaydı.
-// Alan bazlı doğrulama, parola göster/gizle, loading durumu, güven notu.
-// options.data içindeki full_name / phone, DB trigger'ı ile
-// customer_profiles satırına işlenir. Session dönmezse e-posta onayı
-// beklendiği için bilgi mesajı gösterilir.
+// Alan bazlı doğrulama, sol ikonlu input'lar, parola göster/gizle + gücü
+// göstergesi, loading durumu, güven notu. options.data içindeki
+// full_name / phone, DB trigger'ı ile customer_profiles satırına işlenir.
+// Session dönmezse e-posta onayı beklendiği için bilgi mesajı gösterilir.
 
 import { useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Eye, EyeOff, MailCheck, ShieldCheck } from "lucide-react";
+import {
+  Eye,
+  EyeOff,
+  Lock,
+  Mail,
+  MailCheck,
+  Phone,
+  ShieldCheck,
+  User,
+} from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import styles from "../giris/auth.module.css";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+/** Basit parola gücü heuristiği: uzunluk + karakter çeşitliliği (client-only). */
+function passwordStrength(pw: string): { level: 1 | 2 | 3; label: string } {
+  let variety = 0;
+  if (/[a-z]/.test(pw)) variety += 1;
+  if (/[A-Z]/.test(pw)) variety += 1;
+  if (/\d/.test(pw)) variety += 1;
+  if (/[^a-zA-Z0-9]/.test(pw)) variety += 1;
+
+  if (pw.length >= 10 && variety >= 3) return { level: 3, label: "Güçlü" };
+  if (pw.length >= 8 && variety >= 2) return { level: 2, label: "Orta" };
+  return { level: 1, label: "Zayıf" };
+}
+
+const STRENGTH_CLASS: Record<1 | 2 | 3, string> = {
+  1: styles.pwWeak,
+  2: styles.pwMedium,
+  3: styles.pwStrong,
+};
 
 interface FieldErrors {
   full_name?: string;
@@ -43,6 +71,9 @@ export default function KayitForm({ next }: { next: string }) {
   const [pending, setPending] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [awaitingConfirm, setAwaitingConfirm] = useState(false);
+  const [passwordValue, setPasswordValue] = useState("");
+
+  const strength = passwordStrength(passwordValue);
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -124,16 +155,21 @@ export default function KayitForm({ next }: { next: string }) {
           <label className={styles.fieldLabel} htmlFor="kayit-name">
             Ad Soyad
           </label>
-          <input
-            id="kayit-name"
-            className={`${styles.input} ${fieldErrors.full_name ? styles.inputInvalid : ""}`}
-            name="full_name"
-            type="text"
-            autoComplete="name"
-            placeholder="Adınız Soyadınız"
-            aria-invalid={fieldErrors.full_name ? true : undefined}
-            required
-          />
+          <div className={styles.inputWrap}>
+            <span className={styles.inputIcon}>
+              <User aria-hidden="true" />
+            </span>
+            <input
+              id="kayit-name"
+              className={`${styles.input} ${fieldErrors.full_name ? styles.inputInvalid : ""}`}
+              name="full_name"
+              type="text"
+              autoComplete="name"
+              placeholder="Adınız Soyadınız"
+              aria-invalid={fieldErrors.full_name ? true : undefined}
+              required
+            />
+          </div>
           {fieldErrors.full_name && (
             <p className={styles.fieldError} role="alert">
               {fieldErrors.full_name}
@@ -145,17 +181,22 @@ export default function KayitForm({ next }: { next: string }) {
           <label className={styles.fieldLabel} htmlFor="kayit-phone">
             Telefon
           </label>
-          <input
-            id="kayit-phone"
-            className={`${styles.input} ${fieldErrors.phone ? styles.inputInvalid : ""}`}
-            name="phone"
-            type="tel"
-            inputMode="tel"
-            autoComplete="tel"
-            placeholder="05XX XXX XX XX"
-            aria-invalid={fieldErrors.phone ? true : undefined}
-            required
-          />
+          <div className={styles.inputWrap}>
+            <span className={styles.inputIcon}>
+              <Phone aria-hidden="true" />
+            </span>
+            <input
+              id="kayit-phone"
+              className={`${styles.input} ${fieldErrors.phone ? styles.inputInvalid : ""}`}
+              name="phone"
+              type="tel"
+              inputMode="tel"
+              autoComplete="tel"
+              placeholder="05XX XXX XX XX"
+              aria-invalid={fieldErrors.phone ? true : undefined}
+              required
+            />
+          </div>
           {fieldErrors.phone ? (
             <p className={styles.fieldError} role="alert">
               {fieldErrors.phone}
@@ -171,16 +212,21 @@ export default function KayitForm({ next }: { next: string }) {
           <label className={styles.fieldLabel} htmlFor="kayit-email">
             E-posta
           </label>
-          <input
-            id="kayit-email"
-            className={`${styles.input} ${fieldErrors.email ? styles.inputInvalid : ""}`}
-            name="email"
-            type="email"
-            autoComplete="email"
-            placeholder="ornek@eposta.com"
-            aria-invalid={fieldErrors.email ? true : undefined}
-            required
-          />
+          <div className={styles.inputWrap}>
+            <span className={styles.inputIcon}>
+              <Mail aria-hidden="true" />
+            </span>
+            <input
+              id="kayit-email"
+              className={`${styles.input} ${fieldErrors.email ? styles.inputInvalid : ""}`}
+              name="email"
+              type="email"
+              autoComplete="email"
+              placeholder="ornek@eposta.com"
+              aria-invalid={fieldErrors.email ? true : undefined}
+              required
+            />
+          </div>
           {fieldErrors.email && (
             <p className={styles.fieldError} role="alert">
               {fieldErrors.email}
@@ -192,7 +238,10 @@ export default function KayitForm({ next }: { next: string }) {
           <label className={styles.fieldLabel} htmlFor="kayit-password">
             Parola
           </label>
-          <div className={styles.inputWrap}>
+          <div className={`${styles.inputWrap} ${styles.pwWrap}`}>
+            <span className={styles.inputIcon}>
+              <Lock aria-hidden="true" />
+            </span>
             <input
               id="kayit-password"
               className={`${styles.input} ${fieldErrors.password ? styles.inputInvalid : ""}`}
@@ -202,6 +251,7 @@ export default function KayitForm({ next }: { next: string }) {
               placeholder="En az 6 karakter"
               minLength={6}
               aria-invalid={fieldErrors.password ? true : undefined}
+              onChange={(e) => setPasswordValue(e.currentTarget.value)}
               required
             />
             <button
@@ -217,6 +267,23 @@ export default function KayitForm({ next }: { next: string }) {
               )}
             </button>
           </div>
+          {passwordValue.length > 0 && (
+            <div
+              className={`${styles.pwMeter} ${STRENGTH_CLASS[strength.level]}`}
+            >
+              <div className={styles.pwBars} aria-hidden="true">
+                {[1, 2, 3].map((step) => (
+                  <span
+                    key={step}
+                    className={`${styles.pwBar} ${step <= strength.level ? styles.pwBarOn : ""}`}
+                  />
+                ))}
+              </div>
+              <span className={styles.pwLabel} aria-live="polite">
+                {strength.label}
+              </span>
+            </div>
+          )}
           {fieldErrors.password && (
             <p className={styles.fieldError} role="alert">
               {fieldErrors.password}

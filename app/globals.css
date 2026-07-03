@@ -184,6 +184,14 @@ p { margin: 0; }
   background: var(--accent-deep);
   transform: translateY(-1px);
 }
+/* Büyük birincil CTA — hero ve dönüşüm noktaları */
+.btn--lg {
+  height: 52px;
+  padding: 0 28px;
+  font-size: var(--fs-body);
+  font-weight: 600;
+}
+.btn--lg svg { width: 16px; height: 16px; }
 /* Apple-style hover-fill buton (21st.dev pattern) */
 .btn-apple {
   position: relative;

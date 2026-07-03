@@ -287,11 +287,46 @@
   font-size: var(--fs-body);
 }
 
-.hint {
-  margin-top: 10px;
-  font-size: var(--fs-micro);
-  color: var(--gray-500);
+/* Ücretsiz teslimat ilerlemesi — özetin başında (free_delivery_over > 0).
+   Eşiğin altında turuncu bar + kalan tutar; eşik aşılınca yeşil dolu bar. */
+.freeShip {
+  display: grid;
+  gap: 7px;
+  margin-bottom: 14px;
+  padding: 12px;
+  background: var(--gray-50);
+  border-radius: var(--r-md);
 }
+.freeShipText {
+  font-size: var(--fs-small);
+  font-weight: 600;
+  color: var(--gray-700);
+}
+.freeShipText strong {
+  color: var(--accent-deep);
+  font-variant-numeric: tabular-nums;
+}
+.freeShipTextDone {
+  color: #159b57;
+}
+.freeShipBar {
+  display: block;
+  height: 7px;
+  border-radius: var(--r-pill);
+  background: var(--gray-200);
+  overflow: hidden;
+}
+.freeShipFill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--accent);
+  transition: width 300ms var(--ease);
+}
+.freeShipFillDone {
+  background: #159b57;
+}
+
 .warn {
   margin-top: 10px;
   font-size: var(--fs-micro);

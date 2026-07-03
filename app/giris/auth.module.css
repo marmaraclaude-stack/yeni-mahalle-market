@@ -1,6 +1,6 @@
 /* Giriş / Kayıt sayfaları ortak stilleri (global token'lardan miras alır).
-   Mobil: tek form kartı. >=960px: iki panelli kart, solda koyu marka paneli,
-   sağda form paneli. */
+   Mobil: üstte kısa marka bandı + form kartı.
+   >=960px: iki panelli kart, solda gradient marka paneli, sağda form paneli. */
 
 .page {
   min-height: 80dvh;
@@ -30,6 +30,7 @@
   border-radius: var(--r-xl);
   overflow: hidden;
   display: grid;
+  box-shadow: 0 12px 34px rgba(16, 16, 16, 0.06);
 }
 @media (min-width: 960px) {
   .authCard {
@@ -39,57 +40,149 @@
   }
 }
 
-/* Sol marka paneli (yalnız >=960px görünür) */
+/* Marka paneli: derin gradient + köşede soft accent glow.
+   Mobilde kısa bant (logo + tek cümle), >=960px tam panel. */
 .brandPanel {
-  display: none;
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: linear-gradient(135deg, #0a0a0a 0%, #120d06 58%, #1a1208 100%);
+  color: var(--white);
+  padding: 18px 20px;
+}
+.brandPanel::before {
+  content: "";
+  position: absolute;
+  top: -140px;
+  right: -140px;
+  width: 360px;
+  height: 360px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(255, 90, 31, 0.32) 0%,
+    rgba(255, 90, 31, 0.1) 45%,
+    transparent 70%
+  );
+  filter: blur(24px);
+  pointer-events: none;
+  z-index: -1;
+}
+.brandPanel::after {
+  content: "";
+  position: absolute;
+  bottom: -160px;
+  left: -160px;
+  width: 320px;
+  height: 320px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(255, 90, 31, 0.12) 0%,
+    transparent 70%
+  );
+  filter: blur(28px);
+  pointer-events: none;
+  z-index: -1;
 }
 @media (min-width: 960px) {
   .brandPanel {
-    display: flex;
-    flex-direction: column;
     gap: 18px;
-    background: #0a0a0a;
-    color: var(--white);
     padding: 44px 40px;
   }
 }
+
 .brandHead {
   display: flex;
   align-items: center;
   gap: 12px;
 }
 .brandLogo {
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
   background: var(--white);
   padding: 3px;
   flex-shrink: 0;
 }
 .brandName {
   font-family: var(--font-brand);
-  font-size: 20px;
+  font-size: 17px;
   font-weight: 700;
   letter-spacing: -0.01em;
   color: var(--white);
 }
+@media (min-width: 960px) {
+  .brandLogo {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+  }
+  .brandName {
+    font-size: 20px;
+  }
+}
+
+/* Ortadaki büyük değer cümlesi + destek metni */
+.brandCenter {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+@media (min-width: 960px) {
+  .brandCenter {
+    margin-block: auto;
+    padding-block: 24px;
+  }
+}
+.brandValue {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.3;
+  color: var(--white);
+}
+@media (min-width: 960px) {
+  .brandValue {
+    font-size: var(--fs-h3);
+    letter-spacing: -0.035em;
+    line-height: 1.15;
+    max-width: 300px;
+  }
+}
 .brandTagline {
-  margin: 4px 0 0;
+  display: none;
+  margin: 0;
   font-size: 15px;
   line-height: 1.6;
   color: rgba(255, 255, 255, 0.72);
   max-width: 320px;
 }
+@media (min-width: 960px) {
+  .brandTagline {
+    display: block;
+  }
+}
 
-/* Değer önerisi maddeleri: panelin altına yaslanır */
+/* Değer önerisi maddeleri (yalnız >=960px) */
 .valueList {
+  display: none;
   list-style: none;
-  margin: auto 0 0;
+  margin: 0;
   padding: 26px 0 0;
   border-top: 1px solid rgba(255, 255, 255, 0.12);
-  display: flex;
   flex-direction: column;
   gap: 16px;
+}
+@media (min-width: 960px) {
+  .valueList {
+    display: flex;
+  }
 }
 .valueItem {
   display: flex;
@@ -113,6 +206,34 @@
 .valueIcon svg {
   width: 17px;
   height: 17px;
+}
+
+/* Sosyal kanıt: yıldızlar + Google puanı (yalnız >=960px) */
+.proofRow {
+  display: none;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  padding-top: 20px;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.78);
+}
+@media (min-width: 960px) {
+  .proofRow {
+    display: flex;
+  }
+}
+.proofStars {
+  display: inline-flex;
+  gap: 2px;
+  color: #f5a623;
+  flex-shrink: 0;
+}
+.proofStars svg {
+  width: 14px;
+  height: 14px;
+  fill: currentColor;
 }
 
 /* Sağ form paneli */
@@ -193,11 +314,34 @@
   box-shadow: 0 0 0 3px #fdeceb;
 }
 
-/* Parola göster/gizle */
+/* Input sarmalayıcı: solda ikon, gerekirse sağda parola toggle */
 .inputWrap {
   position: relative;
 }
 .inputWrap .input {
+  padding-left: 44px;
+}
+.inputIcon {
+  position: absolute;
+  top: 50%;
+  left: 14px;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  color: var(--gray-500);
+  pointer-events: none;
+  transition: color 150ms var(--ease);
+}
+.inputIcon svg {
+  width: 17px;
+  height: 17px;
+}
+.inputWrap:focus-within .inputIcon {
+  color: var(--accent);
+}
+
+/* Parola göster/gizle */
+.pwWrap .input {
   padding-right: 46px;
 }
 .pwToggle {
@@ -226,6 +370,51 @@
   height: 18px;
 }
 
+/* Parola gücü göstergesi (kayıt, client-only) */
+.pwMeter {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 2px;
+}
+.pwBars {
+  display: flex;
+  gap: 4px;
+  flex: 1;
+}
+.pwBar {
+  height: 4px;
+  flex: 1;
+  border-radius: 999px;
+  background: var(--gray-200);
+  transition: background 200ms var(--ease);
+}
+.pwWeak .pwBarOn {
+  background: #e74c3c;
+}
+.pwMedium .pwBarOn {
+  background: #e67e22;
+}
+.pwStrong .pwBarOn {
+  background: #159b57;
+}
+.pwLabel {
+  font-size: 12px;
+  font-weight: 600;
+  flex-shrink: 0;
+  min-width: 40px;
+  text-align: right;
+}
+.pwWeak .pwLabel {
+  color: #c0392b;
+}
+.pwMedium .pwLabel {
+  color: #b9640f;
+}
+.pwStrong .pwLabel {
+  color: #0c6b3d;
+}
+
 /* Alan altı hata mesajı */
 .fieldError {
   margin: 0;
@@ -251,13 +440,21 @@
   line-height: 1.45;
 }
 
-/* Büyük accent submit + loading */
+/* Büyük accent submit: 52px tam genişlik + hover lift */
 .submit {
   width: 100%;
-  height: 50px;
+  height: 52px;
   margin-top: 4px;
   font-size: 15px;
   font-weight: 600;
+}
+.submit:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 26px rgba(255, 90, 31, 0.28);
+}
+.submit:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: none;
 }
 .submit:disabled {
   opacity: 0.75;
@@ -323,14 +520,22 @@
   line-height: 1.5;
 }
 
-/* Alt geçiş bağlantısı (giriş / kayıt) */
+/* Alt geçiş bağlantısı: iki yanı çizgili ayraç + link */
 .switchLine {
-  margin: 20px 0 0;
-  padding-top: 18px;
-  border-top: 1px solid var(--gray-100);
+  margin: 24px 0 0;
+  display: flex;
+  align-items: center;
+  gap: 14px;
   font-size: 13.5px;
   color: var(--gray-700);
   text-align: center;
+}
+.switchLine::before,
+.switchLine::after {
+  content: "";
+  height: 1px;
+  flex: 1;
+  background: var(--gray-200);
 }
 .switchLine a {
   color: var(--accent-deep);

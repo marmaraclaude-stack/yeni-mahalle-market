@@ -414,6 +414,32 @@
   transform: none;
 }
 
+/* Güven satırı — submit butonunun altında ikonlu üçlü */
+.trustRow {
+  list-style: none;
+  margin: 14px 0 0;
+  padding: 12px 0 0;
+  border-top: 1px dashed var(--gray-200);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 6px 16px;
+}
+.trustRow li {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--fs-micro);
+  font-weight: 500;
+  color: var(--gray-500);
+  white-space: nowrap;
+}
+.trustRow svg {
+  flex-shrink: 0;
+  color: #159b57;
+}
+
 .backLink {
   display: block;
   text-align: center;

@@ -1,12 +1,12 @@
 "use client";
 
 // Giriş formu: Supabase browser client ile e-posta + parola girişi.
-// Alan bazlı doğrulama, parola göster/gizle, loading durumu.
-// Başarıda ?next= hedefine (varsayılan /hesap) yönlendirir.
+// Alan bazlı doğrulama, sol ikonlu input'lar, parola göster/gizle,
+// loading durumu. Başarıda ?next= hedefine (varsayılan /hesap) yönlendirir.
 
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Lock, Mail } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import styles from "./auth.module.css";
 
@@ -78,16 +78,21 @@ export default function GirisForm({ next }: { next: string }) {
         <label className={styles.fieldLabel} htmlFor="giris-email">
           E-posta
         </label>
-        <input
-          id="giris-email"
-          className={`${styles.input} ${fieldErrors.email ? styles.inputInvalid : ""}`}
-          name="email"
-          type="email"
-          autoComplete="email"
-          placeholder="ornek@eposta.com"
-          aria-invalid={fieldErrors.email ? true : undefined}
-          required
-        />
+        <div className={styles.inputWrap}>
+          <span className={styles.inputIcon}>
+            <Mail aria-hidden="true" />
+          </span>
+          <input
+            id="giris-email"
+            className={`${styles.input} ${fieldErrors.email ? styles.inputInvalid : ""}`}
+            name="email"
+            type="email"
+            autoComplete="email"
+            placeholder="ornek@eposta.com"
+            aria-invalid={fieldErrors.email ? true : undefined}
+            required
+          />
+        </div>
         {fieldErrors.email && (
           <p className={styles.fieldError} role="alert">
             {fieldErrors.email}
@@ -99,7 +104,10 @@ export default function GirisForm({ next }: { next: string }) {
         <label className={styles.fieldLabel} htmlFor="giris-password">
           Parola
         </label>
-        <div className={styles.inputWrap}>
+        <div className={`${styles.inputWrap} ${styles.pwWrap}`}>
+          <span className={styles.inputIcon}>
+            <Lock aria-hidden="true" />
+          </span>
           <input
             id="giris-password"
             className={`${styles.input} ${fieldErrors.password ? styles.inputInvalid : ""}`}

@@ -52,10 +52,12 @@ export default async function KayitPage({
         <KayitForm next={next} />
 
         <p className={styles.switchLine}>
-          Zaten hesabın var mı?{" "}
-          <Link href={`/giris?next=${encodeURIComponent(next)}`}>
-            Giriş yap
-          </Link>
+          <span>
+            Zaten hesabın var mı?{" "}
+            <Link href={`/giris?next=${encodeURIComponent(next)}`}>
+              Giriş yap
+            </Link>
+          </span>
         </p>
       </AuthShell>
     </>

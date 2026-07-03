@@ -18,7 +18,9 @@ import {
   categoryBySlug,
 } from "@/lib/shop/categories";
 import { BUSINESS } from "@/lib/business";
+import { getShopSettings } from "@/lib/shop/settings";
 import SiteNav from "@/components/SiteNav";
+import PromoBanners from "@/components/shop/PromoBanners";
 import CategoryRail from "@/components/shop/CategoryRail";
 import CategorySidebar from "@/components/shop/CategorySidebar";
 import CartPanel from "@/components/shop/CartPanel";
@@ -60,6 +62,10 @@ export default async function UrunlerPage({
   const q = (first(sp.q) ?? "").trim();
   // Geçersiz kategori slug'ı sessizce yok sayılır (tüm ürünler listelenir)
   const category = categoryBySlug(first(sp.k) ?? "");
+
+  // Teslimat ayarları — CartPanel'deki ücretsiz teslimat ilerlemesi için
+  // (tablo yoksa makul default döner, sayfa patlamaz).
+  const settings = await getShopSettings();
 
   let products: Product[] = [];
   let dbError = false;
@@ -123,6 +129,9 @@ export default async function UrunlerPage({
             </div>
             <SearchBox q={q || undefined} k={category?.slug} />
           </header>
+
+          {/* Kampanya banner'ları — başlık ile katalog düzeni arasında */}
+          <PromoBanners />
         </div>
 
         {/* Mobil/tablet: sticky kategori pill barı (masaüstünde gizli) */}
@@ -248,7 +257,10 @@ export default async function UrunlerPage({
             </div>
 
             {/* Masaüstü: sağ "Sepetim" paneli */}
-            <CartPanel />
+            <CartPanel
+              deliveryFee={settings.delivery_fee}
+              freeDeliveryOver={settings.free_delivery_over}
+            />
           </div>
         </div>
       </main>

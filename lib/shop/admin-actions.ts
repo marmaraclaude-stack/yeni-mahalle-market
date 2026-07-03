@@ -91,6 +91,33 @@ export interface CouponActionResult {
   error?: string;
 }
 
+/** createBanner girdisi — id/created_at sunucuda üretilir. */
+export interface NewBannerInput {
+  title: string;
+  subtitle?: string;
+  cta_text?: string;
+  cta_href?: string;
+  tint?: number; // CATEGORY_TINTS index (0-7)
+  sort?: number;
+}
+
+/** updateBanner için kısmi alanlar — id (PK) değiştirilemez. */
+export interface BannerPatch {
+  title?: string;
+  subtitle?: string;
+  cta_text?: string;
+  cta_href?: string;
+  tint?: number;
+  is_active?: boolean;
+  sort?: number;
+}
+
+/** Banner action'larının dönüş tipi — hata mesajı client'a güvenle taşınır. */
+export interface BannerActionResult {
+  ok: boolean;
+  error?: string;
+}
+
 const ORDER_STATUSES: OrderStatus[] = [
   "new",
   "confirmed",
@@ -713,5 +740,175 @@ export async function deleteCoupon(code: string): Promise<CouponActionResult> {
     return { ok: false, error: couponDbError(error, "Kupon silinemedi") };
   }
   revalidatePath("/admin/kuponlar");
+  return { ok: true };
+}
+
+// ------------------------------------------------------------
+// Bannerlar
+// ------------------------------------------------------------
+
+/** banners tablosu henüz kurulmamışsa anlaşılır Türkçe mesaj üret. */
+function bannerDbError(
+  error: { code?: string; message: string },
+  fallback: string,
+): string {
+  const missingTable =
+    error.code === "42P01" || // Postgres: undefined_table
+    error.code === "PGRST205" || // PostgREST: tablo şema önbelleğinde yok
+    /banners/i.test(error.message) &&
+      /does not exist|could not find the table|schema cache/i.test(error.message);
+  if (missingTable) {
+    return "Banner tablosu kurulmamış, migration'ı çalıştırın.";
+  }
+  return `${fallback}: ${error.message}`;
+}
+
+/** Banner değişince admin listesi + banner gösteren vitrin sayfalarını tazele. */
+function revalidateBannerPages(): void {
+  revalidatePath("/admin/bannerlar");
+  revalidatePath("/");
+  revalidatePath("/urunler");
+}
+
+/** tint 0-7 arası tam sayı mı? */
+function isValidTint(tint: number): boolean {
+  return Number.isInteger(tint) && tint >= 0 && tint <= 7;
+}
+
+/**
+ * CTA çiftini doğrula: metin varsa link zorunlu, link göreli yol ("/...")
+ * veya http(s) URL olmalı. Sorun varsa hata mesajı döner.
+ */
+function validateBannerCta(ctaText: string, ctaHref: string): string | null {
+  if (ctaText && !ctaHref) {
+    return "CTA metni girildiyse CTA linki de zorunlu.";
+  }
+  if (ctaHref && !/^(\/|https?:\/\/)/.test(ctaHref)) {
+    return "CTA linki / ile başlamalı (örn. /firsatlar) veya tam URL olmalı.";
+  }
+  return null;
+}
+
+/** Yeni banner oluştur — başlık zorunlu, tint 0-7. */
+export async function createBanner(
+  input: NewBannerInput,
+): Promise<BannerActionResult> {
+  await requireAdmin();
+
+  const title = input.title.trim();
+  if (!title) return { ok: false, error: "Banner başlığı boş olamaz." };
+
+  const tint = input.tint ?? 0;
+  if (!isValidTint(tint)) {
+    return { ok: false, error: "Geçersiz renk (tint 0-7 arası olmalı)." };
+  }
+  const sort = input.sort ?? 0;
+  if (!Number.isInteger(sort)) {
+    return { ok: false, error: "Sıra tam sayı olmalı." };
+  }
+  const ctaText = (input.cta_text ?? "").trim();
+  const ctaHref = (input.cta_href ?? "").trim();
+  const ctaError = validateBannerCta(ctaText, ctaHref);
+  if (ctaError) return { ok: false, error: ctaError };
+
+  const supabase = createAdminClient();
+  const { error } = await supabase.from("banners").insert({
+    title,
+    subtitle: (input.subtitle ?? "").trim(),
+    cta_text: ctaText,
+    cta_href: ctaHref,
+    tint,
+    sort,
+  });
+  if (error) {
+    return { ok: false, error: bannerDbError(error, "Banner eklenemedi") };
+  }
+  revalidateBannerPages();
+  return { ok: true };
+}
+
+/** Banner alanlarını kısmi güncelle (sıra değişikliği de buradan). */
+export async function updateBanner(
+  id: string,
+  patch: BannerPatch,
+): Promise<BannerActionResult> {
+  await requireAdmin();
+  if (!id.trim()) return { ok: false, error: "Geçersiz banner." };
+
+  const clean: Record<string, unknown> = {};
+  if (patch.title !== undefined) {
+    const title = patch.title.trim();
+    if (!title) return { ok: false, error: "Banner başlığı boş olamaz." };
+    clean.title = title;
+  }
+  if (patch.subtitle !== undefined) clean.subtitle = patch.subtitle.trim();
+  if (patch.cta_text !== undefined || patch.cta_href !== undefined) {
+    // CTA çifti birlikte doğrulanır; eksik olan mevcut satırdan okunmaz,
+    // bu yüzden ikisinden biri değişiyorsa ikisi de gönderilmelidir.
+    if (patch.cta_text === undefined || patch.cta_href === undefined) {
+      return { ok: false, error: "CTA metni ve linki birlikte güncellenmeli." };
+    }
+    const ctaText = patch.cta_text.trim();
+    const ctaHref = patch.cta_href.trim();
+    const ctaError = validateBannerCta(ctaText, ctaHref);
+    if (ctaError) return { ok: false, error: ctaError };
+    clean.cta_text = ctaText;
+    clean.cta_href = ctaHref;
+  }
+  if (patch.tint !== undefined) {
+    if (!isValidTint(patch.tint)) {
+      return { ok: false, error: "Geçersiz renk (tint 0-7 arası olmalı)." };
+    }
+    clean.tint = patch.tint;
+  }
+  if (patch.sort !== undefined) {
+    if (!Number.isInteger(patch.sort)) {
+      return { ok: false, error: "Sıra tam sayı olmalı." };
+    }
+    clean.sort = patch.sort;
+  }
+  if (patch.is_active !== undefined) clean.is_active = patch.is_active;
+  if (Object.keys(clean).length === 0) return { ok: true };
+
+  const supabase = createAdminClient();
+  const { error } = await supabase.from("banners").update(clean).eq("id", id);
+  if (error) {
+    return { ok: false, error: bannerDbError(error, "Banner güncellenemedi") };
+  }
+  revalidateBannerPages();
+  return { ok: true };
+}
+
+/** Banner'ı aktif/pasif yap (vitrinde göster/gizle). */
+export async function toggleBanner(
+  id: string,
+  active: boolean,
+): Promise<BannerActionResult> {
+  await requireAdmin();
+  if (!id.trim()) return { ok: false, error: "Geçersiz banner." };
+
+  const supabase = createAdminClient();
+  const { error } = await supabase
+    .from("banners")
+    .update({ is_active: active })
+    .eq("id", id);
+  if (error) {
+    return { ok: false, error: bannerDbError(error, "Banner durumu değiştirilemedi") };
+  }
+  revalidateBannerPages();
+  return { ok: true };
+}
+
+/** Banner'ı kalıcı olarak sil. */
+export async function deleteBanner(id: string): Promise<BannerActionResult> {
+  await requireAdmin();
+  if (!id.trim()) return { ok: false, error: "Geçersiz banner." };
+
+  const supabase = createAdminClient();
+  const { error } = await supabase.from("banners").delete().eq("id", id);
+  if (error) {
+    return { ok: false, error: bannerDbError(error, "Banner silinemedi") };
+  }
+  revalidateBannerPages();
   return { ok: true };
 }

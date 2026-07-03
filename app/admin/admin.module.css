@@ -1154,6 +1154,55 @@
 }
 
 /* ============================================================
+   Bannerlar
+   ============================================================ */
+/* Tint renk önizleme yuvarlağı: zemin rengi arkada, ortadaki nokta
+   koyu yazı rengini (currentColor — inline style ile verilir) gösterir. */
+.tintDot {
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  border: 1px solid rgba(10, 10, 10, 0.1);
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tintDot::after {
+  content: "";
+  width: 9px;
+  height: 9px;
+  border-radius: 999px;
+  background: currentColor;
+}
+
+.bannerCell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 240px;
+}
+
+/* Satır içi sıra düzenleme: dar input + değişince beliren Kaydet */
+.sortForm {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sortForm .inputSm { width: 64px; }
+
+/* Formda tint select'inin solunda canlı renk önizlemesi */
+.tintSelectWrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tintSelectWrap .select { flex: 1; }
+
+/* ============================================================
    Sohbet listesi (SessionList — sınıf adları korunur)
    ============================================================ */
 .list {

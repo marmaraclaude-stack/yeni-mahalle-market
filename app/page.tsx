@@ -3,6 +3,7 @@ import ReviewsRail from "@/components/ReviewsRail";
 import StatusIndicator from "@/components/StatusIndicator";
 import ChatPreview from "@/components/ChatPreview";
 import SiteNav from "@/components/SiteNav";
+import PromoBanners from "@/components/shop/PromoBanners";
 import Carousel from "@/components/Carousel";
 import CategoryGrid from "@/components/CategoryGrid";
 import { Check, ShoppingBasket, Package, Bike } from "lucide-react";
@@ -107,8 +108,9 @@ export default function Home() {
                   siparişini oluştur, kapına getirelim.
                 </p>
 
+                {/* CTA hiyerarşisi: birincil büyük accent, ikincil ghost */}
                 <div className="hero__ctas">
-                  <a href="/urunler" className="btn btn--accent">
+                  <a href="/urunler" className="btn btn--accent btn--lg">
                     Alışverişe Başla <ArrowRight />
                   </a>
                   <a href="#hizmetler" className="btn btn--ghost">
@@ -157,6 +159,9 @@ export default function Home() {
             </div>
           </div>
         </section>
+
+        {/* ===== KAMPANYA BANNER'LARI — hero'nun hemen altında ===== */}
+        <PromoBanners variant="home" />
 
         {/* ===== FEATURES — Apple-style split rows ===== */}
         <section className="section" aria-label="Hizmetler">
