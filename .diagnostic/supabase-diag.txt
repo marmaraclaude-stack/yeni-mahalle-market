@@ -1,10 +1,12 @@
-== 1) Site ref taraması (derin) ==
-Bulunan ref(ler):  
-Anon key bulundu mu: hayır
-== 3) Hedef projeye (vkaknwulaatzgucclvzn) chat şeması (idempotent değil, hata olabilir) ==
-chat_schema -> HTTP 400 {"message":"Failed to run sql query: ERROR:  42P07: relation \"chat_sessions\" already exists\n"}
-== 4) Hedef proje doğrulama ==
-[{"kategoriler":30,"urunler":284}]
-== 5) Hedef projenin URL'i (Vercel için) ==
-https://vkaknwulaatzgucclvzn.supabase.co
-SONUC: TAMAM
+== 1) Supabase API anahtarları ==
+anon + service_role alındı
+== 2) Vercel projesi bul ==
+Proje: yeni-mahalle-market (prj_7Mimaug4xxHRH1xA1kjHZiAdZMei) repoId=1247475205 team=kişisel
+== 3) Env değişkenleri (upsert) ==
+env upsert -> HTTP 201 
+== 4) Production yeniden deploy ==
+deploy -> HTTP 200 id=dpl_GcZAYyxpgSfLPrJi7Lk24zMRREPK 
+== 5) Deploy bekleniyor ==
+deploy durumu: READY
+== 6) /urunler doğrulaması ==
+SONUC: KATALOG CANLI ✓ (bulunan markalar: Coca-Cola Sütaş Ülker )
