@@ -145,7 +145,10 @@ export function buildLocalBusinessJsonLd() {
           "Sunday",
         ],
         opens: BUSINESS.hours.opens,
-        closes: BUSINESS.hours.closes,
+        // Gece yarısına kadar açık: Google, closes "00:00"'ı "gün başı" (07:30'dan
+        // önce kapanış) diye yanlış okuyabiliyor. Önerilen gösterim "23:59".
+        // İnsan tarafındaki metin ("07:30 – 00:00") ayrı, etkilenmiyor.
+        closes: "23:59",
       },
     ],
     areaServed: SERVICE_AREAS.map((name) => ({ "@type": "Place", name })),
