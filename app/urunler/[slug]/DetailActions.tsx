@@ -7,8 +7,10 @@
 // + "mağazadan alınır" notu; stok yoksa buton disabled.
 
 import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   Check,
+  CreditCard,
   Minus,
   PackageX,
   Plus,
@@ -24,6 +26,7 @@ import styles from "./urun.module.css";
 const MAX_QTY = 99;
 
 export default function DetailActions({ product }: { product: Product }) {
+  const router = useRouter();
   const { add, lines, setQty: setCartQty } = useCart();
   const [qty, setQty] = useState(1);
   const [added, setAdded] = useState(false);
@@ -86,6 +89,12 @@ export default function DetailActions({ product }: { product: Product }) {
     timer.current = setTimeout(() => setAdded(false), 1400);
   };
 
+  // Satın Al — seçili adedi sepete ekle, ardından ödeme sayfasına geç.
+  const handleBuyNow = () => {
+    add(product, qty);
+    router.push("/odeme");
+  };
+
   const lineTotal = formatTL(Math.round(product.price * qty * 100) / 100);
 
   return (
@@ -135,6 +144,18 @@ export default function DetailActions({ product }: { product: Product }) {
               <span className={styles.addBtnPrice}>{lineTotal}</span>
             </>
           )}
+        </button>
+
+        <button
+          type="button"
+          className={styles.buyNowBtn}
+          onClick={handleBuyNow}
+          aria-label={`${product.name}, ${qty} adet satın al`}
+        >
+          <span className={styles.addBtnMain}>
+            <CreditCard size={18} strokeWidth={2.1} aria-hidden="true" />
+            Satın Al
+          </span>
         </button>
       </div>
 

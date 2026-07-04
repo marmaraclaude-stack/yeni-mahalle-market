@@ -1,51 +1,154 @@
 /* ============================================================
-   İletişim (/iletisim) — solda harita kartı (adres + yol tarifi),
-   sağda kanal kartları, çalışma saatleri şeridi ve mini SSS.
-   Token'lar globals.css'ten.
+   İletişim (/iletisim): davetkar hero, iletişim kanalı kart grid'i,
+   tam genişlik harita kartı, çalışma saatleri şeridi ve SSS accordion'ı.
+   Token'lar globals.css'ten; yeni token yok.
    ============================================================ */
 
 .page {
-  padding: 0 0 80px;
+  padding: 0 0 clamp(56px, 8vw, 96px);
   min-height: calc(100dvh - 69px);
   background: var(--white);
 }
 
-/* --- Sayfa başı --- */
-.head {
+/* --- Hero --- */
+.hero {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  padding: clamp(24px, 4vw, 44px) 0 clamp(18px, 2.5vw, 28px);
+  align-items: flex-start;
+  gap: 14px;
+  padding: clamp(32px, 5vw, 64px) 0 clamp(28px, 4vw, 48px);
+  max-width: 720px;
 }
-/* Sayfa başlığı ritmi: H1 = fs-h2, 700, -0.035em (tüm alt sayfalarda aynı) */
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 13px;
+  border-radius: var(--r-pill);
+  background: var(--accent-soft);
+  color: var(--accent-deep);
+  font-size: var(--fs-eyebrow);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
 .title {
   font-family: var(--font-display);
-  font-size: var(--fs-h2);
+  font-size: var(--fs-h1);
   font-weight: 700;
-  letter-spacing: -0.035em;
+  line-height: 1.04;
+  letter-spacing: -0.04em;
+  text-wrap: balance;
+}
+.titleAccent {
+  color: var(--accent);
 }
 .sub {
   color: var(--gray-500);
-  font-size: var(--fs-body);
+  font-size: var(--fs-lead);
+  line-height: 1.55;
   max-width: var(--measure);
 }
-
-/* --- Ana blok: harita + kanal kartları --- */
-.mainGrid {
-  display: grid;
-  gap: 16px;
+.heroActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 8px;
 }
-@media (min-width: 900px) {
-  .mainGrid {
-    grid-template-columns: 1.6fr 1fr;
-    align-items: stretch;
+
+/* --- İletişim kanalı kartları --- */
+.channels {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+}
+@media (min-width: 620px) {
+  .channels {
+    grid-template-columns: 1fr 1fr;
   }
 }
+@media (min-width: 1040px) {
+  .channels {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+.channelCard {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: clamp(20px, 2.4vw, 26px);
+  background: var(--white);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--r-lg);
+  color: inherit;
+  transition: box-shadow 200ms var(--ease), border-color 200ms var(--ease),
+    transform 200ms var(--ease);
+}
+/* Hover yalnız etkileşimli (link) kartlarda */
+a.channelCard:hover {
+  border-color: var(--gray-300);
+  box-shadow: 0 10px 24px -14px rgba(10, 10, 10, 0.18);
+  transform: translateY(-2px);
+}
+.channelIcon {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+.channelIconGreen {
+  background: #eafaf0;
+  color: #159b57;
+}
+.channelIconPink {
+  background: #fce7f3;
+  color: #be185d;
+}
+.channelIconBlue {
+  background: #e8f1ff;
+  color: #1d5fd8;
+}
+.channelText {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+.channelLabel {
+  color: var(--gray-500);
+  font-size: var(--fs-micro);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+.channelValueLg {
+  font-family: var(--font-display);
+  font-size: var(--fs-h4);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+.channelValue {
+  font-weight: 600;
+  font-size: var(--fs-body);
+  letter-spacing: -0.01em;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+.channelNote {
+  color: var(--gray-500);
+  font-size: var(--fs-small);
+  line-height: 1.45;
+}
 
-/* Harita kartı: üstte adres satırı + yol tarifi, altta iframe */
+/* --- Harita kartı: üstte adres + yol tarifi, altta iframe --- */
 .mapCard {
   display: flex;
   flex-direction: column;
+  margin-top: clamp(20px, 3vw, 32px);
   border: 1px solid var(--gray-200);
   border-radius: var(--r-xl);
   overflow: hidden;
@@ -56,7 +159,7 @@
   align-items: center;
   gap: 14px;
   flex-wrap: wrap;
-  padding: clamp(14px, 1.8vw, 20px) clamp(16px, 2vw, 22px);
+  padding: clamp(14px, 1.8vw, 20px) clamp(16px, 2vw, 24px);
   background: var(--white);
   border-bottom: 1px solid var(--gray-200);
 }
@@ -81,6 +184,8 @@
   color: var(--gray-500);
   font-size: var(--fs-micro);
   font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
 }
 .mapText {
   font-size: var(--fs-body);
@@ -95,82 +200,9 @@
   display: block;
   width: 100%;
   height: 100%;
-  min-height: 340px;
+  min-height: 360px;
   border: 0;
   flex: 1;
-}
-
-/* Sağ kolon: telefon / canlı destek / Instagram kartları */
-.sideCol {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-.channelCard {
-  display: flex;
-  align-items: flex-start;
-  gap: 16px;
-  flex: 1;
-  padding: clamp(18px, 2.2vw, 26px);
-  background: var(--white);
-  border: 1px solid var(--gray-200);
-  border-radius: var(--r-lg);
-  color: inherit;
-  transition: box-shadow 200ms var(--ease), border-color 200ms var(--ease);
-}
-/* Hover gölgesi yalnız etkileşimli (link) kartlarda */
-a.channelCard:hover {
-  border-color: var(--gray-300);
-  box-shadow: 0 6px 16px rgba(10, 10, 10, 0.06);
-}
-.channelIcon {
-  display: grid;
-  place-items: center;
-  flex-shrink: 0;
-  width: 52px;
-  height: 52px;
-  border-radius: 50%;
-  background: var(--accent-soft);
-  color: var(--accent);
-}
-/* Canlı destek — çevrimiçi yeşili */
-.channelIconGreen {
-  background: #eafaf0;
-  color: #159b57;
-}
-.channelIconPink {
-  background: #fce7f3;
-  color: #be185d;
-}
-.channelText {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  min-width: 0;
-}
-.channelLabel {
-  color: var(--gray-500);
-  font-size: var(--fs-micro);
-  font-weight: 600;
-}
-/* Telefon: büyük, tıklanır numara */
-.phoneNumber {
-  font-family: var(--font-display);
-  font-size: var(--fs-h3);
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  font-variant-numeric: tabular-nums;
-  overflow-wrap: anywhere;
-}
-.channelValue {
-  font-weight: 600;
-  font-size: var(--fs-body);
-  letter-spacing: -0.01em;
-  overflow-wrap: anywhere;
-}
-.channelNote {
-  color: var(--gray-500);
-  font-size: var(--fs-small);
 }
 
 /* --- Çalışma saatleri şeridi --- */
@@ -181,7 +213,7 @@ a.channelCard:hover {
   gap: 14px;
   flex-wrap: wrap;
   margin-top: 16px;
-  padding: clamp(14px, 1.8vw, 20px) clamp(16px, 2vw, 22px);
+  padding: clamp(16px, 1.8vw, 22px) clamp(16px, 2vw, 24px);
   background: var(--gray-50);
   border: 1px solid var(--gray-200);
   border-radius: var(--r-lg);
@@ -216,16 +248,25 @@ a.channelCard:hover {
   font-size: var(--fs-small);
 }
 
-/* --- Mini SSS --- */
-.faq {
-  margin-top: clamp(32px, 4.5vw, 52px);
+/* --- SSS --- */
+.faqSection {
+  margin-top: var(--section-y);
+}
+.faqHead {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 18px;
 }
 .faqTitle {
   font-family: var(--font-display);
   font-size: var(--fs-h3);
   font-weight: 700;
-  letter-spacing: -0.02em;
-  margin-bottom: 14px;
+  letter-spacing: -0.025em;
+}
+.faqSub {
+  color: var(--gray-500);
+  font-size: var(--fs-body);
 }
 .faqList {
   display: flex;
@@ -236,18 +277,19 @@ a.channelCard:hover {
   background: var(--white);
   border: 1px solid var(--gray-200);
   border-radius: var(--r-lg);
-  padding: 0 clamp(16px, 2vw, 22px);
-  transition: border-color 200ms var(--ease);
+  padding: 0 clamp(16px, 2vw, 24px);
+  transition: border-color 200ms var(--ease), box-shadow 200ms var(--ease);
 }
 .faqItem[open] {
   border-color: var(--gray-300);
+  box-shadow: 0 8px 22px -16px rgba(10, 10, 10, 0.2);
 }
 .faqQ {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  padding: 16px 0;
+  gap: 16px;
+  padding: 18px 0;
   font-size: var(--fs-body);
   font-weight: 600;
   letter-spacing: -0.01em;
@@ -257,17 +299,52 @@ a.channelCard:hover {
 .faqQ::-webkit-details-marker {
   display: none;
 }
-.faqChevron {
-  flex-shrink: 0;
-  color: var(--gray-400);
-  transition: transform 200ms var(--ease);
+.faqQText {
+  min-width: 0;
 }
-.faqItem[open] .faqChevron {
-  transform: rotate(180deg);
+
+/* CSS ile çizilen +/- işareti (chevron değil).
+   Yatay çizgi daima görünür; dikey çizgi açıkken kaybolur → + döner - olur. */
+.faqMark {
+  position: relative;
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--accent-soft);
+  transition: background 200ms var(--ease);
+}
+.faqMark::before,
+.faqMark::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 10px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--accent);
+  transform: translate(-50%, -50%);
+  transition: opacity 200ms var(--ease), transform 200ms var(--ease);
+}
+.faqMark::after {
+  transform: translate(-50%, -50%) rotate(90deg);
+}
+.faqItem[open] .faqMark {
+  background: var(--accent);
+}
+.faqItem[open] .faqMark::before,
+.faqItem[open] .faqMark::after {
+  background: var(--white);
+}
+.faqItem[open] .faqMark::after {
+  opacity: 0;
+  transform: translate(-50%, -50%) rotate(0deg);
 }
 .faqA {
-  padding: 0 0 16px;
+  padding: 0 0 18px;
   color: var(--gray-700);
   font-size: var(--fs-small);
-  line-height: 1.6;
+  line-height: 1.65;
+  max-width: var(--measure);
 }

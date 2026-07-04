@@ -20,10 +20,10 @@
 }
 
 /* -------- Ana sayfa yerleşimi --------
-   Standart bölüm ritmi: diğer bölümlerle aynı nefes. Negatif margin
-   hack'i YOK; üst/alt boşluk global --section-y ile eşit. */
+   Banner, üstteki kategori bölümü ile alttaki bölümlere göre kompakt
+   dursun: tam --section-y çok açık kalıyordu, yarıya indirildi. */
 .homeSection {
-  padding-block: var(--section-y);
+  padding-block: clamp(18px, 1.8vw, 28px);
 }
 
 /* Banner sarmalayıcı = global .container davranışı (her ölçüde).

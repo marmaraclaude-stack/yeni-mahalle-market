@@ -93,16 +93,6 @@
 .profileInfo {
   min-width: 0;
 }
-.eyebrow {
-  display: block;
-  font-family: var(--font-sans);
-  font-size: 13px;
-  font-weight: 500;
-  letter-spacing: 0;
-  text-transform: none;
-  color: var(--gray-500);
-  margin-bottom: 2px;
-}
 .name {
   margin: 0;
   font-family: var(--font-display);

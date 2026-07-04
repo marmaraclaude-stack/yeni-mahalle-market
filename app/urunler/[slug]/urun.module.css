@@ -26,6 +26,9 @@
   .heroCard {
     grid-template-columns: minmax(0, 480px) minmax(0, 1fr);
     gap: clamp(32px, 4vw, 64px);
+    /* Sağ bilgi kolonu soldaki görselle dikey ortalı dursun; içerik
+       görselden uzunsa doğal aksar (grid item taşmaz). */
+    align-items: center;
   }
 }
 
@@ -322,6 +325,34 @@
   font-size: var(--fs-small);
 }
 
+/* Satın Al — ikincil/vurgulu buton (turuncu çerçeveli, beyaz zemin).
+   "Sepete Ekle" birincil turuncu kalır; ikisi görsel olarak dengeli durur. */
+.buyNowBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 54px;
+  padding: 0 22px;
+  min-width: 150px;
+  flex: 1 1 160px;
+  max-width: 240px;
+  border-radius: var(--r-md);
+  border: 1.5px solid var(--accent);
+  background: var(--white);
+  color: var(--accent-deep);
+  font-size: var(--fs-lead);
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  transition: background 180ms var(--ease), transform 180ms var(--ease),
+    border-color 180ms var(--ease);
+}
+.buyNowBtn:hover {
+  background: var(--accent-soft);
+  border-color: var(--accent-deep);
+}
+.buyNowBtn:active { transform: scale(0.985); }
+
 /* Sepette N adet — hızlı artır/azalt satırı */
 .inCart {
   display: flex;
@@ -427,37 +458,6 @@
   font-weight: 600;
   font-variant-numeric: tabular-nums;
   margin-top: 2px;
-}
-
-/* Teslimat / ödeme bilgi satırları — çerçeveli kutu */
-.infoList {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  margin-top: 16px;
-  padding: 16px 18px;
-  border: 1px solid var(--gray-200);
-  border-radius: var(--r-lg);
-  background: var(--gray-50);
-  list-style: none;
-}
-.infoRow {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  color: var(--gray-700);
-  font-size: var(--fs-small);
-  line-height: 1.4;
-}
-.infoIcon {
-  display: grid;
-  place-items: center;
-  flex-shrink: 0;
-  width: 34px;
-  height: 34px;
-  border-radius: var(--r-md);
-  background: #eafaf0;
-  color: #159b57;
 }
 
 /* --- "Ürün Hakkında" kartı --- */

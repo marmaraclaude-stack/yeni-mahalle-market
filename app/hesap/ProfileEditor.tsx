@@ -103,7 +103,6 @@ export default function ProfileEditor({
           <User />
         </div>
         <div className={styles.profileInfo}>
-          <span className={styles.eyebrow}>Hesabım</span>
           <h1 className={styles.name}>{displayName}</h1>
         </div>
       </div>

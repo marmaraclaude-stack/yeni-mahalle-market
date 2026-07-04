@@ -11,12 +11,11 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { cache } from "react";
-import { Bike, Wallet, ShieldCheck, Leaf, Timer } from "lucide-react";
+import { Leaf } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import type { Product } from "@/lib/shop/types";
 import { formatTL } from "@/lib/shop/types";
 import { CATEGORY_TINTS, categoryBySlug } from "@/lib/shop/categories";
-import { BUSINESS } from "@/lib/business";
 import ProductCard, { iconFor } from "@/components/shop/ProductCard";
 import SiteNav from "@/components/SiteNav";
 import DetailActions from "./DetailActions";
@@ -174,15 +173,13 @@ function unitPriceLabel(product: Product): string | null {
   return null;
 }
 
-/** Görsel üzerine küçük bilgi çipleri (opsiyonel, kategoriye göre). */
+/** Görsel üzerine küçük bilgi çipleri (opsiyonel, kategoriye göre).
+    Sadece taze kategoriler için "Günlük taze"; diğerlerinde çip yok. */
 function infoChips(categorySlug: string): { icon: typeof Leaf; label: string }[] {
-  const chips: { icon: typeof Leaf; label: string }[] = [
-    { icon: Timer, label: "30 dk teslimat" },
-  ];
   if (categorySlug === "meyve-sebze" || categorySlug === "ekmek-firin") {
-    chips.push({ icon: Leaf, label: "Günlük taze" });
+    return [{ icon: Leaf, label: "Günlük taze" }];
   }
-  return chips;
+  return [];
 }
 
 export async function generateMetadata({
@@ -277,7 +274,7 @@ export default async function UrunDetayPage({ params }: { params: Params }) {
               {!product.in_stock && (
                 <span className={styles.mediaOut}>Stokta yok</span>
               )}
-              {product.in_stock && (
+              {product.in_stock && chips.length > 0 && (
                 <div className={styles.chips} aria-hidden="true">
                   {chips.map((chip) => (
                     <span key={chip.label} className={styles.chip}>
@@ -339,32 +336,6 @@ export default async function UrunDetayPage({ params }: { params: Params }) {
               </p>
 
               <DetailActions product={product} />
-
-              <ul className={styles.infoList}>
-                <li className={styles.infoRow}>
-                  <span className={styles.infoIcon}>
-                    <Bike size={18} strokeWidth={2} aria-hidden="true" />
-                  </span>
-                  <span>
-                    Sapanca içinde yaklaşık 30 dakikada kapında teslim
-                  </span>
-                </li>
-                <li className={styles.infoRow}>
-                  <span className={styles.infoIcon}>
-                    <Wallet size={18} strokeWidth={2} aria-hidden="true" />
-                  </span>
-                  <span>Kapıda nakit veya kart ile güvenle ödeme</span>
-                </li>
-                <li className={styles.infoRow}>
-                  <span className={styles.infoIcon}>
-                    <ShieldCheck size={18} strokeWidth={2} aria-hidden="true" />
-                  </span>
-                  <span>
-                    Her gün {BUSINESS.hours.opens} - {BUSINESS.hours.closes} arası
-                    hizmetteyiz
-                  </span>
-                </li>
-              </ul>
             </div>
           </section>
 

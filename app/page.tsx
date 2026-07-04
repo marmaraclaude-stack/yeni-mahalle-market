@@ -153,8 +153,8 @@ export default function Home() {
                 <span className="accent">her şey.</span>
               </h2>
               <p className="section__sub">
-                Manavdan şarküteriye, mangal kömüründen şarj aletine. Aklına
-                geleni yaz, kapına getirelim.
+                Manavdan şarküteriye, mangal kömüründen şarj aletine. Sepetine
+                ekle, kapına getirelim.
               </p>
             </header>
 
