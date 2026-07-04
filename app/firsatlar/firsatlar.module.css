@@ -98,60 +98,60 @@
   }
 }
 
-/* --- Kampanyalar: premium bilet-tarzı kupon kartları (SADECE Geist) --------
-   Yatay ikili düzen: sol accent değer paneli (belirgin indirim) + dikey
-   dashed ayraç (bilet hissi) · sağ gövde (açıklama, tıkla-kopyala kod,
-   koşul satırı, tam genişlik "Kodu Kopyala" butonu). Tüm tipografi Geist
-   (var(--font-sans)); kod alanında bile mono/display font yoktur, yalnız
-   tabular-nums + harf aralığı okunurluğu artırır. 4 kupon 1-2 sütunda
-   ferah durur, kap tam genişliktir. */
+/* --- Kampanyalar: premium DİKEY bilet kartları (SADECE Geist) --------------
+   Kompakt dikey kart: (1) accent tint üst bölge — "İndirim Kuponu" rozeti +
+   büyük indirim değeri + kısa açıklama; (2) kenarlara oyulmuş çentikli dashed
+   perforasyon ayracı (gerçek bilet hissi); (3) beyaz alt bölge — tıkla-kopyala
+   kod chip'i, koşul satırı ve tam genişlik "Kodu Kopyala" butonu (alta yaslı).
+   Tüm tipografi Geist (var(--font-sans)); mono/display font yoktur, kod yalnız
+   tabular-nums + harf aralığı ile okunaklıdır. auto-fit minmax ile 4 kupon
+   geniş ekranda tek sırada, dar ekranda tek sütunda ferah durur. */
 .coupons {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 520px), 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 288px), 1fr));
   gap: clamp(16px, 1.8vw, 22px);
   margin-top: 20px;
 }
 
-/* Kupon kartı — yatay ikili grid; hover'da hafif yükselir. */
+/* Kupon kartı — dikey akış; hover'da hafif yükselir + accent kenar. */
 .coupon {
+  --coupon-pad-x: clamp(20px, 2.4vw, 26px);
   position: relative;
-  display: grid;
-  grid-template-columns: minmax(148px, 200px) 1fr;
+  display: flex;
+  flex-direction: column;
   background: var(--white);
   border: 1px solid var(--gray-200);
   border-radius: var(--r-lg);
-  overflow: hidden;
-  transition: box-shadow 220ms var(--ease), border-color 220ms var(--ease),
-    transform 220ms var(--ease);
+  transition: box-shadow 260ms var(--ease), border-color 260ms var(--ease),
+    transform 260ms var(--ease);
 }
 .coupon:hover {
-  border-color: var(--gray-300);
-  box-shadow: 0 16px 38px rgba(10, 10, 10, 0.1);
-  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--accent) 32%, var(--gray-200));
+  box-shadow: 0 20px 44px -22px rgba(196, 62, 12, 0.32);
+  transform: translateY(-3px);
 }
 
-/* Sol değer paneli — accent tint zemin, dikey dashed ayraç (perforasyon). */
-.couponValue {
+/* Üst bölge — accent tint zemin; rozet + büyük değer + açıklama. */
+.couponTop {
   position: relative;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  justify-content: center;
-  gap: 10px;
-  padding: clamp(20px, 2.4vw, 28px);
+  gap: 13px;
+  padding: clamp(22px, 2.6vw, 28px) var(--coupon-pad-x) clamp(20px, 2.4vw, 24px);
+  border-radius: var(--r-lg) var(--r-lg) 0 0;
   background:
-    radial-gradient(130% 90% at 0% 0%, var(--accent-soft), rgba(255, 241, 234, 0) 72%),
-    linear-gradient(158deg, #fff6f1 0%, var(--white) 100%);
-  border-right: 1.5px dashed var(--gray-300);
+    radial-gradient(125% 100% at 100% 0%, var(--accent-soft), rgba(255, 241, 234, 0) 70%),
+    linear-gradient(180deg, #fff6f1 0%, var(--white) 100%);
 }
 .couponBadge {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 4px 10px;
+  padding: 5px 11px;
   border-radius: var(--r-pill);
   background: var(--white);
-  border: 1px solid var(--accent-soft);
+  border: 1px solid color-mix(in srgb, var(--accent) 24%, var(--white));
   color: var(--accent-deep);
   font-family: var(--font-sans);
   font-size: var(--fs-micro);
@@ -163,50 +163,98 @@
   flex-shrink: 0;
   color: var(--accent);
 }
+/* Değer + descriptor tek satırda taban hizalı */
+.couponValueWrap {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+}
 /* Belirgin indirim değeri — Geist, ağır, sıkı; mono/display YOK. */
 .couponBig {
   font-family: var(--font-sans);
-  font-size: clamp(40px, 4.6vw, 56px);
+  font-size: clamp(46px, 5.2vw, 60px);
   font-weight: 800;
-  letter-spacing: -0.045em;
-  line-height: 0.92;
+  letter-spacing: -0.05em;
+  line-height: 0.88;
   color: var(--accent-deep);
   font-variant-numeric: tabular-nums;
 }
 .couponValueLabel {
   font-family: var(--font-sans);
-  font-size: var(--fs-micro);
+  font-size: var(--fs-small);
   font-weight: 600;
-  letter-spacing: 0.01em;
+  letter-spacing: -0.01em;
   color: var(--gray-500);
-}
-
-/* Sağ gövde — dikey akış; buton en alta yaslanır. */
-.couponBody {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  padding: clamp(20px, 2.4vw, 26px);
-  min-width: 0;
 }
 .couponDesc {
   color: var(--gray-700);
-  font-size: var(--fs-body);
+  font-size: var(--fs-small);
   font-weight: 500;
   line-height: 1.5;
 }
 
-/* Net kod — büyük, tıklanınca kopyalar (CopyCodeButton variant="code").
+/* Perforasyon ayracı — dashed çizgi; ::before/::after kenarlara oyulmuş
+   çentikler (kart kenarına ortalı beyaz daireler, bilet delik hissi). */
+.couponPerf {
+  position: relative;
+  height: 0;
+  margin: 0 var(--coupon-pad-x);
+  border-top: 1.6px dashed var(--gray-300);
+}
+.couponPerf::before,
+.couponPerf::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--white);
+  border: 1px solid var(--gray-200);
+  transform: translateY(-50%);
+}
+/* Sol çentik: kart iç tarafı (sağ ark) görünür, dış (sol) ark saydam. */
+.couponPerf::before {
+  left: calc(-1 * var(--coupon-pad-x) - 10px);
+  border-top-color: transparent;
+  border-left-color: transparent;
+  border-bottom-color: transparent;
+}
+/* Sağ çentik: kart iç tarafı (sol ark) görünür, dış (sağ) ark saydam. */
+.couponPerf::after {
+  right: calc(-1 * var(--coupon-pad-x) - 10px);
+  border-top-color: transparent;
+  border-right-color: transparent;
+  border-bottom-color: transparent;
+}
+.coupon:hover .couponPerf::before {
+  border-right-color: color-mix(in srgb, var(--accent) 32%, var(--gray-200));
+}
+.coupon:hover .couponPerf::after {
+  border-left-color: color-mix(in srgb, var(--accent) 32%, var(--gray-200));
+}
+
+/* Alt bölge — beyaz; kod + koşul + buton, buton alta yaslı. */
+.couponBottom {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+  padding: clamp(20px, 2.4vw, 24px) var(--coupon-pad-x) clamp(22px, 2.6vw, 26px);
+}
+
+/* Net kod — tıklanınca kopyalar (CopyCodeButton variant="code").
    Font Geist; tabular-nums + harf aralığı ile kod okunaklı. */
 .codeChip {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 8px 16px;
+  gap: 6px 14px;
   align-self: stretch;
-  padding: 13px 16px;
-  border: 1.5px dashed var(--accent);
+  padding: 13px 15px;
+  border: 1.6px dashed color-mix(in srgb, var(--accent) 55%, var(--white));
   border-radius: var(--r-md);
   background: var(--accent-soft);
   font-family: var(--font-sans);
@@ -216,12 +264,13 @@
 }
 .codeChip:hover {
   background: var(--white);
+  border-color: var(--accent);
 }
 .codeText {
   font-family: var(--font-sans);
-  font-size: clamp(19px, 2.1vw, 24px);
+  font-size: clamp(20px, 2.1vw, 24px);
   font-weight: 700;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--ink);
   font-variant-numeric: tabular-nums;
@@ -234,6 +283,7 @@
   color: var(--gray-500);
   font-size: var(--fs-micro);
   font-weight: 600;
+  white-space: nowrap;
 }
 .codeChipDone,
 .codeChipDone:hover {
@@ -247,7 +297,7 @@
 /* Koşul satırı */
 .couponTerms {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 8px;
   color: var(--gray-500);
   font-size: var(--fs-micro);
@@ -256,13 +306,14 @@
 }
 .couponTerms svg {
   flex-shrink: 0;
+  margin-top: 1px;
   color: var(--accent);
 }
 
-/* Kopyala aksiyonu — gövdenin altına yaslı, tam genişlik buton */
+/* Kopyala aksiyonu — alta yaslı, tam genişlik buton */
 .couponAction {
   margin-top: auto;
-  padding-top: 2px;
+  padding-top: 3px;
 }
 
 /* "Kodu Kopyala" — accent buton, kopyalanınca yeşil onay durumu */
@@ -272,7 +323,7 @@
   justify-content: center;
   gap: 8px;
   width: 100%;
-  padding: 12px 20px;
+  padding: 13px 20px;
   border: 1px solid var(--accent);
   border-radius: var(--r-pill);
   background: var(--accent);
@@ -282,32 +333,24 @@
   font-weight: 600;
   cursor: pointer;
   transition: background 180ms var(--ease), border-color 180ms var(--ease),
-    color 180ms var(--ease);
+    color 180ms var(--ease), box-shadow 180ms var(--ease), transform 180ms var(--ease);
 }
 .copyBtn:hover {
   background: var(--accent-deep);
   border-color: var(--accent-deep);
+  box-shadow: 0 10px 22px -12px rgba(196, 62, 12, 0.6);
+  transform: translateY(-1px);
+}
+.copyBtn:active {
+  transform: translateY(0);
 }
 .copyBtnDone,
 .copyBtnDone:hover {
   background: #159b57;
   border-color: #159b57;
   color: var(--white);
-}
-
-/* Dar ekran: değer paneli üst banda döner, ayraç alta geçer. */
-@media (max-width: 560px) {
-  .coupon {
-    grid-template-columns: 1fr;
-  }
-  .couponValue {
-    border-right: none;
-    border-bottom: 1.5px dashed var(--gray-300);
-    padding: 18px 20px;
-  }
-  .couponBig {
-    font-size: clamp(38px, 12vw, 48px);
-  }
+  box-shadow: none;
+  transform: none;
 }
 
 /* --- "Nasıl kullanılır" 3 adımlı şerit --- */

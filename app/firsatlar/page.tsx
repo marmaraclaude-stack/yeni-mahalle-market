@@ -233,8 +233,8 @@ export default async function FirsatlarPage() {
               <div className={styles.coupons}>
                 {coupons.map((c) => (
                   <article key={c.code} className={styles.coupon}>
-                    {/* Sol panel: belirgin indirim değeri (bilet hissi) */}
-                    <div className={styles.couponValue}>
+                    {/* Üst bölge: rozet + belirgin indirim değeri + açıklama */}
+                    <div className={styles.couponTop}>
                       <span className={styles.couponBadge}>
                         <TicketPercent
                           size={13}
@@ -243,22 +243,26 @@ export default async function FirsatlarPage() {
                         />
                         İndirim Kuponu
                       </span>
-                      <span className={styles.couponBig}>
-                        {bigDiscountValue(c)}
+                      <span className={styles.couponValueWrap}>
+                        <span className={styles.couponBig}>
+                          {bigDiscountValue(c)}
+                        </span>
+                        <span className={styles.couponValueLabel}>
+                          {c.discount_type === "percent"
+                            ? "anında indirim"
+                            : "sepet indirimi"}
+                        </span>
                       </span>
-                      <span className={styles.couponValueLabel}>
-                        {c.discount_type === "percent"
-                          ? "anında indirim"
-                          : "sepet indirimi"}
-                      </span>
-                    </div>
-
-                    {/* Sağ gövde: açıklama, kod, koşul, kopyala butonu */}
-                    <div className={styles.couponBody}>
                       {c.description && (
                         <p className={styles.couponDesc}>{c.description}</p>
                       )}
+                    </div>
 
+                    {/* Perforasyon ayracı — bilet hissi (kenarlara oyulmuş çentik) */}
+                    <div className={styles.couponPerf} aria-hidden="true" />
+
+                    {/* Alt bölge: tıkla-kopyala kod, koşul, "Kodu Kopyala" */}
+                    <div className={styles.couponBottom}>
                       {/* Net kod — tıklayınca da kopyalar */}
                       <CopyCodeButton code={c.code} variant="code" />
 
@@ -268,7 +272,7 @@ export default async function FirsatlarPage() {
                         {couponTerms(c)}
                       </p>
 
-                      {/* Kopyala aksiyonu */}
+                      {/* Kopyala aksiyonu — alta yaslı, tam genişlik */}
                       <div className={styles.couponAction}>
                         <CopyCodeButton code={c.code} />
                       </div>

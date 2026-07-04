@@ -4,6 +4,7 @@
 
 import Link from "next/link";
 import {
+  Bike,
   ChevronRight,
   Clock,
   MessageCircle,
@@ -13,6 +14,7 @@ import {
   Settings,
   ShoppingBag,
   TrendingUp,
+  Wallet,
 } from "lucide-react";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { formatTL, ORDER_STATUS_LABELS } from "@/lib/shop/types";
@@ -319,17 +321,19 @@ export default async function AdminHome() {
 
         <div className={styles.revGrid}>
           <div className={styles.revStats}>
-            <div className={styles.revStat}>
+            <div className={`${styles.revStat} ${styles["revStat--hero"]}`}>
               <span className={styles.revStatLabel}>Bu Ay</span>
               <span className={styles.revStatValue}>{fmtTL(stats.monthRevenue)}</span>
             </div>
-            <div className={styles.revStat}>
-              <span className={styles.revStatLabel}>Bu Hafta</span>
-              <span className={styles.revStatValue}>{fmtTL(stats.weekRevenue)}</span>
-            </div>
-            <div className={styles.revStat}>
-              <span className={styles.revStatLabel}>Bugün</span>
-              <span className={styles.revStatValue}>{fmtTL(stats.todayRevenue)}</span>
+            <div className={styles.revStatPair}>
+              <div className={styles.revStat}>
+                <span className={styles.revStatLabel}>Bu Hafta</span>
+                <span className={styles.revStatValue}>{fmtTL(stats.weekRevenue)}</span>
+              </div>
+              <div className={styles.revStat}>
+                <span className={styles.revStatLabel}>Bugün</span>
+                <span className={styles.revStatValue}>{fmtTL(stats.todayRevenue)}</span>
+              </div>
             </div>
           </div>
 
@@ -368,20 +372,35 @@ export default async function AdminHome() {
 
         <div className={styles.revMetrics}>
           <div className={styles.revMetric}>
-            <span className={styles.revMetricValue}>{fmtTL(stats.avgBasket)}</span>
-            <span className={styles.revMetricLabel}>Ortalama Sepet</span>
+            <span className={styles.revMetricIcon} aria-hidden>
+              <Wallet size={16} strokeWidth={2} />
+            </span>
+            <span className={styles.revMetricText}>
+              <span className={styles.revMetricValue}>{fmtTL(stats.avgBasket)}</span>
+              <span className={styles.revMetricLabel}>Ortalama Sepet</span>
+            </span>
           </div>
           <div className={styles.revMetric}>
-            <span className={styles.revMetricValue}>
-              {stats.totalOrders === null ? "-" : String(stats.totalOrders)}
+            <span className={styles.revMetricIcon} aria-hidden>
+              <ShoppingBag size={16} strokeWidth={2} />
             </span>
-            <span className={styles.revMetricLabel}>Toplam Sipariş</span>
+            <span className={styles.revMetricText}>
+              <span className={styles.revMetricValue}>
+                {stats.totalOrders === null ? "-" : String(stats.totalOrders)}
+              </span>
+              <span className={styles.revMetricLabel}>Toplam Sipariş</span>
+            </span>
           </div>
           <div className={styles.revMetric}>
-            <span className={styles.revMetricValue}>
-              {stats.activeCouriers === null ? "-" : String(stats.activeCouriers)}
+            <span className={styles.revMetricIcon} aria-hidden>
+              <Bike size={16} strokeWidth={2} />
             </span>
-            <span className={styles.revMetricLabel}>Aktif Kurye</span>
+            <span className={styles.revMetricText}>
+              <span className={styles.revMetricValue}>
+                {stats.activeCouriers === null ? "-" : String(stats.activeCouriers)}
+              </span>
+              <span className={styles.revMetricLabel}>Aktif Kurye</span>
+            </span>
           </div>
         </div>
       </section>

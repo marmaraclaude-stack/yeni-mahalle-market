@@ -32,7 +32,7 @@ export default async function AdminProductsPage({
       .order("category_slug")
       .order("sort")
       .order("name")
-      .limit(1000);
+      .limit(2000);
     if (category) query = query.eq("category_slug", category);
     if (search) query = query.ilike("name", `%${search}%`);
     const { data, error } = await query;

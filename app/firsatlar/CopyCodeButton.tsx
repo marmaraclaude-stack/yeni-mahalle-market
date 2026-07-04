@@ -2,7 +2,7 @@
 
 // Kupon kodu kopyalama — iki görünüm:
 // - "button": kupon kartının altındaki accent "Kodu Kopyala" butonu.
-// - "code": kupon kartındaki büyük mono kod alanı; tıklanınca da kopyalar.
+// - "code": kupon kartındaki büyük kod chip'i (Geist); tıklanınca da kopyalar.
 // İkisi de kopyalayınca kısa süreli "Kopyalandı" geri bildirimi gösterir.
 
 import { useEffect, useRef, useState } from "react";
