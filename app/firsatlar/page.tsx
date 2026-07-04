@@ -233,11 +233,8 @@ export default async function FirsatlarPage() {
               <div className={styles.coupons}>
                 {coupons.map((c) => (
                   <article key={c.code} className={styles.coupon}>
-                    {/* Üst: belirgin indirim değeri + rozet */}
-                    <div className={styles.couponTop}>
-                      <span className={styles.couponBig}>
-                        {bigDiscountValue(c)}
-                      </span>
+                    {/* Sol panel: belirgin indirim değeri (bilet hissi) */}
+                    <div className={styles.couponValue}>
                       <span className={styles.couponBadge}>
                         <TicketPercent
                           size={13}
@@ -246,25 +243,35 @@ export default async function FirsatlarPage() {
                         />
                         İndirim Kuponu
                       </span>
+                      <span className={styles.couponBig}>
+                        {bigDiscountValue(c)}
+                      </span>
+                      <span className={styles.couponValueLabel}>
+                        {c.discount_type === "percent"
+                          ? "anında indirim"
+                          : "sepet indirimi"}
+                      </span>
                     </div>
 
-                    {/* Açıklama */}
-                    {c.description && (
-                      <p className={styles.couponDesc}>{c.description}</p>
-                    )}
+                    {/* Sağ gövde: açıklama, kod, koşul, kopyala butonu */}
+                    <div className={styles.couponBody}>
+                      {c.description && (
+                        <p className={styles.couponDesc}>{c.description}</p>
+                      )}
 
-                    {/* Net kod — tıklayınca da kopyalar */}
-                    <CopyCodeButton code={c.code} variant="code" />
+                      {/* Net kod — tıklayınca da kopyalar */}
+                      <CopyCodeButton code={c.code} variant="code" />
 
-                    {/* Koşul satırı */}
-                    <p className={styles.couponTerms}>
-                      <Clock size={14} strokeWidth={2} aria-hidden="true" />
-                      {couponTerms(c)}
-                    </p>
+                      {/* Koşul satırı */}
+                      <p className={styles.couponTerms}>
+                        <Clock size={14} strokeWidth={2} aria-hidden="true" />
+                        {couponTerms(c)}
+                      </p>
 
-                    {/* Kopyala aksiyonu */}
-                    <div className={styles.couponAction}>
-                      <CopyCodeButton code={c.code} />
+                      {/* Kopyala aksiyonu */}
+                      <div className={styles.couponAction}>
+                        <CopyCodeButton code={c.code} />
+                      </div>
                     </div>
                   </article>
                 ))}

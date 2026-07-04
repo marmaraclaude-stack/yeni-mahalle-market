@@ -27,6 +27,40 @@ function clean(value: unknown, fallback = ""): string {
   return text || fallback;
 }
 
+/**
+ * Profil bilgilerini güncelle (ad soyad + telefon).
+ * E-posta değişimi client tarafında auth.updateUser ile yapılır (onay maili).
+ * Server client RLS: kullanıcı yalnız kendi profilini günceller.
+ */
+export async function updateProfile(
+  name: string,
+  phone: string,
+): Promise<AddressResult> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { error: "Bu işlem için giriş yapmalısınız." };
+  }
+
+  const fullName = clean(name);
+  const phoneClean = clean(phone);
+
+  const { error } = await supabase
+    .from("customer_profiles")
+    .update({ full_name: fullName, phone: phoneClean })
+    .eq("id", user.id);
+
+  if (error) {
+    return { error: "Profil güncellenemedi. Lütfen tekrar deneyin." };
+  }
+
+  revalidatePath("/hesap");
+  return { ok: true };
+}
+
 /** Yeni adres ekle. Açık adres (line) zorunlu. */
 export async function addAddress(input: AddressInput): Promise<AddressResult> {
   const supabase = await createClient();

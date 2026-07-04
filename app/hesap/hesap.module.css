@@ -140,33 +140,62 @@
   overflow-wrap: anywhere;
 }
 
-/* Küçük istatistik satırı — sipariş / adres sayısı */
-.statRow {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-}
-.stat {
+/* Profil düzenleyici — gösterim + form ortak dikey ritim */
+.profileEditor {
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  padding: 12px 14px;
+  gap: 20px;
+  min-width: 0;
+}
+
+/* "Düzenle" tetik butonu — ince çerçeveli, hafif */
+.editBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  height: 44px;
+  padding: 0 18px;
   border: 1px solid var(--gray-200);
-  border-radius: var(--r-md);
+  border-radius: var(--r-pill);
   background: var(--white);
+  color: var(--gray-700);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color 160ms var(--ease), color 160ms var(--ease),
+    background 160ms var(--ease);
 }
-.statNum {
-  font-family: var(--font-display);
-  font-size: 22px;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  line-height: 1;
-  font-variant-numeric: tabular-nums;
-  color: var(--ink);
+.editBtn svg {
+  width: 15px;
+  height: 15px;
 }
-.statLabel {
-  font-size: 12.5px;
-  color: var(--gray-500);
+.editBtn:hover {
+  border-color: var(--accent);
+  color: var(--accent-deep);
+  background: var(--accent-soft);
+}
+
+/* Profil düzenleme formu */
+.profileForm {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Başarı / onay bildirimi */
+.profileNotice {
+  margin: 0;
+  padding: 10px 12px;
+  border: 1px solid var(--gray-200);
+  border-radius: var(--r-sm);
+  background: var(--accent-soft);
+  color: var(--accent-deep);
+  font-size: 13px;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
 }
 
 /* Çıkış butonu */

@@ -93,6 +93,11 @@
   --section-y: clamp(32px, 3.4vw, 52px);
   --section-y-sm: var(--section-y);
   --head-gap: clamp(24px, 3vw, 40px);
+  /* Ajan E: hero gorseli -> stat kartlari -> kategori bolumu arasindaki
+     esit dikey bosluk. Ust bosluk (hero__stats margin-top) bu deger olur;
+     alt bosluk hero padding-bottom + #urunler padding-top olarak yariya
+     bolunur, boylece toplam yine ayni deger olur ve gorsel denge saglanir. */
+  --hero-stats-gap: clamp(32px, 3.4vw, 52px);
 }
 
 * { box-sizing: border-box; }
@@ -453,7 +458,9 @@ p { margin: 0; }
    HERO
    ============================================================ */
 .hero {
-  padding-block: var(--section-y);
+  padding-top: var(--section-y);
+  /* Alt boslugun yarisi burada; diger yarisi #urunler padding-top'ta. */
+  padding-bottom: calc(var(--hero-stats-gap) / 2);
   position: relative;
   overflow: hidden;
   background: var(--white);
@@ -548,7 +555,8 @@ p { margin: 0; }
 
 /* Stats — ikonlu kartlar (shadcn FeatureCard'dan uyarlandı) */
 .hero__stats {
-  margin-top: clamp(24px, 2.6vw, 40px);
+  /* Ust bosluk: hero gorseli -> stat kartlari. Alt bosluga esitlendi. */
+  margin-top: var(--hero-stats-gap);
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 12px;
@@ -621,6 +629,11 @@ p { margin: 0; }
   padding-block: var(--section-y);
 }
 .section--tight { padding-block: var(--section-y-sm); }
+/* Ajan E: yalnizca hero altindaki kategori bolumu. Ust padding, hero alt
+   paddingi ile birlesip stat kartlarinin alt boslugunu olusturur; ikisinin
+   toplami hero__stats ust boslugu (--hero-stats-gap) ile esitlenir. Alt
+   padding ve diger section--tight kullanimlari (yorumlar vb.) degismez. */
+#urunler.section--tight { padding-top: calc(var(--hero-stats-gap) / 2); }
 .section--dark {
   background: var(--ink);
   color: var(--gray-300);

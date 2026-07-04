@@ -98,22 +98,25 @@
   }
 }
 
-/* --- Kampanyalar: sade premium kupon kartları --- */
+/* --- Kampanyalar: premium bilet-tarzı kupon kartları (SADECE Geist) --------
+   Yatay ikili düzen: sol accent değer paneli (belirgin indirim) + dikey
+   dashed ayraç (bilet hissi) · sağ gövde (açıklama, tıkla-kopyala kod,
+   koşul satırı, tam genişlik "Kodu Kopyala" butonu). Tüm tipografi Geist
+   (var(--font-sans)); kod alanında bile mono/display font yoktur, yalnız
+   tabular-nums + harf aralığı okunurluğu artırır. 4 kupon 1-2 sütunda
+   ferah durur, kap tam genişliktir. */
 .coupons {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: clamp(14px, 1.8vw, 20px);
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 520px), 1fr));
+  gap: clamp(16px, 1.8vw, 22px);
   margin-top: 20px;
 }
 
-/* Kupon kartı — dikey, sakin; üstte ince accent şerit, net kod, tek CTA.
-   Bilet-perforasyon YOK; düz premium kart. */
+/* Kupon kartı — yatay ikili grid; hover'da hafif yükselir. */
 .coupon {
   position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  padding: clamp(20px, 2.4vw, 26px);
+  display: grid;
+  grid-template-columns: minmax(148px, 200px) 1fr;
   background: var(--white);
   border: 1px solid var(--gray-200);
   border-radius: var(--r-lg);
@@ -121,60 +124,80 @@
   transition: box-shadow 220ms var(--ease), border-color 220ms var(--ease),
     transform 220ms var(--ease);
 }
-/* Üstte ince accent aksan şeridi — sade premium vurgu */
-.coupon::before {
-  content: "";
-  position: absolute;
-  inset: 0 0 auto 0;
-  height: 4px;
-  background: linear-gradient(90deg, var(--accent) 0%, var(--accent-deep) 100%);
-}
 .coupon:hover {
   border-color: var(--gray-300);
-  box-shadow: 0 12px 30px rgba(10, 10, 10, 0.08);
+  box-shadow: 0 16px 38px rgba(10, 10, 10, 0.1);
   transform: translateY(-2px);
 }
 
-/* Üst satır: belirgin indirim değeri + kupon rozeti */
-.couponTop {
+/* Sol değer paneli — accent tint zemin, dikey dashed ayraç (perforasyon). */
+.couponValue {
+  position: relative;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin-top: 4px;
-}
-.couponBig {
-  font-family: var(--font-display);
-  font-size: clamp(34px, 4vw, 46px);
-  font-weight: 700;
-  letter-spacing: -0.03em;
-  line-height: 1;
-  color: var(--accent-deep);
-  font-variant-numeric: tabular-nums;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 10px;
+  padding: clamp(20px, 2.4vw, 28px);
+  background:
+    radial-gradient(130% 90% at 0% 0%, var(--accent-soft), rgba(255, 241, 234, 0) 72%),
+    linear-gradient(158deg, #fff6f1 0%, var(--white) 100%);
+  border-right: 1.5px dashed var(--gray-300);
 }
 .couponBadge {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  flex-shrink: 0;
-  padding: 5px 11px;
+  padding: 4px 10px;
   border-radius: var(--r-pill);
-  background: var(--accent-soft);
+  background: var(--white);
+  border: 1px solid var(--accent-soft);
   color: var(--accent-deep);
+  font-family: var(--font-sans);
   font-size: var(--fs-micro);
   font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
 }
 .couponBadge svg {
   flex-shrink: 0;
+  color: var(--accent);
+}
+/* Belirgin indirim değeri — Geist, ağır, sıkı; mono/display YOK. */
+.couponBig {
+  font-family: var(--font-sans);
+  font-size: clamp(40px, 4.6vw, 56px);
+  font-weight: 800;
+  letter-spacing: -0.045em;
+  line-height: 0.92;
+  color: var(--accent-deep);
+  font-variant-numeric: tabular-nums;
+}
+.couponValueLabel {
+  font-family: var(--font-sans);
+  font-size: var(--fs-micro);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: var(--gray-500);
 }
 
+/* Sağ gövde — dikey akış; buton en alta yaslanır. */
+.couponBody {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: clamp(20px, 2.4vw, 26px);
+  min-width: 0;
+}
 .couponDesc {
   color: var(--gray-700);
   font-size: var(--fs-body);
+  font-weight: 500;
   line-height: 1.5;
 }
 
-/* Net kod — büyük mono, tıklanınca kopyalar (CopyCodeButton variant="code") */
+/* Net kod — büyük, tıklanınca kopyalar (CopyCodeButton variant="code").
+   Font Geist; tabular-nums + harf aralığı ile kod okunaklı. */
 .codeChip {
   display: flex;
   flex-wrap: wrap;
@@ -182,11 +205,11 @@
   justify-content: space-between;
   gap: 8px 16px;
   align-self: stretch;
-  padding: 14px 18px;
+  padding: 13px 16px;
   border: 1.5px dashed var(--accent);
   border-radius: var(--r-md);
   background: var(--accent-soft);
-  font-family: inherit;
+  font-family: var(--font-sans);
   text-align: left;
   cursor: pointer;
   transition: background 180ms var(--ease), border-color 180ms var(--ease);
@@ -195,13 +218,13 @@
   background: var(--white);
 }
 .codeText {
-  font-family: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas,
-    monospace;
+  font-family: var(--font-sans);
   font-size: clamp(19px, 2.1vw, 24px);
   font-weight: 700;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--ink);
+  font-variant-numeric: tabular-nums;
   overflow-wrap: anywhere;
 }
 .codeHint {
@@ -236,7 +259,7 @@
   color: var(--accent);
 }
 
-/* Kopyala aksiyonu — kartın altına yaslı, tam genişlik buton */
+/* Kopyala aksiyonu — gövdenin altına yaslı, tam genişlik buton */
 .couponAction {
   margin-top: auto;
   padding-top: 2px;
@@ -254,6 +277,7 @@
   border-radius: var(--r-pill);
   background: var(--accent);
   color: var(--white);
+  font-family: var(--font-sans);
   font-size: var(--fs-small);
   font-weight: 600;
   cursor: pointer;
@@ -269,6 +293,21 @@
   background: #159b57;
   border-color: #159b57;
   color: var(--white);
+}
+
+/* Dar ekran: değer paneli üst banda döner, ayraç alta geçer. */
+@media (max-width: 560px) {
+  .coupon {
+    grid-template-columns: 1fr;
+  }
+  .couponValue {
+    border-right: none;
+    border-bottom: 1.5px dashed var(--gray-300);
+    padding: 18px 20px;
+  }
+  .couponBig {
+    font-size: clamp(38px, 12vw, 48px);
+  }
 }
 
 /* --- "Nasıl kullanılır" 3 adımlı şerit --- */
@@ -305,7 +344,7 @@
   border-radius: 50%;
   background: var(--accent);
   color: var(--white);
-  font-family: var(--font-display);
+  font-family: var(--font-sans);
   font-size: 15px;
   font-weight: 700;
   font-variant-numeric: tabular-nums;

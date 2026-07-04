@@ -228,6 +228,17 @@ export default async function UrunDetayPage({ params }: { params: Params }) {
   const unitPrice = unitPriceLabel(product);
   const chips = infoChips(product.category_slug);
 
+  // İndirimdeki net tasarruf (eski fiyat - güncel fiyat).
+  const saving = discounted ? compareAt - product.price : 0;
+
+  // "Ürün Hakkında" künye satırları — açıklama olmasa da sayfa dolu dursun.
+  const specs = [
+    { label: "Marka", value: product.brand },
+    { label: "Miktar", value: product.size_text },
+    { label: "Kategori", value: cat?.name ?? "" },
+    { label: "Satış birimi", value: product.unit },
+  ].filter((s) => s.value && s.value.trim() !== "");
+
   return (
     <>
       <SiteNav />
@@ -237,13 +248,18 @@ export default async function UrunDetayPage({ params }: { params: Params }) {
           {/* Beyaz kart: solda görsel, sağda bilgi + aksiyonlar */}
           <section className={styles.heroCard}>
             <div
-              className={styles.media}
+              className={`${styles.media}${
+                product.image_url ? "" : ` ${styles.mediaPlaceholder}`
+              }`}
               style={
                 product.image_url
                   ? undefined
                   : { background: tintBg, color: tintFg }
               }
             >
+              {discounted && product.in_stock && (
+                <span className={styles.mediaBadge}>%{discountPct} indirim</span>
+              )}
               {product.image_url ? (
                 <img
                   src={product.image_url}
@@ -251,7 +267,12 @@ export default async function UrunDetayPage({ params }: { params: Params }) {
                   loading="lazy"
                 />
               ) : (
-                <Icon size={112} strokeWidth={1.1} aria-hidden="true" />
+                <Icon
+                  className={styles.mediaGlyph}
+                  size={116}
+                  strokeWidth={1.1}
+                  aria-hidden="true"
+                />
               )}
               {!product.in_stock && (
                 <span className={styles.mediaOut}>Stokta yok</span>
@@ -301,6 +322,12 @@ export default async function UrunDetayPage({ params }: { params: Params }) {
                 <p className={styles.unitPrice}>Birim fiyat: {unitPrice}</p>
               )}
 
+              {discounted && (
+                <p className={styles.savings}>
+                  Bu üründe {formatTL(saving)} tasarruf ediyorsun
+                </p>
+              )}
+
               <p
                 className={`${styles.stock} ${
                   product.in_stock ? styles.stockIn : styles.stockOut
@@ -341,22 +368,39 @@ export default async function UrunDetayPage({ params }: { params: Params }) {
             </div>
           </section>
 
-          {/* Açıklama — ayrı beyaz kart */}
-          {product.description && (
+          {/* Ürün Hakkında — açıklama + künye satırları (ayrı beyaz kart) */}
+          {(product.description || specs.length > 0) && (
             <section className={styles.descCard} aria-labelledby="urun-hakkinda">
               <h2 id="urun-hakkinda" className={styles.descHead}>
                 Ürün Hakkında
               </h2>
-              <p className={styles.descText}>{product.description}</p>
+              {product.description && (
+                <p className={styles.descText}>{product.description}</p>
+              )}
+              {specs.length > 0 && (
+                <dl className={styles.specs}>
+                  {specs.map((spec) => (
+                    <div key={spec.label} className={styles.specRow}>
+                      <dt className={styles.specLabel}>{spec.label}</dt>
+                      <dd className={styles.specValue}>{spec.value}</dd>
+                    </div>
+                  ))}
+                </dl>
+              )}
             </section>
           )}
 
           {/* Benzer ürünler — yatay kaydırılabilir rail */}
           {similar.length > 0 && (
             <section className={styles.similar} aria-labelledby="benzer-urunler">
-              <h2 id="benzer-urunler" className={styles.similarHead}>
-                Benzer Ürünler
-              </h2>
+              <div className={styles.similarHead}>
+                <h2 id="benzer-urunler" className={styles.similarTitle}>
+                  Benzer Ürünler
+                </h2>
+                <p className={styles.similarSub}>
+                  Aynı kategoriden senin için seçtiklerimiz
+                </p>
+              </div>
               <div className={styles.rail} role="list">
                 {similar.map((p) => (
                   <div key={p.id} className={styles.railItem} role="listitem">

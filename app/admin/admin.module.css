@@ -302,6 +302,157 @@
   gap: 16px;
 }
 
+/* ---- Gelir özeti paneli ---- */
+.revPanel {
+  margin-bottom: 20px;
+}
+
+.revGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+  gap: 20px;
+  align-items: stretch;
+}
+
+@media (max-width: 760px) {
+  .revGrid { grid-template-columns: 1fr; }
+}
+
+.revStats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.revStat {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px 14px;
+  border-radius: var(--r-md);
+  background: var(--gray-100);
+  border: 1px solid rgba(10, 10, 10, 0.06);
+}
+
+.revStat:first-child {
+  background: var(--accent-soft, #fff1ea);
+  border-color: rgba(255, 90, 31, 0.18);
+}
+
+.revStatLabel {
+  font-size: 11px;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--gray-500);
+  font-weight: 600;
+}
+
+.revStatValue {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 19px;
+  letter-spacing: -0.01em;
+  color: var(--black);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Son 7 gün mini bar grafiği */
+.miniChart {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 14px;
+  border-radius: var(--r-md);
+  border: 1px solid rgba(10, 10, 10, 0.06);
+  background: var(--white);
+}
+
+.miniBars {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  flex: 1;
+  min-height: 84px;
+}
+
+.miniBarCol {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.miniBarTrack {
+  width: 100%;
+  height: 84px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background: var(--gray-100);
+  border-radius: 7px;
+  overflow: hidden;
+}
+
+.miniBarFill {
+  width: 100%;
+  border-radius: 7px 7px 0 0;
+  background: linear-gradient(180deg, var(--orange), #ff7a45);
+  min-height: 3px;
+  transition: height 0.2s ease;
+}
+
+.miniBarLabel {
+  font-size: 10.5px;
+  color: var(--gray-500);
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.miniChartCap {
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--gray-400);
+  font-weight: 600;
+  text-align: center;
+}
+
+.revMetrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(10, 10, 10, 0.06);
+}
+
+.revMetric {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  align-items: center;
+  text-align: center;
+}
+
+.revMetricValue {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 20px;
+  letter-spacing: -0.01em;
+  color: var(--black);
+  font-variant-numeric: tabular-nums;
+}
+
+.revMetricLabel {
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--gray-500);
+  font-weight: 600;
+}
+
 .panelHead {
   display: flex;
   align-items: center;
@@ -798,6 +949,12 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
+}
+
+/* Kurye yokken "Kuryeler sayfasına git" butonunu ortala. */
+.courierEmptyAction {
+  display: flex;
+  justify-content: center;
 }
 
 .courierCurrent {

@@ -1061,15 +1061,29 @@ export async function toggleCourier(
 
 const COURIER_IMAGE_BUCKET = "courier-images";
 
-/** Kurye görsel bucket'ı yoksa public oluştur; "zaten var" hatasını yut. */
+/**
+ * Kurye görsel bucket'ını hazırla: yoksa public oluştur, VARSA public olduğundan
+ * emin ol. Eskiden private oluşturulmuş bir bucket getPublicUrl'i erişilemez
+ * kıldığı için yükleme "çalışıyor ama görsel açılmıyor" hatasına yol açıyordu;
+ * updateBucket ile her seferinde public'e sabitliyoruz.
+ */
 async function ensureCourierImageBucket(
   supabase: AdminClient,
 ): Promise<string | null> {
-  const { error } = await supabase.storage.createBucket(COURIER_IMAGE_BUCKET, {
-    public: true,
-  });
-  if (error && !/already exists|duplicate/i.test(error.message)) {
-    return error.message;
+  const { error: createError } = await supabase.storage.createBucket(
+    COURIER_IMAGE_BUCKET,
+    { public: true },
+  );
+  if (createError && !/already exists|duplicate/i.test(createError.message)) {
+    return createError.message;
+  }
+  // Bucket zaten vardıysa (veya yeni oluşturulduysa) public olduğunu garantile.
+  const { error: updateError } = await supabase.storage.updateBucket(
+    COURIER_IMAGE_BUCKET,
+    { public: true },
+  );
+  if (updateError) {
+    return updateError.message;
   }
   return null;
 }

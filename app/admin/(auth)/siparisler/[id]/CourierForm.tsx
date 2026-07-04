@@ -75,12 +75,14 @@ export default function CourierForm({
         <p className={styles.hint}>
           Henüz kayıtlı kurye yok. Önce Kuryeler sayfasından kurye ekleyin.
         </p>
-        <Link
-          href="/admin/kuryeler"
-          className={`${styles.actionBtn} ${styles["actionBtn--primary"]}`}
-        >
-          Kuryeler sayfasına git
-        </Link>
+        <div className={styles.courierEmptyAction}>
+          <Link
+            href="/admin/kuryeler"
+            className={`${styles.actionBtn} ${styles["actionBtn--primary"]}`}
+          >
+            Kuryeler sayfasına git
+          </Link>
+        </div>
       </div>
     );
   }
