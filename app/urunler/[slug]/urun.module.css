@@ -154,15 +154,21 @@
 /* --- Aksiyonlar: adet seçici + sepete ekle --- */
 .actions {
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 16px;
+}
+/* Adet seçici + buton tek satır (dar ekranda sarar) */
+.buyRow {
+  display: flex;
+  align-items: stretch;
   gap: 12px;
   flex-wrap: wrap;
-  margin-top: 10px;
 }
 .qty {
   display: inline-flex;
   align-items: center;
-  height: 50px;
+  height: 54px;
   border: 1px solid var(--gray-200);
   border-radius: var(--r-md);
   background: var(--white);
@@ -172,7 +178,7 @@
 .qtyBtn {
   display: grid;
   place-items: center;
-  width: 46px;
+  width: 48px;
   height: 100%;
   color: var(--accent);
   transition: background 160ms var(--ease), color 160ms var(--ease);
@@ -185,50 +191,72 @@
   cursor: not-allowed;
 }
 .qtyValue {
-  min-width: 36px;
+  min-width: 42px;
   text-align: center;
-  font-size: var(--fs-body);
+  font-size: var(--fs-lead);
   font-weight: 700;
   font-variant-numeric: tabular-nums;
 }
 
 .addBtn {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  height: 50px;
+  height: 54px;
   padding: 0 22px;
   min-width: 220px;
-  flex: 1 1 220px;
-  max-width: 420px;
+  flex: 1 1 240px;
+  max-width: 460px;
   border-radius: var(--r-md);
   background: var(--accent);
   color: var(--white);
-  font-size: var(--fs-body);
+  font-size: var(--fs-lead);
   font-weight: 700;
   letter-spacing: 0.01em;
-  box-shadow: 0 8px 20px -10px rgba(255, 90, 31, 0.5);
+  box-shadow: 0 10px 24px -12px rgba(255, 90, 31, 0.55);
   transition: background 180ms var(--ease), transform 180ms var(--ease),
     box-shadow 180ms var(--ease);
 }
 .addBtn:hover:not(:disabled) {
   background: var(--accent-deep);
-  box-shadow: 0 10px 22px -10px rgba(255, 90, 31, 0.55);
+  box-shadow: 0 12px 26px -12px rgba(255, 90, 31, 0.6);
 }
-.addBtn:active:not(:disabled) { transform: scale(0.98); }
-/* Buton içinde canlı toplam (adet x fiyat) sağa yaslı */
+.addBtn:active:not(:disabled) { transform: scale(0.985); }
+/* Ana etiket (ikon + metin) daima ortalı */
+.addBtnMain {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+}
+.addBtnMain svg { flex-shrink: 0; }
+/* Buton içinde canlı toplam (adet x fiyat) — sağa pinli, ince ayraçlı */
 .addBtnPrice {
-  margin-left: auto;
-  padding-left: 12px;
+  position: absolute;
+  right: 18px;
+  top: 50%;
+  transform: translateY(-50%);
+  padding-left: 14px;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
-  opacity: 0.95;
+  opacity: 0.94;
+}
+.addBtnPrice::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1px;
+  height: 20px;
+  background: rgba(255, 255, 255, 0.32);
 }
 .addBtnDone,
 .addBtnDone:hover:not(:disabled) {
   background: #159b57;
   color: var(--white);
+  box-shadow: 0 10px 24px -12px rgba(21, 155, 87, 0.55);
 }
 .addBtnMuted,
 .addBtnMuted:hover:not(:disabled) {
@@ -241,6 +269,60 @@
   width: 100%;
   color: var(--gray-500);
   font-size: var(--fs-small);
+}
+
+/* Sepette N adet — hızlı artır/azalt satırı */
+.inCart {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 7px 7px 7px 14px;
+  border: 1px solid var(--gray-200);
+  border-radius: var(--r-md);
+  background: var(--gray-50);
+}
+.inCartLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--gray-700);
+  font-size: var(--fs-small);
+  font-weight: 600;
+}
+.inCartLabel svg {
+  color: var(--accent);
+  flex-shrink: 0;
+}
+.inCartStepper {
+  display: inline-flex;
+  align-items: center;
+  height: 40px;
+  border: 1px solid var(--gray-200);
+  border-radius: var(--r-pill);
+  background: var(--white);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.inCartStepperBtn {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 100%;
+  color: var(--accent);
+  transition: background 160ms var(--ease), color 160ms var(--ease);
+}
+.inCartStepperBtn:hover:not(:disabled) { background: var(--accent-soft); }
+.inCartStepperBtn:disabled {
+  color: var(--gray-300);
+  cursor: not-allowed;
+}
+.inCartStepperValue {
+  min-width: 30px;
+  text-align: center;
+  font-size: var(--fs-small);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
 }
 
 /* Görsel üstü bilgi çipleri (sol alt köşe) */

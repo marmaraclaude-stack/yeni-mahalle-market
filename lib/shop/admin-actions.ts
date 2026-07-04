@@ -1125,3 +1125,54 @@ export async function deleteMember(userId: string): Promise<MemberActionResult> 
   revalidatePath("/admin/uyeler");
   return { ok: true };
 }
+
+// ------------------------------------------------------------
+// Sohbetler (canlı destek — chat_sessions / chat_messages)
+// ------------------------------------------------------------
+
+/** Sohbet action'larının dönüş tipi — hata mesajı client'a güvenle taşınır. */
+export interface ChatActionResult {
+  ok: boolean;
+  error?: string;
+}
+
+/**
+ * Sohbet oturumunu KALICI olarak sil. Bağlı chat_messages satırları
+ * FK on delete cascade ile birlikte silinir (chat şemasında tanımlı).
+ */
+export async function deleteChatSession(
+  sessionId: string,
+): Promise<ChatActionResult> {
+  await requireAdmin();
+  if (!sessionId.trim()) return { ok: false, error: "Geçersiz sohbet." };
+
+  const supabase = createAdminClient();
+  const { error } = await supabase
+    .from("chat_sessions")
+    .delete()
+    .eq("id", sessionId);
+  if (error) {
+    return { ok: false, error: `Sohbet silinemedi: ${error.message}` };
+  }
+  revalidatePath("/admin/sohbetler");
+  return { ok: true };
+}
+
+/** Bir sohbeti okundu işaretle (unread_admin=false). Admin oturumu açınca kullanılır. */
+export async function markSessionRead(
+  sessionId: string,
+): Promise<ChatActionResult> {
+  await requireAdmin();
+  if (!sessionId.trim()) return { ok: false, error: "Geçersiz sohbet." };
+
+  const supabase = createAdminClient();
+  const { error } = await supabase
+    .from("chat_sessions")
+    .update({ unread_admin: false })
+    .eq("id", sessionId);
+  if (error) {
+    return { ok: false, error: `Sohbet okundu işaretlenemedi: ${error.message}` };
+  }
+  revalidatePath("/admin/sohbetler");
+  return { ok: true };
+}

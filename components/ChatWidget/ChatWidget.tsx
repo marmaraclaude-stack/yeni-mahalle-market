@@ -112,6 +112,13 @@ export default function ChatWidget() {
     return () => clearInterval(id);
   }, []);
 
+  // Ana sayfadaki "Canlı Destek Başlat" butonu bu event'i tetikler.
+  useEffect(() => {
+    const openChat = () => setOpen(true);
+    window.addEventListener("ym:open-chat", openChat);
+    return () => window.removeEventListener("ym:open-chat", openChat);
+  }, []);
+
   // Init supabase client lazily
   const getSupabase = useCallback(() => {
     if (!supabaseRef.current) {

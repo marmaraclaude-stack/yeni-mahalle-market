@@ -1,34 +1,39 @@
 /* ============================================================
-   Fırsatlar (/firsatlar) — kampanyalar (kupon kartları) +
-   indirimli ürünler sayfası stilleri.
-   Renk/tipografi token'ları globals.css'ten miras alınır.
+   Fırsatlar (/firsatlar) — baştan kurulmuş kampanya sayfası.
+   Bölümler: başlık şeridi · Kampanyalar (full-width biletler +
+   "Nasıl kullanılır" 3 adımlı şerit) · İndirimli Ürünler gridi.
+   Tüm bölümler global .container içindedir; renk/tipografi
+   token'ları globals.css'ten miras alınır. Kap her yerde tam
+   genişlik kullanır, hiçbir yerde dar/whitespace'li kutu yoktur.
    ============================================================ */
 
 .page {
-  padding: 0 0 80px;
+  padding: 0 0 clamp(48px, 6vw, 88px);
   min-height: calc(100dvh - 69px);
   background: var(--white);
 }
 
-/* --- Sayfa başı --- */
+/* --- Başlık şeridi (standart ritim) --- */
 .head {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  padding: clamp(24px, 4vw, 44px) 0 clamp(18px, 2.5vw, 28px);
+  gap: 12px;
+  padding: clamp(28px, 4vw, 48px) 0 clamp(22px, 3vw, 32px);
+  border-bottom: 1px solid var(--gray-200);
+  margin-bottom: clamp(28px, 4vw, 48px);
 }
 .titleRow {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
 }
 .titleIcon {
   display: grid;
   place-items: center;
   flex-shrink: 0;
-  width: 42px;
-  height: 42px;
-  border-radius: 12px;
+  width: 46px;
+  height: 46px;
+  border-radius: 13px;
   background: var(--accent-soft);
   color: var(--accent);
 }
@@ -41,24 +46,57 @@
 }
 .sub {
   color: var(--gray-500);
-  font-size: var(--fs-body);
+  font-size: var(--fs-lead);
   max-width: var(--measure);
+}
+/* Başlık altı özet çipleri — sayfayı doldurur, hızlı bilgi verir */
+.headStats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px;
+}
+.headStat {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 14px;
+  border-radius: var(--r-pill);
+  background: var(--gray-100);
+  color: var(--gray-700);
+  font-size: var(--fs-small);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.headStat svg {
+  flex-shrink: 0;
+  color: var(--accent);
+}
+.headStat--accent {
+  background: var(--accent-soft);
+  color: var(--accent-deep);
 }
 
 /* --- Bölüm başlığı (Kampanyalar / İndirimli Ürünler ortak dili) --- */
+.section {
+  margin-bottom: clamp(40px, 5vw, 64px);
+}
+.section:last-child {
+  margin-bottom: 0;
+}
 .sectionHead {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   flex-wrap: wrap;
 }
 .sectionIcon {
   display: grid;
   place-items: center;
   flex-shrink: 0;
-  width: 34px;
-  height: 34px;
-  border-radius: 10px;
+  width: 36px;
+  height: 36px;
+  border-radius: 11px;
   background: var(--accent-soft);
   color: var(--accent);
 }
@@ -69,35 +107,35 @@
   letter-spacing: -0.02em;
 }
 .sectionSub {
-  margin-top: 6px;
+  margin-top: 8px;
   color: var(--gray-500);
   font-size: var(--fs-small);
   max-width: var(--measure);
 }
 /* Adet rozeti — /urunler bölüm rozetleriyle aynı dil */
 .count {
-  padding: 3px 10px;
+  margin-left: auto;
+  padding: 5px 13px;
   border-radius: var(--r-pill);
-  background: var(--gray-100);
-  color: var(--gray-500);
+  background: var(--accent-soft);
+  color: var(--accent-deep);
   font-size: var(--fs-micro);
-  font-weight: 600;
+  font-weight: 700;
   font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 
-/* --- Kampanyalar: full-width yatay kampanya biletleri --- */
-.campaigns {
-  margin-bottom: clamp(32px, 4.5vw, 52px);
-}
+/* --- Kampanyalar: full-width yatay biletler --- */
 .tickets {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  margin-top: 16px;
+  gap: clamp(16px, 2vw, 22px);
+  margin-top: 20px;
 }
 
-/* Bilet — mobil-öncelikli: dikey yığın (renk bloğu üst şerit); genişte
-   3 sütunlu yatay bilet. overflow:hidden çentik yarım dairelerini keser. */
+/* Bilet — mobil-öncelikli dikey yığın (renk bloğu üst şerit); genişte
+   3 sütunlu yatay bilet. Tek kupon bile tüm genişliği doldurur.
+   overflow:hidden çentik yarım dairelerini keser. */
 .ticket {
   position: relative;
   display: grid;
@@ -107,29 +145,52 @@
   border: 1px solid var(--gray-200);
   border-radius: var(--r-lg);
   overflow: hidden;
-  transition: box-shadow 200ms var(--ease), border-color 200ms var(--ease);
+  transition: box-shadow 220ms var(--ease), border-color 220ms var(--ease),
+    transform 220ms var(--ease);
 }
 .ticket:hover {
   border-color: var(--gray-300);
-  box-shadow: 0 8px 22px rgba(10, 10, 10, 0.07);
+  box-shadow: 0 12px 30px rgba(10, 10, 10, 0.08);
+  transform: translateY(-2px);
 }
 
 /* Sol (mobilde üst) renk bloğu — accent gradient + perforasyon çizgisi */
 .ticketValue {
+  position: relative;
   display: flex;
   flex-direction: row;
-  align-items: baseline;
+  align-items: center;
   justify-content: center;
-  gap: 10px;
-  padding: 18px 20px;
+  gap: 12px;
+  padding: 26px 22px;
   background: linear-gradient(135deg, var(--accent) 0%, var(--accent-deep) 100%);
   color: var(--white);
-  border-bottom: 2px dashed rgba(255, 255, 255, 0.55);
+  border-bottom: 2px dashed rgba(255, 255, 255, 0.5);
   text-align: center;
+  overflow: hidden;
+}
+/* Hafif ışık dokusu — büyük değeri destekler */
+.ticketValue::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    120% 90% at 15% 0%,
+    rgba(255, 255, 255, 0.22),
+    transparent 60%
+  );
+  pointer-events: none;
+}
+.valueInner {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
 }
 .valueBig {
   font-family: var(--font-display);
-  font-size: clamp(34px, 4vw, 48px);
+  font-size: clamp(40px, 5vw, 60px);
   font-weight: 700;
   letter-spacing: -0.03em;
   line-height: 1;
@@ -138,8 +199,8 @@
 .valueLabel {
   font-size: var(--fs-micro);
   font-weight: 700;
-  letter-spacing: 0.22em;
-  opacity: 0.9;
+  letter-spacing: 0.24em;
+  opacity: 0.92;
 }
 
 /* Orta gövde — çentikler (perforasyon yarım daireleri) buradan konumlanır */
@@ -149,29 +210,29 @@
   flex-direction: column;
   align-items: flex-start;
   justify-content: center;
-  gap: 10px;
+  gap: 12px;
   min-width: 0;
-  padding: clamp(18px, 2.4vw, 26px) clamp(18px, 2.4vw, 28px);
+  padding: clamp(20px, 2.6vw, 30px) clamp(20px, 2.6vw, 32px);
 }
 .ticketBody::before,
 .ticketBody::after {
   content: "";
   position: absolute;
   z-index: 1;
-  width: 20px;
-  height: 20px;
+  width: 22px;
+  height: 22px;
   border-radius: 50%;
   background: var(--white);
   border: 1px solid var(--gray-200);
 }
 /* Mobil: çentikler üst şeridin altında, sol ve sağ kenarda */
 .ticketBody::before {
-  top: -11px;
-  left: -11px;
+  top: -12px;
+  left: -12px;
 }
 .ticketBody::after {
-  top: -11px;
-  right: -11px;
+  top: -12px;
+  right: -12px;
 }
 
 /* Büyük mono kod — tıklanınca da kopyalar */
@@ -180,9 +241,9 @@
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 6px 14px;
+  gap: 8px 16px;
   align-self: stretch;
-  padding: 12px 16px;
+  padding: 14px 18px;
   border: 1.5px dashed var(--accent);
   border-radius: var(--r-md);
   background: var(--gray-50);
@@ -197,7 +258,7 @@
 .codeText {
   font-family: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas,
     monospace;
-  font-size: clamp(19px, 2.2vw, 26px);
+  font-size: clamp(20px, 2.2vw, 27px);
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -223,13 +284,20 @@
 
 .couponDesc {
   color: var(--gray-700);
-  font-size: var(--fs-small);
+  font-size: var(--fs-body);
   line-height: 1.5;
 }
 .couponTerms {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   color: var(--gray-500);
   font-size: var(--fs-micro);
   font-variant-numeric: tabular-nums;
+}
+.couponTerms svg {
+  flex-shrink: 0;
+  color: var(--accent);
 }
 
 /* Sağ (mobilde alt) dikey buton grubu */
@@ -238,7 +306,7 @@
   flex-direction: column;
   justify-content: center;
   gap: 10px;
-  padding: 0 clamp(18px, 2.4vw, 28px) clamp(18px, 2.4vw, 26px);
+  padding: 0 clamp(20px, 2.6vw, 32px) clamp(20px, 2.6vw, 30px);
 }
 .ticketGhost {
   width: 100%;
@@ -252,7 +320,7 @@
   justify-content: center;
   gap: 8px;
   width: 100%;
-  padding: 10px 18px;
+  padding: 12px 20px;
   border: 1px solid var(--accent);
   border-radius: var(--r-pill);
   background: var(--accent);
@@ -274,35 +342,118 @@
   color: var(--white);
 }
 
-/* Geniş ekran: yatay bilet (sol renk bloğu · gövde · buton grubu) */
+/* Geniş ekran: yatay bilet (sol renk bloğu · gövde · buton grubu).
+   Sol blok geniş tutulur ki tek kupon bile sayfayı dengeli doldursun. */
 @media (min-width: 880px) {
   .ticket {
-    grid-template-columns: minmax(170px, 220px) minmax(0, 1fr) auto;
+    grid-template-columns: minmax(220px, 300px) minmax(0, 1fr) minmax(220px, 260px);
   }
   .ticketValue {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 4px;
-    padding: clamp(22px, 3vw, 34px) 18px;
+    gap: 6px;
+    padding: clamp(28px, 3.4vw, 44px) 24px;
     border-bottom: 0;
-    border-right: 2px dashed rgba(255, 255, 255, 0.55);
+    border-right: 2px dashed rgba(255, 255, 255, 0.5);
   }
   /* Çentikler dikey ayracın üst ve alt ucuna taşınır */
   .ticketBody::before {
-    top: -11px;
-    left: -11px;
+    top: -12px;
+    left: -12px;
     right: auto;
   }
   .ticketBody::after {
     top: auto;
-    bottom: -11px;
-    left: -11px;
+    bottom: -12px;
+    left: -12px;
     right: auto;
   }
   .ticketActions {
-    min-width: 210px;
-    padding: clamp(18px, 2.4vw, 26px) clamp(18px, 2.4vw, 28px);
+    padding: clamp(20px, 2.6vw, 30px) clamp(20px, 2.6vw, 32px);
+  }
+}
+
+/* --- "Nasıl kullanılır" 3 adımlı şerit --- */
+.howto {
+  margin-top: clamp(22px, 3vw, 32px);
+}
+.howHead {
+  font-size: var(--fs-h5);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  margin-bottom: 14px;
+}
+.howSteps {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
+}
+.step {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 18px 20px;
+  border: 1px solid var(--gray-200);
+  border-radius: var(--r-lg);
+  background: var(--gray-50);
+}
+.stepNum {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--white);
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.stepText {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+.stepTitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--fs-small);
+  font-weight: 700;
+  color: var(--ink);
+}
+.stepTitle svg {
+  flex-shrink: 0;
+  color: var(--accent);
+}
+.stepDesc {
+  font-size: var(--fs-micro);
+  color: var(--gray-500);
+  line-height: 1.5;
+}
+
+/* --- İndirimli ürünler gridi (tam genişlik) --- */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(158px, 1fr));
+  gap: 12px;
+  margin-top: 20px;
+}
+@media (min-width: 640px) {
+  .grid {
+    grid-template-columns: repeat(auto-fill, minmax(184px, 1fr));
+    gap: 16px;
+  }
+}
+@media (min-width: 1120px) {
+  .grid {
+    grid-template-columns: repeat(auto-fill, minmax(202px, 1fr));
+    gap: 18px;
   }
 }
 
@@ -312,8 +463,8 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  margin-top: clamp(32px, 4.5vw, 52px);
-  padding: 12px 18px;
+  margin-top: clamp(36px, 5vw, 56px);
+  padding: 14px 20px;
   border: 1px solid var(--gray-200);
   border-radius: var(--r-pill);
   background: var(--gray-50);
@@ -326,27 +477,14 @@
   color: var(--accent);
 }
 
-/* --- Ürün gridi --- */
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 12px;
-  margin-top: 16px;
-}
-@media (min-width: 720px) {
-  .grid {
-    grid-template-columns: repeat(auto-fill, minmax(168px, 1fr));
-    gap: 16px;
-  }
-}
-
-/* --- Boş durum --- */
+/* --- Boş durum (indirimli ürün yok) --- */
 .empty {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
-  padding: 64px 24px;
+  gap: 14px;
+  margin-top: 20px;
+  padding: clamp(48px, 7vw, 80px) 24px;
   text-align: center;
   background: var(--gray-50);
   border: 1px solid var(--gray-200);
@@ -355,13 +493,15 @@
 .emptyIcon {
   display: grid;
   place-items: center;
-  width: 56px;
-  height: 56px;
+  width: 60px;
+  height: 60px;
   border-radius: 50%;
   background: var(--accent-soft);
   color: var(--accent);
 }
-.empty h2 { font-size: var(--fs-h3); }
+.empty h2 {
+  font-size: var(--fs-h3);
+}
 .empty p {
   color: var(--gray-500);
   max-width: var(--measure-narrow);

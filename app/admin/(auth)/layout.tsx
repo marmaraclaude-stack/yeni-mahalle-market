@@ -26,14 +26,7 @@ export default async function AuthedAdminLayout({
     <div className={styles.shell}>
       <aside className={styles.sidebar}>
         <Link href="/admin" className={styles.brand}>
-          {/* Düz img: logo ~28px. */}
-          <img
-            src="/logo.png"
-            alt=""
-            width={28}
-            height={28}
-            className={styles.brandLogo}
-          />
+          {/* Logo yok: tek satır marka adı. */}
           <span className={styles.brandName}>Yeni Mahalle Market</span>
         </Link>
         <AdminNav />

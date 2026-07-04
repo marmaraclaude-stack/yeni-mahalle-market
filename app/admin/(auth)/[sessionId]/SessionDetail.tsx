@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { ChevronLeft } from "lucide-react";
 import type { RealtimeChannel } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/client";
 import type { ChatMessage, ChatSession } from "@/lib/supabase/types";
@@ -110,9 +111,17 @@ export default function SessionDetail({ session, initialMessages }: Props) {
       <div style={{ marginBottom: 14 }}>
         <Link
           href="/admin/sohbetler"
-          style={{ fontSize: 13, color: "var(--muted)", letterSpacing: "0.04em" }}
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 4,
+            fontSize: 13,
+            color: "var(--muted)",
+            letterSpacing: "0.04em",
+          }}
         >
-          ← Tüm sohbetler
+          <ChevronLeft size={15} aria-hidden />
+          Tüm sohbetler
         </Link>
       </div>
 

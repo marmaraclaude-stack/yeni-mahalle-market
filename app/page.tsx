@@ -2,6 +2,7 @@ import { BUSINESS } from "@/lib/business";
 import ReviewsRail from "@/components/ReviewsRail";
 import StatusIndicator from "@/components/StatusIndicator";
 import ChatPreview from "@/components/ChatPreview";
+import LiveSupportCta from "@/components/LiveSupportCta";
 import SiteNav from "@/components/SiteNav";
 import PromoBanners from "@/components/shop/PromoBanners";
 import Carousel from "@/components/Carousel";
@@ -143,7 +144,37 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ===== KAMPANYA BANNER'LARI — hero'nun hemen altında ===== */}
+        {/* ===== PRODUCTS / CATEGORIES — hero'nun hemen altında ===== */}
+        <section id="urunler" className="section section--tight">
+          <div className="container">
+            <header className="section__head section__head--center">
+              <h2 className="section__title section__title--nowrap">
+                Bir mahalle marketinde olması gereken{" "}
+                <span className="accent">her şey.</span>
+              </h2>
+              <p className="section__sub">
+                Manavdan şarküteriye, mangal kömüründen şarj aletine. Aklına
+                geleni yaz, kapına getirelim.
+              </p>
+            </header>
+
+            <Carousel />
+
+            <CategoryGrid />
+
+            {/* Online mağaza CTA — tam katalog */}
+            <div className="section__more">
+              <a href="/urunler" className="btn btn--accent">
+                Tüm ürünleri incele · Online sipariş
+              </a>
+              <p className="section__more-note">
+                Fiyatları gör, sepetini oluştur, kapıda veya online öde.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* ===== KAMPANYA BANNER'LARI ===== */}
         <PromoBanners variant="home" />
 
         {/* ===== FEATURES — Apple-style split rows ===== */}
@@ -197,16 +228,11 @@ export default function Home() {
                   Sorun mu var? Canlı destek yanında.
                 </h2>
                 <p className="features__p">
-                  Sağ alttaki baloncuğa tıkla, anında yazışalım. Stoktan teyit
-                  eder, eksik olanı sorar, tezgâhtan özenle toplarız. Dilersen
-                  telefonla da ulaşabilirsin.
+                  Baloncuğa tıkla, anında yazışalım. Stoktan teyit eder, eksik
+                  olanı sorar, tezgâhtan özenle toplarız. Dilersen telefon ya da
+                  WhatsApp ile de ulaşabilirsin.
                 </p>
-                <div>
-                  <a href={BUSINESS.phone.href} className="btn-apple">
-                    <span className="btn-apple__label">{BUSINESS.phone.display}</span>
-                    <span className="btn-apple__icon" aria-hidden="true"><PhoneIcon /></span>
-                  </a>
-                </div>
+                <LiveSupportCta />
               </div>
               <div className="features__visual features__visual--chat">
                 <ChatPreview />
@@ -266,36 +292,6 @@ export default function Home() {
                   </ol>
                 </div>
               </div>
-            </div>
-          </div>
-        </section>
-
-        {/* ===== PRODUCTS / CATEGORIES ===== */}
-        <section id="urunler" className="section section--tight">
-          <div className="container">
-            <header className="section__head section__head--center">
-              <h2 className="section__title section__title--nowrap">
-                Bir mahalle marketinde olması gereken{" "}
-                <span className="accent">her şey.</span>
-              </h2>
-              <p className="section__sub">
-                Manavdan şarküteriye, mangal kömüründen şarj aletine. Aklına
-                geleni yaz, kapına getirelim.
-              </p>
-            </header>
-
-            <Carousel />
-
-            <CategoryGrid />
-
-            {/* Online mağaza CTA — tam katalog */}
-            <div className="section__more">
-              <a href="/urunler" className="btn btn--accent">
-                Tüm ürünleri incele · Online sipariş
-              </a>
-              <p className="section__more-note">
-                Fiyatları gör, sepetini oluştur, kapıda veya online öde.
-              </p>
             </div>
           </div>
         </section>

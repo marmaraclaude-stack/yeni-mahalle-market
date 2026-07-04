@@ -125,7 +125,7 @@ export default function BannerCarousel({
     >
       <div className={styles.viewport}>
         <div className={styles.track} ref={trackRef} onScroll={handleScroll}>
-          {banners.map((b, i) => {
+          {banners.map((b) => {
             const [bg, fg] = CATEGORY_TINTS[b.tint] ?? CATEGORY_TINTS[0];
             const hasCta = b.cta_text.trim() !== "" && b.cta_href.trim() !== "";
             const Icon = bannerIcon(b.title);
@@ -136,9 +136,6 @@ export default function BannerCarousel({
                 style={{ "--bnr-bg": bg, "--bnr-fg": fg } as CSSProperties}
               >
                 <div className={styles.slideCopy}>
-                  <span className={styles.kicker}>
-                    {i % 2 === 0 ? "KAMPANYA" : "FIRSAT"}
-                  </span>
                   <h3 className={styles.slideTitle}>{b.title}</h3>
                   {b.subtitle && <p className={styles.slideSub}>{b.subtitle}</p>}
                   {hasCta && (

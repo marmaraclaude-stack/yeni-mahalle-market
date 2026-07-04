@@ -189,6 +189,15 @@ p { margin: 0; }
   background: var(--accent-deep);
   transform: translateY(-1px);
 }
+/* WhatsApp — marka yeşili */
+.btn--wa {
+  background: #1faa53;
+  color: var(--white);
+}
+.btn--wa:hover {
+  background: #178a43;
+  transform: translateY(-1px);
+}
 /* Büyük birincil CTA — hero ve dönüşüm noktaları */
 .btn--lg {
   height: 52px;
@@ -197,52 +206,26 @@ p { margin: 0; }
   font-weight: 600;
 }
 .btn--lg svg { width: 16px; height: 16px; }
-/* Apple-style hover-fill buton (21st.dev pattern) */
-.btn-apple {
-  position: relative;
-  isolation: isolate;
-  display: inline-flex;
+
+/* Canlı destek CTA — üç erişim kanalı (sohbet / telefon / WhatsApp) */
+.support-cta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
   align-items: center;
-  gap: 14px;
+}
+.support-cta__btn {
   height: 48px;
-  padding: 0 6px 0 22px;
-  border-radius: var(--r-pill);
-  background: var(--gray-100);
-  color: var(--ink);
-  font-size: var(--fs-small);
+  padding: 0 22px;
+  font-size: var(--fs-body);
   font-weight: 600;
-  letter-spacing: -0.005em;
-  text-decoration: none;
-  overflow: hidden;
-  transition: color 0.4s var(--ease);
 }
-.btn-apple::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  background: var(--ink);
-  border-radius: inherit;
-  transform: scaleX(0);
-  transform-origin: left center;
-  transition: transform 0.5s cubic-bezier(0.65, 0, 0.35, 1);
+.support-cta__btn svg { width: 18px; height: 18px; }
+@media (max-width: 520px) {
+  .support-cta__btn {
+    flex: 1 1 100%;
+  }
 }
-.btn-apple:hover { color: var(--white); }
-.btn-apple:hover::before { transform: scaleX(1); }
-.btn-apple__label { position: relative; }
-.btn-apple__icon {
-  width: 36px; height: 36px;
-  flex-shrink: 0;
-  border-radius: 50%;
-  display: grid;
-  place-items: center;
-  background: var(--ink);
-  color: var(--white);
-  transition: background 0.4s var(--ease), color 0.4s var(--ease), transform 0.4s var(--ease);
-}
-.btn-apple__icon svg { width: 15px; height: 15px; transition: transform 0.4s var(--ease); }
-.btn-apple:hover .btn-apple__icon { background: var(--white); color: var(--ink); }
-.btn-apple:hover .btn-apple__icon svg { transform: translate(2px, -2px); }
 
 /* Hero status — zamana duyarlı. Açık: yeşil canlı nokta; kapalı: gri nokta. */
 .status {

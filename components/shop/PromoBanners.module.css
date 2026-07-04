@@ -5,7 +5,7 @@
    içinde. Yalnız sol/sağ oklar container gutter'ına (kartın
    dışına) taşar, kartla çakışmaz.
 
-   Kart tasarımı: solda içerik bloğu (kicker + başlık + alt metin
+   Kart tasarımı: solda içerik bloğu (başlık + alt metin
    + kompakt CTA) ~%58 genişlik; sağda tint gradient üstünde
    katmanlı dekor (3 daire + büyük tematik ikon), içeriğe nefes
    bırakır. Kart daha yatay/kompakt (clamp 150-190px). Tint
@@ -101,20 +101,6 @@
   align-items: flex-start;
   gap: 9px;
   max-width: 58%;
-}
-
-/* Kicker chip — koyu tint zemin, beyaz metin */
-.kicker {
-  display: inline-flex;
-  align-items: center;
-  height: 24px;
-  padding: 0 12px;
-  border-radius: var(--r-pill);
-  background: var(--bnr-fg);
-  color: var(--white);
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
 }
 
 .slideTitle {

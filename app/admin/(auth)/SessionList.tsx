@@ -1,11 +1,15 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useTransition } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import type { RealtimeChannel } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/client";
+import { deleteChatSession } from "@/lib/shop/admin-actions";
 import type { ChatSession } from "@/lib/supabase/types";
 import styles from "../admin.module.css";
+
+type Filter = "all" | "unread" | "read";
 
 function timeAgo(iso: string) {
   const t = new Date(iso).getTime();
@@ -33,7 +37,11 @@ function formatDate(iso: string) {
 }
 
 export default function SessionList({ initial }: { initial: ChatSession[] }) {
+  const router = useRouter();
   const [sessions, setSessions] = useState<ChatSession[]>(initial);
+  const [filter, setFilter] = useState<Filter>("all");
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [, startTransition] = useTransition();
 
   useEffect(() => {
     const supabase = createClient();
@@ -69,9 +77,40 @@ export default function SessionList({ initial }: { initial: ChatSession[] }) {
   }, []);
 
   const unreadCount = useMemo(
-    () => sessions.filter((s) => s.unread_admin && s.status === "open").length,
+    () => sessions.filter((s) => s.unread_admin).length,
     [sessions],
   );
+  const readCount = sessions.length - unreadCount;
+
+  const visible = useMemo(() => {
+    if (filter === "unread") return sessions.filter((s) => s.unread_admin);
+    if (filter === "read") return sessions.filter((s) => !s.unread_admin);
+    return sessions;
+  }, [sessions, filter]);
+
+  function handleDelete(session: ChatSession, e: React.MouseEvent) {
+    e.preventDefault();
+    e.stopPropagation();
+    const who = session.visitor_name ?? "İsimsiz";
+    const onay = window.confirm(
+      `"${who}" ile olan sohbet ve tüm mesajları kalıcı olarak silinecek. Emin misiniz?`,
+    );
+    if (!onay) return;
+    setDeletingId(session.id);
+    startTransition(async () => {
+      try {
+        const result = await deleteChatSession(session.id);
+        if (!result.ok) {
+          window.alert(result.error ?? "Sohbet silinemedi.");
+          return;
+        }
+        setSessions((prev) => prev.filter((s) => s.id !== session.id));
+        router.refresh();
+      } finally {
+        setDeletingId(null);
+      }
+    });
+  }
 
   if (sessions.length === 0) {
     return (
@@ -85,35 +124,80 @@ export default function SessionList({ initial }: { initial: ChatSession[] }) {
     );
   }
 
+  const chips: { key: Filter; label: string; count: number }[] = [
+    { key: "all", label: "Tümü", count: sessions.length },
+    { key: "unread", label: "Okunmamış", count: unreadCount },
+    { key: "read", label: "Okunmuş", count: readCount },
+  ];
+
   return (
     <>
       <h1 className={styles.title}>Sohbetler</h1>
       <p className={styles.subtitle}>
         {sessions.length} sohbet · {unreadCount} okunmamış
       </p>
-      <div className={styles.list}>
-        {sessions.map((s) => (
-          <Link
-            key={s.id}
-            href={`/admin/${s.id}`}
-            className={`${styles.row} ${s.unread_admin ? styles["row--unread"] : ""}`}
+
+      <div className={styles.chips}>
+        {chips.map((c) => (
+          <button
+            key={c.key}
+            type="button"
+            onClick={() => setFilter(c.key)}
+            className={`${styles.chip} ${filter === c.key ? styles["chip--active"] : ""}`}
+            aria-pressed={filter === c.key}
           >
-            <div style={{ minWidth: 0 }}>
-              <div className={styles.rowName}>
-                {s.unread_admin && <span className={styles.rowDot} aria-hidden />}
-                {s.visitor_name ?? "İsimsiz"}
-              </div>
-              <div className={styles.rowMeta}>
-                {s.visitor_phone ?? "·"} · {timeAgo(s.last_message_at)}
-              </div>
-            </div>
-            <div className={styles.rowRight}>
-              <div>{formatDate(s.last_message_at)}</div>
-              {s.unread_admin && <span className={styles.rowBadge}>YENİ</span>}
-            </div>
-          </Link>
+            {c.key === "unread" && (
+              <span className={styles.rowDot} aria-hidden />
+            )}
+            {c.label}
+            <span className={styles.chipCount}>{c.count}</span>
+          </button>
         ))}
       </div>
+
+      {visible.length === 0 ? (
+        <div className={styles.empty}>
+          {filter === "unread"
+            ? "Okunmamış sohbet yok."
+            : "Okunmuş sohbet yok."}
+        </div>
+      ) : (
+        <div className={styles.list}>
+          {visible.map((s) => (
+            <div
+              key={s.id}
+              className={`${styles.row} ${s.unread_admin ? styles["row--unread"] : ""}`}
+            >
+              <Link href={`/admin/${s.id}`} className={styles.rowMain}>
+                <div className={styles.rowName}>
+                  {s.unread_admin && (
+                    <span className={styles.rowDot} aria-hidden />
+                  )}
+                  {s.visitor_name ?? "İsimsiz"}
+                </div>
+                <div className={styles.rowMeta}>
+                  {s.visitor_phone ?? "·"} · {timeAgo(s.last_message_at)}
+                </div>
+              </Link>
+              <div className={styles.rowSide}>
+                <div className={styles.rowRight}>
+                  <div>{formatDate(s.last_message_at)}</div>
+                  {s.unread_admin && <span className={styles.rowBadge}>YENİ</span>}
+                </div>
+                <button
+                  type="button"
+                  onClick={(e) => handleDelete(s, e)}
+                  disabled={deletingId === s.id}
+                  className={styles.rowDelete}
+                  aria-label={`${s.visitor_name ?? "İsimsiz"} sohbetini sil`}
+                >
+                  {deletingId === s.id ? "Siliniyor…" : "Sil"}
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </>
   );
 }
