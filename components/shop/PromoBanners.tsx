@@ -38,9 +38,12 @@ export default async function PromoBanners({
   if (banners.length === 0) return null;
 
   if (variant === "home") {
+    // Ana sayfa: hero stat kartları ile banner arasındaki ritmi dengeler
+    // (homeSection). >=1024px'te homeWrap container sınırını aşıp full-bleed
+    // olur; <1024px'te container gibi davranır (globals.css .container kopyası).
     return (
-      <section className="section--tight" aria-label="Kampanyalar">
-        <div className="container">
+      <section className={styles.homeSection} aria-label="Kampanyalar">
+        <div className={styles.homeWrap}>
           <BannerCarousel banners={banners} variant="home" />
         </div>
       </section>

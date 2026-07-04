@@ -5,7 +5,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
 const COOKIE_NAME = "admin_auth";
-const MAX_AGE_SECONDS = 60 * 60 * 24 * 7; // 7 gün
+const MAX_AGE_SECONDS = 60 * 60 * 12; // 12 saat — oturum kısa tutulur (güvenlik)
 
 // Cookie değeri sabit "1" DEĞİL — ADMIN_PASSWORD'dan türetilmiş HMAC token.
 // Parolayı bilmeyen biri geçerli cookie üretemez; parola değişince tüm

@@ -101,6 +101,9 @@ function CouponRow({ coupon }: { coupon: Coupon }) {
       <td className={styles.couponUses}>
         {coupon.used_count}/{coupon.max_uses ?? "∞"}
       </td>
+      <td className={styles.couponUses}>
+        {Number(coupon.per_user_limit) === 0 ? "∞" : coupon.per_user_limit}
+      </td>
       <td>
         <StatusBadge coupon={coupon} />
       </td>
@@ -159,6 +162,8 @@ export default function CouponsTable({ coupons }: { coupons: Coupon[] }) {
     const minOrder = parseNum(String(fd.get("min_order_total") ?? "")) ?? 0;
     const maxUsesRaw = String(fd.get("max_uses") ?? "").trim();
     const maxUses = maxUsesRaw === "" ? null : Number.parseInt(maxUsesRaw, 10);
+    const perUserRaw = String(fd.get("per_user_limit") ?? "").trim();
+    const perUserLimit = perUserRaw === "" ? 1 : Number.parseInt(perUserRaw, 10);
     const expiresAt = String(fd.get("expires_at") ?? "").trim() || null;
 
     setFormError(null);
@@ -172,6 +177,7 @@ export default function CouponsTable({ coupons }: { coupons: Coupon[] }) {
           value,
           min_order_total: minOrder,
           max_uses: maxUses,
+          per_user_limit: Number.isNaN(perUserLimit) ? 1 : perUserLimit,
           expires_at: expiresAt,
         });
         if (!result.ok) {
@@ -291,6 +297,19 @@ export default function CouponsTable({ coupons }: { coupons: Coupon[] }) {
               />
             </div>
             <div className={styles.field}>
+              <label className={styles.label} htmlFor="kupon-peruser">
+                Üye başına kullanım
+              </label>
+              <input
+                id="kupon-peruser"
+                name="per_user_limit"
+                inputMode="numeric"
+                defaultValue="1"
+                placeholder="0 = sınırsız"
+                className={styles.input}
+              />
+            </div>
+            <div className={styles.field}>
               <label className={styles.label} htmlFor="kupon-expires">
                 Son tarih
               </label>
@@ -327,6 +346,7 @@ export default function CouponsTable({ coupons }: { coupons: Coupon[] }) {
                   <th>İndirim</th>
                   <th>Min. Sepet</th>
                   <th>Kullanım</th>
+                  <th>Üye Başına</th>
                   <th>Durum</th>
                   <th>Son Tarih</th>
                   <th></th>

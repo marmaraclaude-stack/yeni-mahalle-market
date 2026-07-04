@@ -57,6 +57,7 @@ export interface Coupon {
   value: number;
   min_order_total: number;
   max_uses: number | null;
+  per_user_limit: number; // üye başına kullanım; 0 = sınırsız
   used_count: number;
   is_active: boolean;
   expires_at: string | null;
@@ -71,6 +72,7 @@ export interface NewCouponInput {
   value: number;
   min_order_total?: number;
   max_uses?: number | null;
+  per_user_limit?: number; // 0 = üye başına sınırsız (varsayılan 1)
   expires_at?: string | null;
 }
 
@@ -81,6 +83,7 @@ export interface CouponPatch {
   value?: number;
   min_order_total?: number;
   max_uses?: number | null;
+  per_user_limit?: number; // 0 = üye başına sınırsız
   expires_at?: string | null; // "YYYY-AA-GG" veya null (süresiz)
   is_active?: boolean;
 }
@@ -599,6 +602,14 @@ function validateCouponValue(
   return null;
 }
 
+/** Üye başına kullanım limitini doğrula: >= 0 tam sayı (0 = sınırsız). */
+function validatePerUserLimit(value: number): string | null {
+  if (!Number.isInteger(value) || value < 0) {
+    return "Üye başına kullanım 0 veya daha büyük bir tam sayı olmalı (0 = sınırsız).";
+  }
+  return null;
+}
+
 /** Yeni kupon oluştur — kod büyük harfe çevrilir, [A-Z0-9]{3,20} olmalı. */
 export async function createCoupon(
   input: NewCouponInput,
@@ -623,6 +634,9 @@ export async function createCoupon(
   if (maxUses !== null && (!Number.isInteger(maxUses) || maxUses < 1)) {
     return { ok: false, error: "Maksimum kullanım en az 1 olmalı (boş = sınırsız)." };
   }
+  const perUserLimit = input.per_user_limit ?? 1;
+  const perUserError = validatePerUserLimit(perUserLimit);
+  if (perUserError) return { ok: false, error: perUserError };
   const expires = parseExpiresAt(input.expires_at);
   if ("error" in expires) return { ok: false, error: expires.error };
 
@@ -634,6 +648,7 @@ export async function createCoupon(
     value: input.value,
     min_order_total: minOrder,
     max_uses: maxUses,
+    per_user_limit: perUserLimit,
     expires_at: expires.value,
   });
   if (error) {
@@ -686,6 +701,11 @@ export async function updateCoupon(
       return { ok: false, error: "Maksimum kullanım en az 1 olmalı (boş = sınırsız)." };
     }
     clean.max_uses = patch.max_uses;
+  }
+  if (patch.per_user_limit !== undefined) {
+    const perUserError = validatePerUserLimit(patch.per_user_limit);
+    if (perUserError) return { ok: false, error: perUserError };
+    clean.per_user_limit = patch.per_user_limit;
   }
   if (patch.expires_at !== undefined) {
     const expires = parseExpiresAt(patch.expires_at);
@@ -910,5 +930,162 @@ export async function deleteBanner(id: string): Promise<BannerActionResult> {
     return { ok: false, error: bannerDbError(error, "Banner silinemedi") };
   }
   revalidateBannerPages();
+  return { ok: true };
+}
+
+// ------------------------------------------------------------
+// Üyeler (müşteri hesapları — auth.users + customer_profiles)
+// ------------------------------------------------------------
+
+/** Üye listesi satırı — auth.users + customer_profiles + sipariş sayısı. */
+export interface MemberRow {
+  id: string;
+  email: string;
+  full_name: string;
+  phone: string;
+  created_at: string;
+  order_count: number;
+}
+
+/** listMembers dönüşü — hata mesajı client'a güvenle taşınır. */
+export interface MembersResult {
+  ok: boolean;
+  members: MemberRow[];
+  error?: string;
+}
+
+/** createMember girdisi. */
+export interface NewMemberInput {
+  email: string;
+  password: string;
+  full_name: string;
+  phone: string;
+}
+
+/** Üye action'larının dönüş tipi. */
+export interface MemberActionResult {
+  ok: boolean;
+  error?: string;
+}
+
+/**
+ * Tüm üyeleri (müşteri hesaplarını) listele. auth.admin.listUsers ilk sayfayı
+ * (yüksek perPage) çeker; customer_profiles ile join edilir ve orders'tan
+ * kullanıcı başına iptal-dahil sipariş sayısı hesaplanır.
+ */
+export async function listMembers(): Promise<MembersResult> {
+  await requireAdmin();
+  const supabase = createAdminClient();
+
+  const { data: userData, error: userError } = await supabase.auth.admin.listUsers({
+    page: 1,
+    perPage: 1000,
+  });
+  if (userError) {
+    return { ok: false, members: [], error: `Üyeler alınamadı: ${userError.message}` };
+  }
+  const users = userData.users ?? [];
+  const ids = users.map((u) => u.id);
+
+  // Profil bilgileri (ad, telefon) — customer_profiles.
+  const profiles = new Map<string, { full_name: string; phone: string }>();
+  if (ids.length > 0) {
+    const { data: profData } = await supabase
+      .from("customer_profiles")
+      .select("id, full_name, phone")
+      .in("id", ids);
+    for (const p of (profData ?? []) as {
+      id: string;
+      full_name: string;
+      phone: string;
+    }[]) {
+      profiles.set(p.id, { full_name: p.full_name, phone: p.phone });
+    }
+  }
+
+  // Kullanıcı başına sipariş sayısı — orders.user_id gruplu sayım.
+  const orderCounts = new Map<string, number>();
+  if (ids.length > 0) {
+    const { data: orderData } = await supabase
+      .from("orders")
+      .select("user_id")
+      .in("user_id", ids);
+    for (const row of (orderData ?? []) as { user_id: string | null }[]) {
+      if (row.user_id) {
+        orderCounts.set(row.user_id, (orderCounts.get(row.user_id) ?? 0) + 1);
+      }
+    }
+  }
+
+  const members: MemberRow[] = users.map((u) => {
+    const prof = profiles.get(u.id);
+    const meta = (u.user_metadata ?? {}) as { full_name?: string; phone?: string };
+    return {
+      id: u.id,
+      email: u.email ?? "",
+      full_name: prof?.full_name || meta.full_name || "",
+      phone: prof?.phone || meta.phone || "",
+      created_at: u.created_at ?? "",
+      order_count: orderCounts.get(u.id) ?? 0,
+    };
+  });
+  // En yeni üye üstte.
+  members.sort((a, b) => (a.created_at < b.created_at ? 1 : -1));
+
+  return { ok: true, members };
+}
+
+/**
+ * Yeni üye oluştur — e-posta onaylı (email_confirm: true) açılır, profil
+ * satırı handle_new_user trigger'ıyla otomatik oluşur (full_name, phone metadata).
+ */
+export async function createMember(
+  input: NewMemberInput,
+): Promise<MemberActionResult> {
+  await requireAdmin();
+
+  const email = input.email.trim().toLowerCase();
+  const fullName = input.full_name.trim();
+  const phone = input.phone.trim();
+  const password = input.password;
+
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+    return { ok: false, error: "Geçerli bir e-posta adresi girin." };
+  }
+  if (fullName.length < 2) {
+    return { ok: false, error: "Ad soyad girin." };
+  }
+  if (typeof password !== "string" || password.length < 6) {
+    return { ok: false, error: "Parola en az 6 karakter olmalı." };
+  }
+
+  const supabase = createAdminClient();
+  const { error } = await supabase.auth.admin.createUser({
+    email,
+    password,
+    email_confirm: true,
+    user_metadata: { full_name: fullName, phone },
+  });
+  if (error) {
+    if (/already been registered|already exists|duplicate/i.test(error.message)) {
+      return { ok: false, error: "Bu e-posta ile kayıtlı bir üye zaten var." };
+    }
+    return { ok: false, error: `Üye oluşturulamadı: ${error.message}` };
+  }
+  revalidatePath("/admin/uyeler");
+  return { ok: true };
+}
+
+/** Üyeyi kalıcı olarak sil (auth.users; profil/adres cascade ile gider). */
+export async function deleteMember(userId: string): Promise<MemberActionResult> {
+  await requireAdmin();
+  if (!userId.trim()) return { ok: false, error: "Geçersiz üye." };
+
+  const supabase = createAdminClient();
+  const { error } = await supabase.auth.admin.deleteUser(userId);
+  if (error) {
+    return { ok: false, error: `Üye silinemedi: ${error.message}` };
+  }
+  revalidatePath("/admin/uyeler");
   return { ok: true };
 }

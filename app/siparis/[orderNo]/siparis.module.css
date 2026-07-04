@@ -1,7 +1,7 @@
 /* Sipariş takip sayfası stilleri — global token'lardan miras alır. */
 
 .page {
-  min-height: 100dvh;
+  min-height: calc(100dvh - 69px);
   background: var(--gray-50);
   font-family: var(--font-sans);
   color: var(--ink);

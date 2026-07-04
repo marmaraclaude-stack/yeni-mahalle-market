@@ -1,7 +1,7 @@
 /* Sepet sayfası stilleri: global token'lar (globals.css) üzerine CSS Module. */
 
 .page {
-  min-height: 60vh;
+  min-height: calc(100dvh - 69px);
   padding: 0 0 var(--section-y);
   background: var(--gray-50);
 }

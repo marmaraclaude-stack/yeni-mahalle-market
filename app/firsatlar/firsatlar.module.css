@@ -6,7 +6,7 @@
 
 .page {
   padding: 0 0 80px;
-  min-height: 70vh;
+  min-height: calc(100dvh - 69px);
   background: var(--white);
 }
 

@@ -92,6 +92,7 @@ export interface Coupon {
   value: number; // percent: %X, fixed: ₺X
   min_order_total: number; // 0 = alt sınır yok
   max_uses: number | null; // null = sınırsız
+  per_user_limit: number; // üye başına kullanım; 0 = sınırsız
   used_count: number;
   is_active: boolean;
   expires_at: string | null; // null = süresiz

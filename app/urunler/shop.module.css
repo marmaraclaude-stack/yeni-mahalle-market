@@ -10,7 +10,7 @@
   /* SiteNav 68px + 1px border + nefes payı */
   --shop-sticky-top: 85px;
   padding: 0 0 80px;
-  min-height: 70vh;
+  min-height: calc(100dvh - 69px);
   background: var(--white);
 }
 

@@ -244,20 +244,31 @@ export async function createOrder(
     const coupon = await validateCoupon(rawCouponCode, subtotal);
     if (!coupon.ok) return { ok: false, error: coupon.error };
 
-    // Kupon kullanıcı başına 1 kez: aynı hesabın iptal edilmemiş bir
-    // siparişinde bu kod zaten kullanıldıysa reddet ("ilk siparişe özel"
-    // kuponlar bu kuralla çalışır).
-    const { count: priorUse } = await admin
-      .from("orders")
-      .select("id", { count: "exact", head: true })
-      .eq("user_id", userId)
-      .eq("coupon_code", coupon.code)
-      .neq("status", "cancelled");
-    if ((priorUse ?? 0) > 0) {
-      return {
-        ok: false,
-        error: "Bu kupon hesabınızda daha önce kullanılmış.",
-      };
+    // Kupon üye başına kullanım limiti: kuponun per_user_limit değeri kadar
+    // (iptal edilmemiş) siparişte kullanılabilir. 0 = üye başına sınırsız
+    // (yalnız genel max_uses geçerli). per_user_limit = 1 klasik "hesap başına
+    // 1 kez" davranışıdır ("ilk siparişe özel" kuponlar bununla çalışır).
+    const { data: limitRow } = await admin
+      .from("coupons")
+      .select("per_user_limit")
+      .eq("code", coupon.code)
+      .maybeSingle();
+    const perUserLimit = Number(
+      (limitRow as { per_user_limit: number } | null)?.per_user_limit ?? 1,
+    );
+    if (perUserLimit > 0) {
+      const { count: priorUse } = await admin
+        .from("orders")
+        .select("id", { count: "exact", head: true })
+        .eq("user_id", userId)
+        .eq("coupon_code", coupon.code)
+        .neq("status", "cancelled");
+      if ((priorUse ?? 0) >= perUserLimit) {
+        return {
+          ok: false,
+          error: "Bu kuponu kullanım limitinize ulaştınız.",
+        };
+      }
     }
 
     couponCode = coupon.code;

@@ -14,6 +14,7 @@ import {
   Settings,
   ShoppingBag,
   Ticket,
+  Users,
   type LucideIcon,
 } from "lucide-react";
 import styles from "../admin.module.css";
@@ -30,6 +31,7 @@ const SHOP_PREFIXES = [
   "/admin/urunler",
   "/admin/kuponlar",
   "/admin/bannerlar",
+  "/admin/uyeler",
   "/admin/ayarlar",
 ];
 
@@ -63,6 +65,12 @@ const ITEMS: NavItem[] = [
     label: "Bannerlar",
     icon: GalleryHorizontal,
     isActive: (p) => p.startsWith("/admin/bannerlar"),
+  },
+  {
+    href: "/admin/uyeler",
+    label: "Üyeler",
+    icon: Users,
+    isActive: (p) => p.startsWith("/admin/uyeler"),
   },
   {
     href: "/admin/ayarlar",

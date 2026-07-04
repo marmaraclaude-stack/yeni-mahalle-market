@@ -9,9 +9,44 @@
    değişkenleriyle gelir; diğer token'lar globals.css'ten miras.
    ============================================================ */
 
-/* /urunler yerleşimi: başlık ile katalog düzeni arasında nefes payı */
+/* /urunler yerleşimi: başlık ile katalog düzeni arasında nefes payı.
+   Bu varyant .container İÇİNDE kalır (full-bleed yalnız ana sayfada). */
 .catalogWrap {
   margin-bottom: 6px;
+}
+
+/* -------- Ana sayfa yerleşimi --------
+   Hero stat kartları ile banner arasındaki gereksiz büyük boşluğu azaltır:
+   hero'nun alt padding'i zaten büyük olduğundan bölümü hafif negatif margin
+   ile yukarı çekip dengeli bir ritim kurarız (globals.css .hero'ya dokunmadan).
+   Alt boşluk, ardışık features bölümünün üst padding'iyle buluşur. */
+.homeSection {
+  margin-top: clamp(-28px, -1.6vw, -12px);
+  padding-top: 0;
+  padding-bottom: clamp(26px, 3.2vw, 44px);
+}
+
+/* Banner sarmalayıcı: <1024px'te globals.css .container davranışını taklit
+   eder (ortalı, --container sınırı + gutter). >=1024px'te bu sınırı AŞAR:
+   width %100 (main tam genişlik, scrollbar-gutter sabit → 100vw taşması yok)
+   ile viewport genişliğini kullanır; yalnız güvenli kenar padding'i kalır.
+   Kart içi metin BannerCarousel'de max-width ile sola dayalı okunur kalır;
+   oklar .viewport'un yan padding'inde (kart dışında) durur, çakışmaz. */
+.homeWrap {
+  width: 100%;
+  max-width: calc(var(--container) + var(--gutter) * 2);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+@media (min-width: 1024px) {
+  /* Full-bleed: wrap tam viewport genişliğinde (yan padding YOK). Kartın
+     tek iç boşluğu .viewport'un ok payıdır; bu pay --container gutter'ından
+     dar olduğundan kart, ortalı container içeriğini iki yandan aşar. Oklar
+     bu payın içinde durur, karta değmez. */
+  .homeWrap {
+    max-width: none;
+    padding-inline: 0;
+  }
 }
 
 .carousel {

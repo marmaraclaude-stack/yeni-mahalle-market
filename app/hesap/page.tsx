@@ -5,18 +5,20 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Phone, ShoppingBasket, User } from "lucide-react";
+import { MapPin, Phone, ShoppingBasket, User } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import {
   ORDER_STATUS_LABELS,
   PAYMENT_METHOD_LABELS,
   formatTL,
+  type CustomerAddress,
   type CustomerProfile,
   type OrderStatus,
   type PaymentMethod,
 } from "@/lib/shop/types";
 import SiteNav from "@/components/SiteNav";
 import LogoutButton from "./LogoutButton";
+import AddressManager from "./AddressManager";
 import styles from "./hesap.module.css";
 
 export const metadata: Metadata = {
@@ -73,13 +75,17 @@ export default async function HesapPage() {
     redirect("/giris?next=/hesap");
   }
 
-  // Profil + siparişler: RLS yalnız kullanıcının kendi satırlarını döndürür.
-  const [profileRes, ordersRes] = await Promise.all([
+  // Profil + adresler + siparişler: RLS yalnız kullanıcının kendi satırlarını döndürür.
+  const [profileRes, addressesRes, ordersRes] = await Promise.all([
     supabase
       .from("customer_profiles")
       .select("*")
       .eq("id", user.id)
       .maybeSingle(),
+    supabase
+      .from("customer_addresses")
+      .select("*")
+      .order("created_at", { ascending: true }),
     supabase
       .from("orders")
       .select("id, order_no, status, payment_method, total, created_at")
@@ -87,6 +93,7 @@ export default async function HesapPage() {
   ]);
 
   const profile = (profileRes.data as CustomerProfile | null) ?? null;
+  const addresses = (addressesRes.data ?? []) as CustomerAddress[];
   const orders = (ordersRes.data ?? []) as OrderRow[];
 
   const displayName = profile?.full_name || user.email || "Müşteri";
@@ -115,6 +122,15 @@ export default async function HesapPage() {
             </p>
           </div>
           <LogoutButton />
+        </section>
+
+        <div className={styles.stack}>
+        {/* Adreslerim */}
+        <section className={styles.card} aria-label="Adreslerim">
+          <h2 className={styles.cardTitle}>
+            <MapPin aria-hidden="true" /> Adreslerim
+          </h2>
+          <AddressManager addresses={addresses} />
         </section>
 
         {/* Sipariş listesi */}
@@ -168,6 +184,7 @@ export default async function HesapPage() {
             </ul>
           )}
         </section>
+        </div>
         </div>
       </main>
     </>

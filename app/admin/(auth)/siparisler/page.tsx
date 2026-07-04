@@ -18,8 +18,7 @@ export default async function AdminOrdersPage() {
     const { data, error } = await supabase
       .from("orders")
       .select("*")
-      .order("created_at", { ascending: false })
-      .limit(300);
+      .order("created_at", { ascending: false });
     if (error) {
       loadError = error.message;
     } else {
@@ -33,7 +32,7 @@ export default async function AdminOrdersPage() {
     <>
       <h1 className={styles.title}>Siparişler</h1>
       <p className={styles.subtitle}>
-        Son 300 sipariş · liste 15 saniyede bir kendini yeniler.
+        Tüm siparişler · liste 15 saniyede bir kendini yeniler.
       </p>
       {loadError ? (
         <div className={styles.empty}>

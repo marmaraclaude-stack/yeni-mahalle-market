@@ -7,7 +7,7 @@
 .page {
   /* Sayfa üst boşluğu — alt sayfa ritmi standardı */
   padding: clamp(24px, 4vw, 44px) 0 80px;
-  min-height: 60vh;
+  min-height: calc(100dvh - 69px);
   background: var(--gray-50);
 }
 

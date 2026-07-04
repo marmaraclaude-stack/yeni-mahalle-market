@@ -3,6 +3,7 @@
 
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { ChevronLeft } from "lucide-react";
 import { createAdminClient } from "@/lib/supabase/admin";
 import {
   setPaymentStatus,
@@ -99,8 +100,13 @@ export default async function AdminOrderDetailPage({
 
   return (
     <>
-      <Link href="/admin/siparisler" className={styles.backLink}>
-        ← Siparişler
+      <Link
+        href="/admin/siparisler"
+        className={styles.backLink}
+        style={{ display: "inline-flex", alignItems: "center", gap: 4 }}
+      >
+        <ChevronLeft size={15} aria-hidden />
+        Siparişler
       </Link>
       <h1 className={styles.title}>{order.order_no}</h1>
       <p className={styles.subtitle} style={{ marginBottom: 16 }}>
