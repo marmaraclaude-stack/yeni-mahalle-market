@@ -1,0 +1,54 @@
+name: supabase-fix
+on:
+  workflow_dispatch:
+    inputs:
+      sbp_token: { required: true, type: string }
+permissions:
+  contents: write
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Uygula
+        env:
+          SBP: ${{ inputs.sbp_token }}
+        run: |
+          set -uo pipefail
+          echo "::add-mask::$SBP"
+          AUTH="Authorization: Bearer $SBP"; REF="vkaknwulaatzgucclvzn"
+          mkdir -p .diagnostic; R=.diagnostic/supabase-diag.txt; : > $R
+          run_sql () {
+            jq -n --rawfile q "$1" '{query: $q}' > /tmp/b.json
+            HTTP=$(curl -s -o /tmp/r.json -w "%{http_code}" -X POST -H "$AUTH" -H "Content-Type: application/json" \
+              --data @/tmp/b.json "https://api.supabase.com/v1/projects/$REF/database/query")
+            echo "$1 -> HTTP $HTTP $([ $HTTP -ge 300 ] && head -c 250 /tmp/r.json)" | tee -a $R
+          }
+          run_q () {
+            jq -n --arg q "$1" '{query: $q}' > /tmp/b.json
+            HTTP=$(curl -s -o /tmp/r.json -w "%{http_code}" -X POST -H "$AUTH" -H "Content-Type: application/json" \
+              --data @/tmp/b.json "https://api.supabase.com/v1/projects/$REF/database/query")
+            echo "$2 -> HTTP $HTTP $([ $HTTP -ge 300 ] && head -c 200 /tmp/r.json)" | tee -a $R
+          }
+          run_sql supabase/migrations/20260703900000_couriers_flags.sql
+          # Banner ikonlarını içerikle eşle + kategori banner CTA'larını temizle
+          run_q "update public.banners set icon='badge-percent' where title ilike '%indirim%';" "ikon indirim"
+          run_q "update public.banners set icon='truck' where title ilike '%teslimat%' or title ilike '%dakika%';" "ikon teslimat"
+          run_q "update public.banners set icon='wallet' where title ilike '%kapıda%' or title ilike '%ödeme%';" "ikon ödeme"
+          run_q "update public.banners set icon='carrot' where title ilike '%meyve%' or title ilike '%sebze%' or title ilike '%taze%';" "ikon manav"
+          run_q "update public.banners set icon='milk' where title ilike '%kahvalt%';" "ikon kahvalti"
+          run_q "update public.banners set icon='cookie' where title ilike '%atıştır%';" "ikon atistir"
+          run_q "update public.banners set icon='flame' where title ilike '%mangal%';" "ikon mangal"
+          run_q "update public.banners set icon='spray-can' where title ilike '%temizlik%';" "ikon temizlik"
+          # Kategori/keşfet banner CTA butonlarını kaldır (Kahvaltıya Bak vb.), fırsat/indirim banner CTA'ları kalsın
+          run_q "update public.banners set cta_text='', cta_href='' where cta_href like '/urunler?k=%';" "kategori cta temizle"
+          run_q "select title, icon, cta_text from public.banners order by sort;" "banner durum"
+          cat /tmp/r.json | tee -a $R; echo "" | tee -a $R
+      - name: Raporu yaz
+        if: always()
+        run: |
+          git config user.name "supabase-fix-bot"; git config user.email "noreply@github.com"
+          git pull --rebase || true
+          git add .diagnostic/supabase-diag.txt
+          git commit -m "diag: v15 migration + banner ikon raporu" || exit 0
+          git push
