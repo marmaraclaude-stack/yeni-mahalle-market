@@ -26,21 +26,32 @@ export default async function AdminProductsPage({
 
   try {
     const supabase = createAdminClient();
-    let query = supabase
-      .from("products")
-      .select("*")
-      .order("category_slug")
-      .order("sort")
-      .order("name")
-      .limit(2000);
-    if (category) query = query.eq("category_slug", category);
-    if (search) query = query.ilike("name", `%${search}%`);
-    const { data, error } = await query;
-    if (error) {
-      loadError = error.message;
-    } else {
-      products = (data ?? []) as Product[];
+    // PostgREST yanıt başına en çok ~1000 satır döndürür (server max-rows);
+    // .limit(2000) yetmez. Katalog 1000'i aştığı için sayfalayarak (range)
+    // TÜM ürünleri çekeriz. id son sıralama anahtarı: sayfalar arası kararlı.
+    const PAGE = 1000;
+    const all: Product[] = [];
+    for (let from = 0; ; from += PAGE) {
+      let query = supabase
+        .from("products")
+        .select("*")
+        .order("category_slug")
+        .order("sort")
+        .order("name")
+        .order("id")
+        .range(from, from + PAGE - 1);
+      if (category) query = query.eq("category_slug", category);
+      if (search) query = query.ilike("name", `%${search}%`);
+      const { data, error } = await query;
+      if (error) {
+        loadError = error.message;
+        break;
+      }
+      const batch = (data ?? []) as Product[];
+      all.push(...batch);
+      if (batch.length < PAGE) break; // son sayfa
     }
+    if (!loadError) products = all;
   } catch (e) {
     loadError = e instanceof Error ? e.message : "Bilinmeyen hata";
   }

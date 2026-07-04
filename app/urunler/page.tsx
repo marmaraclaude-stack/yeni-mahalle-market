@@ -93,25 +93,33 @@ export default async function UrunlerPage({
 
   try {
     const supabase = await createClient();
-    let query = supabase.from("products").select("*").eq("is_active", true);
+    // ilike joker ve .or() ayırıcı karakterlerini temizle (varsa arama)
+    const safe = q ? q.replace(/[%_,()]/g, " ").trim() : "";
 
-    if (category) query = query.eq("category_slug", category.slug);
-
-    if (q) {
-      // ilike joker ve .or() ayırıcı karakterlerini temizle
-      const safe = q.replace(/[%_,()]/g, " ").trim();
-      if (safe) {
-        query = query.or(`name.ilike.%${safe}%,brand.ilike.%${safe}%`);
-      }
+    // PostgREST yanıt başına en çok ~1000 satır döndürür (server max-rows).
+    // Katalog 1000'i aştığı için "Tümü" görünümü sayfalayarak (range) TÜM aktif
+    // ürünleri çeker; id son sıralama anahtarı sayfalar arası kararlılık verir.
+    const PAGE = 1000;
+    const all: Product[] = [];
+    for (let from = 0; ; from += PAGE) {
+      let query = supabase
+        .from("products")
+        .select("*")
+        .eq("is_active", true);
+      if (category) query = query.eq("category_slug", category.slug);
+      if (safe) query = query.or(`name.ilike.%${safe}%,brand.ilike.%${safe}%`);
+      const { data, error } = await query
+        .order("is_featured", { ascending: false })
+        .order("sort", { ascending: true })
+        .order("name", { ascending: true })
+        .order("id", { ascending: true })
+        .range(from, from + PAGE - 1);
+      if (error) throw error;
+      const batch = (data ?? []) as Product[];
+      all.push(...batch);
+      if (batch.length < PAGE) break; // son sayfa
     }
-
-    const { data, error } = await query
-      .order("is_featured", { ascending: false })
-      .order("sort", { ascending: true })
-      .order("name", { ascending: true });
-
-    if (error) throw error;
-    products = (data ?? []) as Product[];
+    products = all;
   } catch {
     // DB henüz kurulmamış olabilir — site patlamasın, zarif fallback göster.
     dbError = true;
