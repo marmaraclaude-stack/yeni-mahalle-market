@@ -39,27 +39,17 @@
   }
 }
 
-/* Profil kartı — dikey, ferah: yumuşak accent zemin + üst şerit + gölge */
+/* Profil kartı — sade, premium: nötr beyaz zemin, ince kenar, yumuşak gölge */
 .profileCard {
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  background:
-    radial-gradient(120% 140% at 0% 0%, var(--accent-soft), transparent 55%),
-    var(--white);
+  gap: 22px;
+  background: var(--white);
   border: 1px solid var(--gray-200);
   border-radius: var(--r-lg);
-  padding: clamp(20px, 2.4vw, 28px);
-  overflow: hidden;
-  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 8px 24px rgba(16, 24, 40, 0.04);
-}
-.profileCard::before {
-  content: "";
-  position: absolute;
-  inset: 0 0 auto 0;
-  height: 3px;
-  background: linear-gradient(90deg, var(--accent), var(--accent-deep));
+  padding: clamp(22px, 2.4vw, 30px);
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 10px 30px rgba(16, 24, 40, 0.05);
 }
 @media (min-width: 1024px) {
   .profileCard {
@@ -71,35 +61,41 @@
 /* Avatar + isim üst bloğu */
 .profileTop {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 16px;
+  gap: 14px;
+  text-align: center;
   min-width: 0;
+  padding-bottom: 22px;
+  border-bottom: 1px solid var(--gray-100);
 }
 .avatar {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 60px;
-  height: 60px;
+  width: 76px;
+  height: 76px;
   border-radius: 50%;
-  background: var(--accent-soft);
-  color: var(--accent-deep);
+  background: var(--gray-50);
+  border: 1px solid var(--gray-200);
+  color: var(--gray-500);
   flex-shrink: 0;
 }
 .avatar svg {
-  width: 27px;
-  height: 27px;
+  width: 34px;
+  height: 34px;
 }
 .profileInfo {
   min-width: 0;
+  width: 100%;
 }
 .name {
   margin: 0;
   font-family: var(--font-display);
-  font-size: clamp(21px, 3.4vw, 27px);
+  font-size: clamp(20px, 3.2vw, 25px);
   font-weight: 700;
   letter-spacing: -0.02em;
-  line-height: 1.1;
+  line-height: 1.15;
   overflow-wrap: anywhere;
 }
 
@@ -110,12 +106,12 @@
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 }
 .contactItem {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   font-size: 14px;
   color: var(--gray-700);
   min-width: 0;
@@ -123,7 +119,7 @@
 .contactItem svg {
   width: 16px;
   height: 16px;
-  color: var(--accent);
+  color: var(--gray-400);
   flex-shrink: 0;
 }
 .contactItem span {
@@ -221,20 +217,20 @@
   cursor: wait;
 }
 
-/* Sipariş kartı */
+/* İçerik kartı (Adreslerim / Siparişlerim) */
 .card {
   background: var(--white);
   border: 1px solid var(--gray-200);
   border-radius: var(--r-lg);
   padding: clamp(18px, 2.2vw, 26px);
-  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.03);
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 10px 30px rgba(16, 24, 40, 0.05);
 }
 .cardTitle {
   display: flex;
   align-items: center;
-  gap: 9px;
-  margin: 0 0 16px;
-  padding-bottom: 14px;
+  gap: 10px;
+  margin: 0 0 18px;
+  padding-bottom: 16px;
   border-bottom: 1px solid var(--gray-100);
   font-family: var(--font-display);
   font-size: 16px;
