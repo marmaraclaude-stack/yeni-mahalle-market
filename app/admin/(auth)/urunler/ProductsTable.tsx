@@ -1,15 +1,26 @@
 "use client";
 
 // Ürün tablosu — üst araç çubuğu (sunucudan gelen filtre slotu + "Yeni Ürün"
-// accent butonu), collapse'lı yeni ürün formu (createProduct), satır içi
-// fiyat/stok düzenleme (updateProduct), aktif/pasif toggle (toggleProductActive),
-// görsel küçük önizleme ve tam düzenleme sayfasına "Düzenle" linki.
-// Tablo başlıkları kaydırma alanında sabittir (sticky).
+// accent butonu), hızlı filtre çipleri (client — İndirimli / Çok Satan /
+// Stokta Yok), collapse'lı yeni ürün formu (createProduct), satır içi
+// fiyat/eski fiyat/stok düzenleme (updateProduct — yalnız değişiklik varsa
+// Kaydet belirginleşir), çok satan + aktif/pasif toggle'ları, görsel önizleme
+// ve tam düzenleme sayfasına "Düzenle" linki. Tablo başlığı sabit (sticky);
+// dar ekranda satırlar kart benzeri yığılır.
 
-import { useState, useTransition } from "react";
+import { useMemo, useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Plus, X } from "lucide-react";
+import {
+  Check,
+  Eye,
+  EyeOff,
+  PackageX,
+  Plus,
+  Star,
+  Tag,
+  X,
+} from "lucide-react";
 import {
   createProduct,
   toggleProductActive,
@@ -32,6 +43,13 @@ function parseCompare(value: string): number | null | undefined {
   const n = Number.parseFloat(trimmed.replace(",", "."));
   return Number.isFinite(n) && n >= 0 ? n : undefined;
 }
+
+/** Ürün indirimli mi? (eski fiyat, güncel fiyattan yüksek) */
+function isDiscounted(p: Product): boolean {
+  return p.compare_at_price !== null && p.compare_at_price > p.price;
+}
+
+type QuickKey = "discounted" | "bestseller" | "outofstock";
 
 function ProductRow({ product }: { product: Product }) {
   const router = useRouter();
@@ -108,10 +126,17 @@ function ProductRow({ product }: { product: Product }) {
 
   const category = categoryBySlug(product.category_slug);
   const [tintBg, tintFg] = CATEGORY_TINTS[category?.tint ?? 0];
+  const discount = isDiscounted(product);
+  const discountPct =
+    discount && product.compare_at_price
+      ? Math.round(
+          ((product.compare_at_price - product.price) / product.compare_at_price) * 100,
+        )
+      : 0;
 
   return (
     <tr className={product.is_active ? "" : styles.rowInactive}>
-      <td>
+      <td data-label="Ürün">
         <div className={styles.prodCell}>
           {product.image_url ? (
             <img
@@ -131,7 +156,7 @@ function ProductRow({ product }: { product: Product }) {
               {product.name.charAt(0).toLocaleUpperCase("tr-TR")}
             </span>
           )}
-          <div>
+          <div className={styles.prodText}>
             <div className={styles.prodName}>{product.name}</div>
             <div className={styles.prodMeta}>
               {[product.brand, product.size_text].filter(Boolean).join(" · ") || "·"}
@@ -139,70 +164,102 @@ function ProductRow({ product }: { product: Product }) {
           </div>
         </div>
       </td>
-      <td>{category?.name ?? product.category_slug}</td>
-      <td>
-        <input
-          type="text"
-          inputMode="decimal"
-          value={price}
-          onChange={(e) => setPrice(e.target.value)}
-          className={styles.inputSm}
-          aria-label={`${product.name} fiyatı`}
-        />
+      <td data-label="Kategori">
+        <span className={styles.catBadge} style={{ background: tintBg, color: tintFg }}>
+          {category?.name ?? product.category_slug}
+        </span>
       </td>
-      <td>
-        <input
-          type="text"
-          inputMode="decimal"
-          value={compare}
-          onChange={(e) => setCompare(e.target.value)}
-          className={styles.inputSm}
-          placeholder="—"
-          aria-label={`${product.name} eski (indirim öncesi) fiyatı`}
-        />
-      </td>
-      <td>
-        <label className={styles.checkLabel}>
+      <td data-label="Fiyat">
+        <span className={styles.priceField}>
+          <span className={styles.pricePrefix} aria-hidden>
+            ₺
+          </span>
           <input
-            type="checkbox"
-            checked={inStock}
-            onChange={(e) => setInStock(e.target.checked)}
-            aria-label={`${product.name} stok durumu`}
+            type="text"
+            inputMode="decimal"
+            value={price}
+            onChange={(e) => setPrice(e.target.value)}
+            className={`${styles.inputSm} ${styles.priceInput}`}
+            aria-label={`${product.name} fiyatı`}
           />
-          Stokta
-        </label>
+        </span>
       </td>
-      <td>
+      <td data-label="Eski fiyat">
+        <span className={styles.priceField}>
+          <span className={styles.pricePrefix} aria-hidden>
+            ₺
+          </span>
+          <input
+            type="text"
+            inputMode="decimal"
+            value={compare}
+            onChange={(e) => setCompare(e.target.value)}
+            className={`${styles.inputSm} ${styles.priceInput}`}
+            placeholder="Yok"
+            aria-label={`${product.name} eski (indirim öncesi) fiyatı`}
+          />
+          {discountPct > 0 && (
+            <span className={styles.discountTag}>%{discountPct}</span>
+          )}
+        </span>
+      </td>
+      <td data-label="Stok">
+        <button
+          type="button"
+          onClick={() => setInStock((v) => !v)}
+          className={`${styles.statusPill} ${
+            inStock ? styles["statusPill--ok"] : styles["statusPill--danger"]
+          }`}
+          aria-pressed={inStock}
+          aria-label={`${product.name} stok durumu: ${inStock ? "stokta" : "tükendi"}`}
+        >
+          {inStock ? <Check size={14} aria-hidden /> : <PackageX size={14} aria-hidden />}
+          {inStock ? "Stokta" : "Tükendi"}
+        </button>
+      </td>
+      <td data-label="Çok satan">
         <button
           type="button"
           onClick={toggleBestSeller}
           disabled={busy}
-          className={`${styles.pillBtn} ${product.is_best_seller ? styles["pillBtn--on"] : ""}`}
+          className={`${styles.statusPill} ${
+            product.is_best_seller ? styles["statusPill--star"] : styles["statusPill--muted"]
+          }`}
+          aria-pressed={product.is_best_seller}
           aria-label={`${product.name} çok satan ${product.is_best_seller ? "işaretini kaldır" : "işaretle"}`}
         >
+          <Star
+            size={14}
+            aria-hidden
+            fill={product.is_best_seller ? "currentColor" : "none"}
+          />
           {product.is_best_seller ? "Çok Satan" : "İşaretle"}
         </button>
       </td>
-      <td>
+      <td data-label="Durum">
         <button
           type="button"
           onClick={toggleActive}
           disabled={busy}
-          className={`${styles.pillBtn} ${product.is_active ? styles["pillBtn--on"] : ""}`}
+          className={`${styles.statusPill} ${
+            product.is_active ? styles["statusPill--ok"] : styles["statusPill--muted"]
+          }`}
+          aria-pressed={product.is_active}
           aria-label={`${product.name} ${product.is_active ? "pasifleştir" : "aktifleştir"}`}
         >
+          {product.is_active ? <Eye size={14} aria-hidden /> : <EyeOff size={14} aria-hidden />}
           {product.is_active ? "Aktif" : "Pasif"}
         </button>
       </td>
-      <td>
+      <td data-label="İşlem">
         <div className={styles.cellActions}>
           <button
             type="button"
             onClick={save}
             disabled={!dirty || busy}
-            className={`${styles.actionBtn} ${styles["actionBtn--primary"]}`}
+            className={`${styles.actionBtn} ${dirty ? styles.saveDirty : ""}`}
           >
-            {busy ? "…" : "Kaydet"}
+            {busy ? "Kaydediliyor" : dirty ? "Kaydet" : "Kayıtlı"}
           </button>
           <Link
             href={`/admin/urunler/${product.id}`}
@@ -230,7 +287,44 @@ export default function ProductsTable({
   const [showForm, setShowForm] = useState(openForm);
   const [busy, setBusy] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
+  const [quick, setQuick] = useState<Set<QuickKey>>(new Set());
   const [, startTransition] = useTransition();
+
+  // Hızlı filtre çipleri için sayımlar (yüklenen listeden — client tarafı).
+  const counts = useMemo(
+    () => ({
+      discounted: products.filter(isDiscounted).length,
+      bestseller: products.filter((p) => p.is_best_seller).length,
+      outofstock: products.filter((p) => !p.in_stock).length,
+    }),
+    [products],
+  );
+
+  // Aktif çiplerin HEPSİNİ karşılayan ürünler (VE mantığı).
+  const filtered = useMemo(() => {
+    if (quick.size === 0) return products;
+    return products.filter((p) => {
+      if (quick.has("discounted") && !isDiscounted(p)) return false;
+      if (quick.has("bestseller") && !p.is_best_seller) return false;
+      if (quick.has("outofstock") && p.in_stock) return false;
+      return true;
+    });
+  }, [products, quick]);
+
+  function toggleQuick(key: QuickKey) {
+    setQuick((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
+  }
+
+  const quickChips: { key: QuickKey; label: string; icon: React.ReactNode; count: number }[] = [
+    { key: "discounted", label: "İndirimli", icon: <Tag size={14} aria-hidden />, count: counts.discounted },
+    { key: "bestseller", label: "Çok Satan", icon: <Star size={14} aria-hidden />, count: counts.bestseller },
+    { key: "outofstock", label: "Stokta Yok", icon: <PackageX size={14} aria-hidden />, count: counts.outofstock },
+  ];
 
   function handleCreate(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -282,6 +376,39 @@ export default function ProductsTable({
           )}
           {showForm ? "Formu Kapat" : "Yeni Ürün"}
         </button>
+      </div>
+
+      {/* Hızlı filtre çipleri (client) + sonuç sayacı */}
+      <div className={styles.quickBar}>
+        <div className={styles.quickChips}>
+          {quickChips.map((c) => (
+            <button
+              key={c.key}
+              type="button"
+              onClick={() => toggleQuick(c.key)}
+              className={`${styles.chip} ${quick.has(c.key) ? styles["chip--active"] : ""}`}
+              aria-pressed={quick.has(c.key)}
+            >
+              {c.icon}
+              {c.label}
+              <span className={styles.chipCount}>{c.count}</span>
+            </button>
+          ))}
+          {quick.size > 0 && (
+            <button
+              type="button"
+              onClick={() => setQuick(new Set())}
+              className={styles.quickClear}
+            >
+              Filtreyi temizle
+            </button>
+          )}
+        </div>
+        <span className={styles.quickResult}>
+          {filtered.length === products.length
+            ? `${products.length} ürün`
+            : `${filtered.length} / ${products.length} ürün`}
+        </span>
       </div>
 
       {/* Yeni ürün formu (collapse) */}
@@ -340,18 +467,22 @@ export default function ProductsTable({
         </section>
       )}
 
-      {/* Ürün tablosu — başlıklar kaydırma alanında sabit */}
+      {/* Ürün tablosu — başlıklar kaydırma alanında sabit, dar ekranda kart */}
       {products.length === 0 ? (
         <div className={styles.empty}>Bu filtrede ürün yok.</div>
+      ) : filtered.length === 0 ? (
+        <div className={styles.empty}>
+          Seçili hızlı filtrelere uyan ürün yok.
+        </div>
       ) : (
         <div className={styles.tableCard}>
           <div className={styles.tableScroll}>
-            <table className={styles.table}>
+            <table className={`${styles.table} ${styles.productTable}`}>
               <thead>
                 <tr>
                   <th>Ürün</th>
                   <th>Kategori</th>
-                  <th>Fiyat (TL)</th>
+                  <th>Fiyat</th>
                   <th>Eski Fiyat</th>
                   <th>Stok</th>
                   <th>Çok Satan</th>
@@ -360,7 +491,7 @@ export default function ProductsTable({
                 </tr>
               </thead>
               <tbody>
-                {products.map((p) => (
+                {filtered.map((p) => (
                   <ProductRow key={p.id} product={p} />
                 ))}
               </tbody>

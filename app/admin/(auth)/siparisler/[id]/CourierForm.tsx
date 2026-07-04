@@ -8,6 +8,7 @@
 import { useMemo, useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { Bike } from "lucide-react";
 import { setCourier } from "@/lib/shop/admin-actions";
 import type { Courier } from "@/lib/shop/types";
 import styles from "../../../admin.module.css";
@@ -76,11 +77,9 @@ export default function CourierForm({
           Henüz kayıtlı kurye yok. Önce Kuryeler sayfasından kurye ekleyin.
         </p>
         <div className={styles.courierEmptyAction}>
-          <Link
-            href="/admin/kuryeler"
-            className={`${styles.actionBtn} ${styles["actionBtn--primary"]}`}
-          >
-            Kuryeler sayfasına git
+          <Link href="/admin/kuryeler" className={styles.courierEmptyBtn}>
+            <Bike size={16} aria-hidden />
+            Kurye Ekle
           </Link>
         </div>
       </div>

@@ -97,7 +97,7 @@
      esit dikey bosluk. Ust bosluk (hero__stats margin-top) bu deger olur;
      alt bosluk hero padding-bottom + #urunler padding-top olarak yariya
      bolunur, boylece toplam yine ayni deger olur ve gorsel denge saglanir. */
-  --hero-stats-gap: clamp(32px, 3.4vw, 52px);
+  --hero-stats-gap: clamp(44px, 4.2vw, 68px);
 }
 
 * { box-sizing: border-box; }
