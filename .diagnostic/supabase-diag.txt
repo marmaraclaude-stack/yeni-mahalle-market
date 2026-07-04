@@ -1,3 +1,0 @@
-courier_image migration -> HTTP 201 
-banner cta temizle -> HTTP 201
-[{"kurye_gorsel":1,"cta_kalan":0}]
