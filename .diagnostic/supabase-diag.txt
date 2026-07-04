@@ -1,5 +1,0 @@
-1000e indir -> HTTP 201 
-indirimli 30 -> HTTP 201 
-indirimli tamamla -> HTTP 201 
-ozet -> HTTP 201 
-[{"urun":1000,"aktif":1000,"indirimli":30}]
