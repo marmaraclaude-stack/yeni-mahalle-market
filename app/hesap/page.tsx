@@ -5,7 +5,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { ChevronRight, Phone, ShoppingBasket, User } from "lucide-react";
+import { Phone, ShoppingBasket, User } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import {
   ORDER_STATUS_LABELS,
@@ -161,10 +161,6 @@ export default async function HesapPage() {
                       <span className={styles.orderTotal}>
                         {formatTL(order.total)}
                       </span>
-                      <ChevronRight
-                        className={styles.chevron}
-                        aria-hidden="true"
-                      />
                     </div>
                   </Link>
                 </li>

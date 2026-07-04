@@ -3,8 +3,8 @@
 // Banner carousel v3 (PromoBanners'ın client alt komponenti).
 // Tam genişlik TEK kart düzeni: her görünümde tek kart kabın %100'ünü
 // kaplar (peek YOK, komşu kartın hiçbir parçası görünmez). Ok butonları
-// kartın iç kenarlarında dikey ortada (yalnız >=1024px), altta hap
-// biçimli nokta göstergeleri. 6 sn'de bir otomatik kayar; hover/focus'ta
+// kartın DIŞINDA, sarmalayıcının yan boşluklarında dikey ortada
+// (yalnız >=1024px), altta hap biçimli nokta göstergeleri. 6 sn'de bir otomatik kayar; hover/focus'ta
 // durur; prefers-reduced-motion açıkken otomatik kayma tamamen kapalı.
 // Dokunmatikte scroll-snap ile elle kaydırılır; aktif nokta scroll
 // konumundan hesaplanır. Kart görseli: tint bazlı gradient zemin, sağda
@@ -14,7 +14,6 @@ import type { CSSProperties, ComponentType } from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import {
-  ArrowRight,
   BadgePercent,
   ChevronLeft,
   ChevronRight,
@@ -141,11 +140,6 @@ export default function BannerCarousel({
                   {hasCta && (
                     <Link href={b.cta_href} className={styles.slideCta}>
                       {b.cta_text}
-                      <ArrowRight
-                        size={15}
-                        strokeWidth={2.2}
-                        aria-hidden="true"
-                      />
                     </Link>
                   )}
                 </div>

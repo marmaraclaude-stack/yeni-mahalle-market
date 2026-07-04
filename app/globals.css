@@ -97,7 +97,12 @@
 
 * { box-sizing: border-box; }
 html, body { margin: 0; padding: 0; }
-html { scroll-behavior: smooth; }
+html {
+  scroll-behavior: smooth;
+  /* Kaydırma çubuğu olan/olmayan sayfalar arasında içerik genişliği
+     değişmesin (navbar kayması). Overlay scrollbar'lı platformlarda etkisiz. */
+  scrollbar-gutter: stable;
+}
 /* sticky nav altında anchor hedefleri gizlenmesin */
 [id] { scroll-margin-top: 84px; }
 body {
@@ -1437,13 +1442,13 @@ p { margin: 0; }
   position: relative;
   display: grid;
   grid-template-areas:
-    "icon arrow"
-    "eyebrow ."
-    "title ."
-    "detail .";
-  grid-template-columns: 1fr auto;
+    "icon"
+    "eyebrow"
+    "title"
+    "detail";
+  grid-template-columns: 1fr;
   align-items: start;
-  gap: 6px 16px;
+  gap: 6px;
   padding: 26px 26px 24px;
   border-radius: var(--r-lg);
   background: var(--white);
@@ -1473,21 +1478,6 @@ p { margin: 0; }
   transition: background 220ms var(--ease), color 220ms var(--ease);
 }
 .cta-card__icon svg { width: 19px; height: 19px; }
-.cta-card__arrow {
-  grid-area: arrow;
-  width: 36px; height: 36px;
-  display: inline-grid; place-items: center;
-  border-radius: 50%;
-  background: var(--gray-100);
-  color: var(--ink);
-  transition: background 220ms var(--ease), color 220ms var(--ease), transform 220ms var(--ease);
-}
-.cta-card__arrow svg { width: 14px; height: 14px; }
-.cta-card:hover .cta-card__arrow {
-  background: var(--ink);
-  color: var(--white);
-  transform: translate(2px, -2px);
-}
 .cta-card__eyebrow {
   grid-area: eyebrow;
   margin-top: 18px;

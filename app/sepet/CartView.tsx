@@ -10,7 +10,6 @@
 import Link from "next/link";
 import { useState } from "react";
 import {
-  ArrowRight,
   Minus,
   Plus,
   ShoppingBasket,
@@ -100,7 +99,7 @@ export default function CartView({
               başlayın, siparişinizi kapınıza getirelim.
             </p>
             <Link href="/urunler" className="btn btn--accent">
-              Alışverişe Başla <ArrowRight aria-hidden="true" />
+              Alışverişe Başla
             </Link>
           </div>
         </div>
@@ -329,21 +328,21 @@ export default function CartView({
                 className={`btn btn--accent ${styles.checkoutBtn} ${styles.checkoutLocked}`}
                 aria-disabled="true"
               >
-                Siparişi Tamamla <ArrowRight aria-hidden="true" />
+                Siparişi Tamamla
               </Link>
             ) : canCheckout ? (
               <Link
                 href="/odeme"
                 className={`btn btn--accent ${styles.checkoutBtn}`}
               >
-                Siparişi Tamamla <ArrowRight aria-hidden="true" />
+                Siparişi Tamamla
               </Link>
             ) : (
               <span
                 className={`btn btn--accent ${styles.checkoutBtn} ${styles.checkoutDisabled}`}
                 aria-disabled="true"
               >
-                Siparişi Tamamla <ArrowRight aria-hidden="true" />
+                Siparişi Tamamla
               </span>
             )}
 

@@ -11,20 +11,6 @@ import { Check, ShoppingBasket, Package, Bike } from "lucide-react";
 /* ============================================================
    ICONS
    ============================================================ */
-function ArrowUR() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path d="M5 19L19 5M19 5H8M19 5V16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
-function ArrowRight() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
 function InstagramIcon() {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
@@ -108,13 +94,10 @@ export default function Home() {
                   siparişini oluştur, kapına getirelim.
                 </p>
 
-                {/* CTA hiyerarşisi: birincil büyük accent, ikincil ghost */}
+                {/* Tek, temiz birincil CTA */}
                 <div className="hero__ctas">
                   <a href="/urunler" className="btn btn--accent btn--lg">
-                    Alışverişe Başla <ArrowRight />
-                  </a>
-                  <a href="#hizmetler" className="btn btn--ghost">
-                    Hizmetleri gör <ArrowRight />
+                    Alışverişe Başla
                   </a>
                 </div>
               </div>
@@ -181,10 +164,9 @@ export default function Home() {
                     href={BUSINESS.googleMapsDirectionsUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="btn-apple"
+                    className="btn btn--primary"
                   >
-                    <span className="btn-apple__label">Yol tarifi al</span>
-                    <span className="btn-apple__icon" aria-hidden="true"><ArrowUR /></span>
+                    Yol tarifi al
                   </a>
                 </div>
               </div>
@@ -340,7 +322,7 @@ export default function Home() {
                 rel="noopener noreferrer"
                 className="btn btn--ghost"
               >
-                Tüm yorumları Google&apos;da gör <ArrowUR />
+                Tüm yorumları Google&apos;da gör
               </a>
             </div>
           </div>
@@ -361,14 +343,12 @@ export default function Home() {
                 <span className="cta-card__eyebrow">Online Sipariş</span>
                 <span className="cta-card__title">Alışverişe Başla</span>
                 <span className="cta-card__detail">Sepetini oluştur, gerisi bizde</span>
-                <span className="cta-card__arrow" aria-hidden="true"><ArrowUR /></span>
               </a>
               <a href={BUSINESS.phone.href} className="cta-card">
                 <span className="cta-card__icon"><PhoneIcon /></span>
                 <span className="cta-card__eyebrow">Telefon</span>
                 <span className="cta-card__title">{BUSINESS.phone.display}</span>
                 <span className="cta-card__detail">Arayıp söyleyebilirsin</span>
-                <span className="cta-card__arrow" aria-hidden="true"><ArrowUR /></span>
               </a>
               <a
                 href={BUSINESS.googleMapsDirectionsUrl}
@@ -380,7 +360,6 @@ export default function Home() {
                 <span className="cta-card__eyebrow">Yol tarifi</span>
                 <span className="cta-card__title">Kurtuluş Cad.</span>
                 <span className="cta-card__detail">Sapanca · Yeni Mahalle</span>
-                <span className="cta-card__arrow" aria-hidden="true"><ArrowUR /></span>
               </a>
             </div>
           </div>

@@ -72,11 +72,14 @@
 }
 @media (min-width: 960px) {
   .brandPanel {
-    /* Sol yarı: nav altında viewport'u doldurur, form kayarken yerinde kalır */
+    /* Sol yarı: nav altında viewport'u doldurur, form kayarken yerinde kalır.
+       İçerik TEK grup halinde dikey ortalanır: üst/alt nefes payı eşit,
+       bloklar arası boşluk clamp ile viewport'a uyum sağlar. */
     position: sticky;
     top: var(--auth-nav-h);
     height: calc(100dvh - var(--auth-nav-h));
-    gap: 18px;
+    justify-content: center;
+    gap: clamp(20px, 3vh, 32px);
     padding: clamp(40px, 4.5vw, 64px) clamp(36px, 5vw, 72px);
   }
   .brandPanel::before {
@@ -93,18 +96,12 @@
   }
 }
 
-/* Ortadaki büyük değer cümlesi + destek metni
-   (logo/wordmark yok: nav'da zaten var; panel değer cümlesiyle başlar) */
+/* Büyük değer cümlesi + destek metni: diğer bloklarla aynı akışta,
+   kutuplaştıran auto margin yok (logo/wordmark nav'da zaten var) */
 .brandCenter {
   display: flex;
   flex-direction: column;
   gap: 10px;
-}
-@media (min-width: 960px) {
-  .brandCenter {
-    margin-block: auto;
-    padding-block: 24px;
-  }
 }
 .brandValue {
   margin: 0;

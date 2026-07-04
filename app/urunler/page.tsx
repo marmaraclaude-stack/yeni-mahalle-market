@@ -9,7 +9,7 @@
 
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ChevronRight, ShoppingBasket } from "lucide-react";
+import { ShoppingBasket } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import type { Product } from "@/lib/shop/types";
 import {
@@ -238,11 +238,6 @@ export default async function UrunlerPage({
                           aria-label={`${cat.name}: tümünü gör`}
                         >
                           Tümünü Gör
-                          <ChevronRight
-                            size={15}
-                            strokeWidth={2.2}
-                            aria-hidden="true"
-                          />
                         </Link>
                       </div>
                       <div className={styles.grid}>

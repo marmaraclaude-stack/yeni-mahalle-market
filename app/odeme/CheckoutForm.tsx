@@ -9,7 +9,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import {
-  ArrowRight,
   Banknote,
   CreditCard,
   Lock,
@@ -146,7 +145,7 @@ export default function CheckoutForm({
             <ShoppingBasket aria-hidden="true" className={styles.noticeIcon} />
             <p>Sepetiniz boş. Önce sepete ürün ekleyin.</p>
             <Link href="/urunler" className="btn btn--accent">
-              Alışverişe Başla <ArrowRight aria-hidden="true" />
+              Alışverişe Başla
             </Link>
           </div>
         </div>
@@ -453,7 +452,6 @@ export default function CheckoutForm({
                 : method === "iyzico"
                   ? "Ödemeye Geç"
                   : "Siparişi Gönder"}
-              {!pending && <ArrowRight aria-hidden="true" />}
             </button>
 
             {/* Güven satırı — dönüşüm için ikonlu üçlü */}

@@ -33,7 +33,7 @@ const STATS = [
 ] as const;
 
 // Dekoratif kategori çipleri: SHOP_CATEGORIES'ten 8 kategori (tüm tint'ler
-// birer kez) — lucide bileşenleri elle eşlendi (icon alanı kebab-case string).
+// birer kez); lucide bileşenleri elle eşlendi (icon alanı kebab-case string).
 const CHIP_ICONS: Record<string, typeof Carrot> = {
   "meyve-sebze": Carrot,
   "sarkuteri-et": Beef,

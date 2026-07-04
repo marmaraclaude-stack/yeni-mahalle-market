@@ -103,16 +103,21 @@
 .avatar {
   width: 40px;
   height: 40px;
-  border-radius: 12px;
-  background: var(--orange, #ff5a1f);
-  color: var(--white, #fff);
+  border-radius: 999px;
+  background: var(--white, #fff);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-family: var(--font-sans);
-  font-weight: 700;
-  font-size: 18px;
   flex-shrink: 0;
+  overflow: hidden;
+}
+
+.avatarImg {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 3px;
+  display: block;
 }
 
 .headerTitle {
@@ -126,15 +131,15 @@
 }
 
 .headerSub {
-  font-size: 10.5px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--orange, #ff5a1f);
+  font-family: var(--font-sans, system-ui), sans-serif;
+  font-size: 12px;
+  letter-spacing: normal;
+  color: rgba(255, 255, 255, 0.72);
   margin-top: 3px;
   display: flex;
   align-items: center;
   gap: 6px;
-  font-weight: 600;
+  font-weight: 500;
 }
 
 .headerDot {
@@ -143,6 +148,10 @@
   border-radius: 999px;
   background: var(--orange, #ff5a1f);
   display: inline-block;
+}
+
+.headerDot--off {
+  background: rgba(255, 255, 255, 0.4);
 }
 
 .closeBtn {
@@ -214,11 +223,11 @@
 }
 
 .labelText {
-  font-size: 10.5px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
+  font-family: var(--font-sans, system-ui), sans-serif;
+  font-size: 12.5px;
+  letter-spacing: normal;
   color: var(--gray-500, #7a7872);
-  font-weight: 600;
+  font-weight: 500;
 }
 
 .input {
@@ -286,9 +295,9 @@
 }
 
 .msg__time {
-  font-family: var(--font-mono, monospace);
-  font-size: 10px;
-  letter-spacing: 0.06em;
+  font-family: var(--font-sans, system-ui), sans-serif;
+  font-size: 11px;
+  letter-spacing: normal;
   color: var(--gray-500, #7a7872);
   margin-top: 5px;
   padding-inline: 4px;
@@ -385,15 +394,15 @@
 }
 
 .footer {
+  font-family: var(--font-sans, system-ui), sans-serif;
   padding: 8px 16px 12px;
-  font-size: 10.5px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
+  font-size: 12px;
+  letter-spacing: normal;
   color: var(--gray-500, #7a7872);
   text-align: center;
   background: var(--white, #fff);
   border-top: 1px solid rgba(10, 10, 10, 0.06);
-  font-weight: 500;
+  font-weight: 400;
 }
 
 @media (prefers-reduced-motion: reduce) {

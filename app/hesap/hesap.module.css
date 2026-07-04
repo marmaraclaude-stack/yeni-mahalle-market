@@ -248,12 +248,6 @@
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
-.chevron {
-  width: 16px;
-  height: 16px;
-  color: var(--gray-400);
-}
-
 /* Durum rozetleri: her sipariş durumu ayrı renk (ORDER_STATUS_LABELS) */
 .statusChip {
   display: inline-flex;

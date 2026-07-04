@@ -8,6 +8,28 @@ import styles from "./chat-widget.module.css";
 
 const STORAGE_KEY = "ymm-chat-session";
 
+// Çalışma saatleri: components/StatusIndicator.tsx ile aynı kural.
+const OPEN_MIN = 7 * 60 + 30; // 07:30
+const CLOSE_MIN = 24 * 60; // 00:00 (gün sonu)
+
+/** Istanbul saatine göre dakika cinsinden şu an. */
+function istanbulMinutes(): number {
+  const parts = new Intl.DateTimeFormat("tr-TR", {
+    timeZone: "Europe/Istanbul",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).formatToParts(new Date());
+  const h = Number(parts.find((p) => p.type === "hour")?.value ?? "0");
+  const m = Number(parts.find((p) => p.type === "minute")?.value ?? "0");
+  return h * 60 + m;
+}
+
+function isBusinessOpen(): boolean {
+  const now = istanbulMinutes();
+  return now >= OPEN_MIN && now < CLOSE_MIN;
+}
+
 interface StoredSession {
   id: string;
   name: string;
@@ -57,6 +79,9 @@ const WELCOME_MESSAGE: ChatMessage = {
   read_by_recipient: true,
 };
 
+const WELCOME_OFFLINE =
+  "Merhaba 👋 Şu an çevrimdışıyız. Mesajını bırak, market açılınca dönüş yapalım.";
+
 export default function ChatWidget() {
   const [open, setOpen] = useState(false);
   const [session, setSession] = useState<StoredSession | null>(null);
@@ -68,6 +93,8 @@ export default function ChatWidget() {
   const [sending, setSending] = useState(false);
   const [unread, setUnread] = useState(0);
   const [error, setError] = useState<string | null>(null);
+  // Widget ssr:false ile yüklendiği için ilk değer client'ta hesaplanabilir.
+  const [businessOpen, setBusinessOpen] = useState(isBusinessOpen);
 
   const supabaseRef = useRef<ReturnType<typeof createClient> | null>(null);
   const channelRef = useRef<RealtimeChannel | null>(null);
@@ -77,6 +104,12 @@ export default function ChatWidget() {
   useEffect(() => {
     const stored = readStoredSession();
     if (stored) setSession(stored);
+  }, []);
+
+  // Çalışma saatine göre durumu güncel tut
+  useEffect(() => {
+    const id = setInterval(() => setBusinessOpen(isBusinessOpen()), 30_000);
+    return () => clearInterval(id);
   }, []);
 
   // Init supabase client lazily
@@ -273,13 +306,18 @@ export default function ChatWidget() {
           <header className={styles.header}>
             <div className={styles.headerLeft}>
               <span className={styles.avatar} aria-hidden>
-                Y
+                <img src="/logo.png" alt="" className={styles.avatarImg} />
               </span>
               <div>
                 <p className={styles.headerTitle}>Yeni Mahalle Market</p>
                 <span className={styles.headerSub}>
-                  <span className={styles.headerDot} aria-hidden />
-                  Çevrimiçi · genelde 5 dk içinde
+                  <span
+                    className={`${styles.headerDot} ${
+                      businessOpen ? "" : styles["headerDot--off"]
+                    }`}
+                    aria-hidden
+                  />
+                  {businessOpen ? "Çevrimiçi" : "Çevrimdışı"}
                 </span>
               </div>
             </div>
@@ -302,8 +340,9 @@ export default function ChatWidget() {
                 <div>
                   <h3 className={styles.introTitle}>Merhaba 👋</h3>
                   <p className={styles.introLede}>
-                    Sorularınızı, siparişinizi ya da fiyat sormak istediğiniz ürünü
-                    yazın, en kısa sürede dönüyoruz.
+                    {businessOpen
+                      ? "Sorularınızı, siparişinizi ya da fiyat sormak istediğiniz ürünü yazın, en kısa sürede dönüyoruz."
+                      : "Şu an çevrimdışıyız. Mesajını bırak, market açılınca dönüş yapalım."}
                   </p>
                 </div>
                 <form className={styles.introForm} onSubmit={startSession}>
@@ -356,7 +395,11 @@ export default function ChatWidget() {
                       m.sender === "visitor" ? styles["msg--visitor"] : styles["msg--admin"]
                     }`}
                   >
-                    <div className={styles.msg__bubble}>{m.content}</div>
+                    <div className={styles.msg__bubble}>
+                      {m.id === "__welcome__" && !businessOpen
+                        ? WELCOME_OFFLINE
+                        : m.content}
+                    </div>
                     {m.id !== "__welcome__" && (
                       <span className={styles.msg__time}>{formatTime(m.created_at)}</span>
                     )}
