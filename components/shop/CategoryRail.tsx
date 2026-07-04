@@ -7,7 +7,9 @@
 
 import Link from "next/link";
 import { useEffect, useRef } from "react";
+import { LayoutGrid, BadgePercent, Flame } from "lucide-react";
 import { CATEGORY_TINTS, SHOP_CATEGORIES } from "@/lib/shop/categories";
+import { SHOP_SPECIALS } from "@/lib/shop/specials";
 import { iconFor } from "@/components/shop/ProductCard";
 import styles from "@/app/urunler/shop.module.css";
 
@@ -19,12 +21,20 @@ function buildHref(slug: string | null, q?: string): string {
   return qs ? `/urunler?${qs}` : "/urunler";
 }
 
+const SPECIAL_ICONS = {
+  tum: LayoutGrid,
+  indirimli: BadgePercent,
+  "cok-satan": Flame,
+} as const;
+
 export default function CategoryRail({
   active,
   q,
+  ozel,
 }: {
   active?: string;
   q?: string;
+  ozel?: string;
 }) {
   const railRef = useRef<HTMLElement>(null);
 
@@ -41,10 +51,31 @@ export default function CategoryRail({
     <div className={styles.catbar}>
       <div className="container">
         <nav ref={railRef} className={styles.catRail} aria-label="Kategoriler">
+          {SHOP_SPECIALS.map((s) => {
+            const Icon = SPECIAL_ICONS[s.key];
+            const isActive = ozel === s.key;
+            return (
+              <Link
+                key={s.key}
+                href={`/urunler?ozel=${s.key}`}
+                className={`${styles.pill}${isActive ? ` ${styles.pillActive}` : ""}`}
+                aria-current={isActive ? "page" : undefined}
+              >
+                <Icon
+                  size={15}
+                  strokeWidth={1.9}
+                  aria-hidden="true"
+                  style={isActive ? undefined : { color: s.tintFg }}
+                />
+                {s.label}
+              </Link>
+            );
+          })}
+
           <Link
             href={buildHref(null, q)}
-            className={`${styles.pill}${!active ? ` ${styles.pillActive}` : ""}`}
-            aria-current={!active ? "page" : undefined}
+            className={`${styles.pill}${!active && !ozel ? ` ${styles.pillActive}` : ""}`}
+            aria-current={!active && !ozel ? "page" : undefined}
           >
             Tümü
           </Link>

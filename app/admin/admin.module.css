@@ -750,6 +750,96 @@
 
 .kv dd { margin: 0; font-size: 14.5px; line-height: 1.5; }
 
+/* ---- Sipariş detayı: dengeli iki kolon ---- */
+.orderDetailGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.orderDetailCol {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+@media (max-width: 900px) {
+  .orderDetailGrid { grid-template-columns: 1fr; }
+}
+
+/* ---- Kurye atama formu ---- */
+.courierForm {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.courierCurrent {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  padding: 10px 14px;
+  background: var(--gray-100);
+  border: 1px solid rgba(10, 10, 10, 0.08);
+  border-radius: 12px;
+  font-size: 14px;
+}
+
+.courierCurrent strong { color: var(--black); font-weight: 600; }
+
+.courierCurrentLabel {
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--gray-500);
+  font-weight: 600;
+  width: 100%;
+}
+
+.courierSaved {
+  color: #157347;
+  font-size: 13px;
+  font-weight: 600;
+  margin: 0;
+}
+
+/* Segmented seçim: kayıtlı kurye / elle gir */
+.segmented {
+  display: inline-flex;
+  padding: 3px;
+  gap: 3px;
+  background: var(--gray-100);
+  border: 1px solid rgba(10, 10, 10, 0.1);
+  border-radius: 999px;
+  align-self: flex-start;
+}
+
+.segBtn {
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  padding: 6px 16px;
+  border-radius: 999px;
+  border: none;
+  background: transparent;
+  color: var(--gray-700);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.segBtn--active {
+  background: var(--black);
+  color: var(--white);
+}
+
+.segBtn:focus-visible {
+  outline: 2px solid var(--orange);
+  outline-offset: 2px;
+}
+
 /* ============================================================
    Tablolar
    ============================================================ */
@@ -1365,6 +1455,27 @@
 }
 
 .tintSelectWrap .select { flex: 1; }
+
+/* Banner ikon seçici: solda canlı ikon önizlemesi + select */
+.iconSelectWrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.iconSelectWrap .select { flex: 1; }
+
+/* İkon önizleme rozeti (form + liste) — tint zeminli yuvarlak kutu */
+.bannerIcon {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: 1px solid rgba(10, 10, 10, 0.08);
+}
 
 /* ============================================================
    Sohbet listesi (SessionList — sınıf adları korunur)

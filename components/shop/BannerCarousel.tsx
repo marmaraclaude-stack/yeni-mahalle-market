@@ -10,35 +10,17 @@
 // konumundan hesaplanır. Kart görseli: tint bazlı gradient zemin, sağda
 // dekoratif daireler + başlığa göre seçilen büyük tematik lucide ikonu.
 
-import type { CSSProperties, ComponentType } from "react";
+import type { CSSProperties } from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import {
-  BadgePercent,
-  ChevronLeft,
-  ChevronRight,
-  Gift,
-  Sparkles,
-  Truck,
-  type LucideProps,
-} from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import type { Banner } from "@/lib/shop/types";
 import { CATEGORY_TINTS } from "@/lib/shop/categories";
+import { resolveBannerIcon } from "@/lib/shop/icons";
 import styles from "@/components/shop/PromoBanners.module.css";
 
 /** Otomatik kayma aralığı (ms). */
 const AUTO_MS = 6000;
-
-/** Başlıktaki anahtar kelimeye göre tematik ikon seç. */
-function bannerIcon(title: string): ComponentType<LucideProps> {
-  const t = title.toLocaleLowerCase("tr-TR");
-  if (t.includes("indirim")) return BadgePercent;
-  if (t.includes("teslimat") || t.includes("kargo") || t.includes("dakika"))
-    return Truck;
-  if (t.includes("hediye") || t.includes("hoş geldin") || t.includes("hosgeldin"))
-    return Gift;
-  return Sparkles;
-}
 
 export default function BannerCarousel({
   banners,
@@ -127,8 +109,10 @@ export default function BannerCarousel({
         <div className={styles.track} ref={trackRef} onScroll={handleScroll}>
           {banners.map((b) => {
             const [bg, fg] = CATEGORY_TINTS[b.tint] ?? CATEGORY_TINTS[0];
+            // cta_text (veya href) boşsa CTA butonu render edilmez.
             const hasCta = b.cta_text.trim() !== "" && b.cta_href.trim() !== "";
-            const Icon = bannerIcon(b.title);
+            // İkon: admin'de seçilen banner.icon, yoksa başlığa göre otomatik.
+            const Icon = resolveBannerIcon(b.icon, b.title);
             return (
               <article
                 key={b.id}

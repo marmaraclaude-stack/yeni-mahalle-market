@@ -25,9 +25,19 @@ export interface Product {
   is_active: boolean;
   in_stock: boolean;
   is_featured: boolean;
+  is_best_seller: boolean; // vitrinde "Çok Satan" grubu
   sort: number;
   created_at: string;
   updated_at: string;
+}
+
+/** Kayıtlı kurye — couriers tablosu (yalnız service-role okur/yazar). */
+export interface Courier {
+  id: string;
+  name: string;
+  phone: string;
+  is_active: boolean;
+  created_at: string;
 }
 
 export type PaymentMethod = "cod_cash" | "cod_card" | "iyzico";
@@ -112,6 +122,7 @@ export interface Banner {
   subtitle: string;
   cta_text: string; // boş = buton yok
   cta_href: string; // /firsatlar, /urunler?k=... vb.
+  icon: string; // BANNER_ICON_OPTIONS anahtarı; boş = içeriğe göre otomatik
   tint: number; // CATEGORY_TINTS index (0-7) zemin
   is_active: boolean;
   sort: number;

@@ -16,7 +16,6 @@ import {
   updateProduct,
 } from "@/lib/shop/admin-actions";
 import { SHOP_CATEGORIES, CATEGORY_TINTS, categoryBySlug } from "@/lib/shop/categories";
-import { formatTL } from "@/lib/shop/types";
 import type { Product } from "@/lib/shop/types";
 import styles from "../../admin.module.css";
 
@@ -26,15 +25,30 @@ function parsePrice(value: string): number | null {
   return Number.isFinite(n) && n >= 0 ? n : null;
 }
 
+/** İndirim öncesi (eski) fiyat: boş = indirim yok (null); geçersizse undefined. */
+function parseCompare(value: string): number | null | undefined {
+  const trimmed = value.trim();
+  if (trimmed === "") return null;
+  const n = Number.parseFloat(trimmed.replace(",", "."));
+  return Number.isFinite(n) && n >= 0 ? n : undefined;
+}
+
 function ProductRow({ product }: { product: Product }) {
   const router = useRouter();
   const [price, setPrice] = useState(String(product.price));
+  const [compare, setCompare] = useState(
+    product.compare_at_price === null ? "" : String(product.compare_at_price),
+  );
   const [inStock, setInStock] = useState(product.in_stock);
   const [busy, setBusy] = useState(false);
   const [, startTransition] = useTransition();
 
+  const compareInitial =
+    product.compare_at_price === null ? "" : String(product.compare_at_price);
   const dirty =
-    parsePrice(price) !== Number(product.price) || inStock !== product.in_stock;
+    parsePrice(price) !== Number(product.price) ||
+    compare.trim() !== compareInitial ||
+    inStock !== product.in_stock;
 
   function save() {
     const parsed = parsePrice(price);
@@ -42,10 +56,23 @@ function ProductRow({ product }: { product: Product }) {
       window.alert("Geçerli bir fiyat girin.");
       return;
     }
+    const parsedCompare = parseCompare(compare);
+    if (parsedCompare === undefined) {
+      window.alert("Eski fiyat geçersiz. Boş bırakın veya geçerli bir sayı girin.");
+      return;
+    }
+    if (parsedCompare !== null && parsedCompare <= parsed) {
+      window.alert("Eski fiyat, güncel fiyattan yüksek olmalı (indirim için).");
+      return;
+    }
     setBusy(true);
     startTransition(async () => {
       try {
-        await updateProduct(product.id, { price: parsed, in_stock: inStock });
+        await updateProduct(product.id, {
+          price: parsed,
+          in_stock: inStock,
+          compare_at_price: parsedCompare,
+        });
         router.refresh();
       } finally {
         setBusy(false);
@@ -58,6 +85,20 @@ function ProductRow({ product }: { product: Product }) {
     startTransition(async () => {
       try {
         await toggleProductActive(product.id, !product.is_active);
+        router.refresh();
+      } finally {
+        setBusy(false);
+      }
+    });
+  }
+
+  function toggleBestSeller() {
+    setBusy(true);
+    startTransition(async () => {
+      try {
+        await updateProduct(product.id, {
+          is_best_seller: !product.is_best_seller,
+        });
         router.refresh();
       } finally {
         setBusy(false);
@@ -108,11 +149,17 @@ function ProductRow({ product }: { product: Product }) {
           className={styles.inputSm}
           aria-label={`${product.name} fiyatı`}
         />
-        {product.compare_at_price !== null && (
-          <div className={styles.prodMeta}>
-            eski: {formatTL(Number(product.compare_at_price))}
-          </div>
-        )}
+      </td>
+      <td>
+        <input
+          type="text"
+          inputMode="decimal"
+          value={compare}
+          onChange={(e) => setCompare(e.target.value)}
+          className={styles.inputSm}
+          placeholder="—"
+          aria-label={`${product.name} eski (indirim öncesi) fiyatı`}
+        />
       </td>
       <td>
         <label className={styles.checkLabel}>
@@ -124,6 +171,17 @@ function ProductRow({ product }: { product: Product }) {
           />
           Stokta
         </label>
+      </td>
+      <td>
+        <button
+          type="button"
+          onClick={toggleBestSeller}
+          disabled={busy}
+          className={`${styles.pillBtn} ${product.is_best_seller ? styles["pillBtn--on"] : ""}`}
+          aria-label={`${product.name} çok satan ${product.is_best_seller ? "işaretini kaldır" : "işaretle"}`}
+        >
+          {product.is_best_seller ? "Çok Satan" : "İşaretle"}
+        </button>
       </td>
       <td>
         <button
@@ -294,7 +352,9 @@ export default function ProductsTable({
                   <th>Ürün</th>
                   <th>Kategori</th>
                   <th>Fiyat (TL)</th>
+                  <th>Eski Fiyat</th>
                   <th>Stok</th>
+                  <th>Çok Satan</th>
                   <th>Durum</th>
                   <th></th>
                 </tr>

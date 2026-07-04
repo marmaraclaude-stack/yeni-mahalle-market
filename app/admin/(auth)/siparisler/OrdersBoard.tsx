@@ -188,7 +188,7 @@ export default function OrdersBoard({ orders }: { orders: Order[] }) {
                         onClick={() => setStatus(o, next.to)}
                         aria-label={`${o.order_no} durumunu ilerlet: ${next.label}`}
                       >
-                        {busy ? "…" : `→ ${next.label}`}
+                        {busy ? "…" : next.label}
                       </button>
                     )}
                     {o.status !== "delivered" && o.status !== "cancelled" && (

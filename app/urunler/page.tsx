@@ -8,8 +8,15 @@
 // DB hazır değilse sayfa patlamaz: "Katalog hazırlanıyor" fallback'i.
 
 import type { Metadata } from "next";
+import type { ComponentType } from "react";
 import Link from "next/link";
-import { ShoppingBasket } from "lucide-react";
+import {
+  ShoppingBasket,
+  LayoutGrid,
+  BadgePercent,
+  Flame,
+  type LucideProps,
+} from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import type { Product } from "@/lib/shop/types";
 import {
@@ -17,6 +24,7 @@ import {
   SHOP_CATEGORIES,
   categoryBySlug,
 } from "@/lib/shop/categories";
+import { specialByKey, type SpecialKey } from "@/lib/shop/specials";
 import { BUSINESS } from "@/lib/business";
 import { getShopSettings } from "@/lib/shop/settings";
 import SiteNav from "@/components/SiteNav";
@@ -26,11 +34,19 @@ import CategorySidebar from "@/components/shop/CategorySidebar";
 import CartPanel from "@/components/shop/CartPanel";
 import SearchBox from "@/components/shop/SearchBox";
 import ProductGrid from "@/components/shop/ProductGrid";
+import LoadMoreGrid from "@/components/shop/LoadMoreGrid";
 import ProductCard, { iconFor } from "@/components/shop/ProductCard";
 import styles from "./shop.module.css";
 
 /** "Tümü" görünümünde her kategori bölümünde gösterilen ürün sayısı. */
 const SECTION_LIMIT = 6;
+
+/** Özel görünüm başlık ikonları (Keşfet grubu). */
+const SPECIAL_ICONS: Record<SpecialKey, ComponentType<LucideProps>> = {
+  tum: LayoutGrid,
+  indirimli: BadgePercent,
+  "cok-satan": Flame,
+};
 
 type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>;
 
@@ -45,9 +61,14 @@ export async function generateMetadata({
   searchParams: SearchParams;
 }): Promise<Metadata> {
   const sp = await searchParams;
+  const special = specialByKey(first(sp.ozel));
   const cat = categoryBySlug(first(sp.k) ?? "");
   return {
-    title: cat ? `${cat.name} · Ürünler` : "Ürünler",
+    title: special
+      ? `${special.title} · Ürünler`
+      : cat
+        ? `${cat.name} · Ürünler`
+        : "Ürünler",
     description:
       "Yeni Mahalle Market online katalog: market ürünlerini seç, sepetine ekle, Sapanca içinde adresine gelsin.",
   };
@@ -60,8 +81,12 @@ export default async function UrunlerPage({
 }) {
   const sp = await searchParams;
   const q = (first(sp.q) ?? "").trim();
+  // Özel görünüm (Keşfet grubu): tum | indirimli | cok-satan. Geçersiz → yok.
+  // Arama (q) özel görünümden önceliklidir; özel görünüm katalog genelinde
+  // çalışır, bu yüzden kategori (k) ile birlikteyken kategori yok sayılır.
+  const special = !q ? specialByKey(first(sp.ozel)) : undefined;
   // Geçersiz kategori slug'ı sessizce yok sayılır (tüm ürünler listelenir)
-  const category = categoryBySlug(first(sp.k) ?? "");
+  const category = special ? undefined : categoryBySlug(first(sp.k) ?? "");
 
   // Teslimat ayarları — CartPanel'deki ücretsiz teslimat ilerlemesi için
   // (tablo yoksa makul default döner, sayfa patlamaz).
@@ -96,8 +121,22 @@ export default async function UrunlerPage({
     dbError = true;
   }
 
+  // Özel görünüm filtresi (tek sorguda çekilen tüm aktif ürünler üzerinden):
+  //  - indirimli → compare_at_price > price
+  //  - cok-satan → is_best_seller
+  //  - tum       → hepsi
+  if (special) {
+    if (special.key === "indirimli") {
+      products = products.filter(
+        (p) => p.compare_at_price !== null && p.compare_at_price > p.price,
+      );
+    } else if (special.key === "cok-satan") {
+      products = products.filter((p) => p.is_best_seller);
+    }
+  }
+
   // "Tümü" görünümü: ürünler sunucuda kategoriye göre gruplanır (tek sorgu)
-  const showSections = !dbError && !q && !category;
+  const showSections = !dbError && !q && !category && !special;
   const byCategory = new Map<string, Product[]>();
   if (showSections) {
     for (const p of products) {
@@ -121,7 +160,11 @@ export default async function UrunlerPage({
           <header className={styles.head}>
             <div className={styles.headText}>
               <h1 className={styles.title}>
-                {category ? category.name : "Market Ürünleri"}
+                {special
+                  ? special.title
+                  : category
+                    ? category.name
+                    : "Market Ürünleri"}
               </h1>
               <p className={styles.sub}>
                 Seç, sepete ekle, Sapanca içinde kapına gelsin.
@@ -135,12 +178,20 @@ export default async function UrunlerPage({
         </div>
 
         {/* Mobil/tablet: sticky kategori pill barı (masaüstünde gizli) */}
-        <CategoryRail active={category?.slug} q={q || undefined} />
+        <CategoryRail
+          active={category?.slug}
+          q={q || undefined}
+          ozel={special?.key}
+        />
 
         <div className="container">
           <div className={styles.layout}>
             {/* Masaüstü: sol kategori sidebar'ı */}
-            <CategorySidebar active={category?.slug} q={q || undefined} />
+            <CategorySidebar
+              active={category?.slug}
+              q={q || undefined}
+              ozel={special?.key}
+            />
 
             <div className={styles.main}>
               {dbError ? (
@@ -158,6 +209,40 @@ export default async function UrunlerPage({
                     Bizi ara: {BUSINESS.phone.display}
                   </a>
                 </section>
+              ) : special ? (
+                /* Özel görünüm: tek grid + kademeli "Daha Fazla Yükle" */
+                (() => {
+                  const Icon = SPECIAL_ICONS[special.key];
+                  const emptyText =
+                    special.key === "indirimli"
+                      ? "Şu an indirimli ürün yok."
+                      : special.key === "cok-satan"
+                        ? "Henüz çok satan ürün işaretlenmedi."
+                        : "Henüz ürün eklenmedi.";
+                  return (
+                    <section className={styles.section}>
+                      <div className={styles.sectionHead}>
+                        <h2 className={styles.sectionTitle}>
+                          <span
+                            className={styles.sectionIcon}
+                            style={{
+                              background: special.tintBg,
+                              color: special.tintFg,
+                            }}
+                            aria-hidden="true"
+                          >
+                            <Icon size={18} strokeWidth={1.9} />
+                          </span>
+                          {special.title}
+                        </h2>
+                        <span className={styles.sectionCount}>
+                          {products.length} ürün
+                        </span>
+                      </div>
+                      <LoadMoreGrid products={products} emptyText={emptyText} />
+                    </section>
+                  );
+                })()
               ) : q ? (
                 /* Arama sonuçları: grid + "N sonuç" başlığı */
                 <section className={styles.section}>

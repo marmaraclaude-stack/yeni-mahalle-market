@@ -1,6 +1,8 @@
-// Fırsatlar — /firsatlar. Baştan kurulmuş, tam genişlik kampanya sayfası:
-// (1) başlık şeridi, (2) Kampanyalar (aktif kupon kodları full-width yatay
-// biletler + "Nasıl kullanılır" 3 adımlı şerit), (3) İndirimli Ürünler gridi.
+// Fırsatlar — /firsatlar. Tam genişlik kampanya sayfası. Sayfa ritmi:
+// (1) başlık şeridi, (2) PromoBanners (catalog variant) fırsat banner'ları,
+// (3) İndirimli Ürünler gridi — sayfa girişinde, güçlü başlıkla, (4) Kampanyalar
+// (sade premium kupon kartları: net kod, belirgin indirim değeri, koşul,
+// "Kodu Kopyala") + "Nasıl kullanılır" şeridi.
 // Kupon verisi service-role ile okunur (vitrine yalnız gösterime gereken
 // alanlar iner). İndirimli ürünler: compare_at_price dolu ve fiyattan büyük
 // aktif ürünler, en yüksek indirim oranı önce. DB hazır değilse veya fırsat
@@ -22,6 +24,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { formatTL } from "@/lib/shop/types";
 import type { Coupon, Product } from "@/lib/shop/types";
 import SiteNav from "@/components/SiteNav";
+import PromoBanners from "@/components/shop/PromoBanners";
 import ProductCard from "@/components/shop/ProductCard";
 import CopyCodeButton from "./CopyCodeButton";
 import styles from "./firsatlar.module.css";
@@ -81,7 +84,7 @@ async function getActiveCoupons(): Promise<CampaignCoupon[]> {
   }
 }
 
-/** Bilet sol bloğundaki büyük değer: "%10" / "₺200" (kuruş varsa "₺49,90"). */
+/** Kupon kartındaki büyük değer: "%10" / "₺200" (kuruş varsa "₺49,90"). */
 function bigDiscountValue(c: CampaignCoupon): string {
   if (c.discount_type === "percent") return `%${c.value}`;
   const amount = new Intl.NumberFormat("tr-TR", {
@@ -152,144 +155,35 @@ export default async function FirsatlarPage() {
               <h1 className={styles.title}>Fırsatlar</h1>
             </div>
             <p className={styles.sub}>
-              Kampanyalar ve indirimli ürünler burada. Kodu kopyala, sepetini
-              doldur, Sapanca içinde kapına gelsin.
+              İndirimli ürünler ve kampanyalar burada. Fırsatları sepetine
+              ekle, kupon kodunu kopyala, Sapanca içinde kapına gelsin.
             </p>
             {(coupons.length > 0 || products.length > 0) && (
               <div className={styles.headStats}>
-                {coupons.length > 0 && (
+                {products.length > 0 && (
                   <span
                     className={`${styles.headStat} ${styles["headStat--accent"]}`}
                   >
-                    <TicketPercent size={15} strokeWidth={2} aria-hidden="true" />
-                    {coupons.length} aktif kupon
-                  </span>
-                )}
-                {products.length > 0 && (
-                  <span className={styles.headStat}>
                     <BadgePercent size={15} strokeWidth={2} aria-hidden="true" />
                     {products.length} indirimli ürün
+                  </span>
+                )}
+                {coupons.length > 0 && (
+                  <span className={styles.headStat}>
+                    <TicketPercent size={15} strokeWidth={2} aria-hidden="true" />
+                    {coupons.length} aktif kupon
                   </span>
                 )}
               </div>
             )}
           </header>
 
-          {/* --- Kampanyalar: aktif kupon kodları (kupon yoksa bölüm gizli) --- */}
-          {coupons.length > 0 && (
-            <section
-              className={styles.section}
-              aria-labelledby="kampanyalar-baslik"
-            >
-              <div className={styles.sectionHead}>
-                <span className={styles.sectionIcon} aria-hidden="true">
-                  <TicketPercent size={19} strokeWidth={1.9} />
-                </span>
-                <h2 id="kampanyalar-baslik" className={styles.sectionTitle}>
-                  Kampanyalar
-                </h2>
-                <span className={styles.count}>
-                  {coupons.length} aktif kupon
-                </span>
-              </div>
-              <p className={styles.sectionSub}>
-                Kodu kopyala, ödeme adımında kupon alanına yapıştır, indirim
-                anında düşsün.
-              </p>
+          {/* --- Fırsat banner'ları (catalog variant; banner yoksa null) --- */}
+          <div className={styles.banners}>
+            <PromoBanners variant="catalog" />
+          </div>
 
-              <div className={styles.tickets}>
-                {coupons.map((c) => (
-                  <article key={c.code} className={styles.ticket}>
-                    {/* Sol: accent renk bloğu, büyük indirim değeri */}
-                    <div className={styles.ticketValue}>
-                      <span className={styles.valueInner}>
-                        <span className={styles.valueBig}>
-                          {bigDiscountValue(c)}
-                        </span>
-                        <span className={styles.valueLabel}>İNDİRİM</span>
-                      </span>
-                    </div>
-                    {/* Orta: büyük mono kod (tıklayınca kopyalar) + açıklama + koşullar */}
-                    <div className={styles.ticketBody}>
-                      <CopyCodeButton code={c.code} variant="code" />
-                      {c.description && (
-                        <p className={styles.couponDesc}>{c.description}</p>
-                      )}
-                      <p className={styles.couponTerms}>
-                        <Clock size={14} strokeWidth={2} aria-hidden="true" />
-                        {couponTerms(c)}
-                      </p>
-                    </div>
-                    {/* Sağ: dikey buton grubu */}
-                    <div className={styles.ticketActions}>
-                      <CopyCodeButton code={c.code} />
-                      <Link
-                        href="/urunler"
-                        className={`btn btn--ghost ${styles.ticketGhost}`}
-                      >
-                        Alışverişe Başla
-                      </Link>
-                    </div>
-                  </article>
-                ))}
-              </div>
-
-              {/* Nasıl kullanılır — 3 adımlı ikonlu mini şerit */}
-              <div className={styles.howto}>
-                <p className={styles.howHead}>Kupon nasıl kullanılır?</p>
-                <div className={styles.howSteps}>
-                  <div className={styles.step}>
-                    <span className={styles.stepNum} aria-hidden="true">
-                      1
-                    </span>
-                    <span className={styles.stepText}>
-                      <span className={styles.stepTitle}>
-                        <Copy size={16} strokeWidth={2} aria-hidden="true" />
-                        Kodu kopyala
-                      </span>
-                      <span className={styles.stepDesc}>
-                        Kampanya biletindeki koda dokun, panoya kopyalansın.
-                      </span>
-                    </span>
-                  </div>
-                  <div className={styles.step}>
-                    <span className={styles.stepNum} aria-hidden="true">
-                      2
-                    </span>
-                    <span className={styles.stepText}>
-                      <span className={styles.stepTitle}>
-                        <ClipboardCheck
-                          size={16}
-                          strokeWidth={2}
-                          aria-hidden="true"
-                        />
-                        Ödemede yapıştır
-                      </span>
-                      <span className={styles.stepDesc}>
-                        Sepet ödeme adımındaki kupon alanına kodu yapıştır.
-                      </span>
-                    </span>
-                  </div>
-                  <div className={styles.step}>
-                    <span className={styles.stepNum} aria-hidden="true">
-                      3
-                    </span>
-                    <span className={styles.stepText}>
-                      <span className={styles.stepTitle}>
-                        <Sparkles size={16} strokeWidth={2} aria-hidden="true" />
-                        İndirim düşer
-                      </span>
-                      <span className={styles.stepDesc}>
-                        Tutar anında güncellenir, indirimli fiyatı ödersin.
-                      </span>
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </section>
-          )}
-
-          {/* --- İndirimli ürünler --- */}
+          {/* --- İndirimli ürünler: sayfa girişinde, tam genişlik grid --- */}
           {products.length === 0 ? (
             <section className={styles.section} role="status">
               <div className={styles.sectionHead}>
@@ -328,10 +222,131 @@ export default async function FirsatlarPage() {
                   {products.length} indirimli ürün
                 </span>
               </div>
+              <p className={styles.sectionSub}>
+                Fiyatı düşen ürünler, en yüksek indirim önce. Stok bitmeden
+                sepetine ekle.
+              </p>
               <div className={styles.grid}>
                 {products.map((p) => (
                   <ProductCard key={p.id} product={p} />
                 ))}
+              </div>
+            </section>
+          )}
+
+          {/* --- Kampanyalar: sade premium kupon kartları (kupon yoksa gizli) --- */}
+          {coupons.length > 0 && (
+            <section
+              className={styles.section}
+              aria-labelledby="kampanyalar-baslik"
+            >
+              <div className={styles.sectionHead}>
+                <span className={styles.sectionIcon} aria-hidden="true">
+                  <TicketPercent size={19} strokeWidth={1.9} />
+                </span>
+                <h2 id="kampanyalar-baslik" className={styles.sectionTitle}>
+                  Kampanyalar
+                </h2>
+                <span className={styles.count}>
+                  {coupons.length} aktif kupon
+                </span>
+              </div>
+              <p className={styles.sectionSub}>
+                Kodu kopyala, ödeme adımında kupon alanına yapıştır, indirim
+                anında düşsün.
+              </p>
+
+              <div className={styles.coupons}>
+                {coupons.map((c) => (
+                  <article key={c.code} className={styles.coupon}>
+                    {/* Üst: belirgin indirim değeri + rozet */}
+                    <div className={styles.couponTop}>
+                      <span className={styles.couponBig}>
+                        {bigDiscountValue(c)}
+                      </span>
+                      <span className={styles.couponBadge}>
+                        <TicketPercent
+                          size={13}
+                          strokeWidth={2}
+                          aria-hidden="true"
+                        />
+                        İndirim Kuponu
+                      </span>
+                    </div>
+
+                    {/* Açıklama */}
+                    {c.description && (
+                      <p className={styles.couponDesc}>{c.description}</p>
+                    )}
+
+                    {/* Net kod — tıklayınca da kopyalar */}
+                    <CopyCodeButton code={c.code} variant="code" />
+
+                    {/* Koşul satırı */}
+                    <p className={styles.couponTerms}>
+                      <Clock size={14} strokeWidth={2} aria-hidden="true" />
+                      {couponTerms(c)}
+                    </p>
+
+                    {/* Kopyala aksiyonu */}
+                    <div className={styles.couponAction}>
+                      <CopyCodeButton code={c.code} />
+                    </div>
+                  </article>
+                ))}
+              </div>
+
+              {/* Nasıl kullanılır — 3 adımlı ikonlu mini şerit */}
+              <div className={styles.howto}>
+                <p className={styles.howHead}>Kupon nasıl kullanılır?</p>
+                <div className={styles.howSteps}>
+                  <div className={styles.step}>
+                    <span className={styles.stepNum} aria-hidden="true">
+                      1
+                    </span>
+                    <span className={styles.stepText}>
+                      <span className={styles.stepTitle}>
+                        <Copy size={16} strokeWidth={2} aria-hidden="true" />
+                        Kodu kopyala
+                      </span>
+                      <span className={styles.stepDesc}>
+                        Kupon kartındaki koda dokun, panoya kopyalansın.
+                      </span>
+                    </span>
+                  </div>
+                  <div className={styles.step}>
+                    <span className={styles.stepNum} aria-hidden="true">
+                      2
+                    </span>
+                    <span className={styles.stepText}>
+                      <span className={styles.stepTitle}>
+                        <ClipboardCheck
+                          size={16}
+                          strokeWidth={2}
+                          aria-hidden="true"
+                        />
+                        Ödemede yapıştır
+                      </span>
+                      <span className={styles.stepDesc}>
+                        Sepet ödeme adımındaki kupon alanına kodu yapıştır.
+                      </span>
+                    </span>
+                  </div>
+                  <div className={styles.step}>
+                    <span className={styles.stepNum} aria-hidden="true">
+                      3
+                    </span>
+                    <span className={styles.stepText}>
+                      <span className={styles.stepTitle}>
+                        <Sparkles size={16} strokeWidth={2} aria-hidden="true" />
+                        İndirim düşer
+                      </span>
+                      <span className={styles.stepDesc}>
+                        Tutar anında güncellenir, indirimli fiyatı ödersin.
+                      </span>
+                    </span>
+                  </div>
+                </div>
               </div>
             </section>
           )}

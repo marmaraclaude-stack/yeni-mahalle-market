@@ -8,7 +8,9 @@ import { revalidatePath } from "next/cache";
 import { isAuthenticated } from "@/app/admin/actions";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { categoryBySlug } from "@/lib/shop/categories";
+import { BANNER_ICONS } from "@/lib/shop/icons";
 import type {
+  Courier,
   OrderStatus,
   PaymentMethod,
   PaymentStatus,
@@ -28,6 +30,7 @@ export interface ProductPatch {
   in_stock?: boolean;
   is_active?: boolean;
   is_featured?: boolean;
+  is_best_seller?: boolean;
   sort?: number;
 }
 
@@ -100,6 +103,7 @@ export interface NewBannerInput {
   subtitle?: string;
   cta_text?: string;
   cta_href?: string;
+  icon?: string; // BANNER_ICON_OPTIONS anahtarı (boş = otomatik)
   tint?: number; // CATEGORY_TINTS index (0-7)
   sort?: number;
 }
@@ -110,6 +114,7 @@ export interface BannerPatch {
   subtitle?: string;
   cta_text?: string;
   cta_href?: string;
+  icon?: string; // BANNER_ICON_OPTIONS anahtarı (boş = otomatik)
   tint?: number;
   is_active?: boolean;
   sort?: number;
@@ -334,6 +339,7 @@ export async function updateProduct(
   if (patch.in_stock !== undefined) clean.in_stock = patch.in_stock;
   if (patch.is_active !== undefined) clean.is_active = patch.is_active;
   if (patch.is_featured !== undefined) clean.is_featured = patch.is_featured;
+  if (patch.is_best_seller !== undefined) clean.is_best_seller = patch.is_best_seller;
   if (patch.sort !== undefined) clean.sort = patch.sort;
   if (Object.keys(clean).length === 0) return;
 
@@ -832,6 +838,15 @@ function isValidTint(tint: number): boolean {
 }
 
 /**
+ * Banner ikon anahtarını doğrula: boş kabul edilir (içeriğe göre otomatik
+ * çözülür), doluysa BANNER_ICONS'ta tanımlı olmalı; tanımsızsa boşa düşürür.
+ */
+function normalizeBannerIcon(icon: string): string {
+  const key = icon.trim();
+  return key && BANNER_ICONS[key] ? key : "";
+}
+
+/**
  * CTA çiftini doğrula: metin varsa link zorunlu, link göreli yol ("/...")
  * veya http(s) URL olmalı. Sorun varsa hata mesajı döner.
  */
@@ -873,6 +888,7 @@ export async function createBanner(
     subtitle: (input.subtitle ?? "").trim(),
     cta_text: ctaText,
     cta_href: ctaHref,
+    icon: normalizeBannerIcon(input.icon ?? ""),
     tint,
     sort,
   });
@@ -911,6 +927,7 @@ export async function updateBanner(
     clean.cta_text = ctaText;
     clean.cta_href = ctaHref;
   }
+  if (patch.icon !== undefined) clean.icon = normalizeBannerIcon(patch.icon);
   if (patch.tint !== undefined) {
     if (!isValidTint(patch.tint)) {
       return { ok: false, error: "Geçersiz renk (tint 0-7 arası olmalı)." };
@@ -966,6 +983,109 @@ export async function deleteBanner(id: string): Promise<BannerActionResult> {
     return { ok: false, error: bannerDbError(error, "Banner silinemedi") };
   }
   revalidateBannerPages();
+  return { ok: true };
+}
+
+// ------------------------------------------------------------
+// Kuryeler (kayıtlı kurye rehberi — couriers tablosu)
+// ------------------------------------------------------------
+
+/** Kurye action'larının dönüş tipi — hata mesajı client'a güvenle taşınır. */
+export interface CourierActionResult {
+  ok: boolean;
+  error?: string;
+}
+
+/** listCouriers dönüşü — kurye listesi + hata mesajı. */
+export interface CouriersResult {
+  ok: boolean;
+  couriers: Courier[];
+  error?: string;
+}
+
+/** couriers tablosu henüz kurulmamışsa anlaşılır Türkçe mesaj üret. */
+function courierDbError(
+  error: { code?: string; message: string },
+  fallback: string,
+): string {
+  const missingTable =
+    error.code === "42P01" ||
+    error.code === "PGRST205" ||
+    (/couriers/i.test(error.message) &&
+      /does not exist|could not find the table|schema cache/i.test(error.message));
+  if (missingTable) {
+    return "Kurye tablosu kurulmamış, migration'ı çalıştırın.";
+  }
+  return `${fallback}: ${error.message}`;
+}
+
+/** Kurye listesini çek — aktifler üstte, sonra ada göre. */
+export async function listCouriers(): Promise<CouriersResult> {
+  await requireAdmin();
+  const supabase = createAdminClient();
+  const { data, error } = await supabase
+    .from("couriers")
+    .select("*")
+    .order("is_active", { ascending: false })
+    .order("name", { ascending: true });
+  if (error) {
+    return { ok: false, couriers: [], error: courierDbError(error, "Kuryeler yüklenemedi") };
+  }
+  return { ok: true, couriers: (data ?? []) as Courier[] };
+}
+
+/** Yeni kurye ekle — ad zorunlu, telefon opsiyonel. */
+export async function createCourier(
+  name: string,
+  phone: string,
+): Promise<CourierActionResult> {
+  await requireAdmin();
+  const cleanName = name.trim().slice(0, 120);
+  if (!cleanName) return { ok: false, error: "Kurye adı boş olamaz." };
+
+  const supabase = createAdminClient();
+  const { error } = await supabase.from("couriers").insert({
+    name: cleanName,
+    phone: phone.trim().slice(0, 40),
+  });
+  if (error) {
+    return { ok: false, error: courierDbError(error, "Kurye eklenemedi") };
+  }
+  revalidatePath("/admin/kuryeler");
+  return { ok: true };
+}
+
+/** Kuryeyi kalıcı olarak sil (siparişlere yazılmış ad/telefon etkilenmez). */
+export async function deleteCourier(id: string): Promise<CourierActionResult> {
+  await requireAdmin();
+  if (!id.trim()) return { ok: false, error: "Geçersiz kurye." };
+
+  const supabase = createAdminClient();
+  const { error } = await supabase.from("couriers").delete().eq("id", id);
+  if (error) {
+    return { ok: false, error: courierDbError(error, "Kurye silinemedi") };
+  }
+  revalidatePath("/admin/kuryeler");
+  return { ok: true };
+}
+
+/** Kuryeyi aktif/pasif yap (pasif kurye sipariş dropdown'ında görünmez). */
+export async function toggleCourier(
+  id: string,
+  active: boolean,
+): Promise<CourierActionResult> {
+  await requireAdmin();
+  if (!id.trim()) return { ok: false, error: "Geçersiz kurye." };
+
+  const supabase = createAdminClient();
+  const { error } = await supabase
+    .from("couriers")
+    .update({ is_active: active })
+    .eq("id", id);
+  if (error) {
+    return { ok: false, error: courierDbError(error, "Kurye durumu değiştirilemedi") };
+  }
+  revalidatePath("/admin/kuryeler");
   return { ok: true };
 }
 

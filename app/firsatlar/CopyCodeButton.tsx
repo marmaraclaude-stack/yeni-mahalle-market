@@ -1,8 +1,8 @@
 "use client";
 
 // Kupon kodu kopyalama — iki görünüm:
-// - "button": bilet sağındaki accent "Kodu Kopyala" butonu.
-// - "code": bilet ortasındaki büyük mono kod alanı; tıklanınca da kopyalar.
+// - "button": kupon kartının altındaki accent "Kodu Kopyala" butonu.
+// - "code": kupon kartındaki büyük mono kod alanı; tıklanınca da kopyalar.
 // İkisi de kopyalayınca kısa süreli "Kopyalandı" geri bildirimi gösterir.
 
 import { useEffect, useRef, useState } from "react";

@@ -210,6 +210,12 @@
   text-transform: uppercase;
   color: var(--gray-500);
 }
+/* İkinci grup başlığı (Kategoriler) — Keşfet grubundan sonra nefes payı */
+.sideTitleGap {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--gray-100);
+}
 .sideList {
   display: flex;
   flex-direction: column;
@@ -536,6 +542,8 @@
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
 }
+/* "Tümünü Gör" — sakin ghost pill: gri metin + ince border, hover'da accent.
+   (Eski accent turuncu metin kaldırıldı.) */
 .seeAll {
   display: inline-flex;
   align-items: center;
@@ -544,19 +552,67 @@
   margin-left: auto;
   padding: 6px 12px;
   border-radius: var(--r-pill);
-  color: var(--accent-deep);
+  border: 1px solid var(--gray-200);
+  background: var(--white);
+  color: var(--gray-600);
   font-size: var(--fs-small);
   font-weight: 600;
   white-space: nowrap;
-  transition: background 180ms var(--ease);
+  transition: background 180ms var(--ease), border-color 180ms var(--ease),
+    color 180ms var(--ease);
 }
-.seeAll:hover { background: var(--accent-soft); }
+.seeAll:hover {
+  background: var(--accent-soft);
+  border-color: transparent;
+  color: var(--accent-deep);
+}
 
 /* --- Ürün gridi --- */
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
   gap: 12px;
+}
+
+/* --- "Daha Fazla Yükle" (özel görünümlerde kademeli render) --- */
+.loadMoreWrap {
+  display: flex;
+  justify-content: center;
+  margin-top: clamp(20px, 3vw, 32px);
+}
+.loadMoreBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  height: 46px;
+  padding: 0 24px;
+  border-radius: var(--r-pill);
+  border: 1px solid var(--gray-200);
+  background: var(--white);
+  color: var(--ink);
+  font-size: var(--fs-small);
+  font-weight: 600;
+  transition: background 180ms var(--ease), border-color 180ms var(--ease),
+    box-shadow 180ms var(--ease);
+}
+.loadMoreBtn:hover {
+  background: var(--gray-50);
+  border-color: var(--gray-300);
+  box-shadow: 0 4px 12px rgba(10, 10, 10, 0.05);
+}
+.loadMoreBtn:active { transform: translateY(1px); }
+.loadMoreBtn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.loadMoreCount {
+  padding: 3px 10px;
+  border-radius: var(--r-pill);
+  background: var(--accent-soft);
+  color: var(--accent-deep);
+  font-size: var(--fs-micro);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
 }
 
 /* ============================================================

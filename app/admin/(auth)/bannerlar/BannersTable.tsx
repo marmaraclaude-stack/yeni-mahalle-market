@@ -15,7 +15,27 @@ import {
 } from "@/lib/shop/admin-actions";
 import type { Banner } from "@/lib/shop/types";
 import { CATEGORY_TINTS } from "@/lib/shop/categories";
+import { BANNER_ICON_OPTIONS, resolveBannerIcon } from "@/lib/shop/icons";
 import styles from "../../admin.module.css";
+
+/** Banner ikon önizlemesi — seçili icon yoksa başlık içeriğine göre çözülür. */
+function BannerIconPreview({
+  icon,
+  title,
+  tint,
+}: {
+  icon: string;
+  title: string;
+  tint: number;
+}) {
+  const Icon = resolveBannerIcon(icon, title);
+  const [bg, fg] = CATEGORY_TINTS[safeTint(tint)];
+  return (
+    <span className={styles.bannerIcon} style={{ background: bg, color: fg }} aria-hidden>
+      <Icon size={18} strokeWidth={2} />
+    </span>
+  );
+}
 
 /** CATEGORY_TINTS index'lerinin Türkçe renk adları (select ve önizleme için). */
 const TINT_NAMES = [
@@ -53,7 +73,24 @@ function BannerRow({ banner }: { banner: Banner }) {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [sortValue, setSortValue] = useState(String(banner.sort));
+  const [icon, setIcon] = useState(banner.icon);
   const [, startTransition] = useTransition();
+
+  function saveIcon(next: string) {
+    setIcon(next);
+    setBusy(true);
+    startTransition(async () => {
+      try {
+        const result = await updateBanner(banner.id, { icon: next });
+        if (!result.ok) {
+          window.alert(result.error ?? "İkon kaydedilemedi.");
+        }
+        router.refresh();
+      } finally {
+        setBusy(false);
+      }
+    });
+  }
 
   function toggle() {
     setBusy(true);
@@ -113,7 +150,7 @@ function BannerRow({ banner }: { banner: Banner }) {
     <tr className={banner.is_active ? "" : styles.rowInactive}>
       <td>
         <div className={styles.bannerCell}>
-          <TintDot tint={banner.tint} />
+          <BannerIconPreview icon={icon} title={banner.title} tint={banner.tint} />
           <div>
             <div className={styles.prodName}>{banner.title}</div>
             {banner.subtitle && (
@@ -121,6 +158,23 @@ function BannerRow({ banner }: { banner: Banner }) {
             )}
           </div>
         </div>
+      </td>
+      <td>
+        <select
+          value={icon}
+          onChange={(e) => saveIcon(e.target.value)}
+          disabled={busy}
+          className={styles.select}
+          style={{ minWidth: 160 }}
+          aria-label={`${banner.title} banner ikonu`}
+        >
+          <option value="">Otomatik</option>
+          {BANNER_ICON_OPTIONS.map((opt) => (
+            <option key={opt.key} value={opt.key}>
+              {opt.label}
+            </option>
+          ))}
+        </select>
       </td>
       <td>
         {banner.cta_text ? (
@@ -193,6 +247,8 @@ export default function BannersTable({ banners }: { banners: Banner[] }) {
   const [busy, setBusy] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [formTint, setFormTint] = useState(0);
+  const [formIcon, setFormIcon] = useState("");
+  const [formTitle, setFormTitle] = useState("");
   const [, startTransition] = useTransition();
 
   function handleCreate(e: React.FormEvent<HTMLFormElement>) {
@@ -222,6 +278,7 @@ export default function BannersTable({ banners }: { banners: Banner[] }) {
           subtitle: String(fd.get("subtitle") ?? ""),
           cta_text: String(fd.get("cta_text") ?? ""),
           cta_href: String(fd.get("cta_href") ?? ""),
+          icon: String(fd.get("icon") ?? ""),
           tint,
           sort,
         });
@@ -231,6 +288,8 @@ export default function BannersTable({ banners }: { banners: Banner[] }) {
         }
         form.reset();
         setFormTint(0);
+        setFormIcon("");
+        setFormTitle("");
         router.refresh();
       } catch (err) {
         setFormError(err instanceof Error ? err.message : "Banner eklenemedi.");
@@ -276,6 +335,8 @@ export default function BannersTable({ banners }: { banners: Banner[] }) {
                 maxLength={80}
                 placeholder="Fırsat ürünleri burada"
                 className={styles.input}
+                value={formTitle}
+                onChange={(e) => setFormTitle(e.target.value)}
               />
             </div>
             <div className={styles.field}>
@@ -292,7 +353,7 @@ export default function BannersTable({ banners }: { banners: Banner[] }) {
             </div>
             <div className={styles.field}>
               <label className={styles.label} htmlFor="banner-cta-text">
-                CTA metni
+                CTA metni (opsiyonel)
               </label>
               <input
                 id="banner-cta-text"
@@ -304,7 +365,7 @@ export default function BannersTable({ banners }: { banners: Banner[] }) {
             </div>
             <div className={styles.field}>
               <label className={styles.label} htmlFor="banner-cta-href">
-                CTA linki
+                CTA linki (opsiyonel)
               </label>
               <input
                 id="banner-cta-href"
@@ -312,6 +373,32 @@ export default function BannersTable({ banners }: { banners: Banner[] }) {
                 placeholder="/firsatlar"
                 className={styles.input}
               />
+            </div>
+            <div className={styles.field}>
+              <label className={styles.label} htmlFor="banner-icon">
+                İkon
+              </label>
+              <div className={styles.iconSelectWrap}>
+                <BannerIconPreview
+                  icon={formIcon}
+                  title={formTitle}
+                  tint={formTint}
+                />
+                <select
+                  id="banner-icon"
+                  name="icon"
+                  value={formIcon}
+                  onChange={(e) => setFormIcon(e.target.value)}
+                  className={styles.select}
+                >
+                  <option value="">Otomatik (başlığa göre)</option>
+                  {BANNER_ICON_OPTIONS.map((opt) => (
+                    <option key={opt.key} value={opt.key}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
             <div className={styles.field}>
               <label className={styles.label} htmlFor="banner-tint">
@@ -368,6 +455,7 @@ export default function BannersTable({ banners }: { banners: Banner[] }) {
               <thead>
                 <tr>
                   <th>Banner</th>
+                  <th>İkon</th>
                   <th>CTA</th>
                   <th>Renk</th>
                   <th>Sıra</th>

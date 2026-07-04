@@ -6,12 +6,13 @@ import { notFound } from "next/navigation";
 import { ChevronLeft } from "lucide-react";
 import { createAdminClient } from "@/lib/supabase/admin";
 import {
-  setCourier,
+  listCouriers,
   setPaymentStatus,
   updateAdminNote,
   updateOrderStatus,
 } from "@/lib/shop/admin-actions";
 import DeleteOrderButton from "./DeleteOrderButton";
+import CourierForm from "./CourierForm";
 import {
   formatTL,
   ORDER_STATUS_LABELS,
@@ -19,6 +20,7 @@ import {
   PAYMENT_STATUS_LABELS,
 } from "@/lib/shop/types";
 import type {
+  Courier,
   Order,
   OrderItem,
   OrderStatus,
@@ -84,6 +86,17 @@ export default async function AdminOrderDetailPage({
     .order("name");
   const items = (itemsData ?? []) as OrderItem[];
 
+  // Kurye dropdown'ı için kayıtlı kuryeleri çek (tablo yoksa boş liste).
+  let couriers: Courier[] = [];
+  try {
+    const couriersResult = await listCouriers();
+    if (couriersResult.ok) {
+      couriers = couriersResult.couriers.filter((c) => c.is_active);
+    }
+  } catch {
+    couriers = [];
+  }
+
   // Formlardan gelen değerleri action'lara bağlayan inline server action'lar.
   async function savePaymentAction(formData: FormData) {
     "use server";
@@ -96,15 +109,6 @@ export default async function AdminOrderDetailPage({
   async function saveNoteAction(formData: FormData) {
     "use server";
     await updateAdminNote(id, String(formData.get("admin_note") ?? ""));
-  }
-
-  async function saveCourierAction(formData: FormData) {
-    "use server";
-    await setCourier(
-      id,
-      String(formData.get("courier_name") ?? ""),
-      String(formData.get("courier_phone") ?? ""),
-    );
   }
 
   const next = NEXT_STEP[order.status];
@@ -151,7 +155,7 @@ export default async function AdminOrderDetailPage({
               type="submit"
               className={`${styles.actionBtn} ${styles["actionBtn--primary"]}`}
             >
-              → {next.label}
+              {next.label}
             </button>
           </form>
         )}
@@ -168,176 +172,152 @@ export default async function AdminOrderDetailPage({
         <DeleteOrderButton orderId={order.id} orderNo={order.order_no} />
       </div>
 
-      <div className={styles.detailGrid}>
-        {/* Kalemler */}
-        <section className={styles.panel}>
-          <h2 className={styles.panelTitle}>Kalemler</h2>
-          <div className={styles.tableWrap}>
-            <table className={styles.table}>
-              <thead>
-                <tr>
-                  <th>Ürün</th>
-                  <th>Birim</th>
-                  <th>Adet</th>
-                  <th>Tutar</th>
-                </tr>
-              </thead>
-              <tbody>
-                {items.map((it) => (
-                  <tr key={it.id}>
-                    <td>{it.name}</td>
-                    <td>{formatTL(Number(it.unit_price))}</td>
-                    <td>{it.qty}</td>
-                    <td>{formatTL(Number(it.line_total))}</td>
+      {/* Dengeli iki kolon: sol = kalemler + müşteri, sağ = ödeme/kurye/not */}
+      <div className={styles.orderDetailGrid}>
+        <div className={styles.orderDetailCol}>
+          {/* Kalemler */}
+          <section className={styles.panel}>
+            <h2 className={styles.panelTitle}>Kalemler</h2>
+            <div className={styles.tableWrap}>
+              <table className={styles.table}>
+                <thead>
+                  <tr>
+                    <th>Ürün</th>
+                    <th>Birim</th>
+                    <th>Adet</th>
+                    <th>Tutar</th>
                   </tr>
-                ))}
-              </tbody>
-              <tfoot>
-                <tr>
-                  <td colSpan={3}>Ara toplam</td>
-                  <td>{formatTL(Number(order.items_subtotal))}</td>
-                </tr>
-                <tr>
-                  <td colSpan={3}>Teslimat</td>
-                  <td>{formatTL(Number(order.delivery_fee))}</td>
-                </tr>
-                <tr className={styles.tableTotal}>
-                  <td colSpan={3}>Toplam</td>
-                  <td>{formatTL(Number(order.total))}</td>
-                </tr>
-              </tfoot>
-            </table>
-          </div>
-        </section>
+                </thead>
+                <tbody>
+                  {items.map((it) => (
+                    <tr key={it.id}>
+                      <td>{it.name}</td>
+                      <td>{formatTL(Number(it.unit_price))}</td>
+                      <td>{it.qty}</td>
+                      <td>{formatTL(Number(it.line_total))}</td>
+                    </tr>
+                  ))}
+                </tbody>
+                <tfoot>
+                  <tr>
+                    <td colSpan={3}>Ara toplam</td>
+                    <td>{formatTL(Number(order.items_subtotal))}</td>
+                  </tr>
+                  <tr>
+                    <td colSpan={3}>Teslimat</td>
+                    <td>{formatTL(Number(order.delivery_fee))}</td>
+                  </tr>
+                  <tr className={styles.tableTotal}>
+                    <td colSpan={3}>Toplam</td>
+                    <td>{formatTL(Number(order.total))}</td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+          </section>
 
-        {/* Müşteri + adres */}
-        <section className={styles.panel}>
-          <h2 className={styles.panelTitle}>Müşteri &amp; Adres</h2>
-          <dl className={styles.kvList}>
-            <div className={styles.kv}>
-              <dt>Ad Soyad</dt>
-              <dd>{order.customer_name}</dd>
-            </div>
-            <div className={styles.kv}>
-              <dt>Telefon</dt>
-              <dd>
-                <a href={`tel:${order.phone}`} className={styles.telLink}>
-                  {order.phone}
-                </a>
-              </dd>
-            </div>
-            <div className={styles.kv}>
-              <dt>Adres</dt>
-              <dd>{order.address_line}</dd>
-            </div>
-            {order.address_note && (
+          {/* Müşteri + adres */}
+          <section className={styles.panel}>
+            <h2 className={styles.panelTitle}>Müşteri &amp; Adres</h2>
+            <dl className={styles.kvList}>
               <div className={styles.kv}>
-                <dt>Adres Tarifi</dt>
-                <dd>{order.address_note}</dd>
+                <dt>Ad Soyad</dt>
+                <dd>{order.customer_name}</dd>
               </div>
-            )}
-            {order.note && (
               <div className={styles.kv}>
-                <dt>Müşteri Notu</dt>
-                <dd>{order.note}</dd>
+                <dt>Telefon</dt>
+                <dd>
+                  <a href={`tel:${order.phone}`} className={styles.telLink}>
+                    {order.phone}
+                  </a>
+                </dd>
               </div>
-            )}
-          </dl>
-        </section>
+              <div className={styles.kv}>
+                <dt>Adres</dt>
+                <dd>{order.address_line}</dd>
+              </div>
+              {order.address_note && (
+                <div className={styles.kv}>
+                  <dt>Adres Tarifi</dt>
+                  <dd>{order.address_note}</dd>
+                </div>
+              )}
+              {order.note && (
+                <div className={styles.kv}>
+                  <dt>Müşteri Notu</dt>
+                  <dd>{order.note}</dd>
+                </div>
+              )}
+            </dl>
+          </section>
+        </div>
 
-        {/* Ödeme durumu */}
-        <section className={styles.panel}>
-          <h2 className={styles.panelTitle}>Ödeme Durumu</h2>
-          <form action={savePaymentAction} className={styles.inlineForm}>
-            <label className={styles.label} htmlFor="payment_status">
-              Durum
-            </label>
-            <select
-              id="payment_status"
-              name="payment_status"
-              defaultValue={order.payment_status}
-              className={styles.select}
-            >
-              {PAYMENT_STATUSES.map((s) => (
-                <option key={s} value={s}>
-                  {PAYMENT_STATUS_LABELS[s]}
-                </option>
-              ))}
-            </select>
-            <button
-              type="submit"
-              className={`${styles.actionBtn} ${styles["actionBtn--primary"]}`}
-            >
-              Kaydet
-            </button>
-          </form>
-        </section>
+        <div className={styles.orderDetailCol}>
+          {/* Ödeme durumu */}
+          <section className={styles.panel}>
+            <h2 className={styles.panelTitle}>Ödeme Durumu</h2>
+            <form action={savePaymentAction} className={styles.inlineForm}>
+              <div className={styles.field} style={{ flex: "1 1 180px" }}>
+                <label className={styles.label} htmlFor="payment_status">
+                  Durum
+                </label>
+                <select
+                  id="payment_status"
+                  name="payment_status"
+                  defaultValue={order.payment_status}
+                  className={styles.select}
+                >
+                  {PAYMENT_STATUSES.map((s) => (
+                    <option key={s} value={s}>
+                      {PAYMENT_STATUS_LABELS[s]}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <button
+                type="submit"
+                className={`${styles.actionBtn} ${styles["actionBtn--primary"]}`}
+              >
+                Kaydet
+              </button>
+            </form>
+          </section>
 
-        {/* Kurye bilgisi */}
-        <section className={styles.panel}>
-          <h2 className={styles.panelTitle}>Kurye Bilgisi</h2>
-          <form action={saveCourierAction} className={styles.stackForm}>
-            <div className={styles.field} style={{ width: "100%" }}>
-              <label className={styles.label} htmlFor="courier_name">
-                Kurye adı
-              </label>
-              <input
-                id="courier_name"
-                name="courier_name"
-                defaultValue={order.courier_name}
-                className={styles.input}
-                placeholder="Örn. Ahmet Y."
-              />
-            </div>
-            <div className={styles.field} style={{ width: "100%" }}>
-              <label className={styles.label} htmlFor="courier_phone">
-                Kurye telefonu
-              </label>
-              <input
-                id="courier_phone"
-                name="courier_phone"
-                defaultValue={order.courier_phone}
-                className={styles.input}
-                inputMode="tel"
-                placeholder="05XX XXX XX XX"
-              />
-            </div>
-            <button
-              type="submit"
-              className={`${styles.actionBtn} ${styles["actionBtn--primary"]}`}
-            >
-              Kurye Bilgisini Kaydet
-            </button>
-            <p className={styles.hint}>
-              Kurye atandığında müşteri takip sayfasında &quot;Kuryeniz
-              yolda&quot; kartıyla ad ve telefon görünür. Boş bırakılırsa
-              kurye kaldırılır.
-            </p>
-          </form>
-        </section>
-
-        {/* İç not */}
-        <section className={styles.panel}>
-          <h2 className={styles.panelTitle}>İç Not</h2>
-          <form action={saveNoteAction} className={styles.stackForm}>
-            <label className={styles.label} htmlFor="admin_note">
-              Sadece admin görür (kurye adı, hatırlatma vs.)
-            </label>
-            <textarea
-              id="admin_note"
-              name="admin_note"
-              rows={4}
-              defaultValue={order.admin_note}
-              className={styles.textarea}
+          {/* Kurye bilgisi — kayıtlı kuryeden seç veya elle gir */}
+          <section className={styles.panel}>
+            <h2 className={styles.panelTitle}>Kurye Bilgisi</h2>
+            <CourierForm
+              orderId={order.id}
+              couriers={couriers}
+              initialName={order.courier_name}
+              initialPhone={order.courier_phone}
             />
-            <button
-              type="submit"
-              className={`${styles.actionBtn} ${styles["actionBtn--primary"]}`}
-            >
-              Notu Kaydet
-            </button>
-          </form>
-        </section>
+          </section>
+
+          {/* İç not */}
+          <section className={styles.panel}>
+            <h2 className={styles.panelTitle}>İç Not</h2>
+            <form action={saveNoteAction} className={styles.stackForm}>
+              <label className={styles.label} htmlFor="admin_note">
+                Sadece admin görür (kurye adı, hatırlatma vs.)
+              </label>
+              <textarea
+                id="admin_note"
+                name="admin_note"
+                rows={4}
+                defaultValue={order.admin_note}
+                className={styles.textarea}
+                style={{ width: "100%" }}
+              />
+              <button
+                type="submit"
+                className={`${styles.actionBtn} ${styles["actionBtn--primary"]}`}
+              >
+                Notu Kaydet
+              </button>
+            </form>
+          </section>
+        </div>
       </div>
     </>
   );

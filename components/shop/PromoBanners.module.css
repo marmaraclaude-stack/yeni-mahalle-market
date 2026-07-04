@@ -20,13 +20,10 @@
 }
 
 /* -------- Ana sayfa yerleşimi --------
-   Hero stat kartları ile banner arasındaki ritmi dengeler; bölümü
-   hafif negatif margin ile yukarı çeker. Alt boşluk features
-   bölümünün üst padding'iyle buluşur. */
+   Standart bölüm ritmi: diğer bölümlerle aynı nefes. Negatif margin
+   hack'i YOK; üst/alt boşluk global --section-y ile eşit. */
 .homeSection {
-  margin-top: clamp(-28px, -1.6vw, -12px);
-  padding-top: 0;
-  padding-bottom: clamp(26px, 3.2vw, 44px);
+  padding-block: var(--section-y);
 }
 
 /* Banner sarmalayıcı = global .container davranışı (her ölçüde).

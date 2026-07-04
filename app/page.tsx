@@ -7,7 +7,7 @@ import SiteNav from "@/components/SiteNav";
 import PromoBanners from "@/components/shop/PromoBanners";
 import Carousel from "@/components/Carousel";
 import CategoryGrid from "@/components/CategoryGrid";
-import { Check, ShoppingBasket, Package, Bike } from "lucide-react";
+import { ShoppingBasket, Bike, ClipboardCheck, House } from "lucide-react";
 
 /* ============================================================
    ICONS
@@ -239,60 +239,89 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="features__row">
-              <div className="features__copy">
-                <h2 className="features__h">
-                  Sipariş ver, hazırlayalım, kapına getirelim.
-                </h2>
-                <p className="features__p">
-                  Mahalle içindeysen ortalama yarım saatte siparişin elinde
-                  olur. Soğuk zincir korunur, hassas ürünler en sona
-                  paketlenir.
-                </p>
-              </div>
-              <div className="features__visual features__visual--track">
-                <div className="track" aria-hidden="true">
-                  <div className="track__head">
-                    <span className="track__title">Siparişiniz hazırlanıyor</span>
-                    <span className="track__eta">~30 dk</span>
-                  </div>
-                  <ol className="track__steps">
-                    <li className="track__step track__step--done">
-                      <span className="track__node"><Check size={15} strokeWidth={2.6} /></span>
-                      <span className="track__body">
-                        <span className="track__label">Sipariş alındı</span>
-                        <span className="track__sub">Online mağazadan ulaştı</span>
-                      </span>
-                      <span className="track__time">18:42</span>
-                    </li>
-                    <li className="track__step track__step--done">
-                      <span className="track__node"><ShoppingBasket size={15} strokeWidth={2.2} /></span>
-                      <span className="track__body">
-                        <span className="track__label">Tezgâhtan toplandı</span>
-                        <span className="track__sub">Taze ürünler ayrıldı</span>
-                      </span>
-                      <span className="track__time">18:46</span>
-                    </li>
-                    <li className="track__step track__step--done">
-                      <span className="track__node"><Package size={15} strokeWidth={2.2} /></span>
-                      <span className="track__body">
-                        <span className="track__label">Paketlendi</span>
-                        <span className="track__sub">Soğuk zincir korundu</span>
-                      </span>
-                      <span className="track__time">18:51</span>
-                    </li>
-                    <li className="track__step track__step--active">
-                      <span className="track__node"><Bike size={15} strokeWidth={2.2} /></span>
-                      <span className="track__body">
-                        <span className="track__label">Kapınıza geliyor</span>
-                        <span className="track__sub">Kurye yola çıktı</span>
-                      </span>
-                      <span className="track__time">~18:55</span>
-                    </li>
-                  </ol>
-                </div>
-              </div>
-            </div>
+          </div>
+        </section>
+
+        {/* ===== SİPARİŞ AKIŞI — gerçek sipariş durumları ===== */}
+        <section className="section" aria-labelledby="siparis-akis-title">
+          <div className="container">
+            <header className="section__head section__head--center">
+              <h2 className="section__title" id="siparis-akis-title">
+                Sipariş ver, hazırlayalım,{" "}
+                <span className="accent">kapına getirelim.</span>
+              </h2>
+              <p className="section__sub">
+                Siparişini oluşturduğun andan kapına gelene kadar her adım
+                bizde. Mahalle içinde ortalama yarım saatte kapındayız.
+              </p>
+            </header>
+
+            <ol className="flow">
+              <li className="flow__step flow__step--active">
+                <span className="flow__node" aria-hidden="true">
+                  <ClipboardCheck strokeWidth={1.8} />
+                </span>
+                <span className="flow__body">
+                  <span className="flow__head">
+                    <span className="flow__num">1. Adım</span>
+                    <span className="flow__live">
+                      <span className="flow__live-dot" aria-hidden="true" />
+                      Canlı
+                    </span>
+                  </span>
+                  <span className="flow__label">Sipariş Alındı</span>
+                  <span className="flow__desc">
+                    Siparişin bize ulaştı, ekibimiz hemen ilgilenmeye başlar.
+                  </span>
+                </span>
+              </li>
+
+              <li className="flow__step">
+                <span className="flow__node" aria-hidden="true">
+                  <ShoppingBasket strokeWidth={1.8} />
+                </span>
+                <span className="flow__body">
+                  <span className="flow__head">
+                    <span className="flow__num">2. Adım</span>
+                  </span>
+                  <span className="flow__label">Hazırlanıyor</span>
+                  <span className="flow__desc">
+                    Ürünlerin tezgahtan özenle toplanır, taze ve hassas olanlar
+                    en sona.
+                  </span>
+                </span>
+              </li>
+
+              <li className="flow__step">
+                <span className="flow__node" aria-hidden="true">
+                  <Bike strokeWidth={1.8} />
+                </span>
+                <span className="flow__body">
+                  <span className="flow__head">
+                    <span className="flow__num">3. Adım</span>
+                  </span>
+                  <span className="flow__label">Kurye Yolda</span>
+                  <span className="flow__desc">
+                    Kuryemiz paketini alıp yola çıkar, soğuk zincir korunur.
+                  </span>
+                </span>
+              </li>
+
+              <li className="flow__step">
+                <span className="flow__node" aria-hidden="true">
+                  <House strokeWidth={1.8} />
+                </span>
+                <span className="flow__body">
+                  <span className="flow__head">
+                    <span className="flow__num">4. Adım</span>
+                  </span>
+                  <span className="flow__label">Teslim Edildi</span>
+                  <span className="flow__desc">
+                    Siparişin kapında. Kapıda nakit veya kart ile ödeyebilirsin.
+                  </span>
+                </span>
+              </li>
+            </ol>
           </div>
         </section>
 

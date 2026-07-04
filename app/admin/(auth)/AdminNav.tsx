@@ -7,6 +7,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
+  Bike,
   GalleryHorizontal,
   LayoutDashboard,
   MessageCircle,
@@ -31,6 +32,7 @@ const SHOP_PREFIXES = [
   "/admin/urunler",
   "/admin/kuponlar",
   "/admin/bannerlar",
+  "/admin/kuryeler",
   "/admin/uyeler",
   "/admin/ayarlar",
 ];
@@ -65,6 +67,12 @@ const ITEMS: NavItem[] = [
     label: "Bannerlar",
     icon: GalleryHorizontal,
     isActive: (p) => p.startsWith("/admin/bannerlar"),
+  },
+  {
+    href: "/admin/kuryeler",
+    label: "Kuryeler",
+    icon: Bike,
+    isActive: (p) => p.startsWith("/admin/kuryeler"),
   },
   {
     href: "/admin/uyeler",
