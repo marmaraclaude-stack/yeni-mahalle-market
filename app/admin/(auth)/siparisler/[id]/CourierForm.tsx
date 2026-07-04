@@ -1,10 +1,12 @@
 "use client";
 
-// Sipariş detayı — kurye atama. İki mod: kayıtlı kuryelerden DROPDOWN seçimi
-// (ad + telefon otomatik dolar) veya "Elle gir". Kaydet, setCourier server
-// action'ını çağırır; boş ad + telefon kuryeyi kaldırır.
+// Sipariş detayı — kurye atama. SADECE kayıtlı kuryelerden DROPDOWN seçimi:
+// seçilen kuryenin adı + telefonu (+ görsel önizlemesi) otomatik gelir,
+// Kaydet setCourier server action'ını çağırır. "Kurye yok / kaldır" seçilip
+// kaydedilince kurye kaldırılır. Kayıtlı kurye yoksa Kuryeler sayfasına yönlendirir.
 
 import { useMemo, useState, useTransition } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { setCourier } from "@/lib/shop/admin-actions";
 import type { Courier } from "@/lib/shop/types";
@@ -22,11 +24,6 @@ export default function CourierForm({
   initialPhone: string;
 }) {
   const router = useRouter();
-  const [mode, setMode] = useState<"saved" | "manual">(
-    couriers.length > 0 ? "saved" : "manual",
-  );
-  const [name, setName] = useState(initialName);
-  const [phone, setPhone] = useState(initialPhone);
   const [busy, setBusy] = useState(false);
   const [savedMsg, setSavedMsg] = useState<string | null>(null);
   const [, startTransition] = useTransition();
@@ -40,30 +37,19 @@ export default function CourierForm({
   }, [couriers, initialName, initialPhone]);
   const [selectedId, setSelectedId] = useState(currentKey);
 
-  function onSelectSaved(id: string) {
-    setSelectedId(id);
-    setSavedMsg(null);
-    if (!id) {
-      setName("");
-      setPhone("");
-      return;
-    }
-    const courier = couriers.find((c) => c.id === id);
-    if (courier) {
-      setName(courier.name);
-      setPhone(courier.phone);
-    }
-  }
+  const selected = couriers.find((c) => c.id === selectedId) ?? null;
+  const assigned = initialName.trim() || initialPhone.trim();
 
   function save() {
     setBusy(true);
     setSavedMsg(null);
+    const courier = couriers.find((c) => c.id === selectedId);
+    const name = courier ? courier.name : "";
+    const phone = courier ? courier.phone : "";
     startTransition(async () => {
       try {
         await setCourier(orderId, name, phone);
-        setSavedMsg(
-          name.trim() ? "Kurye bilgisi kaydedildi." : "Kurye kaldırıldı.",
-        );
+        setSavedMsg(name ? "Kurye bilgisi kaydedildi." : "Kurye kaldırıldı.");
         router.refresh();
       } finally {
         setBusy(false);
@@ -71,7 +57,33 @@ export default function CourierForm({
     });
   }
 
-  const assigned = initialName.trim() || initialPhone.trim();
+  // Kayıtlı kurye yoksa: elle giriş YOK — Kuryeler sayfasına yönlendir.
+  if (couriers.length === 0) {
+    return (
+      <div className={styles.courierForm}>
+        {assigned && (
+          <div className={styles.courierCurrent}>
+            <span className={styles.courierCurrentLabel}>Atanan kurye</span>
+            <strong>{initialName || "·"}</strong>
+            {initialPhone && (
+              <a href={`tel:${initialPhone}`} className={styles.telLink}>
+                {initialPhone}
+              </a>
+            )}
+          </div>
+        )}
+        <p className={styles.hint}>
+          Henüz kayıtlı kurye yok. Önce Kuryeler sayfasından kurye ekleyin.
+        </p>
+        <Link
+          href="/admin/kuryeler"
+          className={`${styles.actionBtn} ${styles["actionBtn--primary"]}`}
+        >
+          Kuryeler sayfasına git
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.courierForm}>
@@ -89,87 +101,51 @@ export default function CourierForm({
         <p className={styles.hint}>Bu siparişe henüz kurye atanmadı.</p>
       )}
 
-      {/* Mod seçimi: kayıtlıdan seç / elle gir */}
-      <div className={styles.segmented} role="group" aria-label="Kurye giriş yöntemi">
-        <button
-          type="button"
-          onClick={() => setMode("saved")}
-          className={`${styles.segBtn} ${mode === "saved" ? styles["segBtn--active"] : ""}`}
-          aria-pressed={mode === "saved"}
+      <div className={styles.field}>
+        <label className={styles.label} htmlFor="courier-select">
+          Kurye seç
+        </label>
+        <select
+          id="courier-select"
+          value={selectedId}
+          onChange={(e) => {
+            setSelectedId(e.target.value);
+            setSavedMsg(null);
+          }}
+          className={styles.select}
         >
-          Kayıtlı Kurye
-        </button>
-        <button
-          type="button"
-          onClick={() => setMode("manual")}
-          className={`${styles.segBtn} ${mode === "manual" ? styles["segBtn--active"] : ""}`}
-          aria-pressed={mode === "manual"}
-        >
-          Elle Gir
-        </button>
+          <option value="">Kurye yok / kaldır</option>
+          {couriers.map((c) => (
+            <option key={c.id} value={c.id}>
+              {c.name}
+              {c.phone ? ` · ${c.phone}` : ""}
+            </option>
+          ))}
+        </select>
       </div>
 
-      {mode === "saved" ? (
-        couriers.length === 0 ? (
-          <p className={styles.hint}>
-            Henüz kayıtlı kurye yok. Kuryeler sayfasından ekleyin veya
-            &quot;Elle Gir&quot; ile yazın.
-          </p>
-        ) : (
-          <div className={styles.field}>
-            <label className={styles.label} htmlFor="courier-select">
-              Kurye seç
-            </label>
-            <select
-              id="courier-select"
-              value={selectedId}
-              onChange={(e) => onSelectSaved(e.target.value)}
-              className={styles.select}
-            >
-              <option value="">Kurye yok / kaldır</option>
-              {couriers.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name}
-                  {c.phone ? ` — ${c.phone}` : ""}
-                </option>
-              ))}
-            </select>
-          </div>
-        )
-      ) : (
-        <>
-          <div className={styles.field}>
-            <label className={styles.label} htmlFor="courier-name">
-              Kurye adı
-            </label>
-            <input
-              id="courier-name"
-              value={name}
-              onChange={(e) => {
-                setName(e.target.value);
-                setSavedMsg(null);
-              }}
-              className={styles.input}
-              placeholder="Örn. Ahmet Y."
+      {/* Seçilen kuryenin görsel + telefon önizlemesi */}
+      {selected && (
+        <div className={styles.courierAvatarCell}>
+          {selected.image_url ? (
+            <img
+              src={selected.image_url}
+              alt={selected.name}
+              className={styles.courierAvatar}
+              loading="lazy"
             />
+          ) : (
+            <span className={styles.courierAvatarEmpty} aria-hidden>
+              {selected.name.trim().charAt(0).toUpperCase() || "?"}
+            </span>
+          )}
+          <div>
+            <strong>{selected.name}</strong>
+            {selected.phone && (
+              <div className={styles.prodMeta}>{selected.phone}</div>
+            )}
           </div>
-          <div className={styles.field}>
-            <label className={styles.label} htmlFor="courier-phone">
-              Kurye telefonu
-            </label>
-            <input
-              id="courier-phone"
-              value={phone}
-              onChange={(e) => {
-                setPhone(e.target.value);
-                setSavedMsg(null);
-              }}
-              className={styles.input}
-              inputMode="tel"
-              placeholder="05XX XXX XX XX"
-            />
-          </div>
-        </>
+        </div>
       )}
 
       <button
@@ -178,13 +154,14 @@ export default function CourierForm({
         disabled={busy}
         className={`${styles.actionBtn} ${styles["actionBtn--primary"]}`}
       >
-        {busy ? "Kaydediliyor…" : "Kurye Bilgisini Kaydet"}
+        {busy ? "Kaydediliyor…" : "Kaydet"}
       </button>
 
       {savedMsg && <p className={styles.courierSaved}>{savedMsg}</p>}
       <p className={styles.hint}>
         Kurye atandığında müşteri takip sayfasında &quot;Kuryeniz yolda&quot;
-        kartıyla ad ve telefon görünür. Boş bırakılırsa kurye kaldırılır.
+        kartıyla ad ve telefon görünür. &quot;Kurye yok / kaldır&quot; seçilirse
+        kurye kaldırılır.
       </p>
     </div>
   );

@@ -2,17 +2,16 @@
 // içinde [sol kategori sidebar 240px sticky] + [orta ürün alanı] + [sağ
 // "Sepetim" paneli 300px sticky]; mobilde yatay pill bar + 2-3 kolonlu grid.
 // Orta alan: kategori seçili → grid (başlık + adet); "Tümü" → kategori
-// bölümleri (her birinde ilk 6 ürün grid + "Tümünü Gör"); arama → grid +
-// "N sonuç". Tek sorguda tüm aktif ürünler çekilir, gruplama sunucuda yapılır.
+// bölümleri (her bölümde o kategorinin TÜM ürünleri grid, adet sınırı yok);
+// arama → grid + "N sonuç". Tek sorguda tüm aktif ürünler çekilir, gruplama
+// sunucuda yapılır.
 // Next.js 16: searchParams bir Promise — await edilmeli.
 // DB hazır değilse sayfa patlamaz: "Katalog hazırlanıyor" fallback'i.
 
 import type { Metadata } from "next";
 import type { ComponentType } from "react";
-import Link from "next/link";
 import {
   ShoppingBasket,
-  LayoutGrid,
   BadgePercent,
   Flame,
   type LucideProps,
@@ -38,12 +37,8 @@ import LoadMoreGrid from "@/components/shop/LoadMoreGrid";
 import ProductCard, { iconFor } from "@/components/shop/ProductCard";
 import styles from "./shop.module.css";
 
-/** "Tümü" görünümünde her kategori bölümünde gösterilen ürün sayısı. */
-const SECTION_LIMIT = 6;
-
 /** Özel görünüm başlık ikonları (Keşfet grubu). */
 const SPECIAL_ICONS: Record<SpecialKey, ComponentType<LucideProps>> = {
-  tum: LayoutGrid,
   indirimli: BadgePercent,
   "cok-satan": Flame,
 };
@@ -81,7 +76,7 @@ export default async function UrunlerPage({
 }) {
   const sp = await searchParams;
   const q = (first(sp.q) ?? "").trim();
-  // Özel görünüm (Keşfet grubu): tum | indirimli | cok-satan. Geçersiz → yok.
+  // Özel görünüm (Keşfet grubu): indirimli | cok-satan. Geçersiz → yok.
   // Arama (q) özel görünümden önceliklidir; özel görünüm katalog genelinde
   // çalışır, bu yüzden kategori (k) ile birlikteyken kategori yok sayılır.
   const special = !q ? specialByKey(first(sp.ozel)) : undefined;
@@ -124,7 +119,6 @@ export default async function UrunlerPage({
   // Özel görünüm filtresi (tek sorguda çekilen tüm aktif ürünler üzerinden):
   //  - indirimli → compare_at_price > price
   //  - cok-satan → is_best_seller
-  //  - tum       → hepsi
   if (special) {
     if (special.key === "indirimli") {
       products = products.filter(
@@ -216,9 +210,7 @@ export default async function UrunlerPage({
                   const emptyText =
                     special.key === "indirimli"
                       ? "Şu an indirimli ürün yok."
-                      : special.key === "cok-satan"
-                        ? "Henüz çok satan ürün işaretlenmedi."
-                        : "Henüz ürün eklenmedi.";
+                      : "Henüz çok satan ürün işaretlenmedi.";
                   return (
                     <section className={styles.section}>
                       <div className={styles.sectionHead}>
@@ -292,7 +284,8 @@ export default async function UrunlerPage({
               ) : sections.length === 0 ? (
                 <ProductGrid products={[]} emptyText="Henüz ürün eklenmedi." />
               ) : (
-                /* "Tümü": kategori bölümleri — ilk 6 ürün grid + Tümünü Gör */
+                /* "Tümü": kategori bölümleri — her bölümde o kategorinin TÜM
+                   ürünleri (adet sınırı yok, tam liste kategorileriyle) */
                 sections.map(({ cat, items }) => {
                   const [bg, fg] =
                     CATEGORY_TINTS[cat.tint] ?? CATEGORY_TINTS[0];
@@ -317,16 +310,9 @@ export default async function UrunlerPage({
                         <span className={styles.sectionCount}>
                           {items.length} ürün
                         </span>
-                        <Link
-                          href={`/urunler?k=${cat.slug}`}
-                          className={styles.seeAll}
-                          aria-label={`${cat.name}: tümünü gör`}
-                        >
-                          Tümünü Gör
-                        </Link>
                       </div>
                       <div className={styles.grid}>
-                        {items.slice(0, SECTION_LIMIT).map((p) => (
+                        {items.map((p) => (
                           <ProductCard key={p.id} product={p} />
                         ))}
                       </div>

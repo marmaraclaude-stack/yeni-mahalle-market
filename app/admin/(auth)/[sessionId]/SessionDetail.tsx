@@ -1,11 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import Link from "next/link";
-import { ChevronLeft } from "lucide-react";
 import type { RealtimeChannel } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/client";
 import type { ChatMessage, ChatSession } from "@/lib/supabase/types";
+import AdminBack from "../AdminBack";
 import styles from "../../admin.module.css";
 
 function formatTime(iso: string) {
@@ -108,22 +107,7 @@ export default function SessionDetail({ session, initialMessages }: Props) {
 
   return (
     <>
-      <div style={{ marginBottom: 14 }}>
-        <Link
-          href="/admin/sohbetler"
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: 4,
-            fontSize: 13,
-            color: "var(--muted)",
-            letterSpacing: "0.04em",
-          }}
-        >
-          <ChevronLeft size={15} aria-hidden />
-          Tüm sohbetler
-        </Link>
-      </div>
+      <AdminBack href="/admin/sohbetler" label="Sohbetler" />
 
       <div className={styles.thread}>
         <div className={styles.threadHead}>

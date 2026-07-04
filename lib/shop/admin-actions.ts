@@ -97,23 +97,19 @@ export interface CouponActionResult {
   error?: string;
 }
 
-/** createBanner girdisi — id/created_at sunucuda üretilir. */
+/** createBanner girdisi — id/created_at sunucuda üretilir. CTA kaldırıldı. */
 export interface NewBannerInput {
   title: string;
   subtitle?: string;
-  cta_text?: string;
-  cta_href?: string;
   icon?: string; // BANNER_ICON_OPTIONS anahtarı (boş = otomatik)
   tint?: number; // CATEGORY_TINTS index (0-7)
   sort?: number;
 }
 
-/** updateBanner için kısmi alanlar — id (PK) değiştirilemez. */
+/** updateBanner için kısmi alanlar — id (PK) değiştirilemez. CTA kaldırıldı. */
 export interface BannerPatch {
   title?: string;
   subtitle?: string;
-  cta_text?: string;
-  cta_href?: string;
   icon?: string; // BANNER_ICON_OPTIONS anahtarı (boş = otomatik)
   tint?: number;
   is_active?: boolean;
@@ -846,21 +842,7 @@ function normalizeBannerIcon(icon: string): string {
   return key && BANNER_ICONS[key] ? key : "";
 }
 
-/**
- * CTA çiftini doğrula: metin varsa link zorunlu, link göreli yol ("/...")
- * veya http(s) URL olmalı. Sorun varsa hata mesajı döner.
- */
-function validateBannerCta(ctaText: string, ctaHref: string): string | null {
-  if (ctaText && !ctaHref) {
-    return "CTA metni girildiyse CTA linki de zorunlu.";
-  }
-  if (ctaHref && !/^(\/|https?:\/\/)/.test(ctaHref)) {
-    return "CTA linki / ile başlamalı (örn. /firsatlar) veya tam URL olmalı.";
-  }
-  return null;
-}
-
-/** Yeni banner oluştur — başlık zorunlu, tint 0-7. */
+/** Yeni banner oluştur — başlık zorunlu, tint 0-7. CTA artık kullanılmaz. */
 export async function createBanner(
   input: NewBannerInput,
 ): Promise<BannerActionResult> {
@@ -877,17 +859,12 @@ export async function createBanner(
   if (!Number.isInteger(sort)) {
     return { ok: false, error: "Sıra tam sayı olmalı." };
   }
-  const ctaText = (input.cta_text ?? "").trim();
-  const ctaHref = (input.cta_href ?? "").trim();
-  const ctaError = validateBannerCta(ctaText, ctaHref);
-  if (ctaError) return { ok: false, error: ctaError };
 
   const supabase = createAdminClient();
+  // cta_text/cta_href kolonları şemada NOT NULL default '' — göndermeyince boş kalır.
   const { error } = await supabase.from("banners").insert({
     title,
     subtitle: (input.subtitle ?? "").trim(),
-    cta_text: ctaText,
-    cta_href: ctaHref,
     icon: normalizeBannerIcon(input.icon ?? ""),
     tint,
     sort,
@@ -914,19 +891,6 @@ export async function updateBanner(
     clean.title = title;
   }
   if (patch.subtitle !== undefined) clean.subtitle = patch.subtitle.trim();
-  if (patch.cta_text !== undefined || patch.cta_href !== undefined) {
-    // CTA çifti birlikte doğrulanır; eksik olan mevcut satırdan okunmaz,
-    // bu yüzden ikisinden biri değişiyorsa ikisi de gönderilmelidir.
-    if (patch.cta_text === undefined || patch.cta_href === undefined) {
-      return { ok: false, error: "CTA metni ve linki birlikte güncellenmeli." };
-    }
-    const ctaText = patch.cta_text.trim();
-    const ctaHref = patch.cta_href.trim();
-    const ctaError = validateBannerCta(ctaText, ctaHref);
-    if (ctaError) return { ok: false, error: ctaError };
-    clean.cta_text = ctaText;
-    clean.cta_href = ctaHref;
-  }
   if (patch.icon !== undefined) clean.icon = normalizeBannerIcon(patch.icon);
   if (patch.tint !== undefined) {
     if (!isValidTint(patch.tint)) {
@@ -1085,6 +1049,159 @@ export async function toggleCourier(
   if (error) {
     return { ok: false, error: courierDbError(error, "Kurye durumu değiştirilemedi") };
   }
+  revalidatePath("/admin/kuryeler");
+  return { ok: true };
+}
+
+// ------------------------------------------------------------
+// Kurye görselleri (Supabase Storage — "courier-images" bucket'ı)
+// Ürün görseli deseninin birebir kurye karşılığı; couriers.image_url
+// NOT NULL default '' olduğundan "yok" durumu boş string ile temsil edilir.
+// ------------------------------------------------------------
+
+const COURIER_IMAGE_BUCKET = "courier-images";
+
+/** Kurye görsel bucket'ı yoksa public oluştur; "zaten var" hatasını yut. */
+async function ensureCourierImageBucket(
+  supabase: AdminClient,
+): Promise<string | null> {
+  const { error } = await supabase.storage.createBucket(COURIER_IMAGE_BUCKET, {
+    public: true,
+  });
+  if (error && !/already exists|duplicate/i.test(error.message)) {
+    return error.message;
+  }
+  return null;
+}
+
+/** Public URL'den kurye bucket içi dosya yolunu çıkar (bizim bucket değilse null). */
+function courierStoragePathFromPublicUrl(url: string): string | null {
+  if (!url) return null;
+  const marker = `/object/public/${COURIER_IMAGE_BUCKET}/`;
+  const idx = url.indexOf(marker);
+  if (idx === -1) return null;
+  const path = url.slice(idx + marker.length).split("?")[0];
+  try {
+    return decodeURIComponent(path);
+  } catch {
+    return path;
+  }
+}
+
+/** Eski kurye görselini storage'dan silmeyi dene — başarısızlık akışı bozmaz. */
+async function tryRemoveCourierFile(
+  supabase: AdminClient,
+  path: string | null,
+): Promise<void> {
+  if (!path) return;
+  try {
+    await supabase.storage.from(COURIER_IMAGE_BUCKET).remove([path]);
+  } catch {
+    // Sessizce yut: dosya kalsa da image_url artık ona işaret etmiyor.
+  }
+}
+
+/**
+ * Kurye avatar görseli yükle — ürün görseli yükleme deseninin aynısı.
+ * Form kullanımı: <input type="file" name="image">. Dosya adına rastgele
+ * sonek eklenir (cache kırma); eski dosya silinmeye çalışılır.
+ */
+export async function uploadCourierImage(
+  courierId: string,
+  formData: FormData,
+): Promise<ImageActionResult> {
+  await requireAdmin();
+
+  const file = formData.get("image");
+  if (!(file instanceof File) || file.size === 0) {
+    return { ok: false, error: "Bir görsel dosyası seçin." };
+  }
+  const ext = IMAGE_MIME_EXT[file.type];
+  if (!ext) {
+    return { ok: false, error: "Sadece JPEG, PNG veya WebP formatı kabul edilir." };
+  }
+  if (file.size > IMAGE_MAX_BYTES) {
+    return { ok: false, error: "Görsel en fazla 4 MB olabilir." };
+  }
+
+  const supabase = createAdminClient();
+  const { data: courierData, error: courierError } = await supabase
+    .from("couriers")
+    .select("id, image_url")
+    .eq("id", courierId)
+    .maybeSingle();
+  if (courierError) {
+    return { ok: false, error: courierDbError(courierError, "Kurye okunamadı") };
+  }
+  if (!courierData) return { ok: false, error: "Kurye bulunamadı." };
+  const courier = courierData as { id: string; image_url: string | null };
+
+  const bucketError = await ensureCourierImageBucket(supabase);
+  if (bucketError) {
+    return { ok: false, error: `Görsel deposu hazırlanamadı: ${bucketError}` };
+  }
+
+  const rand = Math.random().toString(36).slice(2, 8);
+  const path = `${courierId}-${rand}.${ext}`;
+  const body = await file.arrayBuffer();
+  const { error: uploadError } = await supabase.storage
+    .from(COURIER_IMAGE_BUCKET)
+    .upload(path, body, { contentType: file.type, upsert: true });
+  if (uploadError) {
+    return { ok: false, error: `Görsel yüklenemedi: ${uploadError.message}` };
+  }
+
+  const { data: pub } = supabase.storage
+    .from(COURIER_IMAGE_BUCKET)
+    .getPublicUrl(path);
+  const { error: updateError } = await supabase
+    .from("couriers")
+    .update({ image_url: pub.publicUrl })
+    .eq("id", courierId);
+  if (updateError) {
+    await tryRemoveCourierFile(supabase, path);
+    return { ok: false, error: `Görsel adresi kaydedilemedi: ${updateError.message}` };
+  }
+
+  const oldPath = courierStoragePathFromPublicUrl(courier.image_url ?? "");
+  if (oldPath && oldPath !== path) {
+    await tryRemoveCourierFile(supabase, oldPath);
+  }
+
+  revalidatePath("/admin/kuryeler");
+  return { ok: true };
+}
+
+/** Kurye görselini kaldır: image_url'i boş yap, dosyayı storage'dan silmeyi dene. */
+export async function removeCourierImage(
+  courierId: string,
+): Promise<ImageActionResult> {
+  await requireAdmin();
+  const supabase = createAdminClient();
+
+  const { data: courierData, error: courierError } = await supabase
+    .from("couriers")
+    .select("image_url")
+    .eq("id", courierId)
+    .maybeSingle();
+  if (courierError) {
+    return { ok: false, error: courierDbError(courierError, "Kurye okunamadı") };
+  }
+  if (!courierData) return { ok: false, error: "Kurye bulunamadı." };
+  const courier = courierData as { image_url: string | null };
+
+  const { error: updateError } = await supabase
+    .from("couriers")
+    .update({ image_url: "" })
+    .eq("id", courierId);
+  if (updateError) {
+    return { ok: false, error: `Görsel kaldırılamadı: ${updateError.message}` };
+  }
+
+  await tryRemoveCourierFile(
+    supabase,
+    courierStoragePathFromPublicUrl(courier.image_url ?? ""),
+  );
   revalidatePath("/admin/kuryeler");
   return { ok: true };
 }

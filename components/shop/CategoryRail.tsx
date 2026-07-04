@@ -7,7 +7,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef } from "react";
-import { LayoutGrid, BadgePercent, Flame } from "lucide-react";
+import { BadgePercent, Flame } from "lucide-react";
 import { CATEGORY_TINTS, SHOP_CATEGORIES } from "@/lib/shop/categories";
 import { SHOP_SPECIALS } from "@/lib/shop/specials";
 import { iconFor } from "@/components/shop/ProductCard";
@@ -22,7 +22,6 @@ function buildHref(slug: string | null, q?: string): string {
 }
 
 const SPECIAL_ICONS = {
-  tum: LayoutGrid,
   indirimli: BadgePercent,
   "cok-satan": Flame,
 } as const;

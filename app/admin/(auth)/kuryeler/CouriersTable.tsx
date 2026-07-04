@@ -5,16 +5,105 @@
 // (deleteCourier). Veri server component'ten gelir; işlem sonrası
 // router.refresh() ile tazelenir.
 
-import { useState, useTransition } from "react";
+import { useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Plus, X } from "lucide-react";
 import {
   createCourier,
   deleteCourier,
+  removeCourierImage,
   toggleCourier,
+  uploadCourierImage,
 } from "@/lib/shop/admin-actions";
 import type { Courier } from "@/lib/shop/types";
 import styles from "../../admin.module.css";
+
+/** Kurye avatarı: önizleme + yükle/değiştir (gizli file input) + kaldır. */
+function CourierAvatar({ courier }: { courier: Courier }) {
+  const router = useRouter();
+  const [busy, setBusy] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [, startTransition] = useTransition();
+
+  const initial = courier.name.trim().charAt(0).toUpperCase() || "?";
+
+  function onPick(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const fd = new FormData();
+    fd.append("image", file);
+    setBusy(true);
+    startTransition(async () => {
+      try {
+        const result = await uploadCourierImage(courier.id, fd);
+        if (!result.ok) {
+          window.alert(result.error ?? "Görsel yüklenemedi.");
+        }
+        router.refresh();
+      } finally {
+        setBusy(false);
+        if (inputRef.current) inputRef.current.value = "";
+      }
+    });
+  }
+
+  function removeImage() {
+    setBusy(true);
+    startTransition(async () => {
+      try {
+        const result = await removeCourierImage(courier.id);
+        if (!result.ok) {
+          window.alert(result.error ?? "Görsel kaldırılamadı.");
+        }
+        router.refresh();
+      } finally {
+        setBusy(false);
+      }
+    });
+  }
+
+  return (
+    <div className={styles.courierAvatarCell}>
+      {courier.image_url ? (
+        <img
+          src={courier.image_url}
+          alt={courier.name}
+          className={styles.courierAvatar}
+          loading="lazy"
+        />
+      ) : (
+        <span className={styles.courierAvatarEmpty} aria-hidden>
+          {initial}
+        </span>
+      )}
+      <div className={styles.courierAvatarActions}>
+        <label className={styles.courierAvatarBtn}>
+          {busy ? "İşleniyor…" : courier.image_url ? "Değiştir" : "Görsel Yükle"}
+          <input
+            ref={inputRef}
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            onChange={onPick}
+            disabled={busy}
+            hidden
+            aria-label={`${courier.name} kurye görseli yükle`}
+          />
+        </label>
+        {courier.image_url && (
+          <button
+            type="button"
+            onClick={removeImage}
+            disabled={busy}
+            className={styles.courierAvatarRemove}
+            aria-label={`${courier.name} kurye görselini kaldır`}
+          >
+            Kaldır
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
 
 function CourierRow({ courier }: { courier: Courier }) {
   const router = useRouter();
@@ -57,6 +146,9 @@ function CourierRow({ courier }: { courier: Courier }) {
 
   return (
     <tr className={courier.is_active ? "" : styles.rowInactive}>
+      <td>
+        <CourierAvatar courier={courier} />
+      </td>
       <td className={styles.prodName}>{courier.name}</td>
       <td>
         {courier.phone ? (
@@ -211,6 +303,7 @@ export default function CouriersTable({ couriers }: { couriers: Courier[] }) {
             <table className={styles.table}>
               <thead>
                 <tr>
+                  <th>Görsel</th>
                   <th>Ad Soyad</th>
                   <th>Telefon</th>
                   <th>Durum</th>

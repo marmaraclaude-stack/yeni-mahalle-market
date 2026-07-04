@@ -2,7 +2,7 @@
 // Server component + form action; kayıt sonrası ?kaydedildi=1 ile geri döner.
 
 import { redirect } from "next/navigation";
-import { CreditCard, Info, Store, Truck } from "lucide-react";
+import { Store } from "lucide-react";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { updateSettings } from "@/lib/shop/admin-actions";
 import { formatTL, type ShopSettings } from "@/lib/shop/types";
@@ -227,7 +227,7 @@ export default async function AdminSettingsPage({
               </section>
             </div>
 
-            {/* Sağ kolon: özet + ipuçları paneli */}
+            {/* Sağ kolon: mevcut durum özeti */}
             <aside className={styles.settingsAside}>
               <div className={styles.infoPanel}>
                 <h2 className={styles.infoPanelTitle}>
@@ -264,36 +264,6 @@ export default async function AdminSettingsPage({
                     </span>
                   </div>
                 </div>
-              </div>
-
-              <div className={styles.infoPanel}>
-                <h2 className={styles.infoPanelTitle}>
-                  <Info size={16} aria-hidden />
-                  İpuçları
-                </h2>
-                <ul className={styles.infoList}>
-                  <li className={styles.infoItem}>
-                    <Truck size={15} aria-hidden />
-                    <span>
-                      Ücretsiz teslimat limitini minimum sepetin biraz üzerinde
-                      tutmak ortalama sepeti büyütür.
-                    </span>
-                  </li>
-                  <li className={styles.infoItem}>
-                    <CreditCard size={15} aria-hidden />
-                    <span>
-                      En az bir ödeme yöntemi açık olmalı; hepsi kapalıysa
-                      müşteri sipariş tamamlayamaz.
-                    </span>
-                  </li>
-                  <li className={styles.infoItem}>
-                    <Store size={15} aria-hidden />
-                    <span>
-                      Mağaza kapalıyken yukarıdaki mesaj müşteriye gösterilir;
-                      net ve kısa yazın.
-                    </span>
-                  </li>
-                </ul>
                 <hr className={styles.infoDivider} />
                 <p className={styles.hint}>
                   Değişiklikler kaydedildikten sonra vitrin, sepet ve ödeme

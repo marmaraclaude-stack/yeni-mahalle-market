@@ -1,12 +1,13 @@
 // Fırsatlar — /firsatlar. Tam genişlik kampanya sayfası. Sayfa ritmi:
-// (1) başlık şeridi, (2) PromoBanners (catalog variant) fırsat banner'ları,
-// (3) İndirimli Ürünler gridi — sayfa girişinde, güçlü başlıkla, (4) Kampanyalar
+// (1) İndirimli Ürünler gridi — sayfanın mutlak en üstünde, güçlü başlıkla,
+// (2) PromoBanners (catalog variant) fırsat banner'ları, (3) Kampanyalar
 // (sade premium kupon kartları: net kod, belirgin indirim değeri, koşul,
 // "Kodu Kopyala") + "Nasıl kullanılır" şeridi.
-// Kupon verisi service-role ile okunur (vitrine yalnız gösterime gereken
-// alanlar iner). İndirimli ürünler: compare_at_price dolu ve fiyattan büyük
-// aktif ürünler, en yüksek indirim oranı önce. DB hazır değilse veya fırsat
-// yoksa ilgili bölüm zarifçe gizlenir / boş durum gösterilir.
+// Üst başlık şeridi ve özet çipleri kaldırıldı; sayfa doğrudan indirimli
+// ürünlerle açılır. Kupon verisi service-role ile okunur (vitrine yalnız
+// gösterime gereken alanlar iner). İndirimli ürünler: compare_at_price dolu ve
+// fiyattan büyük aktif ürünler, en yüksek indirim oranı önce. DB hazır değilse
+// veya fırsat yoksa ilgili bölüm zarifçe gizlenir / boş durum gösterilir.
 
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -146,51 +147,16 @@ export default async function FirsatlarPage() {
       <SiteNav />
       <main className={styles.page}>
         <div className="container">
-          {/* --- Başlık şeridi --- */}
-          <header className={styles.head}>
-            <div className={styles.titleRow}>
-              <span className={styles.titleIcon} aria-hidden="true">
-                <BadgePercent size={24} strokeWidth={1.9} />
-              </span>
-              <h1 className={styles.title}>Fırsatlar</h1>
-            </div>
-            <p className={styles.sub}>
-              İndirimli ürünler ve kampanyalar burada. Fırsatları sepetine
-              ekle, kupon kodunu kopyala, Sapanca içinde kapına gelsin.
-            </p>
-            {(coupons.length > 0 || products.length > 0) && (
-              <div className={styles.headStats}>
-                {products.length > 0 && (
-                  <span
-                    className={`${styles.headStat} ${styles["headStat--accent"]}`}
-                  >
-                    <BadgePercent size={15} strokeWidth={2} aria-hidden="true" />
-                    {products.length} indirimli ürün
-                  </span>
-                )}
-                {coupons.length > 0 && (
-                  <span className={styles.headStat}>
-                    <TicketPercent size={15} strokeWidth={2} aria-hidden="true" />
-                    {coupons.length} aktif kupon
-                  </span>
-                )}
-              </div>
-            )}
-          </header>
-
-          {/* --- Fırsat banner'ları (catalog variant; banner yoksa null) --- */}
-          <div className={styles.banners}>
-            <PromoBanners variant="catalog" />
-          </div>
-
-          {/* --- İndirimli ürünler: sayfa girişinde, tam genişlik grid --- */}
+          {/* --- İndirimli ürünler: sayfanın mutlak en üstünde, tam genişlik grid --- */}
           {products.length === 0 ? (
             <section className={styles.section} role="status">
               <div className={styles.sectionHead}>
                 <span className={styles.sectionIcon} aria-hidden="true">
                   <BadgePercent size={19} strokeWidth={1.9} />
                 </span>
-                <h2 className={styles.sectionTitle}>İndirimli Ürünler</h2>
+                <h1 className={`${styles.sectionTitle} ${styles.sectionTitleLead}`}>
+                  İndirimli Ürünler
+                </h1>
               </div>
               <div className={styles.empty}>
                 <span className={styles.emptyIcon} aria-hidden="true">
@@ -215,9 +181,12 @@ export default async function FirsatlarPage() {
                 <span className={styles.sectionIcon} aria-hidden="true">
                   <BadgePercent size={19} strokeWidth={1.9} />
                 </span>
-                <h2 id="indirimli-baslik" className={styles.sectionTitle}>
+                <h1
+                  id="indirimli-baslik"
+                  className={`${styles.sectionTitle} ${styles.sectionTitleLead}`}
+                >
                   İndirimli Ürünler
-                </h2>
+                </h1>
                 <span className={styles.count}>
                   {products.length} indirimli ürün
                 </span>
@@ -233,6 +202,11 @@ export default async function FirsatlarPage() {
               </div>
             </section>
           )}
+
+          {/* --- Fırsat banner'ları (catalog variant; banner yoksa null) --- */}
+          <div className={styles.banners}>
+            <PromoBanners variant="catalog" />
+          </div>
 
           {/* --- Kampanyalar: sade premium kupon kartları (kupon yoksa gizli) --- */}
           {coupons.length > 0 && (

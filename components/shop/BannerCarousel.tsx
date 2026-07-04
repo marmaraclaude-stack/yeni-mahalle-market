@@ -12,7 +12,6 @@
 
 import type { CSSProperties } from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import type { Banner } from "@/lib/shop/types";
 import { CATEGORY_TINTS } from "@/lib/shop/categories";
@@ -109,8 +108,6 @@ export default function BannerCarousel({
         <div className={styles.track} ref={trackRef} onScroll={handleScroll}>
           {banners.map((b) => {
             const [bg, fg] = CATEGORY_TINTS[b.tint] ?? CATEGORY_TINTS[0];
-            // cta_text (veya href) boşsa CTA butonu render edilmez.
-            const hasCta = b.cta_text.trim() !== "" && b.cta_href.trim() !== "";
             // İkon: admin'de seçilen banner.icon, yoksa başlığa göre otomatik.
             const Icon = resolveBannerIcon(b.icon, b.title);
             return (
@@ -122,11 +119,6 @@ export default function BannerCarousel({
                 <div className={styles.slideCopy}>
                   <h3 className={styles.slideTitle}>{b.title}</h3>
                   {b.subtitle && <p className={styles.slideSub}>{b.subtitle}</p>}
-                  {hasCta && (
-                    <Link href={b.cta_href} className={styles.slideCta}>
-                      {b.cta_text}
-                    </Link>
-                  )}
                 </div>
                 <div className={styles.slideArt} aria-hidden="true">
                   <span className={styles.circleLg} />

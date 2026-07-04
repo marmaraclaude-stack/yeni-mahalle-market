@@ -1,9 +1,7 @@
 // Admin — sipariş detayı: kalemler, adres, notlar, ödeme ve durum yönetimi.
 // Server component; yazma işlemleri lib/shop/admin-actions üzerinden.
 
-import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ChevronLeft } from "lucide-react";
 import { createAdminClient } from "@/lib/supabase/admin";
 import {
   listCouriers,
@@ -11,6 +9,7 @@ import {
   updateAdminNote,
   updateOrderStatus,
 } from "@/lib/shop/admin-actions";
+import AdminBack from "../../AdminBack";
 import DeleteOrderButton from "./DeleteOrderButton";
 import CourierForm from "./CourierForm";
 import {
@@ -115,14 +114,7 @@ export default async function AdminOrderDetailPage({
 
   return (
     <>
-      <Link
-        href="/admin/siparisler"
-        className={styles.backLink}
-        style={{ display: "inline-flex", alignItems: "center", gap: 4 }}
-      >
-        <ChevronLeft size={15} aria-hidden />
-        Siparişler
-      </Link>
+      <AdminBack href="/admin/siparisler" label="Siparişler" />
       <h1 className={styles.title}>{order.order_no}</h1>
       <p className={styles.subtitle} style={{ marginBottom: 16 }}>
         {formatDateTime(order.created_at)} ·{" "}

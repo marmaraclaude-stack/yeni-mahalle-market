@@ -10,6 +10,7 @@ import {
   updateProduct,
   uploadProductImage,
 } from "@/lib/shop/admin-actions";
+import AdminBack from "../../AdminBack";
 import { SHOP_CATEGORIES, CATEGORY_TINTS, categoryBySlug } from "@/lib/shop/categories";
 import type { Product } from "@/lib/shop/types";
 import styles from "../../../admin.module.css";
@@ -121,9 +122,7 @@ export default async function AdminProductEditPage({
 
   return (
     <>
-      <Link href="/admin/urunler" className={styles.backLink}>
-        ← Ürünler
-      </Link>
+      <AdminBack href="/admin/urunler" label="Ürünler" />
       <h1 className={styles.title}>{product.name}</h1>
       <p className={styles.subtitle}>
         {category?.name ?? product.category_slug} · /urunler/{product.slug}

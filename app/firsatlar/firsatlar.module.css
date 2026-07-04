@@ -1,86 +1,23 @@
 /* ============================================================
    Fırsatlar (/firsatlar) — tam genişlik kampanya sayfası.
-   Ritim: başlık şeridi · fırsat banner'ları (catalog) ·
-   İndirimli Ürünler gridi (sayfa girişinde) · Kampanyalar
-   (sade premium kupon kartları + "Nasıl kullanılır" şeridi).
+   Ritim: İndirimli Ürünler gridi (sayfanın mutlak en üstünde) ·
+   fırsat banner'ları (catalog) · Kampanyalar (sade premium kupon
+   kartları + "Nasıl kullanılır" şeridi). Üst başlık şeridi ve özet
+   çipleri kaldırıldı; sayfa doğrudan indirimli ürünlerle açılır.
    Tüm bölümler global .container içindedir; renk/tipografi
    token'ları globals.css'ten miras alınır. Kap her yerde tam
    genişlik kullanır, hiçbir yerde dar/whitespace'li kutu yoktur.
    ============================================================ */
 
 .page {
-  padding: 0 0 clamp(48px, 6vw, 88px);
+  padding: clamp(28px, 4vw, 48px) 0 clamp(48px, 6vw, 88px);
   min-height: calc(100dvh - 69px);
   background: var(--white);
 }
 
-/* --- Başlık şeridi (standart ritim) --- */
-.head {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  padding: clamp(28px, 4vw, 48px) 0 clamp(22px, 3vw, 32px);
-  border-bottom: 1px solid var(--gray-200);
-  margin-bottom: clamp(24px, 3.4vw, 40px);
-}
-.titleRow {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-}
-.titleIcon {
-  display: grid;
-  place-items: center;
-  flex-shrink: 0;
-  width: 46px;
-  height: 46px;
-  border-radius: 13px;
-  background: var(--accent-soft);
-  color: var(--accent);
-}
-/* Sayfa başlığı ritmi: H1 = fs-h2, 700, -0.035em (tüm alt sayfalarda aynı) */
-.title {
-  font-family: var(--font-display);
-  font-size: var(--fs-h2);
-  font-weight: 700;
-  letter-spacing: -0.035em;
-}
-.sub {
-  color: var(--gray-500);
-  font-size: var(--fs-lead);
-  max-width: var(--measure);
-}
-/* Başlık altı özet çipleri — sayfayı doldurur, hızlı bilgi verir */
-.headStats {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 4px;
-}
-.headStat {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  padding: 6px 14px;
-  border-radius: var(--r-pill);
-  background: var(--gray-100);
-  color: var(--gray-700);
-  font-size: var(--fs-small);
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
-}
-.headStat svg {
-  flex-shrink: 0;
-  color: var(--accent);
-}
-.headStat--accent {
-  background: var(--accent-soft);
-  color: var(--accent-deep);
-}
-
 /* --- Fırsat banner'ları (catalog variant; boşsa PromoBanners null döner) --- */
 .banners {
-  margin-bottom: clamp(36px, 5vw, 60px);
+  margin-bottom: clamp(40px, 5vw, 64px);
 }
 .banners:empty {
   display: none;
@@ -115,6 +52,12 @@
   font-size: var(--fs-h3);
   font-weight: 700;
   letter-spacing: -0.02em;
+}
+/* Sayfa giriş başlığı (İndirimli Ürünler h1) — güçlü, üst başlık şeridi
+   kaldırıldığı için sayfanın ana başlığı budur. */
+.sectionTitleLead {
+  font-size: var(--fs-h2);
+  letter-spacing: -0.035em;
 }
 .sectionSub {
   margin-top: 8px;

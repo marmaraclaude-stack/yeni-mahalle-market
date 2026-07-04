@@ -90,7 +90,7 @@
   /* Section rhythm */
   /* Tek standart dikey boşluk. Tüm bölümler (hero/section/cta/footer)
      padding-top + padding-bottom için bunu kullanır. */
-  --section-y: clamp(40px, 4.5vw, 64px);
+  --section-y: clamp(32px, 3.4vw, 52px);
   --section-y-sm: var(--section-y);
   --head-gap: clamp(24px, 3vw, 40px);
 }
@@ -548,7 +548,7 @@ p { margin: 0; }
 
 /* Stats — ikonlu kartlar (shadcn FeatureCard'dan uyarlandı) */
 .hero__stats {
-  margin-top: var(--section-y);
+  margin-top: clamp(24px, 2.6vw, 40px);
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 12px;
@@ -902,137 +902,96 @@ p { margin: 0; }
 }
 
 /* ============================================================
-   SİPARİŞ AKIŞI — gerçek sipariş durumları timeline (ana sayfa)
-   ORDER_STATUS_LABELS ile uyumlu 4 adım; ilk adım vurgulu (canlı his).
-   Mobilde dikey, masaüstünde yatay adım göstergesi.
+   ORDER TRACKING (features row 3 görseli)
    ============================================================ */
-.flow {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 26px;
+.features__visual--track { padding: clamp(20px, 2.4vw, 32px); }
+.track {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
 }
-.flow__step {
-  position: relative;
-  display: grid;
-  grid-template-columns: 56px 1fr;
-  align-items: start;
-  gap: 16px;
-}
-/* Dikey bağlantı çizgisi (mobil) — bir sonraki adıma uzanır */
-.flow__step::before {
-  content: "";
-  position: absolute;
-  left: 27px; top: 56px; bottom: -26px;
-  width: 2px;
-  background: var(--gray-200);
-  z-index: 0;
-}
-.flow__step:last-child::before { display: none; }
-
-.flow__node {
-  position: relative;
-  z-index: 1;
-  width: 56px; height: 56px;
-  border-radius: 50%;
-  display: grid; place-items: center;
-  background: var(--gray-100);
-  border: 1px solid var(--gray-200);
-  color: var(--gray-500);
-  transition: background 240ms var(--ease), color 240ms var(--ease),
-    border-color 240ms var(--ease);
-}
-.flow__node svg { width: 25px; height: 25px; }
-
-.flow__body { display: flex; flex-direction: column; gap: 5px; min-width: 0; padding-top: 4px; }
-.flow__head { display: flex; align-items: center; gap: 8px; }
-.flow__num {
-  font-size: var(--fs-eyebrow);
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--gray-400);
-}
-.flow__live {
-  display: inline-flex;
+.track__head {
+  display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 2px 9px;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 18px;
+  margin-bottom: 6px;
+  border-bottom: 1px solid var(--gray-200);
+}
+.track__title { font-size: var(--fs-body); font-weight: 600; color: var(--ink); letter-spacing: -0.01em; }
+.track__eta {
+  display: inline-flex; align-items: center;
+  padding: 5px 12px;
   border-radius: var(--r-pill);
   background: var(--accent-soft);
   color: var(--accent-deep);
-  font-size: var(--fs-micro);
-  font-weight: 700;
+  font-size: var(--fs-micro); font-weight: 600;
+  font-variant-numeric: tabular-nums;
 }
-.flow__live-dot {
-  width: 7px; height: 7px;
+.track__steps {
+  list-style: none;
+  margin: 0;
+  padding: 8px 0 0;
+}
+.track__step {
+  position: relative;
+  display: grid;
+  grid-template-columns: 30px 1fr auto;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 0;
+}
+/* bağlantı çizgisi */
+.track__step::before {
+  content: "";
+  position: absolute;
+  left: 14px; top: 38px; bottom: -12px;
+  width: 2px;
+  background: var(--gray-200);
+}
+.track__step:last-child::before { display: none; }
+.track__step--done::before { background: var(--green); }
+.track__node {
+  width: 30px; height: 30px;
   border-radius: 50%;
-  background: var(--accent);
-  box-shadow: 0 0 0 0 rgba(255,90,31,0.5);
-  animation: flowPulse 1.8s var(--ease) infinite;
+  display: grid; place-items: center;
+  z-index: 1;
+  background: var(--gray-100);
+  color: var(--gray-400);
+  border: 2px solid var(--gray-200);
+  transition: all 200ms var(--ease);
 }
-.flow__label {
-  font-family: var(--font-display);
-  font-size: var(--fs-h3);
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  line-height: 1.1;
-  color: var(--ink);
+.track__step--done .track__node {
+  background: var(--green);
+  border-color: var(--green);
+  color: #04280f;
 }
-.flow__desc {
-  font-size: var(--fs-small);
-  line-height: 1.5;
-  color: var(--gray-500);
-  text-wrap: pretty;
-}
-
-/* İlk adım vurgulu — accent node + pulse */
-.flow__step--active .flow__node {
+.track__step--active .track__node {
   background: var(--accent);
   border-color: var(--accent);
   color: #fff;
   box-shadow: 0 0 0 0 rgba(255,90,31,0.5);
-  animation: flowPulse 1.8s var(--ease) infinite;
+  animation: trackPulse 1.8s var(--ease) infinite;
 }
-@keyframes flowPulse {
+@keyframes trackPulse {
   0%   { box-shadow: 0 0 0 0 rgba(255,90,31,0.45); }
   70%  { box-shadow: 0 0 0 10px rgba(255,90,31,0); }
   100% { box-shadow: 0 0 0 0 rgba(255,90,31,0); }
 }
-
-/* Masaüstü: yatay adım göstergesi, kartların arkasında tek çizgi */
-@media (min-width: 760px) {
-  .flow {
-    position: relative;
-    grid-template-columns: repeat(4, 1fr);
-    gap: clamp(14px, 2vw, 26px);
-  }
-  .flow::before {
-    content: "";
-    position: absolute;
-    top: 28px;
-    left: 12.5%;
-    right: 12.5%;
-    height: 2px;
-    background: var(--gray-200);
-    z-index: 0;
-  }
-  .flow__step {
-    grid-template-columns: 1fr;
-    justify-items: center;
-    text-align: center;
-    gap: 16px;
-  }
-  .flow__step::before { display: none; }
-  .flow__body { align-items: center; padding-top: 0; }
-  .flow__desc { max-width: 26ch; }
+.track__body { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.track__label { font-size: var(--fs-small); font-weight: 600; color: var(--ink); letter-spacing: -0.01em; }
+.track__step:not(.track__step--done):not(.track__step--active) .track__label { color: var(--gray-400); }
+.track__sub { font-size: var(--fs-micro); color: var(--gray-500); }
+.track__time {
+  font-size: var(--fs-micro);
+  color: var(--gray-400);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
-
+.track__step--active .track__time { color: var(--accent); font-weight: 600; }
 @media (prefers-reduced-motion: reduce) {
-  .flow__step--active .flow__node,
-  .flow__live-dot { animation: none; }
+  .track__step--active .track__node { animation: none; }
 }
 
 /* ============================================================

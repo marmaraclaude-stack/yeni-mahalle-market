@@ -542,31 +542,6 @@
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
 }
-/* "Tümünü Gör" — sakin ghost pill: gri metin + ince border, hover'da accent.
-   (Eski accent turuncu metin kaldırıldı.) */
-.seeAll {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  flex-shrink: 0;
-  margin-left: auto;
-  padding: 6px 12px;
-  border-radius: var(--r-pill);
-  border: 1px solid var(--gray-200);
-  background: var(--white);
-  color: var(--gray-600);
-  font-size: var(--fs-small);
-  font-weight: 600;
-  white-space: nowrap;
-  transition: background 180ms var(--ease), border-color 180ms var(--ease),
-    color 180ms var(--ease);
-}
-.seeAll:hover {
-  background: var(--accent-soft);
-  border-color: transparent;
-  color: var(--accent-deep);
-}
-
 /* --- Ürün gridi --- */
 .grid {
   display: grid;

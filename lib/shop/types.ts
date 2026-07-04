@@ -36,6 +36,7 @@ export interface Courier {
   id: string;
   name: string;
   phone: string;
+  image_url: string; // avatar foto public URL'i; boş = görsel yok
   is_active: boolean;
   created_at: string;
 }

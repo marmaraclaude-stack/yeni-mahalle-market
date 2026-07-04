@@ -706,6 +706,30 @@
 
 .backLink:hover { color: var(--orange); }
 
+/* Standart admin geri linki (AdminBack): ChevronLeft ikonu + etiket. */
+.adminBack {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--gray-500);
+  text-decoration: none;
+  margin-bottom: 14px;
+  padding: 2px 2px 2px 0;
+  transition: color 0.15s ease;
+}
+
+.adminBack:hover { color: var(--orange); }
+
+.adminBack svg { flex-shrink: 0; }
+
+.adminBack:focus-visible {
+  outline: 2px solid var(--orange);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
 .detailGrid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
@@ -1476,6 +1500,93 @@
   flex-shrink: 0;
   border: 1px solid rgba(10, 10, 10, 0.08);
 }
+
+/* ============================================================
+   Kuryeler — avatar görsel yükleme/önizleme
+   ============================================================ */
+.courierAvatarCell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 200px;
+}
+
+.courierAvatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  object-fit: cover;
+  border: 1px solid rgba(10, 10, 10, 0.08);
+  background: var(--white);
+  flex-shrink: 0;
+  display: block;
+}
+
+.courierAvatarEmpty {
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--orange);
+  background: var(--accent-soft, #fff1ea);
+  border: 1px solid rgba(255, 90, 31, 0.18);
+  flex-shrink: 0;
+  user-select: none;
+}
+
+.courierAvatarActions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+/* Dosya seçtiren küçük etiket-buton (gizli file input'u sarar) */
+.courierAvatarBtn {
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 5px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(10, 10, 10, 0.14);
+  background: var(--white);
+  color: var(--black);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: border-color 0.15s ease;
+}
+
+.courierAvatarBtn:hover { border-color: rgba(10, 10, 10, 0.35); }
+
+.courierAvatarBtn:focus-within {
+  outline: 2px solid var(--orange);
+  outline-offset: 2px;
+}
+
+.courierAvatarRemove {
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 5px 12px;
+  border-radius: 999px;
+  border: 1px solid #f3c8c8;
+  background: var(--white);
+  color: #a32020;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.courierAvatarRemove:hover:not(:disabled) {
+  background: #fdeceb;
+  border-color: #a32020;
+}
+
+.courierAvatarRemove:disabled { opacity: 0.5; cursor: not-allowed; }
 
 /* ============================================================
    Sohbet listesi (SessionList — sınıf adları korunur)

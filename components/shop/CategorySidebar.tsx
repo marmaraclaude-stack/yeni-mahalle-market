@@ -5,6 +5,7 @@
 
 import Link from "next/link";
 import { LayoutGrid, BadgePercent, Flame } from "lucide-react";
+// LayoutGrid: "Tümü" kategori satırının ikonu (Keşfet grubunda "Tüm Ürünler" kaldırıldı).
 import { CATEGORY_TINTS, SHOP_CATEGORIES } from "@/lib/shop/categories";
 import { SHOP_SPECIALS } from "@/lib/shop/specials";
 import { iconFor } from "@/components/shop/ProductCard";
@@ -25,7 +26,6 @@ function buildOzelHref(key: string): string {
 
 /** Özel görünüm ikonları (sabit ikon adları yerine bileşen). */
 const SPECIAL_ICONS = {
-  tum: LayoutGrid,
   indirimli: BadgePercent,
   "cok-satan": Flame,
 } as const;

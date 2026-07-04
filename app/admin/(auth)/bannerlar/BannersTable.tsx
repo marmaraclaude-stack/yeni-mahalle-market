@@ -176,16 +176,6 @@ function BannerRow({ banner }: { banner: Banner }) {
           ))}
         </select>
       </td>
-      <td>
-        {banner.cta_text ? (
-          <>
-            {banner.cta_text}
-            <div className={styles.prodMeta}>{banner.cta_href}</div>
-          </>
-        ) : (
-          "·"
-        )}
-      </td>
       <td>{TINT_NAMES[safeTint(banner.tint)]}</td>
       <td>
         <div className={styles.sortForm}>
@@ -276,8 +266,6 @@ export default function BannersTable({ banners }: { banners: Banner[] }) {
         const result = await createBanner({
           title,
           subtitle: String(fd.get("subtitle") ?? ""),
-          cta_text: String(fd.get("cta_text") ?? ""),
-          cta_href: String(fd.get("cta_href") ?? ""),
           icon: String(fd.get("icon") ?? ""),
           tint,
           sort,
@@ -348,29 +336,6 @@ export default function BannersTable({ banners }: { banners: Banner[] }) {
                 name="subtitle"
                 maxLength={120}
                 placeholder="İndirimli ürünleri kaçırma"
-                className={styles.input}
-              />
-            </div>
-            <div className={styles.field}>
-              <label className={styles.label} htmlFor="banner-cta-text">
-                CTA metni (opsiyonel)
-              </label>
-              <input
-                id="banner-cta-text"
-                name="cta_text"
-                maxLength={40}
-                placeholder="Boş = buton yok"
-                className={styles.input}
-              />
-            </div>
-            <div className={styles.field}>
-              <label className={styles.label} htmlFor="banner-cta-href">
-                CTA linki (opsiyonel)
-              </label>
-              <input
-                id="banner-cta-href"
-                name="cta_href"
-                placeholder="/firsatlar"
                 className={styles.input}
               />
             </div>
@@ -456,7 +421,6 @@ export default function BannersTable({ banners }: { banners: Banner[] }) {
                 <tr>
                   <th>Banner</th>
                   <th>İkon</th>
-                  <th>CTA</th>
                   <th>Renk</th>
                   <th>Sıra</th>
                   <th>Durum</th>
