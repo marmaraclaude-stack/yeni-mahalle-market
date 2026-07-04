@@ -1,2 +1,0 @@
-per_user_limit migration -> HTTP 201 
-[{"code":"HOSGELDIN200","per_user_limit":1}]
