@@ -17,6 +17,7 @@ import {
   BadgePercent,
   ChevronLeft,
   ChevronRight,
+  Gift,
   Sparkles,
   Truck,
   type LucideProps,
@@ -32,7 +33,10 @@ const AUTO_MS = 6000;
 function bannerIcon(title: string): ComponentType<LucideProps> {
   const t = title.toLocaleLowerCase("tr-TR");
   if (t.includes("indirim")) return BadgePercent;
-  if (t.includes("teslimat") || t.includes("kargo")) return Truck;
+  if (t.includes("teslimat") || t.includes("kargo") || t.includes("dakika"))
+    return Truck;
+  if (t.includes("hediye") || t.includes("hoş geldin") || t.includes("hosgeldin"))
+    return Gift;
   return Sparkles;
 }
 
@@ -145,6 +149,7 @@ export default function BannerCarousel({
                 </div>
                 <div className={styles.slideArt} aria-hidden="true">
                   <span className={styles.circleLg} />
+                  <span className={styles.circleMd} />
                   <span className={styles.circleSm} />
                   <span className={styles.iconWrap}>
                     <Icon className={styles.slideIcon} strokeWidth={1.5} />

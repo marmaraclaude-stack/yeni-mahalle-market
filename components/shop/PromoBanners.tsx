@@ -1,11 +1,12 @@
 // Kampanya banner'ları — Getir/Trendyol kalıbı. Server komponent: banners
 // tablosunu ANON client ile çeker (is_active=true, sort asc). Tablo yoksa,
 // sorgu hata verirse ya da hiç aktif banner yoksa null döner (site patlamaz).
-// Görünümü BannerCarousel (client) çizer: 6 sn otomatik kayma, tam
-// genişlik tek kart scroll-snap düzeni (peek yok), ok butonları
-// (masaüstü), nokta göstergeleri, reduced-motion desteği.
-// variant: "home" → kendi section--tight + container kabuğu (ana sayfa);
-//          "catalog" → kabuksuz blok (/urunler başlığı ile katalog arası).
+// Görünümü BannerCarousel (client) çizer: 6 sn otomatik kayma, container
+// genişliğinde tek kart scroll-snap düzeni (peek yok), ok butonları
+// (masaüstü, kartın dışında gutter'da), nokta göstergeleri, reduced-motion.
+// variant: "home" → section + container kabuğu (ana sayfa, artık full-bleed
+//          DEĞİL; sayfa genişlik standardına uyar);
+//          "catalog" → kabuksuz blok (/urunler .container İÇİNDE).
 
 import { createClient } from "@/lib/supabase/server";
 import type { Banner } from "@/lib/shop/types";
@@ -39,8 +40,8 @@ export default async function PromoBanners({
 
   if (variant === "home") {
     // Ana sayfa: hero stat kartları ile banner arasındaki ritmi dengeler
-    // (homeSection). >=1024px'te homeWrap container sınırını aşıp full-bleed
-    // olur; <1024px'te container gibi davranır (globals.css .container kopyası).
+    // (homeSection). homeWrap her ölçüde global .container gibi davranır
+    // (full-bleed KALDIRILDI); oklar container gutter'ında kartın dışında.
     return (
       <section className={styles.homeSection} aria-label="Kampanyalar">
         <div className={styles.homeWrap}>

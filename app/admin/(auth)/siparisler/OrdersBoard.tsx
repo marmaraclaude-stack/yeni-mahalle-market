@@ -6,7 +6,7 @@
 import { useEffect, useMemo, useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { updateOrderStatus } from "@/lib/shop/admin-actions";
+import { deleteOrder, updateOrderStatus } from "@/lib/shop/admin-actions";
 import {
   formatTL,
   ORDER_STATUS_LABELS,
@@ -90,6 +90,25 @@ export default function OrdersBoard({ orders }: { orders: Order[] }) {
     startTransition(async () => {
       try {
         await updateOrderStatus(order.id, to);
+        router.refresh();
+      } finally {
+        setBusyId(null);
+      }
+    });
+  }
+
+  function removeOrder(order: Order) {
+    if (
+      !window.confirm(
+        `${order.order_no} siparişi KALICI olarak silinsin mi? Bu işlem geri alınamaz.`,
+      )
+    ) {
+      return;
+    }
+    setBusyId(order.id);
+    startTransition(async () => {
+      try {
+        await deleteOrder(order.id);
         router.refresh();
       } finally {
         setBusyId(null);
@@ -183,6 +202,15 @@ export default function OrdersBoard({ orders }: { orders: Order[] }) {
                         İptal
                       </button>
                     )}
+                    <button
+                      type="button"
+                      className={`${styles.actionBtn} ${styles["actionBtn--delete"]}`}
+                      disabled={busy}
+                      onClick={() => removeOrder(o)}
+                      aria-label={`${o.order_no} siparişini kalıcı olarak sil`}
+                    >
+                      Sil
+                    </button>
                   </div>
                 </div>
               </article>

@@ -5,7 +5,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { MapPin, Phone, ShoppingBasket, User } from "lucide-react";
+import { Mail, MapPin, Phone, ShoppingBasket, User } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import {
   ORDER_STATUS_LABELS,
@@ -105,22 +105,40 @@ export default async function HesapPage() {
         <div className={`container ${styles.container}`}>
         {/* Profil kartı */}
         <section className={styles.profileCard} aria-label="Profil bilgileri">
-          <div className={styles.avatar} aria-hidden="true">
-            <User />
+          <div className={styles.profileTop}>
+            <div className={styles.avatar} aria-hidden="true">
+              <User />
+            </div>
+            <div className={styles.profileInfo}>
+              <span className={styles.eyebrow}>Hesabım</span>
+              <h1 className={styles.name}>{displayName}</h1>
+            </div>
           </div>
-          <div className={styles.profileInfo}>
-            <span className={styles.eyebrow}>Hesabım</span>
-            <h1 className={styles.name}>{displayName}</h1>
-            <p className={styles.meta}>
-              {user.email}
-              {profile?.phone && (
-                <>
-                  {" · "}
-                  <Phone aria-hidden="true" /> {profile.phone}
-                </>
-              )}
-            </p>
+
+          <ul className={styles.contactList}>
+            <li className={styles.contactItem}>
+              <Mail aria-hidden="true" />
+              <span>{user.email}</span>
+            </li>
+            {profile?.phone && (
+              <li className={styles.contactItem}>
+                <Phone aria-hidden="true" />
+                <span>{profile.phone}</span>
+              </li>
+            )}
+          </ul>
+
+          <div className={styles.statRow}>
+            <div className={styles.stat}>
+              <span className={styles.statNum}>{orders.length}</span>
+              <span className={styles.statLabel}>Sipariş</span>
+            </div>
+            <div className={styles.stat}>
+              <span className={styles.statNum}>{addresses.length}</span>
+              <span className={styles.statLabel}>Adres</span>
+            </div>
           </div>
+
           <LogoutButton />
         </section>
 

@@ -233,6 +233,42 @@ export async function updateAdminNote(
   revalidateOrderPages(orderId);
 }
 
+/**
+ * Siparişe kurye bilgisi (ad + telefon) ata. Boş bırakılınca kurye kaldırılır.
+ * "Kurye Yolda" durumunda müşteri takip sayfasında bu bilgiler gösterilir.
+ */
+export async function setCourier(
+  orderId: string,
+  name: string,
+  phone: string,
+): Promise<void> {
+  await requireAdmin();
+  if (!orderId.trim()) throw new Error("Geçersiz sipariş.");
+  const supabase = createAdminClient();
+  const { error } = await supabase
+    .from("orders")
+    .update({
+      courier_name: name.trim().slice(0, 120),
+      courier_phone: phone.trim().slice(0, 40),
+    })
+    .eq("id", orderId);
+  if (error) throw new Error(`Kurye bilgisi kaydedilemedi: ${error.message}`);
+  revalidateOrderPages(orderId);
+}
+
+/**
+ * Siparişi KALICI olarak sil. order_items ve order_events satırları
+ * FK cascade ile birlikte silinir (şemada on delete cascade tanımlı).
+ */
+export async function deleteOrder(orderId: string): Promise<void> {
+  await requireAdmin();
+  if (!orderId.trim()) throw new Error("Geçersiz sipariş.");
+  const supabase = createAdminClient();
+  const { error } = await supabase.from("orders").delete().eq("id", orderId);
+  if (error) throw new Error(`Sipariş silinemedi: ${error.message}`);
+  revalidateOrderPages();
+}
+
 // ------------------------------------------------------------
 // Ürünler
 // ------------------------------------------------------------

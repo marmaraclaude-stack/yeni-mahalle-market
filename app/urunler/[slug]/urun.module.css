@@ -243,19 +243,71 @@
   font-size: var(--fs-small);
 }
 
-/* Teslimat notu satırı */
-.delivery {
+/* Görsel üstü bilgi çipleri (sol alt köşe) */
+.chips {
+  position: absolute;
+  left: 12px;
+  bottom: 12px;
   display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.chip {
+  display: inline-flex;
   align-items: center;
-  gap: 8px;
-  margin-top: 14px;
-  padding-top: 14px;
-  border-top: 1px solid var(--gray-100);
+  gap: 5px;
+  padding: 5px 10px;
+  border-radius: var(--r-pill);
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid var(--gray-200);
+  color: var(--gray-700);
+  font-family: var(--font-sans);
+  font-size: var(--fs-micro);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  box-shadow: 0 4px 12px -8px rgba(20, 30, 40, 0.4);
+}
+.chip svg {
+  flex-shrink: 0;
+  color: #159b57;
+}
+
+/* Birim fiyat (gramaj başı) */
+.unitPrice {
   color: var(--gray-500);
   font-size: var(--fs-small);
+  font-variant-numeric: tabular-nums;
+  margin-top: -2px;
 }
-.delivery svg {
+
+/* Teslimat / ödeme bilgi satırları — çerçeveli kutu */
+.infoList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 16px;
+  padding: 16px 18px;
+  border: 1px solid var(--gray-200);
+  border-radius: var(--r-lg);
+  background: var(--gray-50);
+  list-style: none;
+}
+.infoRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--gray-700);
+  font-size: var(--fs-small);
+  line-height: 1.4;
+}
+.infoIcon {
+  display: grid;
+  place-items: center;
   flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+  border-radius: var(--r-md);
+  background: #eafaf0;
   color: #159b57;
 }
 

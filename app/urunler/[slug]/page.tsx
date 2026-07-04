@@ -11,7 +11,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { cache } from "react";
-import { Bike } from "lucide-react";
+import { Bike, Wallet, ShieldCheck, Leaf, Timer } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import type { Product } from "@/lib/shop/types";
 import { formatTL } from "@/lib/shop/types";
@@ -129,6 +129,62 @@ async function getSimilarProducts(product: Product): Promise<Product[]> {
   }
 }
 
+/**
+ * Birim fiyat (Getir "gram başı" netliği): paket/adet fiyatını gramaj ya da
+ * adede böler. size_text gramaj/hacim ("500 g", "6x0,5 L") içeriyorsa
+ * "₺X / kg" veya "₺X / L"; çoklu adet ("8'li", "60'lı") içeriyorsa "₺X / adet".
+ * Zaten kg bazlı satılan (unit "kg") ya da tam 1 kg / 1 L olan ürünlerde
+ * bilgi tekrar olacağından null döner.
+ */
+function unitPriceLabel(product: Product): string | null {
+  const { price, size_text, unit } = product;
+  if (!price || price <= 0 || unit === "kg") return null;
+  const s = size_text.toLocaleLowerCase("tr-TR").replace(/,/g, ".");
+
+  // Gramaj/hacim, opsiyonel "NxM birim" (örn. "6x0.5 l", "2x160 g")
+  const wv = s.match(/(?:(\d+(?:\.\d+)?)\s*[x×]\s*)?(\d+(?:\.\d+)?)\s*(kg|g|l|ml)\b/);
+  if (wv) {
+    const count = wv[1] ? parseFloat(wv[1]) : 1;
+    const qty = parseFloat(wv[2]);
+    const u = wv[3];
+    const total = count * qty;
+    if (total > 0) {
+      if (u === "kg" || u === "g") {
+        const grams = u === "kg" ? total * 1000 : total;
+        if (grams === 1000) return null;
+        const perKg = price / (grams / 1000);
+        return `${formatTL(Math.round(perKg * 100) / 100)} / kg`;
+      }
+      const ml = u === "l" ? total * 1000 : total;
+      if (ml === 1000) return null;
+      const perL = price / (ml / 1000);
+      return `${formatTL(Math.round(perL * 100) / 100)} / L`;
+    }
+  }
+
+  // Çoklu adet: "8'li", "60'lı", "12 adet" vb.
+  const cnt = s.match(/(\d+)\s*['’]?\s*(?:l[iıuü]|adet)\b/);
+  if (cnt) {
+    const n = parseInt(cnt[1], 10);
+    if (n > 1) {
+      const per = price / n;
+      return `${formatTL(Math.round(per * 100) / 100)} / adet`;
+    }
+  }
+  return null;
+}
+
+/** Görsel üzerine küçük bilgi çipleri (opsiyonel, kategoriye göre). */
+function infoChips(categorySlug: string): { icon: typeof Leaf; label: string }[] {
+  const chips: { icon: typeof Leaf; label: string }[] = [
+    { icon: Timer, label: "30 dk teslimat" },
+  ];
+  if (categorySlug === "meyve-sebze" || categorySlug === "ekmek-firin") {
+    chips.push({ icon: Leaf, label: "Günlük taze" });
+  }
+  return chips;
+}
+
 export async function generateMetadata({
   params,
 }: {
@@ -169,6 +225,9 @@ export default async function UrunDetayPage({ params }: { params: Params }) {
     .filter(Boolean)
     .join(" · ");
 
+  const unitPrice = unitPriceLabel(product);
+  const chips = infoChips(product.category_slug);
+
   return (
     <>
       <SiteNav />
@@ -196,6 +255,16 @@ export default async function UrunDetayPage({ params }: { params: Params }) {
               )}
               {!product.in_stock && (
                 <span className={styles.mediaOut}>Stokta yok</span>
+              )}
+              {product.in_stock && (
+                <div className={styles.chips} aria-hidden="true">
+                  {chips.map((chip) => (
+                    <span key={chip.label} className={styles.chip}>
+                      <chip.icon size={13} strokeWidth={2.2} />
+                      {chip.label}
+                    </span>
+                  ))}
+                </div>
               )}
             </div>
 
@@ -228,6 +297,10 @@ export default async function UrunDetayPage({ params }: { params: Params }) {
                 )}
               </p>
 
+              {unitPrice && (
+                <p className={styles.unitPrice}>Birim fiyat: {unitPrice}</p>
+              )}
+
               <p
                 className={`${styles.stock} ${
                   product.in_stock ? styles.stockIn : styles.stockOut
@@ -240,11 +313,31 @@ export default async function UrunDetayPage({ params }: { params: Params }) {
 
               <DetailActions product={product} />
 
-              <p className={styles.delivery}>
-                <Bike size={17} strokeWidth={2} aria-hidden="true" />
-                Sapanca içi 30 dakikada teslimat · {BUSINESS.hours.opens} -{" "}
-                {BUSINESS.hours.closes}
-              </p>
+              <ul className={styles.infoList}>
+                <li className={styles.infoRow}>
+                  <span className={styles.infoIcon}>
+                    <Bike size={18} strokeWidth={2} aria-hidden="true" />
+                  </span>
+                  <span>
+                    Sapanca içinde yaklaşık 30 dakikada kapında teslim
+                  </span>
+                </li>
+                <li className={styles.infoRow}>
+                  <span className={styles.infoIcon}>
+                    <Wallet size={18} strokeWidth={2} aria-hidden="true" />
+                  </span>
+                  <span>Kapıda nakit veya kart ile güvenle ödeme</span>
+                </li>
+                <li className={styles.infoRow}>
+                  <span className={styles.infoIcon}>
+                    <ShieldCheck size={18} strokeWidth={2} aria-hidden="true" />
+                  </span>
+                  <span>
+                    Her gün {BUSINESS.hours.opens} - {BUSINESS.hours.closes} arası
+                    hizmetteyiz
+                  </span>
+                </li>
+              </ul>
             </div>
           </section>
 

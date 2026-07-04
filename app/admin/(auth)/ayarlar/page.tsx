@@ -2,9 +2,10 @@
 // Server component + form action; kayıt sonrası ?kaydedildi=1 ile geri döner.
 
 import { redirect } from "next/navigation";
+import { CreditCard, Info, Store, Truck } from "lucide-react";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { updateSettings } from "@/lib/shop/admin-actions";
-import type { ShopSettings } from "@/lib/shop/types";
+import { formatTL, type ShopSettings } from "@/lib/shop/types";
 import styles from "../../admin.module.css";
 
 export const dynamic = "force-dynamic";
@@ -90,113 +91,225 @@ export default async function AdminSettingsPage({
         </div>
       ) : (
         <form action={saveSettingsAction} className={styles.settingsForm}>
-          <div className={styles.settingsGrid}>
-            <section className={styles.panel}>
-              <h2 className={styles.panelTitle}>Teslimat &amp; Sepet</h2>
-              <div className={styles.fieldGrid}>
-                <div className={styles.field}>
-                  <label className={styles.label} htmlFor="delivery_fee">
-                    Teslimat ücreti (TL)
-                  </label>
-                  <input
-                    id="delivery_fee"
-                    name="delivery_fee"
-                    inputMode="decimal"
-                    defaultValue={String(settings.delivery_fee)}
-                    className={styles.input}
-                  />
+          <div className={styles.settingsLayout}>
+            {/* Sol kolon: gruplu form kartları */}
+            <div className={styles.settingsMain}>
+              <section className={styles.panel}>
+                <h2 className={styles.panelTitle}>Teslimat &amp; Sepet</h2>
+                <div className={styles.fieldGrid}>
+                  <div className={styles.field}>
+                    <label className={styles.label} htmlFor="delivery_fee">
+                      Teslimat ücreti (TL)
+                    </label>
+                    <input
+                      id="delivery_fee"
+                      name="delivery_fee"
+                      inputMode="decimal"
+                      defaultValue={String(settings.delivery_fee)}
+                      className={styles.input}
+                    />
+                    <p className={styles.fieldHint}>
+                      Her siparişe eklenen standart teslimat bedeli.
+                    </p>
+                  </div>
+                  <div className={styles.field}>
+                    <label className={styles.label} htmlFor="free_delivery_over">
+                      Ücretsiz teslimat limiti (TL)
+                    </label>
+                    <input
+                      id="free_delivery_over"
+                      name="free_delivery_over"
+                      inputMode="decimal"
+                      defaultValue={String(settings.free_delivery_over)}
+                      className={styles.input}
+                    />
+                    <p className={styles.fieldHint}>
+                      Bu tutarın üzeri ücretsiz. 0 = tüm siparişler ücretsiz.
+                    </p>
+                  </div>
+                  <div className={styles.field}>
+                    <label className={styles.label} htmlFor="min_order_total">
+                      Minimum sepet tutarı (TL)
+                    </label>
+                    <input
+                      id="min_order_total"
+                      name="min_order_total"
+                      inputMode="decimal"
+                      defaultValue={String(settings.min_order_total)}
+                      className={styles.input}
+                    />
+                    <p className={styles.fieldHint}>
+                      Bu tutarın altındaki sepetler sipariş veremez. 0 = sınır yok.
+                    </p>
+                  </div>
                 </div>
-                <div className={styles.field}>
-                  <label className={styles.label} htmlFor="free_delivery_over">
-                    Ücretsiz teslimat limiti (TL, 0 = hepsi ücretsiz)
-                  </label>
-                  <input
-                    id="free_delivery_over"
-                    name="free_delivery_over"
-                    inputMode="decimal"
-                    defaultValue={String(settings.free_delivery_over)}
-                    className={styles.input}
-                  />
-                </div>
-                <div className={styles.field}>
-                  <label className={styles.label} htmlFor="min_order_total">
-                    Minimum sepet tutarı (TL)
-                  </label>
-                  <input
-                    id="min_order_total"
-                    name="min_order_total"
-                    inputMode="decimal"
-                    defaultValue={String(settings.min_order_total)}
-                    className={styles.input}
-                  />
-                </div>
-              </div>
-            </section>
+              </section>
 
-            <section className={styles.panel}>
-              <h2 className={styles.panelTitle}>Ödeme Yöntemleri</h2>
-              <div className={styles.checkList}>
-                <label className={styles.checkLabel}>
-                  <input
-                    type="checkbox"
-                    name="cod_cash_enabled"
-                    defaultChecked={settings.cod_cash_enabled}
-                  />
-                  Kapıda nakit
-                </label>
-                <label className={styles.checkLabel}>
-                  <input
-                    type="checkbox"
-                    name="cod_card_enabled"
-                    defaultChecked={settings.cod_card_enabled}
-                  />
-                  Kapıda kart
-                </label>
-                <label className={styles.checkLabel}>
-                  <input
-                    type="checkbox"
-                    name="iyzico_enabled"
-                    defaultChecked={settings.iyzico_enabled}
-                  />
-                  Online kart (iyzico) · API anahtarları da tanımlı olmalı
-                </label>
-              </div>
-            </section>
+              <section className={styles.panel}>
+                <h2 className={styles.panelTitle}>Ödeme Yöntemleri</h2>
+                <p className={styles.hint} style={{ marginBottom: 14 }}>
+                  Ödeme adımında müşteriye gösterilecek yöntemleri seçin.
+                </p>
+                <div className={styles.checkList}>
+                  <div className={styles.checkItem}>
+                    <label className={styles.checkLabel}>
+                      <input
+                        type="checkbox"
+                        name="cod_cash_enabled"
+                        defaultChecked={settings.cod_cash_enabled}
+                      />
+                      Kapıda nakit
+                    </label>
+                    <p className={styles.fieldHint}>
+                      Müşteri kapıda nakit öder; teslimde tahsil edilir.
+                    </p>
+                  </div>
+                  <div className={styles.checkItem}>
+                    <label className={styles.checkLabel}>
+                      <input
+                        type="checkbox"
+                        name="cod_card_enabled"
+                        defaultChecked={settings.cod_card_enabled}
+                      />
+                      Kapıda kart
+                    </label>
+                    <p className={styles.fieldHint}>
+                      Kurye POS cihazıyla kapıda kart çekimi yapar.
+                    </p>
+                  </div>
+                  <div className={styles.checkItem}>
+                    <label className={styles.checkLabel}>
+                      <input
+                        type="checkbox"
+                        name="iyzico_enabled"
+                        defaultChecked={settings.iyzico_enabled}
+                      />
+                      Online kart (iyzico)
+                    </label>
+                    <p className={styles.fieldHint}>
+                      Sipariş anında online tahsilat. iyzico API anahtarları da
+                      tanımlı olmalı.
+                    </p>
+                  </div>
+                </div>
+              </section>
 
-            <section className={styles.panel}>
-              <h2 className={styles.panelTitle}>Sipariş Alımı</h2>
-              <div className={styles.checkList}>
-                <label className={styles.checkLabel}>
-                  <input
-                    type="checkbox"
-                    name="ordering_open"
-                    defaultChecked={settings.ordering_open}
+              <section className={styles.panel}>
+                <h2 className={styles.panelTitle}>Sipariş Alımı</h2>
+                <div className={styles.checkList}>
+                  <div className={styles.checkItem}>
+                    <label className={styles.checkLabel}>
+                      <input
+                        type="checkbox"
+                        name="ordering_open"
+                        defaultChecked={settings.ordering_open}
+                      />
+                      Online sipariş alımı AÇIK
+                    </label>
+                    <p className={styles.fieldHint}>
+                      Kapatınca vitrin gezilebilir ama sepet siparişe
+                      dönüştürülemez.
+                    </p>
+                  </div>
+                </div>
+                <div className={styles.field}>
+                  <label className={styles.label} htmlFor="closed_message">
+                    Kapalıyken gösterilecek mesaj
+                  </label>
+                  <textarea
+                    id="closed_message"
+                    name="closed_message"
+                    rows={3}
+                    defaultValue={settings.closed_message}
+                    className={styles.textarea}
                   />
-                  Online sipariş alımı AÇIK
-                </label>
+                </div>
+              </section>
+            </div>
+
+            {/* Sağ kolon: özet + ipuçları paneli */}
+            <aside className={styles.settingsAside}>
+              <div className={styles.infoPanel}>
+                <h2 className={styles.infoPanelTitle}>
+                  <Store size={16} aria-hidden />
+                  Mevcut durum
+                </h2>
+                <div className={styles.infoSummary}>
+                  <div className={styles.infoSummaryRow}>
+                    <span>Sipariş alımı</span>
+                    <span>{settings.ordering_open ? "Açık" : "Kapalı"}</span>
+                  </div>
+                  <div className={styles.infoSummaryRow}>
+                    <span>Teslimat ücreti</span>
+                    <span>
+                      {settings.delivery_fee > 0
+                        ? formatTL(settings.delivery_fee)
+                        : "Ücretsiz"}
+                    </span>
+                  </div>
+                  <div className={styles.infoSummaryRow}>
+                    <span>Ücretsiz teslimat</span>
+                    <span>
+                      {settings.free_delivery_over > 0
+                        ? `${formatTL(settings.free_delivery_over)} üzeri`
+                        : "Tümü"}
+                    </span>
+                  </div>
+                  <div className={styles.infoSummaryRow}>
+                    <span>Minimum sepet</span>
+                    <span>
+                      {settings.min_order_total > 0
+                        ? formatTL(settings.min_order_total)
+                        : "Sınır yok"}
+                    </span>
+                  </div>
+                </div>
               </div>
-              <div className={styles.field}>
-                <label className={styles.label} htmlFor="closed_message">
-                  Kapalıyken gösterilecek mesaj
-                </label>
-                <textarea
-                  id="closed_message"
-                  name="closed_message"
-                  rows={3}
-                  defaultValue={settings.closed_message}
-                  className={styles.textarea}
-                />
+
+              <div className={styles.infoPanel}>
+                <h2 className={styles.infoPanelTitle}>
+                  <Info size={16} aria-hidden />
+                  İpuçları
+                </h2>
+                <ul className={styles.infoList}>
+                  <li className={styles.infoItem}>
+                    <Truck size={15} aria-hidden />
+                    <span>
+                      Ücretsiz teslimat limitini minimum sepetin biraz üzerinde
+                      tutmak ortalama sepeti büyütür.
+                    </span>
+                  </li>
+                  <li className={styles.infoItem}>
+                    <CreditCard size={15} aria-hidden />
+                    <span>
+                      En az bir ödeme yöntemi açık olmalı; hepsi kapalıysa
+                      müşteri sipariş tamamlayamaz.
+                    </span>
+                  </li>
+                  <li className={styles.infoItem}>
+                    <Store size={15} aria-hidden />
+                    <span>
+                      Mağaza kapalıyken yukarıdaki mesaj müşteriye gösterilir;
+                      net ve kısa yazın.
+                    </span>
+                  </li>
+                </ul>
+                <hr className={styles.infoDivider} />
+                <p className={styles.hint}>
+                  Değişiklikler kaydedildikten sonra vitrin, sepet ve ödeme
+                  akışına anında yansır.
+                </p>
               </div>
-            </section>
+            </aside>
           </div>
 
-          <div>
-            <button
-              type="submit"
-              className={`${styles.actionBtn} ${styles["actionBtn--primary"]}`}
-            >
+          <div className={styles.settingsBar}>
+            <button type="submit" className={styles.accentBtn}>
               Ayarları Kaydet
             </button>
+            <span className={styles.settingsBarHint}>
+              Tüm alanlar tek seferde kaydedilir.
+            </span>
           </div>
         </form>
       )}

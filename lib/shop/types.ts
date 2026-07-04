@@ -58,6 +58,8 @@ export interface Order {
   status: OrderStatus;
   note: string;
   admin_note: string;
+  courier_name: string;
+  courier_phone: string;
   iyzico_token: string | null;
   iyzico_payment_id: string | null;
   created_at: string;

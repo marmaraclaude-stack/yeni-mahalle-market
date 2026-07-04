@@ -1,74 +1,57 @@
 /* ============================================================
-   Kampanya banner carousel v3 — tam genişlik TEK kart düzeni.
-   Tint bazlı gradient kart; solda kicker chip + büyük başlık +
-   koyu tint CTA pill; sağda dekoratif daireler + büyük tematik
-   ikon. Her görünümde tek kart kabın %100'ünü kaplar (peek YOK,
-   komşu kartın hiçbir parçası görünmez); ok butonları kartın
-   DIŞINDA, sarmalayıcının yan boşluklarında dikey ortada (yalnız
-   masaüstü); altta hap biçimli noktalar. Tint renkleri inline --bnr-bg / --bnr-fg
-   değişkenleriyle gelir; diğer token'lar globals.css'ten miras.
+   Kampanya banner carousel v4 — container genişliğinde TEK kart.
+   Kart, sayfa genişlik standardına (global .container) uyar:
+   home varyantı ARTIK full-bleed DEĞİL, /urunler zaten container
+   içinde. Yalnız sol/sağ oklar container gutter'ına (kartın
+   dışına) taşar, kartla çakışmaz.
+
+   Kart tasarımı: solda içerik bloğu (kicker + başlık + alt metin
+   + kompakt CTA) ~%58 genişlik; sağda tint gradient üstünde
+   katmanlı dekor (3 daire + büyük tematik ikon), içeriğe nefes
+   bırakır. Kart daha yatay/kompakt (clamp 150-190px). Tint
+   renkleri inline --bnr-bg / --bnr-fg ile gelir; diğer token'lar
+   globals.css'ten miras.
    ============================================================ */
 
 /* /urunler yerleşimi: başlık ile katalog düzeni arasında nefes payı.
-   Bu varyant .container İÇİNDE kalır (full-bleed yalnız ana sayfada). */
+   Bu varyant .container İÇİNDE kalır. */
 .catalogWrap {
   margin-bottom: 6px;
 }
 
 /* -------- Ana sayfa yerleşimi --------
-   Hero stat kartları ile banner arasındaki gereksiz büyük boşluğu azaltır:
-   hero'nun alt padding'i zaten büyük olduğundan bölümü hafif negatif margin
-   ile yukarı çekip dengeli bir ritim kurarız (globals.css .hero'ya dokunmadan).
-   Alt boşluk, ardışık features bölümünün üst padding'iyle buluşur. */
+   Hero stat kartları ile banner arasındaki ritmi dengeler; bölümü
+   hafif negatif margin ile yukarı çeker. Alt boşluk features
+   bölümünün üst padding'iyle buluşur. */
 .homeSection {
   margin-top: clamp(-28px, -1.6vw, -12px);
   padding-top: 0;
   padding-bottom: clamp(26px, 3.2vw, 44px);
 }
 
-/* Banner sarmalayıcı: <1024px'te globals.css .container davranışını taklit
-   eder (ortalı, --container sınırı + gutter). >=1024px'te bu sınırı AŞAR:
-   width %100 (main tam genişlik, scrollbar-gutter sabit → 100vw taşması yok)
-   ile viewport genişliğini kullanır; yalnız güvenli kenar padding'i kalır.
-   Kart içi metin BannerCarousel'de max-width ile sola dayalı okunur kalır;
-   oklar .viewport'un yan padding'inde (kart dışında) durur, çakışmaz. */
+/* Banner sarmalayıcı = global .container davranışı (her ölçüde).
+   Full-bleed KALDIRILDI: kart artık sayfa genişlik standardına uyar.
+   Oklar, kartın dışında bu container'ın gutter'ında durur. */
 .homeWrap {
   width: 100%;
   max-width: calc(var(--container) + var(--gutter) * 2);
   margin-inline: auto;
   padding-inline: var(--gutter);
 }
-@media (min-width: 1024px) {
-  /* Full-bleed: wrap tam viewport genişliğinde (yan padding YOK). Kartın
-     tek iç boşluğu .viewport'un ok payıdır; bu pay --container gutter'ından
-     dar olduğundan kart, ortalı container içeriğini iki yandan aşar. Oklar
-     bu payın içinde durur, karta değmez. */
-  .homeWrap {
-    max-width: none;
-    padding-inline: 0;
-  }
-}
 
 .carousel {
   position: relative;
 }
 
-/* Ok butonlarının konum referansı: yalnız kartları sarar
-   (noktalar dışarıda kalır, oklar kartın dikey ortasına oturur).
-   Masaüstünde iki yanda ok payı açılır: ok (38px) + nefes (16px);
-   oklar bu boşlukta durur, kartın üzerine binmez. */
+/* Ok butonlarının konum referansı: kartları sarar. Oklar bu kutunun
+   dışına (negatif ofsetle container gutter'ına) taşar; iç padding YOK,
+   böylece kart tam container genişliğinde kalır. */
 .viewport {
   position: relative;
 }
-@media (min-width: 1024px) {
-  .viewport {
-    padding-inline: 54px;
-  }
-}
 
-/* Kayan şerit — tam genişlik düzen: her kart kabın %100'ü, snap zorunlu.
-   Kartlar arası gap yalnız kaydırma sırasında görünür; duran görünümde
-   komşu karttan hiçbir parça ekranda kalmaz. */
+/* Kayan şerit — her kart kabın %100'ü, snap zorunlu. Kartlar arası gap
+   yalnız kaydırma sırasında görünür. */
 .track {
   display: flex;
   gap: 14px;
@@ -81,22 +64,17 @@
   display: none;
 }
 
-/* Tek slayt — her görünümde kabın %100'ü (peek YOK).
-   Yükseklik SABİT DEĞİL: içerikten gelir, min-height yalnız alt sınır.
-   overflow:hidden yalnız taşan dekor dairelerini kırpar; içerik normal
-   akışta olduğundan kart uzar, metin hiçbir genişlikte kesilmez.
-   --art-reserve: sağdaki dekor ikon alanı için içerik payı
-   (ikon genişliği ~9vw + sağ ofset ~5vw ile birebir hizalı). */
+/* Tek slayt — kabın %100'ü (peek YOK). Daha yatay/kompakt: yükseklik
+   clamp(150-190px). overflow:hidden yalnız taşan dekor dairelerini
+   kırpar. Sağ dekor payı slideCopy'nin max-width'i ile ayrılır. */
 .slide {
   position: relative;
-  --art-reserve: clamp(88px, 14vw, 176px);
   flex: 0 0 100%;
   min-width: 0;
   display: flex;
   align-items: center;
-  min-height: clamp(150px, 20vw, 210px);
-  padding: clamp(20px, 3vw, 32px) clamp(20px, 4vw, 44px);
-  padding-right: calc(clamp(14px, 2vw, 24px) + var(--art-reserve));
+  min-height: clamp(150px, 17vw, 190px);
+  padding: clamp(18px, 2.4vw, 26px) clamp(22px, 4vw, 48px);
   border-radius: var(--r-xl);
   overflow: hidden;
   scroll-snap-align: start;
@@ -110,20 +88,19 @@
 
 /* Katalog varyantı: aynı görsel dil, biraz alçak */
 .carousel[data-variant="catalog"] .slide {
-  min-height: clamp(140px, 18vw, 180px);
+  min-height: clamp(140px, 15.5vw, 178px);
 }
 
-/* -------- Sol içerik --------
-   Tek kart tam genişlik olduğundan içerik ölçüsü daha ferah;
-   sağdaki dekor payı zaten padding-right ile ayrılıyor. */
+/* -------- Sol içerik (~%58) --------
+   Dikey ortalı; sağdaki dekora nefes bırakır. */
 .slideCopy {
   position: relative;
   z-index: 1;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 10px;
-  max-width: min(100%, 640px);
+  gap: 9px;
+  max-width: 58%;
 }
 
 /* Kicker chip — koyu tint zemin, beyaz metin */
@@ -142,10 +119,10 @@
 
 .slideTitle {
   font-family: var(--font-display);
-  font-size: clamp(22px, 3vw, 36px);
+  font-size: clamp(21px, 2.7vw, 33px);
   font-weight: 700;
   letter-spacing: -0.025em;
-  line-height: 1.2;
+  line-height: 1.18;
   color: var(--ink);
   text-wrap: balance;
 }
@@ -153,7 +130,7 @@
 /* Alt metin en çok 2 satır — kart yüksekliği kontrollü kalır */
 .slideSub {
   font-size: var(--fs-body);
-  line-height: 1.45;
+  line-height: 1.4;
   color: var(--gray-700);
   text-wrap: pretty;
   display: -webkit-box;
@@ -162,20 +139,20 @@
   overflow: hidden;
 }
 
-/* CTA — koyu tint zemin, beyaz metin pill */
+/* CTA — kompakt, başlığın hemen altında. Genişlik standardından muaf:
+   kendi içerik boyutunda (inline-flex) durur. */
 .slideCta {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  margin-top: 4px;
-  height: 42px;
-  padding: 0 22px;
+  margin-top: 5px;
+  height: 40px;
+  padding: 0 20px;
   border-radius: var(--r-pill);
   background: var(--bnr-fg);
   color: var(--white);
   font-size: var(--fs-small);
   font-weight: 700;
-  max-width: 100%;
   white-space: nowrap;
   box-shadow: 0 4px 12px color-mix(in srgb, var(--bnr-fg) 30%, transparent);
   transition: transform 160ms var(--ease), box-shadow 160ms var(--ease);
@@ -189,7 +166,9 @@
   outline-offset: 2px;
 }
 
-/* -------- Sağ dekoratif katman — her zaman içeriğin ALTINDA -------- */
+/* -------- Sağ dekoratif katman — her zaman içeriğin ALTINDA --------
+   Katmanlı kompozisyon: büyük daire + orta daire + küçük aksan +
+   büyük tematik ikon. Sağ ~%42'lik alanı dengeli doldurur. */
 .slideArt {
   position: absolute;
   inset: 0;
@@ -197,70 +176,86 @@
   pointer-events: none;
 }
 
-/* Büyük yarı saydam daire — sağ kenardan taşar */
+/* Büyük yarı saydam daire — sağ kenardan taşar, ikonu çevreler */
 .circleLg {
   position: absolute;
   top: 50%;
-  right: clamp(-90px, -6vw, -40px);
-  width: clamp(220px, 26vw, 340px);
-  height: clamp(220px, 26vw, 340px);
+  right: clamp(-80px, -5vw, -36px);
+  width: clamp(210px, 24vw, 320px);
+  height: clamp(210px, 24vw, 320px);
   transform: translateY(-50%);
   border-radius: 50%;
   background: var(--bnr-fg);
   opacity: 0.1;
 }
 
-/* Küçük eşlik dairesi — büyük dairenin sol üstüne biner */
-.circleSm {
+/* Orta daire — büyük dairenin sol tarafına biner, derinlik verir */
+.circleMd {
   position: absolute;
-  top: 12%;
-  right: clamp(130px, 16vw, 250px);
-  width: clamp(52px, 6vw, 84px);
-  height: clamp(52px, 6vw, 84px);
+  top: 62%;
+  right: clamp(150px, 19vw, 300px);
+  width: clamp(90px, 11vw, 150px);
+  height: clamp(90px, 11vw, 150px);
+  transform: translateY(-50%);
   border-radius: 50%;
   background: var(--bnr-fg);
-  opacity: 0.14;
+  opacity: 0.08;
 }
 
-/* Büyük tematik ikon — büyük dairenin merkezine yakın */
+/* Küçük aksan dairesi — büyük dairenin sol üstüne biner */
+.circleSm {
+  position: absolute;
+  top: 16%;
+  right: clamp(120px, 15vw, 232px);
+  width: clamp(46px, 5.4vw, 76px);
+  height: clamp(46px, 5.4vw, 76px);
+  border-radius: 50%;
+  background: var(--bnr-fg);
+  opacity: 0.16;
+}
+
+/* Büyük tematik ikon — sağ alanın dikey ortasında */
 .iconWrap {
   position: absolute;
   top: 50%;
-  right: clamp(20px, 5vw, 72px);
+  right: clamp(24px, 5.5vw, 84px);
   transform: translateY(-50%) rotate(-8deg);
   color: var(--bnr-fg);
   opacity: 0.55;
 }
 .slideIcon {
   display: block;
-  width: clamp(64px, 9vw, 120px);
-  height: clamp(64px, 9vw, 120px);
+  width: clamp(60px, 8vw, 112px);
+  height: clamp(60px, 8vw, 112px);
 }
 
-/* Dar ekranda dekor küçülür/gizlenir, içerik payı da ona göre daralır */
+/* Dar ekranda dekor küçülür/hafifler, içerik payı genişler */
 @media (max-width: 640px) {
-  .slide {
-    --art-reserve: 40px;
+  .slideCopy {
+    max-width: 80%;
   }
-  .circleSm {
+  .circleSm,
+  .circleMd {
     display: none;
   }
   .circleLg {
     width: 170px;
     height: 170px;
-    right: -80px;
+    right: -78px;
   }
   .iconWrap {
-    opacity: 0.28;
-    right: -10px;
+    opacity: 0.3;
+    right: -6px;
   }
   .slideIcon {
-    width: 58px;
-    height: 58px;
+    width: 56px;
+    height: 56px;
   }
 }
 
-/* -------- Ok butonları (yalnız masaüstü) -------- */
+/* -------- Ok butonları (yalnız masaüstü) --------
+   Kartın DIŞINDA, container gutter'ında dikey ortada. Negatif ofset
+   ile gutter'a taşar; karta değmez, viewport taşması yaratmaz. */
 .arrow {
   display: none;
   position: absolute;
@@ -287,12 +282,12 @@
   outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
-/* Oklar sarmalayıcının yan boşluklarında (kartın dışında) */
+/* Oklar container gutter'ında (kartın dışında) — negatif ofset */
 .arrowPrev {
-  left: 0;
+  left: -46px;
 }
 .arrowNext {
-  right: 0;
+  right: -46px;
 }
 @media (min-width: 1024px) {
   .arrow {
@@ -329,8 +324,7 @@
   outline-offset: 2px;
 }
 
-/* Hareket azaltma: elle kaydırma da yumuşatmasız
-   (otomatik kayma zaten JS tarafında kapatılır) */
+/* Hareket azaltma: elle kaydırma da yumuşatmasız */
 @media (prefers-reduced-motion: reduce) {
   .track {
     scroll-behavior: auto;

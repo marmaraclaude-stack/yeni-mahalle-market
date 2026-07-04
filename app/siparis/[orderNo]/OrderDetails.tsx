@@ -2,7 +2,7 @@
 // Yönergesiz (shared) komponent: giriş yapmış kullanıcı için server'da,
 // misafir takipte client'ta render edilir. Server-only import İÇERMEZ.
 
-import { Check, Clock, MapPin, Package, XCircle } from "lucide-react";
+import { Bike, Check, Clock, MapPin, Package, Phone, XCircle } from "lucide-react";
 import {
   ORDER_STATUS_FLOW,
   ORDER_STATUS_LABELS,
@@ -38,6 +38,14 @@ export default function OrderDetails({
 }) {
   const isCancelled = order.status === "cancelled";
   const currentIdx = ORDER_STATUS_FLOW.indexOf(order.status);
+
+  const courierName = order.courier_name?.trim() ?? "";
+  const courierPhone = order.courier_phone?.trim() ?? "";
+  // Kurye kartı: teslim/iptal dışında, kurye atanmışsa veya durum "Kurye Yolda" ise.
+  const showCourier =
+    !isCancelled &&
+    order.status !== "delivered" &&
+    (courierName !== "" || order.status === "on_the_way");
 
   // Her durum için en güncel event zamanı (varsa).
   const timeFor = (status: OrderStatus): string | null => {
@@ -82,6 +90,35 @@ export default function OrderDetails({
               Sorularınız için bizi arayabilir veya canlı destekten
               yazabilirsiniz.
             </p>
+          </div>
+        </div>
+      )}
+
+      {/* Kurye yolda — canlı bilgi kartı (div: grid section sırasını bozmaz) */}
+      {showCourier && (
+        <div className={styles.courierCard} role="status">
+          <span className={styles.courierIcon} aria-hidden="true">
+            <Bike />
+          </span>
+          <div className={styles.courierBody}>
+            <span className={styles.courierEyebrow}>Kuryeniz yolda</span>
+            <p className={styles.courierText}>
+              {courierName ? (
+                <>
+                  <strong>{courierName}</strong> siparişinizi getiriyor.
+                </>
+              ) : (
+                "Siparişiniz kuryeye teslim edildi ve yola çıktı."
+              )}{" "}
+              Tahmini teslimat yaklaşık 30 dakika. Durum bu sayfada canlı
+              güncellenir.
+            </p>
+            {courierPhone && (
+              <a href={`tel:${courierPhone}`} className={styles.courierPhone}>
+                <Phone aria-hidden="true" />
+                {courierPhone}
+              </a>
+            )}
           </div>
         </div>
       )}

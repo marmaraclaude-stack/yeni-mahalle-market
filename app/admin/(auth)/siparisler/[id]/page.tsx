@@ -6,10 +6,12 @@ import { notFound } from "next/navigation";
 import { ChevronLeft } from "lucide-react";
 import { createAdminClient } from "@/lib/supabase/admin";
 import {
+  setCourier,
   setPaymentStatus,
   updateAdminNote,
   updateOrderStatus,
 } from "@/lib/shop/admin-actions";
+import DeleteOrderButton from "./DeleteOrderButton";
 import {
   formatTL,
   ORDER_STATUS_LABELS,
@@ -96,6 +98,15 @@ export default async function AdminOrderDetailPage({
     await updateAdminNote(id, String(formData.get("admin_note") ?? ""));
   }
 
+  async function saveCourierAction(formData: FormData) {
+    "use server";
+    await setCourier(
+      id,
+      String(formData.get("courier_name") ?? ""),
+      String(formData.get("courier_phone") ?? ""),
+    );
+  }
+
   const next = NEXT_STEP[order.status];
 
   return (
@@ -154,6 +165,7 @@ export default async function AdminOrderDetailPage({
             </button>
           </form>
         )}
+        <DeleteOrderButton orderId={order.id} orderNo={order.order_no} />
       </div>
 
       <div className={styles.detailGrid}>
@@ -258,6 +270,49 @@ export default async function AdminOrderDetailPage({
             >
               Kaydet
             </button>
+          </form>
+        </section>
+
+        {/* Kurye bilgisi */}
+        <section className={styles.panel}>
+          <h2 className={styles.panelTitle}>Kurye Bilgisi</h2>
+          <form action={saveCourierAction} className={styles.stackForm}>
+            <div className={styles.field} style={{ width: "100%" }}>
+              <label className={styles.label} htmlFor="courier_name">
+                Kurye adı
+              </label>
+              <input
+                id="courier_name"
+                name="courier_name"
+                defaultValue={order.courier_name}
+                className={styles.input}
+                placeholder="Örn. Ahmet Y."
+              />
+            </div>
+            <div className={styles.field} style={{ width: "100%" }}>
+              <label className={styles.label} htmlFor="courier_phone">
+                Kurye telefonu
+              </label>
+              <input
+                id="courier_phone"
+                name="courier_phone"
+                defaultValue={order.courier_phone}
+                className={styles.input}
+                inputMode="tel"
+                placeholder="05XX XXX XX XX"
+              />
+            </div>
+            <button
+              type="submit"
+              className={`${styles.actionBtn} ${styles["actionBtn--primary"]}`}
+            >
+              Kurye Bilgisini Kaydet
+            </button>
+            <p className={styles.hint}>
+              Kurye atandığında müşteri takip sayfasında &quot;Kuryeniz
+              yolda&quot; kartıyla ad ve telefon görünür. Boş bırakılırsa
+              kurye kaldırılır.
+            </p>
           </form>
         </section>
 
