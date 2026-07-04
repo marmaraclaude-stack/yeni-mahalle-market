@@ -27,6 +27,7 @@ import { specialByKey, type SpecialKey } from "@/lib/shop/specials";
 import { BUSINESS } from "@/lib/business";
 import { getShopSettings } from "@/lib/shop/settings";
 import SiteNav from "@/components/SiteNav";
+import SiteFooter from "@/components/SiteFooter";
 import PromoBanners from "@/components/shop/PromoBanners";
 import CategoryRail from "@/components/shop/CategoryRail";
 import CategorySidebar from "@/components/shop/CategorySidebar";
@@ -330,6 +331,7 @@ export default async function UrunlerPage({
           </div>
         </div>
       </main>
+      <SiteFooter />
     </>
   );
 }

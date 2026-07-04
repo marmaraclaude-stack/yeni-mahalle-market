@@ -59,18 +59,27 @@ const FAQ = [
 ] as const;
 
 export default function Faq() {
+  // İki bağımsız kolon: geniş ekranda tam genişliği doldurur, accordion
+  // açılınca yalnız kendi kolonunu uzatır (yan kolonu zıplatmaz).
+  const mid = Math.ceil(FAQ.length / 2);
+  const columns = [FAQ.slice(0, mid), FAQ.slice(mid)];
+
   return (
     <div className={styles.faqList}>
-      {FAQ.map((item) => (
-        <details key={item.q} className={styles.faqItem}>
-          <summary className={styles.faqQ}>
-            <span className={styles.faqQText}>{item.q}</span>
-            <span className={styles.faqMark} aria-hidden="true" />
-          </summary>
-          <div className={styles.faqA}>
-            <p>{item.a}</p>
-          </div>
-        </details>
+      {columns.map((column, i) => (
+        <div key={i} className={styles.faqCol}>
+          {column.map((item) => (
+            <details key={item.q} className={styles.faqItem}>
+              <summary className={styles.faqQ}>
+                <span className={styles.faqQText}>{item.q}</span>
+                <span className={styles.faqMark} aria-hidden="true" />
+              </summary>
+              <div className={styles.faqA}>
+                <p>{item.a}</p>
+              </div>
+            </details>
+          ))}
+        </div>
       ))}
     </div>
   );

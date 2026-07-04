@@ -25,6 +25,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { formatTL } from "@/lib/shop/types";
 import type { Coupon, Product } from "@/lib/shop/types";
 import SiteNav from "@/components/SiteNav";
+import SiteFooter from "@/components/SiteFooter";
 import PromoBanners from "@/components/shop/PromoBanners";
 import ProductCard from "@/components/shop/ProductCard";
 import CopyCodeButton from "./CopyCodeButton";
@@ -348,6 +349,7 @@ export default async function FirsatlarPage() {
           )}
         </div>
       </main>
+      <SiteFooter />
     </>
   );
 }

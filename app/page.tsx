@@ -4,6 +4,7 @@ import StatusIndicator from "@/components/StatusIndicator";
 import ChatPreview from "@/components/ChatPreview";
 import LiveSupportCta from "@/components/LiveSupportCta";
 import SiteNav from "@/components/SiteNav";
+import SiteFooter from "@/components/SiteFooter";
 import PromoBanners from "@/components/shop/PromoBanners";
 import Carousel from "@/components/Carousel";
 import CategoryGrid from "@/components/CategoryGrid";
@@ -12,15 +13,6 @@ import { Check, ShoppingBasket, Package, Bike } from "lucide-react";
 /* ============================================================
    ICONS
    ============================================================ */
-function InstagramIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-      <rect x="3" y="3" width="18" height="18" rx="5" />
-      <circle cx="12" cy="12" r="4" />
-      <circle cx="17.5" cy="6.5" r="1" fill="currentColor" />
-    </svg>
-  );
-}
 function MapPinIcon() {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
@@ -368,86 +360,7 @@ export default function Home() {
       </main>
 
       {/* ===== FOOTER ===== */}
-      <footer className="footer" id="iletisim">
-        <div className="container">
-          <div className="footer__grid">
-            <div className="footer__brand-block">
-              <a href="#top" className="brand brand--footer" aria-label={BUSINESS.name}>
-                <img
-                  src="/logo.png"
-                  alt=""
-                  width={42}
-                  height={42}
-                  className="brand__logo"
-                />
-                <span className="brand__name">
-                  <span className="brand__sans">Yeni Mahalle</span>
-                  <span className="brand__serif">Market</span>
-                </span>
-              </a>
-              <p className="footer__desc">{BUSINESS.shortDescription}</p>
-              <div className="footer__socials">
-                <a
-                  href={BUSINESS.instagram.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={`Instagram ${BUSINESS.instagram.handle}`}
-                >
-                  <InstagramIcon />
-                </a>
-                <a href={BUSINESS.phone.href} aria-label="Telefon">
-                  <PhoneIcon />
-                </a>
-                <a
-                  href={BUSINESS.googleMapsDirectionsUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="Yol tarifi"
-                >
-                  <MapPinIcon />
-                </a>
-              </div>
-            </div>
-            <div className="footer__col">
-              <h4>Site</h4>
-              <ul>
-                <li><a href="/urunler">Ürünler</a></li>
-                <li><a href="/firsatlar">Fırsatlar</a></li>
-                <li><a href="/iletisim">İletişim</a></li>
-                <li><a href="#hizmetler">Hizmetler</a></li>
-                <li><a href="#yorumlar">Yorumlar</a></li>
-              </ul>
-            </div>
-            <div className="footer__col">
-              <h4>İletişim</h4>
-              <ul>
-                <li><p>{BUSINESS.address.full}</p></li>
-                <li><a href={BUSINESS.phone.href}>{BUSINESS.phone.display}</a></li>
-                <li>
-                  <a
-                    href={BUSINESS.instagram.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    {BUSINESS.instagram.handle}
-                  </a>
-                </li>
-              </ul>
-            </div>
-            <div className="footer__col">
-              <h4>Saatler</h4>
-              <ul>
-                <li><p>Pzt–Paz · 07:30–00:00</p></li>
-                <li><p>Bayram dahil her gün açık</p></li>
-              </ul>
-            </div>
-          </div>
-          <div className="footer__bottom">
-            <span>© {new Date().getFullYear()} {BUSINESS.name}</span>
-            <span>Sapanca · Sakarya · TR-54</span>
-          </div>
-        </div>
-      </footer>
+      <SiteFooter />
     </>
   );
 }

@@ -11,15 +11,25 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { cache } from "react";
-import { Leaf } from "lucide-react";
+import { Leaf, ShieldCheck, Sparkles, Truck, Wallet } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import type { Product } from "@/lib/shop/types";
 import { formatTL } from "@/lib/shop/types";
 import { CATEGORY_TINTS, categoryBySlug } from "@/lib/shop/categories";
 import ProductCard, { iconFor } from "@/components/shop/ProductCard";
 import SiteNav from "@/components/SiteNav";
+import SiteFooter from "@/components/SiteFooter";
 import DetailActions from "./DetailActions";
 import styles from "./urun.module.css";
+
+// Sağ kolon güven/teslimat rozetleri — kalıcı, kompakt grid (boşluğu doldurur,
+// sade durur). Sapanca içi teslimat + ödeme seçenekleri + güven vurgusu.
+const TRUST_BADGES = [
+  { icon: Truck, title: "Hızlı teslimat", sub: "Sapanca içinde adrese" },
+  { icon: Wallet, title: "Kapıda ödeme", sub: "Nakit veya kart" },
+  { icon: ShieldCheck, title: "Güvenli ödeme", sub: "Online kart ile" },
+  { icon: Sparkles, title: "Özenli seçim", sub: "Tazesi tek tek" },
+] as const;
 
 type Params = Promise<{ slug: string }>;
 
@@ -336,6 +346,20 @@ export default async function UrunDetayPage({ params }: { params: Params }) {
               </p>
 
               <DetailActions product={product} />
+
+              <ul className={styles.trust}>
+                {TRUST_BADGES.map((badge) => (
+                  <li key={badge.title} className={styles.trustItem}>
+                    <span className={styles.trustIcon} aria-hidden="true">
+                      <badge.icon size={18} strokeWidth={2} />
+                    </span>
+                    <span className={styles.trustText}>
+                      <span className={styles.trustTitle}>{badge.title}</span>
+                      <span className={styles.trustSub}>{badge.sub}</span>
+                    </span>
+                  </li>
+                ))}
+              </ul>
             </div>
           </section>
 
@@ -383,6 +407,8 @@ export default async function UrunDetayPage({ params }: { params: Params }) {
           )}
         </div>
       </main>
+
+      <SiteFooter />
     </>
   );
 }

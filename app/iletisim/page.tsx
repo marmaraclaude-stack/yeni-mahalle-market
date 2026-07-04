@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { BUSINESS } from "@/lib/business";
 import SiteNav from "@/components/SiteNav";
+import SiteFooter from "@/components/SiteFooter";
 import StatusIndicator from "@/components/StatusIndicator";
 import Faq from "./Faq";
 import styles from "./iletisim.module.css";
@@ -51,25 +52,71 @@ export default function IletisimPage() {
         <div className="container">
           {/* --- Hero --- */}
           <header className={styles.hero}>
-            <span className={styles.eyebrow}>İletişim</span>
-            <h1 className={styles.title}>
-              Sepete ekle, <span className={styles.titleAccent}>kapına gelsin.</span>
-            </h1>
-            <p className={styles.sub}>
-              Sapanca Yeni Mahalle&apos;nin marketi buradan bir tık uzağında.
-              Sipariş, öneri ya da merak ettiğin bir şey için haftanın 7 günü
-              yanındayız.
-            </p>
-            <div className={styles.heroActions}>
-              <a href={BUSINESS.phone.href} className="btn btn--accent btn--lg">
-                <Phone size={16} strokeWidth={2} aria-hidden="true" />
-                Hemen Ara
-              </a>
-              <Link href="/urunler" className="btn btn--ghost btn--lg">
-                <ShoppingBasket size={16} strokeWidth={2} aria-hidden="true" />
-                Alışverişe Başla
-              </Link>
+            <div className={styles.heroMain}>
+              <span className={styles.eyebrow}>İletişim</span>
+              <h1 className={styles.title}>
+                Sepetine ekle,{" "}
+                <span className={styles.titleAccent}>kapına gelsin.</span>
+              </h1>
+              <p className={styles.sub}>
+                Sapanca Yeni Mahalle&apos;nin marketi bir tık uzağında. Sipariş,
+                öneri ya da soruların için haftanın 7 günü buradayız.
+              </p>
+              <div className={styles.heroActions}>
+                <a href={BUSINESS.phone.href} className="btn btn--accent btn--lg">
+                  <Phone size={16} strokeWidth={2} aria-hidden="true" />
+                  Hemen Ara
+                </a>
+                <Link href="/urunler" className="btn btn--ghost btn--lg">
+                  <ShoppingBasket size={16} strokeWidth={2} aria-hidden="true" />
+                  Alışverişe Başla
+                </Link>
+              </div>
             </div>
+
+            <aside className={styles.heroPanel} aria-label="Hızlı iletişim">
+              <StatusIndicator />
+              <div className={styles.heroPanelRows}>
+                <a href={BUSINESS.phone.href} className={styles.heroPanelRow}>
+                  <span className={styles.heroPanelIcon} aria-hidden="true">
+                    <Phone size={18} strokeWidth={1.9} />
+                  </span>
+                  <span className={styles.heroPanelText}>
+                    <span className={styles.heroPanelLabel}>Telefon</span>
+                    <span className={styles.heroPanelValue}>
+                      {BUSINESS.phone.display}
+                    </span>
+                  </span>
+                </a>
+                <div className={styles.heroPanelRow}>
+                  <span className={styles.heroPanelIcon} aria-hidden="true">
+                    <Clock size={18} strokeWidth={1.9} />
+                  </span>
+                  <span className={styles.heroPanelText}>
+                    <span className={styles.heroPanelLabel}>Çalışma Saatleri</span>
+                    <span className={styles.heroPanelValue}>
+                      {BUSINESS.hours.display}
+                    </span>
+                  </span>
+                </div>
+                <a
+                  href={BUSINESS.googleMapsDirectionsUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={styles.heroPanelRow}
+                >
+                  <span className={styles.heroPanelIcon} aria-hidden="true">
+                    <MapPin size={18} strokeWidth={1.9} />
+                  </span>
+                  <span className={styles.heroPanelText}>
+                    <span className={styles.heroPanelLabel}>Adres</span>
+                    <span className={styles.heroPanelValue}>
+                      Yeni Mah., Kurtuluş Caddesi · Sapanca
+                    </span>
+                  </span>
+                </a>
+              </div>
+            </aside>
           </header>
 
           {/* --- İletişim kanalları kart grid'i --- */}
@@ -213,6 +260,7 @@ export default function IletisimPage() {
           </section>
         </div>
       </main>
+      <SiteFooter />
     </>
   );
 }

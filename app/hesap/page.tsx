@@ -17,6 +17,7 @@ import {
   type PaymentMethod,
 } from "@/lib/shop/types";
 import SiteNav from "@/components/SiteNav";
+import SiteFooter from "@/components/SiteFooter";
 import LogoutButton from "./LogoutButton";
 import ProfileEditor from "./ProfileEditor";
 import AddressManager from "./AddressManager";
@@ -178,6 +179,7 @@ export default async function HesapPage() {
         </div>
         </div>
       </main>
+      <SiteFooter />
     </>
   );
 }
