@@ -11,7 +11,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { cache } from "react";
-import { Leaf, ShieldCheck, Sparkles, Truck, Wallet } from "lucide-react";
+import { LayoutGrid, Leaf, ShieldCheck, Sparkles, Truck, Wallet } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import type { Product } from "@/lib/shop/types";
 import { formatTL } from "@/lib/shop/types";
@@ -252,6 +252,22 @@ export default async function UrunDetayPage({ params }: { params: Params }) {
 
       <main className={styles.page}>
         <div className="container">
+          {/* Üst gezinme: kataloğa dönüş + kategori kırıntısı */}
+          <nav className={styles.crumbs} aria-label="Sayfa yolu">
+            <Link href="/urunler" className={styles.crumbAll}>
+              <LayoutGrid size={16} strokeWidth={2} aria-hidden="true" />
+              Tüm Ürünler
+            </Link>
+            {cat && (
+              <>
+                <span className={styles.crumbSep} aria-hidden="true">/</span>
+                <Link href={`/urunler?k=${cat.slug}`} className={styles.crumbLink}>
+                  {cat.name}
+                </Link>
+              </>
+            )}
+          </nav>
+
           {/* Beyaz kart: solda görsel, sağda bilgi + aksiyonlar */}
           <section className={styles.heroCard}>
             <div

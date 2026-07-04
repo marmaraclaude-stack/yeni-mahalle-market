@@ -10,7 +10,7 @@ const STORAGE_KEY = "ymm-chat-session";
 
 // Çalışma saatleri: components/StatusIndicator.tsx ile aynı kural.
 const OPEN_MIN = 7 * 60 + 30; // 07:30
-const CLOSE_MIN = 24 * 60; // 00:00 (gün sonu)
+const CLOSE_MIN = 2 * 60; // 02:00 (ertesi gün — gece yarısını aşar)
 
 /** Istanbul saatine göre dakika cinsinden şu an. */
 function istanbulMinutes(): number {
@@ -27,7 +27,8 @@ function istanbulMinutes(): number {
 
 function isBusinessOpen(): boolean {
   const now = istanbulMinutes();
-  return now >= OPEN_MIN && now < CLOSE_MIN;
+  // Gece yarısını aşan mesai: 07:30 sonrası ya da 02:00 öncesi açık.
+  return now >= OPEN_MIN || now < CLOSE_MIN;
 }
 
 interface StoredSession {

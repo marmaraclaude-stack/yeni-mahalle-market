@@ -11,6 +11,47 @@
   background: var(--gray-50);
 }
 
+/* --- Üst gezinme (kataloğa dönüş + kategori) --- */
+.crumbs {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: clamp(16px, 2vw, 22px);
+  font-size: var(--fs-small);
+}
+.crumbAll {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 15px;
+  border-radius: var(--r-pill);
+  border: 1px solid var(--gray-200);
+  background: var(--white);
+  color: var(--gray-700);
+  font-weight: 600;
+  transition: border-color 160ms var(--ease), color 160ms var(--ease),
+    background 160ms var(--ease);
+}
+.crumbAll:hover {
+  border-color: var(--accent);
+  color: var(--accent-deep);
+  background: var(--accent-soft);
+}
+.crumbAll svg {
+  flex-shrink: 0;
+}
+.crumbSep {
+  color: var(--gray-300);
+}
+.crumbLink {
+  color: var(--gray-500);
+  font-weight: 500;
+}
+.crumbLink:hover {
+  color: var(--accent-deep);
+}
+
 /* --- Ana kart: solda görsel, sağda bilgi --- */
 .heroCard {
   display: grid;

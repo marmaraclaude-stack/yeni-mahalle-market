@@ -117,7 +117,7 @@ export default function Home() {
               </div>
               <div className="stat-card">
                 <span className="stat-card__icon" aria-hidden="true"><ClockIcon /></span>
-                <div className="stat-card__num">07:30 – 00:00</div>
+                <div className="stat-card__num">07:30 - 02:00</div>
                 <div className="stat-card__label">Her gün açığız</div>
               </div>
               <div className="stat-card">

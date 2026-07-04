@@ -1,6 +1,6 @@
 // SSS accordion: erişilebilir <details>/<summary> (JS gerektirmez).
 // Açık/kapalı durum chevron değil, CSS ile çizilen +/- işaretiyle gösterilir.
-// İçerik BUSINESS kurallarıyla (Sapanca, 07:30 - 00:00, kapıda nakit/kart +
+// İçerik BUSINESS kurallarıyla (Sapanca, 07:30 - 02:00, kapıda nakit/kart +
 // online kart) tutarlı tutulur. Teslimat ücreti/eşiği mağaza ayarlarından
 // (shop_settings) yönetilir; SSS'te sabit tutar VERİLMEZ, sepette gösterilir.
 
@@ -30,7 +30,7 @@ const FAQ = [
   },
   {
     q: "Çalışma saatleriniz nedir?",
-    a: "Haftanın 7 günü, 07:30 ile 00:00 arasında açığız. Bayramlar dahil her gün hizmet veriyoruz. Sayfanın üstündeki canlı durum göstergesinden şu an açık olup olmadığımızı görebilirsin.",
+    a: "Haftanın 7 günü, 07:30 ile 02:00 arasında açığız. Bayramlar dahil her gün hizmet veriyoruz. Sayfanın üstündeki canlı durum göstergesinden şu an açık olup olmadığımızı görebilirsin.",
   },
   {
     q: "Siparişimi nasıl takip ederim?",

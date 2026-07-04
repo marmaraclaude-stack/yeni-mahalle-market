@@ -103,7 +103,7 @@ export default function SiteFooter() {
           <div className="footer__col">
             <h4>Saatler</h4>
             <ul>
-              <li><p>Pzt - Paz · 07:30 - 00:00</p></li>
+              <li><p>Pzt - Paz · 07:30 - 02:00</p></li>
               <li><p>Bayram dahil her gün açık</p></li>
             </ul>
           </div>

@@ -16,7 +16,6 @@ import {
   ClipboardCheck,
   Clock,
   Copy,
-  Info,
   Sparkles,
   TicketPercent,
 } from "lucide-react";
@@ -337,16 +336,6 @@ export default async function FirsatlarPage() {
             </section>
           )}
 
-          {/* --- İnce bilgi şeridi (kupon varken anlamlı) --- */}
-          {coupons.length > 0 && (
-            <aside className={styles.infoStrip}>
-              <Info size={15} strokeWidth={2} aria-hidden="true" />
-              <p>
-                Kuponlar ödeme adımındaki kupon alanına yapıştırılır · Her
-                kupon hesap başına 1 kez kullanılabilir
-              </p>
-            </aside>
-          )}
         </div>
       </main>
       <SiteFooter />

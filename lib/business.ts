@@ -29,9 +29,9 @@ export const BUSINESS = {
     handle: "@yenimahallemarket",
   },
   hours: {
-    display: "Haftanın 7 günü · 07:30 – 00:00",
+    display: "Haftanın 7 günü · 07:30 - 02:00",
     opens: "07:30",
-    closes: "00:00",
+    closes: "02:00",
     daysDisplay: "Pazartesi · Pazar",
   },
   geo: { lat: 40.6914, lng: 30.2641 },
@@ -131,7 +131,7 @@ export function buildLocalBusinessJsonLd() {
       longitude: BUSINESS.geo.lng,
     },
     hasMap: BUSINESS.googleMapsCidUrl,
-    openingHours: "Mo-Su 07:30-24:00",
+    openingHours: "Mo-Su 07:30-02:00",
     openingHoursSpecification: [
       {
         "@type": "OpeningHoursSpecification",
@@ -145,10 +145,10 @@ export function buildLocalBusinessJsonLd() {
           "Sunday",
         ],
         opens: BUSINESS.hours.opens,
-        // Gece yarısına kadar açık: Google, closes "00:00"'ı "gün başı" (07:30'dan
-        // önce kapanış) diye yanlış okuyabiliyor. Önerilen gösterim "23:59".
-        // İnsan tarafındaki metin ("07:30 – 00:00") ayrı, etkilenmiyor.
-        closes: "23:59",
+        // Gece yarısını aşan çalışma: kapanış (02:00) açılıştan (07:30) küçük
+        // olduğu için schema.org bunu "ertesi gün 02:00'da kapanır" diye okur.
+        // İnsan tarafındaki metin ("07:30 - 02:00") ile tutarlı.
+        closes: BUSINESS.hours.closes,
       },
     ],
     areaServed: SERVICE_AREAS.map((name) => ({ "@type": "Place", name })),

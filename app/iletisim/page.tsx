@@ -53,7 +53,6 @@ export default function IletisimPage() {
           {/* --- Hero --- */}
           <header className={styles.hero}>
             <div className={styles.heroMain}>
-              <span className={styles.eyebrow}>İletişim</span>
               <h1 className={styles.title}>
                 Sepetine ekle,{" "}
                 <span className={styles.titleAccent}>kapına gelsin.</span>
