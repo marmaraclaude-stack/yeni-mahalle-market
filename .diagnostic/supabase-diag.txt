@@ -1,0 +1,6 @@
+supabase/migrations/20260703b00000_products_1000.sql -> HTTP 201 
+3 kupon ekle -> HTTP 201 
+20 indirimli -> HTTP 201 
+15 cok satan -> HTTP 201 
+ozet -> HTTP 201 
+[{"urun":1019,"kupon":4,"indirimli":54,"cok_satan":15}]
