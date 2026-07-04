@@ -1,0 +1,4 @@
+supabase/migrations/20260703800000_order_courier.sql -> HTTP 201 
+supabase/migrations/20260703600000_banners_v2.sql -> HTTP 201 
+supabase/migrations/20260703700000_products_500.sql -> HTTP 201 
+[{"urun":516,"banner":10,"kurye_kolon":2}]
