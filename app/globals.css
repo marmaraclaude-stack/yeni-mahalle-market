@@ -555,59 +555,36 @@ p { margin: 0; }
   margin-top: 8px;
 }
 
-/* Stats — tek parça metrik şeridi (Stripe/Linear tarzı).
-   Kutu kutu kart yerine: tek çerçeve, hücreler arası 1px hairline
-   (gri zemin + 1px gap hilesi: her kırılımda çizgiler doğru kalır).
-   Renk vurgusu YOK: değerler tamamen siyah, ikon/etiket sessiz gri. */
+/* Stats — kutusuz saf tipografi (Apple/Stripe rakam satırı).
+   Çerçeve, zemin, ikon, renk vurgusu YOK: yalnız büyük siyah değer
+   ve altında sessiz gri etiket; sütunları beyaz alan ayırır. */
 .hero__stats {
   /* Ust bosluk: hero gorseli -> stat kartlari. Alt bosluga esitlendi. */
   margin-top: var(--hero-stats-gap);
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 1px;
-  background: var(--gray-200);
-  border: 1px solid var(--gray-200);
-  border-radius: var(--r-lg);
-  overflow: hidden;
-  box-shadow: 0 1px 2px rgba(16,16,16,0.04);
+  gap: clamp(24px, 3.4vw, 56px);
 }
 .stat-card {
-  background: var(--white);
-  padding: clamp(20px, 2vw, 26px) clamp(20px, 2.2vw, 28px);
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 7px;
   min-width: 0;
-  transition: background 200ms var(--ease);
 }
-.stat-card:hover { background: var(--gray-50); }
-/* Üst satır: küçük gri ikon + sessiz etiket */
-.stat-card__top {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--gray-500);
-  line-height: 1.35;
-}
-.stat-card__top svg {
-  width: 17px; height: 17px;
-  flex-shrink: 0;
-  color: var(--gray-400);
-  transition: color 200ms var(--ease);
-}
-.stat-card:hover .stat-card__top svg { color: var(--ink); }
-/* Değer: büyük, tamamen siyah; renkli vurgu yok */
 .stat-card__num {
   font-family: var(--font-display);
-  font-size: clamp(21px, 1.9vw, 26px);
+  font-size: clamp(26px, 2.6vw, 38px);
   font-weight: 700;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.035em;
   line-height: 1;
   color: var(--ink);
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
+}
+.stat-card__label {
+  font-size: var(--fs-small);
+  color: var(--gray-500);
+  line-height: 1.45;
 }
 @media (max-width: 880px) {
   .hero__stats { grid-template-columns: repeat(2, 1fr); }

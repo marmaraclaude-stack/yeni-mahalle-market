@@ -30,15 +30,6 @@ function ClockIcon() {
     </svg>
   );
 }
-function CalendarIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true">
-      <rect x="3" y="5" width="18" height="16" rx="2.5" />
-      <path d="M3 10h18M8 3v4M16 3v4" strokeLinecap="round" />
-      <circle cx="12" cy="15.5" r="1.4" fill="currentColor" stroke="none" />
-    </svg>
-  );
-}
 function CardIcon() {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true">
@@ -91,36 +82,24 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Stats — tek parça metrik şeridi: ince çizgilerle bölünmüş
-                4 hücre; üstte ikonlu sessiz etiket, altta büyük siyah değer */}
+            {/* Stats — kutusuz, ikonsuz, saf tipografik satır:
+                büyük siyah değer + altında sessiz etiket, bol beyaz alan */}
             <div className="hero__stats" aria-label="Öne çıkan rakamlar">
               <div className="stat-card">
-                <div className="stat-card__top">
-                  <ScooterIcon />
-                  Ortalama teslim süresi
-                </div>
                 <div className="stat-card__num">30 dk</div>
+                <div className="stat-card__label">Ortalama teslim süresi</div>
               </div>
               <div className="stat-card">
-                <div className="stat-card__top">
-                  <ClockIcon />
-                  Her gün açığız
-                </div>
                 <div className="stat-card__num">07:30 - 02:00</div>
+                <div className="stat-card__label">Her gün açığız</div>
               </div>
               <div className="stat-card">
-                <div className="stat-card__top">
-                  <CalendarIcon />
-                  Bayram dahil, kapanmadan
-                </div>
                 <div className="stat-card__num">7 gün</div>
+                <div className="stat-card__label">Bayram dahil, kapanmadan</div>
               </div>
               <div className="stat-card">
-                <div className="stat-card__top">
-                  <CardIcon />
-                  Nakit &amp; kart ile ödeme
-                </div>
                 <div className="stat-card__num">Kapıda</div>
+                <div className="stat-card__label">Nakit &amp; kart ile ödeme</div>
               </div>
             </div>
           </div>
