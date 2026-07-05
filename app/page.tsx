@@ -91,39 +91,36 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Stats — yatay kartlar: solda ikon plakası, sağda değer + etiket */}
+            {/* Stats — tek parça metrik şeridi: ince çizgilerle bölünmüş
+                4 hücre; üstte ikonlu sessiz etiket, altta büyük siyah değer */}
             <div className="hero__stats" aria-label="Öne çıkan rakamlar">
               <div className="stat-card">
-                <span className="stat-card__icon" aria-hidden="true"><ScooterIcon /></span>
-                <div className="stat-card__body">
-                  <div className="stat-card__num">
-                    <em>30</em> dk
-                  </div>
-                  <div className="stat-card__label">Ortalama teslim süresi</div>
+                <div className="stat-card__top">
+                  <ScooterIcon />
+                  Ortalama teslim süresi
                 </div>
+                <div className="stat-card__num">30 dk</div>
               </div>
               <div className="stat-card">
-                <span className="stat-card__icon" aria-hidden="true"><ClockIcon /></span>
-                <div className="stat-card__body">
-                  <div className="stat-card__num">07:30 - 02:00</div>
-                  <div className="stat-card__label">Her gün açığız</div>
+                <div className="stat-card__top">
+                  <ClockIcon />
+                  Her gün açığız
                 </div>
+                <div className="stat-card__num">07:30 - 02:00</div>
               </div>
               <div className="stat-card">
-                <span className="stat-card__icon" aria-hidden="true"><CalendarIcon /></span>
-                <div className="stat-card__body">
-                  <div className="stat-card__num">
-                    <em>7</em> gün
-                  </div>
-                  <div className="stat-card__label">Bayram dahil, kapanmadan</div>
+                <div className="stat-card__top">
+                  <CalendarIcon />
+                  Bayram dahil, kapanmadan
                 </div>
+                <div className="stat-card__num">7 gün</div>
               </div>
               <div className="stat-card">
-                <span className="stat-card__icon" aria-hidden="true"><CardIcon /></span>
-                <div className="stat-card__body">
-                  <div className="stat-card__num">Kapıda</div>
-                  <div className="stat-card__label">Nakit &amp; kart ile ödeme</div>
+                <div className="stat-card__top">
+                  <CardIcon />
+                  Nakit &amp; kart ile ödeme
                 </div>
+                <div className="stat-card__num">Kapıda</div>
               </div>
             </div>
           </div>

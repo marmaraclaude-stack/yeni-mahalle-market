@@ -555,75 +555,59 @@ p { margin: 0; }
   margin-top: 8px;
 }
 
-/* Stats — ikonlu kartlar (shadcn FeatureCard'dan uyarlandı) */
+/* Stats — tek parça metrik şeridi (Stripe/Linear tarzı).
+   Kutu kutu kart yerine: tek çerçeve, hücreler arası 1px hairline
+   (gri zemin + 1px gap hilesi: her kırılımda çizgiler doğru kalır).
+   Renk vurgusu YOK: değerler tamamen siyah, ikon/etiket sessiz gri. */
 .hero__stats {
   /* Ust bosluk: hero gorseli -> stat kartlari. Alt bosluga esitlendi. */
   margin-top: var(--hero-stats-gap);
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 12px;
-}
-/* Yatay kart: solda accent ikon plakası, sağda değer + etiket.
-   Ortalanmış eski düzenden daha kompakt ve okunaklı. */
-.stat-card {
-  background: var(--white);
+  gap: 1px;
+  background: var(--gray-200);
   border: 1px solid var(--gray-200);
   border-radius: var(--r-lg);
-  padding: 18px 20px;
-  display: flex;
-  align-items: center;
-  text-align: left;
-  gap: 14px;
-  transition: transform 240ms var(--ease), box-shadow 240ms var(--ease),
-    border-color 240ms var(--ease);
+  overflow: hidden;
+  box-shadow: 0 1px 2px rgba(16,16,16,0.04);
 }
-.stat-card:hover {
-  transform: translateY(-3px);
-  border-color: var(--gray-300);
-  box-shadow:
-    0 1px 0 rgba(255,255,255,0.9) inset,
-    0 18px 36px -24px rgba(16,16,16,0.22),
-    0 8px 16px -12px rgba(16,16,16,0.10);
-}
-.stat-card__icon {
-  width: 46px; height: 46px;
-  flex-shrink: 0;
-  display: inline-grid;
-  place-items: center;
-  border-radius: 14px;
-  background: var(--accent-soft);
-  color: var(--accent);
-  transition: background 240ms var(--ease), color 240ms var(--ease);
-}
-.stat-card:hover .stat-card__icon {
-  background: var(--accent);
-  color: var(--white);
-}
-.stat-card__icon svg { width: 22px; height: 22px; }
-.stat-card__body {
+.stat-card {
+  background: var(--white);
+  padding: clamp(20px, 2vw, 26px) clamp(20px, 2.2vw, 28px);
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 10px;
   min-width: 0;
+  transition: background 200ms var(--ease);
 }
+.stat-card:hover { background: var(--gray-50); }
+/* Üst satır: küçük gri ikon + sessiz etiket */
+.stat-card__top {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--gray-500);
+  line-height: 1.35;
+}
+.stat-card__top svg {
+  width: 17px; height: 17px;
+  flex-shrink: 0;
+  color: var(--gray-400);
+  transition: color 200ms var(--ease);
+}
+.stat-card:hover .stat-card__top svg { color: var(--ink); }
+/* Değer: büyük, tamamen siyah; renkli vurgu yok */
 .stat-card__num {
   font-family: var(--font-display);
-  font-size: clamp(19px, 1.7vw, 23px);
+  font-size: clamp(21px, 1.9vw, 26px);
   font-weight: 700;
-  letter-spacing: -0.025em;
+  letter-spacing: -0.03em;
   line-height: 1;
   color: var(--ink);
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
-}
-.stat-card__num em {
-  font-style: normal;
-  color: var(--accent);
-}
-.stat-card__label {
-  font-size: 13.5px;
-  color: var(--gray-500);
-  line-height: 1.4;
 }
 @media (max-width: 880px) {
   .hero__stats { grid-template-columns: repeat(2, 1fr); }
