@@ -388,7 +388,7 @@
   background: var(--accent);
   color: var(--white);
   font-family: var(--font-sans);
-  font-size: 15px;
+  font-size: var(--fs-body);
   font-weight: 700;
   font-variant-numeric: tabular-nums;
 }

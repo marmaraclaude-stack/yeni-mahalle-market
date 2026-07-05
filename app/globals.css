@@ -55,14 +55,20 @@
      TYPE SCALE — TEK STANDART. Tüm metin elementleri bu token'ları
      kullanır; clamp() ile mobil → masaüstü arasında akıcı geçiş.
      ============================================================ */
+  /* ============================================================
+     Araştırmaya dayalı ölçek (2025 responsive tipografi rehberleri):
+     gövde 16px (WCAG okunabilirlik tabanı, satır 1.5+), display/h1
+     mobil 34 -> masaüstü 64, h2 26 -> 40, h3 20 -> 28, h4 17 -> 20,
+     yardımcı 14, mikro 12.5. clamp() ile akıcı geçiş.
+     ============================================================ */
   /* Display — sayfa kahramanı (hero h1, CTA h2) */
-  --fs-display: clamp(40px, 6vw, 72px);
+  --fs-display: clamp(34px, 6vw, 64px);
   /* H1 — yalnız hero kullanır (display alias) */
   --fs-h1: var(--fs-display);
   /* H2 — bölüm başlıkları (Hizmetler, Ürünler, Yorumlar...) */
-  --fs-h2: clamp(28px, 3.6vw, 44px);
+  --fs-h2: clamp(26px, 3.4vw, 40px);
   /* H3 — feature row başlıkları, kart başlıkları */
-  --fs-h3: clamp(22px, 2.4vw, 32px);
+  --fs-h3: clamp(20px, 2.2vw, 28px);
   /* H4 — alt başlıklar (footer kolon başlıkları, küçük kart) */
   --fs-h4: clamp(17px, 1.4vw, 20px);
   /* H5 — etiket / mikro başlık */
@@ -71,8 +77,8 @@
   --fs-h6: 13px;
   /* Lead — büyük alt metin (hero sub, section sub) */
   --fs-lead: clamp(16px, 1.2vw, 18px);
-  /* Body — gövde metni standardı */
-  --fs-body: 15.5px;
+  /* Body — gövde metni standardı (mobil dahil 16px tabanı) */
+  --fs-body: 16px;
   /* Small — yardımcı metin, kart açıklamaları */
   --fs-small: 14px;
   /* Micro — meta, tarih, badge */
@@ -115,7 +121,7 @@ body {
   color: var(--ink);
   font-family: var(--font-sans);
   font-size: var(--t-body);
-  line-height: 1.5;
+  line-height: 1.55;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
@@ -435,7 +441,7 @@ p { margin: 0; }
   padding: 11px 12px;
   border-radius: var(--r-md);
   font-family: var(--font-sans);
-  font-size: 16.5px;
+  font-size: var(--fs-body);
   font-weight: 600;
   letter-spacing: -0.01em;
   color: var(--ink);
@@ -475,7 +481,7 @@ p { margin: 0; }
   align-items: center;
   gap: 10px;
   padding: 6px 10px;
-  font-size: 14px;
+  font-size: var(--fs-small);
   font-weight: 500;
   color: var(--gray-700);
 }
@@ -673,7 +679,7 @@ p { margin: 0; }
   white-space: nowrap;
 }
 .stat-card__label {
-  font-size: 13.5px;
+  font-size: var(--fs-small);
   font-weight: 500;
   color: var(--gray-500);
   line-height: 1.4;
@@ -694,14 +700,12 @@ p { margin: 0; }
     gap: 5px;
   }
   .stat-card__num { font-size: clamp(16px, 4.4vw, 19px); }
-  .stat-card__label { font-size: 11.5px; line-height: 1.3; }
+  .stat-card__label { font-size: var(--fs-micro); line-height: 1.3; }
   .stat-card__glyph { width: 60px; height: 60px; top: -10px; right: -10px; }
 }
 
-/* Mobil hero cilası: başlık bir tık küçülür, CTA tam genişlik olur */
+/* Mobil hero: CTA tam genişlik (başlık boyutu artık global ölçekten) */
 @media (max-width: 640px) {
-  .hero__title { font-size: clamp(33px, 9.4vw, 40px); }
-  .hero__sub { font-size: 15.5px; }
   .hero__ctas { width: 100%; }
   .hero__ctas .btn { width: 100%; }
 }
@@ -1647,7 +1651,7 @@ p { margin: 0; }
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  font-size: 15px;
+  font-size: var(--fs-body);
   font-weight: 600;
   color: var(--ink);
 }
@@ -1673,7 +1677,7 @@ p { margin: 0; }
   justify-content: space-between;
   gap: 12px;
   padding: 9px 0;
-  font-size: 14px;
+  font-size: var(--fs-small);
   color: var(--gray-700);
   border-bottom: 1px dashed var(--gray-200);
 }
@@ -1687,7 +1691,7 @@ p { margin: 0; }
   display: flex;
   justify-content: space-between;
   gap: 12px;
-  font-size: 15px;
+  font-size: var(--fs-body);
   font-weight: 700;
   color: var(--ink);
 }
@@ -1699,7 +1703,7 @@ p { margin: 0; }
   color: var(--white);
   border-radius: var(--r-pill);
   padding: 12px 16px;
-  font-size: 14px;
+  font-size: var(--fs-small);
   font-weight: 600;
   box-shadow: 0 10px 22px -12px rgba(255, 90, 31, 0.55);
 }
@@ -1735,12 +1739,12 @@ p { margin: 0; }
   line-height: 1.3;
 }
 .cta-float__title {
-  font-size: 13.5px;
+  font-size: var(--fs-small);
   font-weight: 600;
   color: var(--ink);
 }
 .cta-float__sub {
-  font-size: 12px;
+  font-size: var(--fs-micro);
   color: var(--gray-500);
 }
 /* Mobil: butonlar tam genişlik alt alta, sepet kartı düz (dönmesiz),
@@ -1754,7 +1758,7 @@ p { margin: 0; }
   }
   .cta__actions .btn { width: 100%; }
   .cta__perks { gap: 9px 16px; }
-  .cta__foot { font-size: 13.5px; line-height: 1.5; }
+  .cta__foot { font-size: var(--fs-small); line-height: 1.5; }
   .cta-basket { transform: none; width: 100%; }
   .cta-float {
     transform: none;
