@@ -19,7 +19,7 @@
 .grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 14px;
+  gap: 20px;
   align-items: stretch;
 }
 
@@ -51,8 +51,8 @@
   position: relative;
   display: flex;
   align-items: center;
-  min-height: 104px;
-  padding: 18px 20px;
+  min-height: 128px;
+  padding: 24px 26px;
   overflow: hidden;
   background: linear-gradient(
     115deg,
@@ -73,7 +73,7 @@
   z-index: 1;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
   max-width: 68%;
   min-width: 0;
 }
@@ -143,24 +143,6 @@
   color: var(--bnr-fg);
 }
 
-/* Sira rozeti: onizlemenin sol ust kosesinde kayitli sira degeri */
-.sortChip {
-  position: absolute;
-  top: 10px;
-  left: 12px;
-  z-index: 2;
-  font-family: var(--font-mono);
-  font-size: 10.5px;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  color: var(--gray-700);
-  background: color-mix(in srgb, var(--white) 78%, transparent);
-  border: 1px solid rgba(10, 10, 10, 0.1);
-  border-radius: var(--r-pill);
-  padding: 2px 8px;
-  font-variant-numeric: tabular-nums;
-}
-
 /* Pasif etiketi: onizlemenin sag ust kosesi (solgunluga ek net isaret) */
 .offTag {
   position: absolute;
@@ -181,8 +163,8 @@
   display: flex;
   align-items: flex-end;
   flex-wrap: wrap;
-  gap: 10px 14px;
-  padding: 12px 16px 14px;
+  gap: 14px 20px;
+  padding: 16px 20px 18px;
   border-top: 1px solid rgba(10, 10, 10, 0.06);
   margin-top: auto;
 }
@@ -190,7 +172,7 @@
 .controlField {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
   min-width: 0;
 }
 

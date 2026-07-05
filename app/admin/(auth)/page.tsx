@@ -83,7 +83,7 @@ interface CommunityStats {
   members: number | null;
 }
 
-type DeltaTone = "up" | "down" | "flat";
+type DeltaTone = "up" | "down" | "flat" | "warn";
 
 interface Delta {
   tone: DeltaTone;
@@ -459,13 +459,30 @@ export default async function AdminHome() {
     month: "long",
   }).format(new Date());
 
+  // Her kartta ALT BİLGİ satırı vardır: rozet yüksekliği sabit tutulur,
+  // kartlar arasında dikey hizalama bozulmaz (bir kartta rozet var diye
+  // diğerinin etiketi kaymaz). Rozetsiz veri durumunda satır boş kalır
+  // ama yüksekliği korunur (kpiInfo min-height).
+  const pendingInfo: Delta | null =
+    stats.pendingOrders === null
+      ? null
+      : stats.pendingOrders > 0
+        ? { tone: "warn", text: "işlem bekliyor" }
+        : { tone: "flat", text: "bekleyen yok" };
+  const catalogInfo: Delta | null = catalog
+    ? {
+        tone: "flat",
+        text: `${catalog.discounted} indirimli · ${catalog.outOfStock} stok dışı`,
+      }
+    : null;
+
   const cards: {
     href: string;
     label: string;
     value: string;
     icon: typeof Receipt;
     highlight: boolean;
-    delta: Delta | null;
+    info: Delta | null;
   }[] = [
     {
       href: "/admin/siparisler",
@@ -473,7 +490,7 @@ export default async function AdminHome() {
       value: stats.todayOrders === null ? "-" : String(stats.todayOrders),
       icon: Receipt,
       highlight: false,
-      delta: countDelta(stats.todayOrders, stats.yesterdayOrders),
+      info: countDelta(stats.todayOrders, stats.yesterdayOrders),
     },
     {
       href: "/admin/siparisler",
@@ -481,7 +498,7 @@ export default async function AdminHome() {
       value: stats.pendingOrders === null ? "-" : String(stats.pendingOrders),
       icon: Clock,
       highlight: (stats.pendingOrders ?? 0) > 0,
-      delta: null,
+      info: pendingInfo,
     },
     {
       href: "/admin/siparisler",
@@ -489,7 +506,7 @@ export default async function AdminHome() {
       value: stats.todayRevenue === null ? "-" : formatTL(stats.todayRevenue),
       icon: TrendingUp,
       highlight: false,
-      delta: revenueDelta(stats.todayRevenue, stats.yesterdayRevenue),
+      info: revenueDelta(stats.todayRevenue, stats.yesterdayRevenue),
     },
     {
       href: "/admin/urunler",
@@ -497,7 +514,7 @@ export default async function AdminHome() {
       value: stats.activeProducts === null ? "-" : String(stats.activeProducts),
       icon: Package,
       highlight: false,
-      delta: null,
+      info: catalogInfo,
     },
   ];
 
@@ -517,7 +534,8 @@ export default async function AdminHome() {
       <h1 className={styles.title}>Panel</h1>
       <p className={styles.subtitle}>Mağazanın günlük özeti · {todayLabel}</p>
 
-      {/* KPI kartları: düne göre değişim rozetli */}
+      {/* KPI kartları: hepsi aynı iskelet (etiket+ikon / değer / bilgi
+          satırı) — bilgi satırı her kartta var, hizalar asla kaymaz */}
       <div className={styles.statGrid}>
         {cards.map((card) => {
           const Icon = card.icon;
@@ -525,18 +543,22 @@ export default async function AdminHome() {
             <Link
               key={card.label}
               href={card.href}
-              className={`${styles.statCard} ${card.highlight ? styles["statCard--hot"] : ""}`}
+              className={`${ds.kpi} ${card.highlight ? ds["kpi--hot"] : ""}`}
             >
-              <span className={styles.statIcon} aria-hidden>
-                <Icon size={17} strokeWidth={2} />
-              </span>
-              <span className={styles.statValue}>{card.value}</span>
-              {card.delta && (
-                <span className={`${ds.delta} ${ds[`delta--${card.delta.tone}`]}`}>
-                  {card.delta.text}
+              <span className={ds.kpiTop}>
+                <span className={ds.kpiLabel}>{card.label}</span>
+                <span className={ds.kpiIcon} aria-hidden>
+                  <Icon size={16} strokeWidth={2} />
                 </span>
-              )}
-              <span className={styles.statLabel}>{card.label}</span>
+              </span>
+              <span className={ds.kpiValue}>{card.value}</span>
+              <span className={ds.kpiInfo}>
+                {card.info && (
+                  <span className={`${ds.delta} ${ds[`delta--${card.info.tone}`]}`}>
+                    {card.info.text}
+                  </span>
+                )}
+              </span>
             </Link>
           );
         })}

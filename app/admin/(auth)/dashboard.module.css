@@ -5,13 +5,82 @@
    sagligi, topluluk kartlari ve gelir grafigi rotuslari.
    ============================================================ */
 
-/* ---- KPI degisim rozeti (dune gore) ---- */
+/* ---- KPI kartlari: sabit iskelet, hizalar kaymaz ----
+   Yapi: ust satir (etiket + ikon) / buyuk deger / bilgi satiri.
+   Bilgi satiri HER kartta render edilir (min-height sabit); rozet
+   olmasa da diger kartlarin degeri/etiketi ayni hizada kalir. */
+.kpi {
+  background: var(--white);
+  border: 1px solid rgba(10, 10, 10, 0.08);
+  border-radius: var(--r-lg);
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  text-decoration: none;
+  color: inherit;
+  box-shadow: 0 1px 2px rgba(10, 10, 10, 0.04);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease,
+    transform 0.15s ease;
+}
+
+.kpi:hover {
+  border-color: rgba(10, 10, 10, 0.16);
+  box-shadow: 0 8px 22px -12px rgba(10, 10, 10, 0.14);
+  transform: translateY(-1px);
+}
+
+.kpi--hot {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(255, 90, 31, 0.08);
+}
+
+.kpiTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.kpiLabel {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--gray-500);
+  line-height: 1.3;
+}
+
+.kpiIcon {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  background: var(--accent-soft);
+  color: var(--accent);
+  flex-shrink: 0;
+}
+
+.kpiValue {
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Bilgi satiri: rozet yoksa da yukseklik korunur */
+.kpiInfo {
+  min-height: 22px;
+  display: flex;
+  align-items: center;
+}
+
+/* ---- KPI degisim/bilgi rozeti ---- */
 .delta {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  align-self: flex-start;
-  margin-top: 4px;
   padding: 2px 9px;
   border-radius: 999px;
   font-size: 11.5px;
@@ -24,6 +93,7 @@
 .delta--up { background: #e8f7ee; color: #157347; }
 .delta--down { background: #fdeceb; color: #a32020; }
 .delta--flat { background: var(--gray-100); color: var(--gray-500); }
+.delta--warn { background: #fff4e8; color: #b45309; }
 
 /* ---- Sol ana kolon: alt alta paneller ---- */
 .colStack {

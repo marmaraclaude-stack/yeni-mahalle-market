@@ -162,7 +162,6 @@ function BannerCard({ banner }: { banner: Banner }) {
         className={css.preview}
         style={{ "--bnr-bg": bg, "--bnr-fg": fg } as CSSProperties}
       >
-        <span className={css.sortChip}>Sıra {banner.sort}</span>
         {!banner.is_active && <span className={css.offTag}>Pasif</span>}
         <div className={css.previewCopy}>
           <div className={css.previewTitle}>{banner.title}</div>

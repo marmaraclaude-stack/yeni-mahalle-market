@@ -157,6 +157,25 @@ export default function Home() {
         {/* ===== FEATURES — Apple-style split rows ===== */}
         <section className="section" aria-label="Hizmetler">
           <div className="container">
+            {/* Satır sırası: canlı destek -> harita -> sipariş akışı.
+                Üçü aynı bölümde: satırlar arası dikey boşluk eşit kalır. */}
+            <div id="hizmetler" className="features__row features__row--reverse">
+              <div className="features__copy">
+                <h2 className="features__h">
+                  Sorun mu var? Canlı destek yanında.
+                </h2>
+                <p className="features__p">
+                  Baloncuğa tıkla, anında yazışalım. Teslimat süresi, ödeme
+                  seçenekleri ya da stok durumu; aklına takılanı sor. Dilersen
+                  telefonla da ulaşabilirsin.
+                </p>
+                <LiveSupportCta />
+              </div>
+              <div className="features__visual features__visual--chat">
+                <ChatPreview />
+              </div>
+            </div>
+
             <div id="konum" className="features__row features__row--map">
               <div className="features__copy">
                 <h2 className="features__h">
@@ -199,30 +218,7 @@ export default function Home() {
               </div>
             </div>
 
-            <div id="hizmetler" className="features__row features__row--reverse">
-              <div className="features__copy">
-                <h2 className="features__h">
-                  Sorun mu var? Canlı destek yanında.
-                </h2>
-                <p className="features__p">
-                  Baloncuğa tıkla, anında yazışalım. Siparişine ürün ekletebilir,
-                  stok ve fiyat sorabilir, teslimatının durumunu öğrenebilirsin.
-                  Dilersen telefonla da ulaşabilirsin.
-                </p>
-                <LiveSupportCta />
-              </div>
-              <div className="features__visual features__visual--chat">
-                <ChatPreview />
-              </div>
-            </div>
-
-          </div>
-        </section>
-
-        {/* ===== SİPARİŞ AKIŞI — track kartı ===== */}
-        <section className="section" aria-label="Sipariş akışı">
-          <div className="container">
-            <div className="features__row">
+            <div className="features__row features__row--reverse">
               <div className="features__copy">
                 <h2 className="features__h">
                   Sipariş ver, hazırlayalım, kapına getirelim.
@@ -306,43 +302,87 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ===== KAPANIS CTA: online siparis paneli ===== */}
+        {/* ===== KAPANIS CTA: aydınlık panel + mini sepet önizlemesi ===== */}
         <section className="cta" aria-labelledby="cta-title">
           <div className="container">
             <div className="cta__panel">
-              <h2 id="cta-title" className="cta__title">
-                Siparişini ver, gerisini biz halledelim.
-              </h2>
-              <p className="cta__sub">
-                Sepetini doldur, tezgâhtan özenle toplayalım, kapına getirelim.
-                Fiyatlar sitede, ödeme ister kapıda ister online.
-              </p>
-              <div className="cta__actions">
-                <a href="/urunler" className="btn btn--accent btn--lg">
-                  Alışverişe Başla
-                </a>
-                <a href="/firsatlar" className="btn btn--lg cta__ghost">
-                  Fırsatları Gör
-                </a>
+              <div className="cta__copy">
+                <h2 id="cta-title" className="cta__title">
+                  Bugün ne lazımsa, <span className="accent">kapına gelsin.</span>
+                </h2>
+                <p className="cta__sub">
+                  2000&apos;i aşkın ürün, güncel market fiyatları. Sepetini
+                  doldur; tezgâhtan özenle toplayıp Sapanca içinde ortalama 30
+                  dakikada teslim edelim.
+                </p>
+                <div className="cta__actions">
+                  <a href="/urunler" className="btn btn--accent btn--lg">
+                    Alışverişe Başla
+                  </a>
+                  <a href="/firsatlar" className="btn btn--ghost btn--lg">
+                    Fırsatları Gör
+                  </a>
+                </div>
+                <ul className="cta__perks" aria-label="Sipariş avantajları">
+                  <li>
+                    <ScooterIcon />
+                    ~30 dk teslimat
+                  </li>
+                  <li>
+                    <ClockIcon />
+                    07:30 - 02:00 · her gün
+                  </li>
+                  <li>
+                    <CardIcon />
+                    Kapıda veya online ödeme
+                  </li>
+                </ul>
+                <p className="cta__foot">
+                  Telefonla sipariş vermek istersen:{" "}
+                  <a href={BUSINESS.phone.href}>{BUSINESS.phone.display}</a>
+                </p>
               </div>
-              <ul className="cta__chips" aria-label="Sipariş avantajları">
-                <li className="cta__chip">
-                  <ScooterIcon />
-                  ~30 dk teslimat
-                </li>
-                <li className="cta__chip">
-                  <ClockIcon />
-                  07:30 - 02:00 her gün
-                </li>
-                <li className="cta__chip">
-                  <CardIcon />
-                  Kapıda nakit, kart veya online ödeme
-                </li>
-              </ul>
-              <p className="cta__foot">
-                Telefonla sipariş vermek istersen:{" "}
-                <a href={BUSINESS.phone.href}>{BUSINESS.phone.display}</a>
-              </p>
+
+              {/* Dekoratif mini sepet: sitedeki alışveriş deneyiminin önizlemesi */}
+              <div className="cta__visual" aria-hidden="true">
+                <div className="cta-basket">
+                  <div className="cta-basket__head">
+                    <span className="cta-basket__title">
+                      <ShoppingBasket size={16} strokeWidth={2.1} />
+                      Sepetin
+                    </span>
+                    <span className="cta-basket__count">3 ürün</span>
+                  </div>
+                  <ul className="cta-basket__rows">
+                    <li>
+                      <span>Günlük Süt · 1 L</span>
+                      <span>₺32,50</span>
+                    </li>
+                    <li>
+                      <span>Köy Ekmeği · 500 g</span>
+                      <span>₺25,00</span>
+                    </li>
+                    <li>
+                      <span>Anamur Muz · 1 kg</span>
+                      <span>₺49,90</span>
+                    </li>
+                  </ul>
+                  <div className="cta-basket__total">
+                    <span>Toplam</span>
+                    <span>₺107,40</span>
+                  </div>
+                  <span className="cta-basket__btn">Siparişi Tamamla</span>
+                </div>
+                <div className="cta-float">
+                  <span className="cta-float__icon">
+                    <Bike size={15} strokeWidth={2.2} />
+                  </span>
+                  <span className="cta-float__text">
+                    <span className="cta-float__title">Kurye yola çıktı</span>
+                    <span className="cta-float__sub">Tahmini varış ~30 dk</span>
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
         </section>

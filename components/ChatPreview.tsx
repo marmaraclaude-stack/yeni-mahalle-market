@@ -9,13 +9,16 @@ import { useEffect, useRef, useState } from "react";
 
 type Msg = { from: "customer" | "store"; text: string; time: string };
 
+// Gerçek widget'ın karşılama mesajıyla açılır; devamı SSS içeriğinden
+// (teslimat süresi, ödeme, çalışma saatleri) beslenir.
 const MESSAGES: Msg[] = [
-  { from: "customer", text: "Az önce sipariş verdim, bir de Sütaş yoğurt ekleyebilir miyim?", time: "18:42" },
-  { from: "store", text: "Tabii, siparişiniz hazırlanıyor, hemen ekliyorum.", time: "18:42" },
-  { from: "customer", text: "Muzlar taze mi?", time: "18:43" },
-  { from: "store", text: "Bugün geldi, güzellerinden seçip koyuyorum.", time: "18:43" },
-  { from: "customer", text: "Süper, teşekkürler.", time: "18:44" },
-  { from: "store", text: "Rica ederiz 🙂 ~30 dk içinde kapınızdayız.", time: "18:44" },
+  { from: "store", text: "Merhaba 👋 Yeni Mahalle Market'e hoş geldiniz. Size nasıl yardımcı olabiliriz?", time: "14:02" },
+  { from: "customer", text: "Merhaba! Teslimat ne kadar sürüyor?", time: "14:02" },
+  { from: "store", text: "Sapanca içinde ortalama 30 dakikada kapınızdayız.", time: "14:03" },
+  { from: "customer", text: "Ödemeyi kapıda yapabilir miyim?", time: "14:03" },
+  { from: "store", text: "Tabii, kapıda nakit veya kart geçerli. Dilerseniz online kartla da ödeyebilirsiniz.", time: "14:04" },
+  { from: "customer", text: "Harika, teşekkürler!", time: "14:04" },
+  { from: "store", text: "Rica ederiz. Her gün 07:30 - 02:00 arası buradayız 👋", time: "14:05" },
 ];
 
 // Her mesaj ~3 sn ekranda kalır; karşı taraf yazarken typing gösterilir.
