@@ -475,40 +475,37 @@
 
 /* Güven/teslimat rozet grid'i — sağ kolonu görselle dengeler.
    2 sütun kompakt; ince ayraç çizgisiyle aksiyonlardan ayrılır. */
-/* Güven rozetleri: geniş ekranda 4'ü TEK SATIRDA (kompakt), darda 2'li,
-   çok dar mobilde tek kolon. */
+/* Güven şeridi: tek çerçeve, ince hairline bölmeli hücreler (hero stat
+   şeridiyle aynı dil). Geniş ekranda 4'ü tek satırda, darda 2x2. Turuncu
+   plaka yok: çıplak accent ikon + siyah başlık + sessiz alt metin. */
 .trust {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 14px 14px;
-  margin-top: 20px;
-  padding-top: 20px;
-  border-top: 1px solid var(--gray-100);
-}
-@media (min-width: 560px) {
-  .trust { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1px;
+  margin-top: 22px;
+  background: var(--gray-100);
+  border: 1px solid var(--gray-100);
+  border-radius: var(--r-md);
+  overflow: hidden;
 }
 .trustItem {
   display: flex;
-  align-items: center;
-  gap: 9px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 7px;
+  padding: 13px 14px;
+  background: var(--gray-50);
   min-width: 0;
 }
 .trustIcon {
-  display: grid;
-  place-items: center;
-  width: 32px;
-  height: 32px;
-  flex-shrink: 0;
-  border-radius: 10px;
-  background: var(--accent-soft);
+  display: block;
   color: var(--accent);
 }
-.trustIcon svg { width: 16px; height: 16px; }
+.trustIcon svg { width: 18px; height: 18px; }
 .trustText {
   display: flex;
   flex-direction: column;
-  gap: 1px;
+  gap: 2px;
   min-width: 0;
 }
 .trustTitle {
@@ -523,8 +520,27 @@
   color: var(--gray-500);
   line-height: 1.3;
 }
-@media (max-width: 380px) {
+@media (max-width: 700px) {
+  .trust { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 360px) {
   .trust { grid-template-columns: 1fr; }
+}
+
+/* Mobil: aksiyon satırı kompakt; Sepete Ekle dev görünmesin, adet
+   seçiciyle AYNI satırda dursun */
+@media (max-width: 640px) {
+  .buyRow { flex-wrap: nowrap; gap: 10px; }
+  .qty { height: 48px; }
+  .addBtn {
+    height: 48px;
+    min-width: 0;
+    max-width: none;
+    flex: 1 1 auto;
+    padding: 0 14px;
+    font-size: 15px;
+  }
+  .addBtnPrice { right: 12px; padding-left: 10px; }
 }
 
 /* --- "Ürün Hakkında" kartı --- */

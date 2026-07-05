@@ -8,16 +8,27 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, UserRound, X } from "lucide-react";
+import {
+  BadgePercent,
+  Clock,
+  House,
+  Menu,
+  MessageCircle,
+  Phone,
+  ShoppingBasket,
+  UserRound,
+  X,
+} from "lucide-react";
 import { BUSINESS } from "@/lib/business";
 import { createClient } from "@/lib/supabase/client";
 import styles from "./SiteNav.module.css";
 
+// icon yalnız mobil panelde kullanılır; masaüstü linkleri metin kalır.
 const LINKS = [
-  { label: "Ana Sayfa", href: "/" },
-  { label: "Ürünler", href: "/urunler" },
-  { label: "Fırsatlar", href: "/firsatlar" },
-  { label: "İletişim", href: "/iletisim" },
+  { label: "Ana Sayfa", href: "/", icon: House },
+  { label: "Ürünler", href: "/urunler", icon: ShoppingBasket },
+  { label: "Fırsatlar", href: "/firsatlar", icon: BadgePercent },
+  { label: "İletişim", href: "/iletisim", icon: MessageCircle },
 ];
 
 export default function SiteNav() {
@@ -150,18 +161,35 @@ export default function SiteNav() {
           </button>
         </div>
         <nav className="nav-panel__links" aria-label="Mobil menü">
-          {LINKS.map((l) => (
-            <Link
-              key={l.label}
-              href={l.href}
-              className="nav-panel__link"
-              aria-current={isActive(l.href) ? "page" : undefined}
-              onClick={() => setOpen(false)}
-            >
-              {l.label}
-            </Link>
-          ))}
+          {LINKS.map((l) => {
+            const Icon = l.icon;
+            return (
+              <Link
+                key={l.label}
+                href={l.href}
+                className="nav-panel__link"
+                aria-current={isActive(l.href) ? "page" : undefined}
+                onClick={() => setOpen(false)}
+              >
+                <span className="nav-panel__link-icon" aria-hidden="true">
+                  <Icon size={19} strokeWidth={2} />
+                </span>
+                {l.label}
+              </Link>
+            );
+          })}
         </nav>
+        {/* Alt bilgi: telefon + çalışma saati (menü boşluğu anlam kazanır) */}
+        <div className="nav-panel__info">
+          <a href={BUSINESS.phone.href} className="nav-panel__info-row">
+            <Phone size={15} aria-hidden="true" />
+            {BUSINESS.phone.display}
+          </a>
+          <span className="nav-panel__info-row">
+            <Clock size={15} aria-hidden="true" />
+            07:30 - 02:00 · Her gün açık
+          </span>
+        </div>
         <div className={styles.panelAuth}>
           {authed === null ? null : authed ? (
             <Link

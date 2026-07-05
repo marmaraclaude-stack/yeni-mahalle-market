@@ -108,7 +108,7 @@ export default function Home() {
               <div className="stat-card" style={{ "--glyph": "#159b57" } as React.CSSProperties}>
                 <span className="stat-card__glyph" aria-hidden="true"><CalendarIcon /></span>
                 <div className="stat-card__num">7 gün</div>
-                <div className="stat-card__label">Bayram dahil, kapanmadan</div>
+                <div className="stat-card__label">Bayramlar dahil</div>
               </div>
               <div className="stat-card" style={{ "--glyph": "#cf8910" } as React.CSSProperties}>
                 <span className="stat-card__glyph" aria-hidden="true"><CardIcon /></span>

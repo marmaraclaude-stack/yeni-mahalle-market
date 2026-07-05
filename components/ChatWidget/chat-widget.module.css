@@ -81,6 +81,11 @@
     border-radius: 0;
     border: none;
   }
+  /* iOS: 16px altı input odaklanınca sayfayı zoom'lar; engelle */
+  .composerInput { font-size: 16px; }
+  /* Home bar'ın altında kalmasın (safe area) */
+  .composer { padding-bottom: calc(12px + env(safe-area-inset-bottom)); }
+  .header { padding-top: calc(16px + env(safe-area-inset-top)); }
 }
 
 .header {

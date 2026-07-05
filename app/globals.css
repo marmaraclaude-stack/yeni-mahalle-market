@@ -421,23 +421,65 @@ p { margin: 0; }
   color: var(--ink);
 }
 .nav-panel__close:hover { background: var(--gray-50); }
+/* Mobil menü: dev display başlıklar yerine ikon plakalı sakin liste.
+   Aktif sayfa yumuşak turuncu zemin + dolgulu ikonla belli olur. */
 .nav-panel__links {
   display: flex;
   flex-direction: column;
+  gap: 6px;
 }
 .nav-panel__link {
-  display: block;
-  padding: 18px 0;
-  font-family: var(--font-display);
-  font-size: var(--fs-h2);
-  font-weight: 700;
-  letter-spacing: -0.03em;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 11px 12px;
+  border-radius: var(--r-md);
+  font-family: var(--font-sans);
+  font-size: 16.5px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
   color: var(--ink);
-  border-bottom: 1px solid var(--gray-100);
-  transition: color 160ms var(--ease), padding-left 200ms var(--ease);
+  transition: background 160ms var(--ease), color 160ms var(--ease);
 }
-.nav-panel__link:hover { color: var(--accent); padding-left: 8px; }
-.nav-panel__link[aria-current="page"] { color: var(--accent); }
+.nav-panel__link:hover { background: var(--gray-50); }
+.nav-panel__link-icon {
+  width: 42px;
+  height: 42px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  background: var(--gray-100);
+  color: var(--gray-700);
+  transition: background 160ms var(--ease), color 160ms var(--ease);
+}
+.nav-panel__link[aria-current="page"] {
+  background: var(--accent-soft);
+  color: var(--accent-deep);
+}
+.nav-panel__link[aria-current="page"] .nav-panel__link-icon {
+  background: var(--accent);
+  color: var(--white);
+}
+/* Menü altı bilgi satırları: telefon + çalışma saati */
+.nav-panel__info {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 14px 2px;
+  border-top: 1px solid var(--gray-100);
+}
+.nav-panel__info-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 10px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--gray-700);
+}
+.nav-panel__info-row svg { color: var(--gray-400); flex-shrink: 0; }
 .nav-panel__order {
   margin-top: auto;
   width: 100%;
@@ -1524,6 +1566,15 @@ p { margin: 0; }
   flex-wrap: wrap;
   gap: 12px;
   margin-top: 4px;
+}
+/* Sıcak krem zeminde hayalet buton kaybolmasın: beyaz dolgu + net kenar */
+.cta__actions .btn--ghost {
+  background: var(--white);
+  border-color: rgba(10, 10, 10, 0.14);
+}
+.cta__actions .btn--ghost:hover {
+  background: var(--white);
+  border-color: var(--ink);
 }
 /* Avantaj satırı: ikonlu kısa maddeler */
 .cta__perks {

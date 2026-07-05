@@ -120,6 +120,18 @@ export default function ChatWidget() {
     return () => window.removeEventListener("ym:open-chat", openChat);
   }, []);
 
+  // Mobil tam ekran panel açıkken arkadaki sayfa kaymasın
+  // (panel altına scroll kaçması sohbeti kullanılmaz yapıyordu).
+  useEffect(() => {
+    if (!open) return;
+    if (!window.matchMedia("(max-width: 560px)").matches) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [open]);
+
   // Init supabase client lazily
   const getSupabase = useCallback(() => {
     if (!supabaseRef.current) {
