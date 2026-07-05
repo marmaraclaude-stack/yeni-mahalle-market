@@ -91,37 +91,28 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Stats — admin paneldeki KPI kartlarıyla aynı iskelet:
-                üstte sessiz etiket + sağda yumuşak ikon plakası,
-                altta büyük siyah değer */}
+            {/* Stats — filigran ikonlu derin kartlar: sağ üst köşeden
+                taşan büyük soluk ikon, altta büyük siyah değer + etiket */}
             <div className="hero__stats" aria-label="Öne çıkan rakamlar">
               <div className="stat-card">
-                <div className="stat-card__top">
-                  <span className="stat-card__label">Ortalama teslim süresi</span>
-                  <span className="stat-card__icon" aria-hidden="true"><ScooterIcon /></span>
-                </div>
+                <span className="stat-card__glyph" aria-hidden="true"><ScooterIcon /></span>
                 <div className="stat-card__num">30 dk</div>
+                <div className="stat-card__label">Ortalama teslim süresi</div>
               </div>
               <div className="stat-card">
-                <div className="stat-card__top">
-                  <span className="stat-card__label">Her gün açığız</span>
-                  <span className="stat-card__icon" aria-hidden="true"><ClockIcon /></span>
-                </div>
+                <span className="stat-card__glyph" aria-hidden="true"><ClockIcon /></span>
                 <div className="stat-card__num">07:30 - 02:00</div>
+                <div className="stat-card__label">Her gün açığız</div>
               </div>
               <div className="stat-card">
-                <div className="stat-card__top">
-                  <span className="stat-card__label">Bayram dahil, kapanmadan</span>
-                  <span className="stat-card__icon" aria-hidden="true"><CalendarIcon /></span>
-                </div>
+                <span className="stat-card__glyph" aria-hidden="true"><CalendarIcon /></span>
                 <div className="stat-card__num">7 gün</div>
+                <div className="stat-card__label">Bayram dahil, kapanmadan</div>
               </div>
               <div className="stat-card">
-                <div className="stat-card__top">
-                  <span className="stat-card__label">Nakit &amp; kart ile ödeme</span>
-                  <span className="stat-card__icon" aria-hidden="true"><CardIcon /></span>
-                </div>
+                <span className="stat-card__glyph" aria-hidden="true"><CardIcon /></span>
                 <div className="stat-card__num">Kapıda</div>
+                <div className="stat-card__label">Nakit &amp; kart ile ödeme</div>
               </div>
             </div>
           </div>
