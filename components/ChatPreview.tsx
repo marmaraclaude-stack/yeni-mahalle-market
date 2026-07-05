@@ -114,10 +114,10 @@ export default function ChatPreview() {
           <img src="/logo.png" alt="" />
         </span>
         <span className="chat__who">
-          <span className="chat__name">Canlı Destek</span>
+          <span className="chat__name">Yeni Mahalle Market</span>
           <span className="chat__status">
             <span className="chat__dot" />
-            Çevrimiçi · Yeni Mahalle Market
+            Çevrimiçi
           </span>
         </span>
       </div>

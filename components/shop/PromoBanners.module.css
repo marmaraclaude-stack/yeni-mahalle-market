@@ -212,10 +212,25 @@
   height: clamp(60px, 8vw, 112px);
 }
 
-/* Dar ekranda dekor küçülür/hafifler, içerik payı genişler */
+/* Dar ekranda dekor küçülür/hafifler, içerik payı genişler.
+   Uzun alt metinler (kupon koşulu vb.) kesilmesin: 3 satıra izin,
+   başlık bir tık küçük, kart bir tık yüksek. */
 @media (max-width: 640px) {
+  .slide {
+    min-height: 156px;
+    padding: 18px 20px;
+  }
   .slideCopy {
-    max-width: 80%;
+    max-width: 90%;
+    gap: 7px;
+  }
+  .slideTitle {
+    font-size: clamp(18px, 5.2vw, 23px);
+    line-height: 1.22;
+  }
+  .slideSub {
+    font-size: var(--fs-small);
+    -webkit-line-clamp: 3;
   }
   .circleSm,
   .circleMd {
@@ -227,12 +242,12 @@
     right: -78px;
   }
   .iconWrap {
-    opacity: 0.3;
-    right: -6px;
+    opacity: 0.2;
+    right: -8px;
   }
   .slideIcon {
-    width: 56px;
-    height: 56px;
+    width: 52px;
+    height: 52px;
   }
 }
 
