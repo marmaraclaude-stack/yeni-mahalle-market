@@ -91,25 +91,26 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Stats — filigran ikonlu derin kartlar: sağ üst köşeden
-                taşan büyük soluk ikon, altta büyük siyah değer + etiket */}
+            {/* Stats — filigran ikonlu derin kartlar. Filigran renkleri
+                banner mantığıyla içerikle eşleşir (CATEGORY_TINTS fg):
+                teslimat mavi, saat camgöbeği, takvim yeşil, ödeme amber. */}
             <div className="hero__stats" aria-label="Öne çıkan rakamlar">
-              <div className="stat-card">
+              <div className="stat-card" style={{ "--glyph": "#2f6fed" } as React.CSSProperties}>
                 <span className="stat-card__glyph" aria-hidden="true"><ScooterIcon /></span>
                 <div className="stat-card__num">30 dk</div>
                 <div className="stat-card__label">Ortalama teslim süresi</div>
               </div>
-              <div className="stat-card">
+              <div className="stat-card" style={{ "--glyph": "#0e93a8" } as React.CSSProperties}>
                 <span className="stat-card__glyph" aria-hidden="true"><ClockIcon /></span>
                 <div className="stat-card__num">07:30 - 02:00</div>
                 <div className="stat-card__label">Her gün açığız</div>
               </div>
-              <div className="stat-card">
+              <div className="stat-card" style={{ "--glyph": "#159b57" } as React.CSSProperties}>
                 <span className="stat-card__glyph" aria-hidden="true"><CalendarIcon /></span>
                 <div className="stat-card__num">7 gün</div>
                 <div className="stat-card__label">Bayram dahil, kapanmadan</div>
               </div>
-              <div className="stat-card">
+              <div className="stat-card" style={{ "--glyph": "#cf8910" } as React.CSSProperties}>
                 <span className="stat-card__glyph" aria-hidden="true"><CardIcon /></span>
                 <div className="stat-card__num">Kapıda</div>
                 <div className="stat-card__label">Nakit &amp; kart ile ödeme</div>
