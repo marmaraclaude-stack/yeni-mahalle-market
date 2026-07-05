@@ -128,7 +128,7 @@
 .headerTitle {
   font-family: var(--font-sans);
   font-weight: 600;
-  font-size: 16px;
+  font-size: var(--fs-body);
   line-height: 1.15;
   margin: 0;
   color: var(--white, #fff);
@@ -137,7 +137,7 @@
 
 .headerSub {
   font-family: var(--font-sans, system-ui), sans-serif;
-  font-size: 12px;
+  font-size: var(--fs-micro);
   letter-spacing: normal;
   color: rgba(255, 255, 255, 0.72);
   margin-top: 3px;
@@ -199,7 +199,7 @@
 .introTitle {
   font-family: var(--font-sans);
   font-weight: 600;
-  font-size: 24px;
+  font-size: var(--fs-h3);
   line-height: 1.1;
   letter-spacing: -0.02em;
   color: var(--black, #0a0a0a);
@@ -208,7 +208,7 @@
 
 .introLede {
   color: var(--gray-700, #3a3835);
-  font-size: 14.5px;
+  font-size: var(--fs-small);
   line-height: 1.55;
   margin: 0;
 }
@@ -229,7 +229,7 @@
 
 .labelText {
   font-family: var(--font-sans, system-ui), sans-serif;
-  font-size: 12.5px;
+  font-size: var(--fs-micro);
   letter-spacing: normal;
   color: var(--gray-500, #7a7872);
   font-weight: 500;
@@ -241,7 +241,7 @@
   border: 1px solid rgba(10, 10, 10, 0.12);
   background: var(--white, #fff);
   border-radius: 10px;
-  font-size: 14.5px;
+  font-size: var(--fs-small);
   color: var(--black, #0a0a0a);
   width: 100%;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
@@ -260,7 +260,7 @@
   border: none;
   border-radius: 999px;
   font-weight: 600;
-  font-size: 14px;
+  font-size: var(--fs-small);
   cursor: pointer;
   display: inline-flex;
   align-items: center;
@@ -282,7 +282,7 @@
   display: flex;
   flex-direction: column;
   max-width: 82%;
-  font-size: 14.5px;
+  font-size: var(--fs-small);
   line-height: 1.5;
   animation: msgIn 0.2s ease-out;
 }
@@ -301,7 +301,7 @@
 
 .msg__time {
   font-family: var(--font-sans, system-ui), sans-serif;
-  font-size: 11px;
+  font-size: var(--fs-micro);
   letter-spacing: normal;
   color: var(--gray-500, #7a7872);
   margin-top: 5px;
@@ -340,7 +340,7 @@
   background: transparent;
   border: 1px dashed rgba(10, 10, 10, 0.2);
   color: var(--gray-500, #7a7872);
-  font-size: 12.5px;
+  font-size: var(--fs-micro);
   letter-spacing: 0.02em;
 }
 
@@ -356,7 +356,7 @@
   flex: 1;
   resize: none;
   font: inherit;
-  font-size: 14.5px;
+  font-size: var(--fs-small);
   padding: 11px 14px;
   border: 1px solid rgba(10, 10, 10, 0.12);
   background: var(--cream, #faf8f4);
@@ -401,7 +401,7 @@
 .footer {
   font-family: var(--font-sans, system-ui), sans-serif;
   padding: 8px 16px 12px;
-  font-size: 12px;
+  font-size: var(--fs-micro);
   letter-spacing: normal;
   color: var(--gray-500, #7a7872);
   text-align: center;
