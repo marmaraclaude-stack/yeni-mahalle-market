@@ -91,31 +91,39 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Stats — ikonlu kartlar */}
+            {/* Stats — yatay kartlar: solda ikon plakası, sağda değer + etiket */}
             <div className="hero__stats" aria-label="Öne çıkan rakamlar">
               <div className="stat-card">
                 <span className="stat-card__icon" aria-hidden="true"><ScooterIcon /></span>
-                <div className="stat-card__num">
-                  ~<em>30</em> dk
+                <div className="stat-card__body">
+                  <div className="stat-card__num">
+                    <em>30</em> dk
+                  </div>
+                  <div className="stat-card__label">Ortalama teslim süresi</div>
                 </div>
-                <div className="stat-card__label">Ortalama teslim süresi</div>
               </div>
               <div className="stat-card">
                 <span className="stat-card__icon" aria-hidden="true"><ClockIcon /></span>
-                <div className="stat-card__num">07:30 - 02:00</div>
-                <div className="stat-card__label">Her gün açığız</div>
+                <div className="stat-card__body">
+                  <div className="stat-card__num">07:30 - 02:00</div>
+                  <div className="stat-card__label">Her gün açığız</div>
+                </div>
               </div>
               <div className="stat-card">
                 <span className="stat-card__icon" aria-hidden="true"><CalendarIcon /></span>
-                <div className="stat-card__num">
-                  <em>7</em> gün
+                <div className="stat-card__body">
+                  <div className="stat-card__num">
+                    <em>7</em> gün
+                  </div>
+                  <div className="stat-card__label">Bayram dahil, kapanmadan</div>
                 </div>
-                <div className="stat-card__label">Bayram dahil, kapanmadan</div>
               </div>
               <div className="stat-card">
                 <span className="stat-card__icon" aria-hidden="true"><CardIcon /></span>
-                <div className="stat-card__num">Kapıda</div>
-                <div className="stat-card__label">Nakit &amp; kart ile ödeme</div>
+                <div className="stat-card__body">
+                  <div className="stat-card__num">Kapıda</div>
+                  <div className="stat-card__label">Nakit &amp; kart ile ödeme</div>
+                </div>
               </div>
             </div>
           </div>
@@ -232,7 +240,7 @@ export default function Home() {
                 <div className="track" aria-hidden="true">
                   <div className="track__head">
                     <span className="track__title">Siparişiniz hazırlanıyor</span>
-                    <span className="track__eta">~30 dk</span>
+                    <span className="track__eta">30 dk</span>
                   </div>
                   <ol className="track__steps">
                     <li className="track__step track__step--done">
@@ -265,7 +273,7 @@ export default function Home() {
                         <span className="track__label">Kapınıza geliyor</span>
                         <span className="track__sub">Kurye yola çıktı</span>
                       </span>
-                      <span className="track__time">~18:55</span>
+                      <span className="track__time">18:55</span>
                     </li>
                   </ol>
                 </div>
@@ -308,11 +316,11 @@ export default function Home() {
             <div className="cta__panel">
               <div className="cta__copy">
                 <h2 id="cta-title" className="cta__title">
-                  Bugün ne lazımsa, <span className="accent">kapına gelsin.</span>
+                  Bugün ne lazımsa <span className="accent">kapına gelsin.</span>
                 </h2>
                 <p className="cta__sub">
-                  2000&apos;i aşkın ürün, güncel market fiyatları. Sepetini
-                  doldur; tezgâhtan özenle toplayıp Sapanca içinde ortalama 30
+                  2000&apos;i aşkın ürün ve güncel market fiyatları. Sepetini
+                  doldur, tezgâhtan özenle toplayıp Sapanca içinde ortalama 30
                   dakikada teslim edelim.
                 </p>
                 <div className="cta__actions">
@@ -326,7 +334,7 @@ export default function Home() {
                 <ul className="cta__perks" aria-label="Sipariş avantajları">
                   <li>
                     <ScooterIcon />
-                    ~30 dk teslimat
+                    30 dk teslimat
                   </li>
                   <li>
                     <ClockIcon />
@@ -379,7 +387,7 @@ export default function Home() {
                   </span>
                   <span className="cta-float__text">
                     <span className="cta-float__title">Kurye yola çıktı</span>
-                    <span className="cta-float__sub">Tahmini varış ~30 dk</span>
+                    <span className="cta-float__sub">Tahmini varış 30 dk</span>
                   </span>
                 </div>
               </div>

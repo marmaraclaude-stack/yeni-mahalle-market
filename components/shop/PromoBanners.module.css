@@ -20,10 +20,10 @@
 }
 
 /* -------- Ana sayfa yerleşimi --------
-   Banner, üstteki kategori bölümü ile alttaki bölümlere göre kompakt
-   dursun: tam --section-y çok açık kalıyordu, yarıya indirildi. */
+   Banner, üst ve alt bölümlerin kendi padding'i zaten nefes verdiği için
+   kendisi çok az dikey boşluk taşır (aradaki toplam mesafe kompakt kalır). */
 .homeSection {
-  padding-block: clamp(18px, 1.8vw, 28px);
+  padding-block: clamp(6px, 0.8vw, 12px);
 }
 
 /* Banner sarmalayıcı = global .container davranışı (her ölçüde).

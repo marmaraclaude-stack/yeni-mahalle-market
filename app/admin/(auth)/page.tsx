@@ -39,7 +39,11 @@ interface ShopStats {
   totalOrders: number | null;
   activeProducts: number | null;
   activeCouriers: number | null;
-  last7: { label: string; revenue: number }[] | null;
+  /* Grafikte gösterilen (seçili) haftanın Pzt-Paz günlük cirosu */
+  weekSeries: { label: string; revenue: number }[] | null;
+  weekTotal: number | null;
+  weekRange: string | null; // "30 Haz - 6 Tem" biçiminde etiket
+  weekTodayIndex: number | null; // bu hafta görünümünde bugünün sütunu
   yesterdayOrders: number | null;
   yesterdayRevenue: number | null;
   statusCounts: Record<OrderStatus, number> | null;
@@ -55,7 +59,10 @@ const EMPTY_STATS: ShopStats = {
   totalOrders: null,
   activeProducts: null,
   activeCouriers: null,
-  last7: null,
+  weekSeries: null,
+  weekTotal: null,
+  weekRange: null,
+  weekTodayIndex: null,
   yesterdayOrders: null,
   yesterdayRevenue: null,
   statusCounts: null,
@@ -154,8 +161,9 @@ function revenueDelta(today: number | null, yesterday: number | null): Delta | n
   return { tone: pct > 0 ? "up" : "down", text: `${sign}%${Math.abs(pct)} düne göre` };
 }
 
-/** Özet sayıları service-role ile çek; tablolar yoksa null döner (kart "-" basar). */
-async function loadShopStats(): Promise<ShopStats> {
+/** Özet sayıları service-role ile çek; tablolar yoksa null döner (kart "-" basar).
+ *  weekOffset: grafikte gösterilecek hafta (0 = bu hafta, 1 = geçen hafta ...). */
+async function loadShopStats(weekOffset: number): Promise<ShopStats> {
   try {
     const supabase = createAdminClient();
     const dayStartISO = istanbulDayStartISO();
@@ -165,10 +173,15 @@ async function loadShopStats(): Promise<ShopStats> {
     const weekStartTs = new Date(weekStartISO).getTime();
     const monthStartTs = new Date(monthStartISO).getTime();
     const yesterdayStartTs = dayStartTs - 86_400_000;
-    // Pencere: ay başı ile son 7 günün en erkeni. Dün ve son 7 gün her
-    // durumda pencerenin içinde kalır; tek fetch ile tüm kovalar dolar.
     const sevenAgoTs = dayStartTs - 6 * 86_400_000;
-    const fetchStartISO = new Date(Math.min(monthStartTs, sevenAgoTs)).toISOString();
+    // Grafikteki seçili haftanın Pzt 00:00 - Paz 24:00 aralığı (TR saatiyle).
+    const selWeekStartTs = weekStartTs - weekOffset * 7 * 86_400_000;
+    const selWeekEndTs = selWeekStartTs + 7 * 86_400_000;
+    // Pencere: ay başı, son 7 gün ve seçili haftanın en erkeni. Dün, son 7 gün
+    // ve seçili hafta her durumda pencerede kalır; tek fetch tüm kovaları doldurur.
+    const fetchStartISO = new Date(
+      Math.min(monthStartTs, sevenAgoTs, selWeekStartTs),
+    ).toISOString();
 
     const [todayRes, pendingRes, windowRes, productsRes, totalRes, couriersRes] =
       await Promise.all([
@@ -217,19 +230,31 @@ async function loadShopStats(): Promise<ShopStats> {
         (r.payment_method !== "iyzico" || r.payment_status === "paid"),
     );
 
-    // Son 7 gün kovaları (bugün dahil), TR günlük anahtarına göre.
+    // Seçili haftanın 7 günlük kovaları (Pzt-Paz), TR günlük anahtarına göre.
     const dayKeyFmt = new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Istanbul" });
     const dayLabelFmt = new Intl.DateTimeFormat("tr-TR", {
       timeZone: "Europe/Istanbul",
       weekday: "short",
     });
-    const last7: { label: string; revenue: number }[] = [];
+    const rangeFmt = new Intl.DateTimeFormat("tr-TR", {
+      timeZone: "Europe/Istanbul",
+      day: "numeric",
+      month: "short",
+    });
+    const weekSeries: { label: string; revenue: number }[] = [];
     const keyIndex = new Map<string, number>();
-    for (let i = 6; i >= 0; i--) {
-      const dt = new Date(dayStartTs - i * 86_400_000);
-      keyIndex.set(dayKeyFmt.format(dt), last7.length);
-      last7.push({ label: dayLabelFmt.format(dt), revenue: 0 });
+    const todayKey = dayKeyFmt.format(new Date(dayStartTs));
+    let weekTodayIndex: number | null = null;
+    for (let i = 0; i < 7; i++) {
+      const dt = new Date(selWeekStartTs + i * 86_400_000);
+      const key = dayKeyFmt.format(dt);
+      if (key === todayKey) weekTodayIndex = i;
+      keyIndex.set(key, weekSeries.length);
+      weekSeries.push({ label: dayLabelFmt.format(dt), revenue: 0 });
     }
+    const weekRange = `${rangeFmt.format(new Date(selWeekStartTs))} - ${rangeFmt.format(
+      new Date(selWeekEndTs - 86_400_000),
+    )}`;
 
     // Durum dağılımı: son 7 günün tüm siparişleri (iptal dahil).
     const statusCounts: Record<OrderStatus, number> = {
@@ -253,6 +278,7 @@ async function loadShopStats(): Promise<ShopStats> {
     let weekRevenue = 0;
     let todayRevenue = 0;
     let yesterdayRevenue = 0;
+    let weekTotal = 0;
     let monthOrders = 0;
     for (const r of qualifying) {
       const t = new Date(r.created_at).getTime();
@@ -264,8 +290,11 @@ async function loadShopStats(): Promise<ShopStats> {
       if (t >= weekStartTs) weekRevenue += total;
       if (t >= dayStartTs) todayRevenue += total;
       if (t >= yesterdayStartTs && t < dayStartTs) yesterdayRevenue += total;
-      const idx = keyIndex.get(dayKeyFmt.format(new Date(r.created_at)));
-      if (idx !== undefined) last7[idx].revenue += total;
+      if (t >= selWeekStartTs && t < selWeekEndTs) {
+        weekTotal += total;
+        const idx = keyIndex.get(dayKeyFmt.format(new Date(r.created_at)));
+        if (idx !== undefined) weekSeries[idx].revenue += total;
+      }
     }
 
     const avgBasket = monthOrders > 0 ? monthRevenue / monthOrders : 0;
@@ -280,7 +309,10 @@ async function loadShopStats(): Promise<ShopStats> {
       totalOrders: totalRes.error ? null : totalRes.count ?? 0,
       activeProducts: productsRes.count ?? 0,
       activeCouriers: couriersRes.error ? null : couriersRes.count ?? 0,
-      last7,
+      weekSeries,
+      weekTotal,
+      weekRange,
+      weekTodayIndex,
       yesterdayOrders,
       yesterdayRevenue,
       statusCounts,
@@ -441,10 +473,21 @@ const STATUS_ORDER: OrderStatus[] = [
   "cancelled",
 ];
 
-export default async function AdminHome() {
+export default async function AdminHome({
+  searchParams,
+}: {
+  searchParams: Promise<{ hafta?: string }>;
+}) {
+  // Gelir grafiği hafta hafta gezilebilir: ?hafta=N (0 = bu hafta).
+  const { hafta } = await searchParams;
+  const parsedWeek = Number.parseInt(hafta ?? "0", 10);
+  const weekOffset = Number.isFinite(parsedWeek)
+    ? Math.min(Math.max(parsedWeek, 0), 26)
+    : 0;
+
   const [stats, recentOrders, settings, topProducts, catalog, community] =
     await Promise.all([
-      loadShopStats(),
+      loadShopStats(weekOffset),
       loadRecentOrders(),
       loadSettings(),
       loadTopProducts(),
@@ -591,17 +634,17 @@ export default async function AdminHome() {
             </div>
           </div>
 
-          {stats.last7 &&
-            stats.last7.length > 0 &&
+          {stats.weekSeries &&
+            stats.weekSeries.length > 0 &&
             (() => {
-              const series = stats.last7;
+              const series = stats.weekSeries;
               const max = Math.max(...series.map((x) => x.revenue), 1);
               return (
                 <div className={styles.miniChart}>
                   <div className={styles.miniBars}>
                     {series.map((d, i) => {
                       const pct = Math.round((d.revenue / max) * 100);
-                      const isToday = i === series.length - 1;
+                      const isToday = i === stats.weekTodayIndex;
                       const tip = `${d.label}: ${formatTL(d.revenue)}`;
                       return (
                         <div
@@ -631,9 +674,40 @@ export default async function AdminHome() {
                       );
                     })}
                   </div>
-                  <span className={styles.miniChartCap}>
-                    Son 7 gün geliri · boş günler taban çizgisiyle gösterilir
-                  </span>
+                  {/* Hafta gezinmesi: Önceki/Sonraki metin butonları + aralık ve
+                      hafta toplamı. ?hafta=N ile sunucuda yeniden hesaplanır. */}
+                  <div className={ds.weekNav}>
+                    {weekOffset < 26 ? (
+                      <Link
+                        href={`/admin?hafta=${weekOffset + 1}`}
+                        className={ds.weekNavBtn}
+                      >
+                        Önceki Hafta
+                      </Link>
+                    ) : (
+                      <span className={`${ds.weekNavBtn} ${ds["weekNavBtn--off"]}`}>
+                        Önceki Hafta
+                      </span>
+                    )}
+                    <span className={ds.weekNavLabel}>
+                      {weekOffset === 0 ? "Bu Hafta" : stats.weekRange}
+                      {stats.weekTotal !== null && ` · ${formatTL(stats.weekTotal)}`}
+                    </span>
+                    {weekOffset > 0 ? (
+                      <Link
+                        href={
+                          weekOffset === 1 ? "/admin" : `/admin?hafta=${weekOffset - 1}`
+                        }
+                        className={ds.weekNavBtn}
+                      >
+                        Sonraki Hafta
+                      </Link>
+                    ) : (
+                      <span className={`${ds.weekNavBtn} ${ds["weekNavBtn--off"]}`}>
+                        Sonraki Hafta
+                      </span>
+                    )}
+                  </div>
                 </div>
               );
             })()}

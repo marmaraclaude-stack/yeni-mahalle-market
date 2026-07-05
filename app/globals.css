@@ -563,21 +563,22 @@ p { margin: 0; }
   grid-template-columns: repeat(4, 1fr);
   gap: 12px;
 }
+/* Yatay kart: solda accent ikon plakası, sağda değer + etiket.
+   Ortalanmış eski düzenden daha kompakt ve okunaklı. */
 .stat-card {
   background: var(--white);
   border: 1px solid var(--gray-200);
-  border-radius: var(--r-md);
-  padding: 20px 18px;
+  border-radius: var(--r-lg);
+  padding: 18px 20px;
   display: flex;
-  flex-direction: column;
   align-items: center;
-  text-align: center;
-  gap: 4px;
+  text-align: left;
+  gap: 14px;
   transition: transform 240ms var(--ease), box-shadow 240ms var(--ease),
     border-color 240ms var(--ease);
 }
 .stat-card:hover {
-  transform: translateY(-4px);
+  transform: translateY(-3px);
   border-color: var(--gray-300);
   box-shadow:
     0 1px 0 rgba(255,255,255,0.9) inset,
@@ -585,36 +586,42 @@ p { margin: 0; }
     0 8px 16px -12px rgba(16,16,16,0.10);
 }
 .stat-card__icon {
-  width: 42px; height: 42px;
-  margin-bottom: 8px;
+  width: 46px; height: 46px;
+  flex-shrink: 0;
   display: inline-grid;
   place-items: center;
-  border-radius: 50%;
-  background: var(--gray-100);
-  color: var(--ink);
+  border-radius: 14px;
+  background: var(--accent-soft);
+  color: var(--accent);
   transition: background 240ms var(--ease), color 240ms var(--ease);
 }
 .stat-card:hover .stat-card__icon {
-  background: var(--accent-soft);
-  color: var(--accent);
+  background: var(--accent);
+  color: var(--white);
 }
-.stat-card__icon svg { width: 20px; height: 20px; }
+.stat-card__icon svg { width: 22px; height: 22px; }
+.stat-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
 .stat-card__num {
   font-family: var(--font-display);
-  font-size: var(--fs-h3);
+  font-size: clamp(19px, 1.7vw, 23px);
   font-weight: 700;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.025em;
   line-height: 1;
   color: var(--ink);
   font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 .stat-card__num em {
   font-style: normal;
   color: var(--accent);
 }
 .stat-card__label {
-  margin-top: 5px; /* başlık (num) ile açıklama arası nefes */
-  font-size: var(--fs-small);
+  font-size: 13.5px;
   color: var(--gray-500);
   line-height: 1.4;
 }
@@ -637,6 +644,8 @@ p { margin: 0; }
    toplami hero__stats ust boslugu (--hero-stats-gap) ile esitlenir. Alt
    padding ve diger section--tight kullanimlari (yorumlar vb.) degismez. */
 #urunler.section--tight { padding-top: calc(var(--hero-stats-gap) / 2); }
+/* Yorumlar bölümü: üst/alt boşluğu diğer bölümlerden bir tık kısa */
+#yorumlar.section--tight { padding-block: calc(var(--section-y) * 0.65); }
 .section--dark {
   background: var(--ink);
   color: var(--gray-300);

@@ -95,6 +95,49 @@
 .delta--flat { background: var(--gray-100); color: var(--gray-500); }
 .delta--warn { background: #fff4e8; color: #b45309; }
 
+/* ---- Gelir grafigi hafta gezinmesi ---- */
+.weekNav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.weekNavBtn {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--gray-700);
+  background: var(--white);
+  border: 1px solid rgba(10, 10, 10, 0.1);
+  border-radius: 999px;
+  padding: 5px 12px;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+}
+
+.weekNavBtn:hover {
+  border-color: var(--accent);
+  color: var(--accent-deep);
+  background: var(--accent-soft);
+}
+
+.weekNavBtn--off {
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+.weekNavLabel {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--gray-500);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 /* ---- Sol ana kolon: alt alta paneller ---- */
 .colStack {
   display: flex;
