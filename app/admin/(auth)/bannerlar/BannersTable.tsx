@@ -1,9 +1,12 @@
 "use client";
 
-// Banner tablosu — üstte "Yeni Banner" collapse formu (createBanner),
-// satırlarda tint renk önizlemesi, sıra düzenleme (updateBanner),
-// aktif/pasif toggle (toggleBanner) ve confirm'li silme (deleteBanner).
+// Banner yonetimi: ustte "Yeni Banner" collapse formu (createBanner),
+// altta ic scroll'suz kart gridi. Her kart vitrindeki gorunume yakin bir
+// mini onizleme tasir (tint zemin + ikon + baslik + alt baslik); altinda
+// ikon secimi (updateBanner), sira duzenleme (updateBanner), aktif/pasif
+// toggle (toggleBanner) ve confirm'li silme (deleteBanner) bulunur.
 
+import type { CSSProperties } from "react";
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Plus, X } from "lucide-react";
@@ -17,8 +20,9 @@ import type { Banner } from "@/lib/shop/types";
 import { CATEGORY_TINTS } from "@/lib/shop/categories";
 import { BANNER_ICON_OPTIONS, resolveBannerIcon } from "@/lib/shop/icons";
 import styles from "../../admin.module.css";
+import css from "./banners.module.css";
 
-/** Banner ikon önizlemesi — seçili icon yoksa başlık içeriğine göre çözülür. */
+/** Banner ikon onizlemesi: secili icon yoksa baslik icerigine gore cozulur. */
 function BannerIconPreview({
   icon,
   title,
@@ -37,7 +41,7 @@ function BannerIconPreview({
   );
 }
 
-/** CATEGORY_TINTS index'lerinin Türkçe renk adları (select ve önizleme için). */
+/** CATEGORY_TINTS index'lerinin Turkce renk adlari (select ve onizleme icin). */
 const TINT_NAMES = [
   "Yeşil",
   "Mercan",
@@ -49,14 +53,14 @@ const TINT_NAMES = [
   "Deniz",
 ];
 
-/** tint index'ini güvenle 0-7 aralığına al (bozuk veri UI'ı kırmasın). */
+/** tint index'ini guvenle 0-7 araligina al (bozuk veri UI'i kirmasin). */
 function safeTint(tint: number): number {
   return Number.isInteger(tint) && tint >= 0 && tint < CATEGORY_TINTS.length
     ? tint
     : 0;
 }
 
-/** Tint renk önizleme yuvarlağı: zemin + ortada koyu nokta. */
+/** Tint renk onizleme yuvarlagi: zemin + ortada koyu nokta. */
 function TintDot({ tint }: { tint: number }) {
   const [bg, fg] = CATEGORY_TINTS[safeTint(tint)];
   return (
@@ -69,12 +73,15 @@ function TintDot({ tint }: { tint: number }) {
   );
 }
 
-function BannerRow({ banner }: { banner: Banner }) {
+function BannerCard({ banner }: { banner: Banner }) {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [sortValue, setSortValue] = useState(String(banner.sort));
   const [icon, setIcon] = useState(banner.icon);
   const [, startTransition] = useTransition();
+
+  const [bg, fg] = CATEGORY_TINTS[safeTint(banner.tint)];
+  const PreviewIcon = resolveBannerIcon(icon, banner.title);
 
   function saveIcon(next: string) {
     setIcon(next);
@@ -147,66 +154,83 @@ function BannerRow({ banner }: { banner: Banner }) {
   }
 
   return (
-    <tr className={banner.is_active ? "" : styles.rowInactive}>
-      <td>
-        <div className={styles.bannerCell}>
-          <BannerIconPreview icon={icon} title={banner.title} tint={banner.tint} />
-          <div>
-            <div className={styles.prodName}>{banner.title}</div>
-            {banner.subtitle && (
-              <div className={styles.prodMeta}>{banner.subtitle}</div>
+    <article
+      className={`${css.card} ${banner.is_active ? "" : css["card--off"]}`}
+    >
+      {/* Vitrindeki slayta yakin mini onizleme: pasifse solgun gorunur */}
+      <div
+        className={css.preview}
+        style={{ "--bnr-bg": bg, "--bnr-fg": fg } as CSSProperties}
+      >
+        <span className={css.sortChip}>Sıra {banner.sort}</span>
+        {!banner.is_active && <span className={css.offTag}>Pasif</span>}
+        <div className={css.previewCopy}>
+          <div className={css.previewTitle}>{banner.title}</div>
+          {banner.subtitle && (
+            <div className={css.previewSub}>{banner.subtitle}</div>
+          )}
+        </div>
+        <div className={css.previewArt} aria-hidden="true">
+          <span className={css.artCircleLg} />
+          <span className={css.artCircleMd} />
+          <span className={css.artIcon}>
+            <PreviewIcon size={32} strokeWidth={1.6} />
+          </span>
+        </div>
+      </div>
+
+      {/* Kontroller: ikon, renk, sira, durum, sil */}
+      <div className={css.controls}>
+        <div className={`${css.controlField} ${css["controlField--icon"]}`}>
+          <span className={css.controlLabel}>İkon</span>
+          <select
+            value={icon}
+            onChange={(e) => saveIcon(e.target.value)}
+            disabled={busy}
+            className={styles.select}
+            aria-label={`${banner.title} banner ikonu`}
+          >
+            <option value="">Otomatik</option>
+            {BANNER_ICON_OPTIONS.map((opt) => (
+              <option key={opt.key} value={opt.key}>
+                {opt.label}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className={css.controlField}>
+          <span className={css.controlLabel}>Renk</span>
+          <span className={css.tintLine}>
+            <TintDot tint={banner.tint} />
+            {TINT_NAMES[safeTint(banner.tint)]}
+          </span>
+        </div>
+
+        <div className={css.controlField}>
+          <span className={css.controlLabel}>Sıra</span>
+          <div className={styles.sortForm}>
+            <input
+              value={sortValue}
+              onChange={(e) => setSortValue(e.target.value)}
+              inputMode="numeric"
+              className={styles.inputSm}
+              aria-label={`${banner.title} banner sırası`}
+            />
+            {sortValue !== String(banner.sort) && (
+              <button
+                type="button"
+                onClick={saveSort}
+                disabled={busy}
+                className={styles.actionBtn}
+              >
+                Kaydet
+              </button>
             )}
           </div>
         </div>
-      </td>
-      <td>
-        <select
-          value={icon}
-          onChange={(e) => saveIcon(e.target.value)}
-          disabled={busy}
-          className={styles.select}
-          style={{ minWidth: 160 }}
-          aria-label={`${banner.title} banner ikonu`}
-        >
-          <option value="">Otomatik</option>
-          {BANNER_ICON_OPTIONS.map((opt) => (
-            <option key={opt.key} value={opt.key}>
-              {opt.label}
-            </option>
-          ))}
-        </select>
-      </td>
-      <td>{TINT_NAMES[safeTint(banner.tint)]}</td>
-      <td>
-        <div className={styles.sortForm}>
-          <input
-            value={sortValue}
-            onChange={(e) => setSortValue(e.target.value)}
-            inputMode="numeric"
-            className={styles.inputSm}
-            aria-label={`${banner.title} banner sırası`}
-          />
-          {sortValue !== String(banner.sort) && (
-            <button
-              type="button"
-              onClick={saveSort}
-              disabled={busy}
-              className={styles.actionBtn}
-            >
-              Kaydet
-            </button>
-          )}
-        </div>
-      </td>
-      <td>
-        {banner.is_active ? (
-          <span className={`${styles.badge} ${styles["badge--active"]}`}>Aktif</span>
-        ) : (
-          <span className={`${styles.badge} ${styles["badge--off"]}`}>Pasif</span>
-        )}
-      </td>
-      <td>
-        <div className={styles.cellActions}>
+
+        <div className={css.cardActions}>
           <button
             type="button"
             onClick={toggle}
@@ -226,8 +250,8 @@ function BannerRow({ banner }: { banner: Banner }) {
             Sil
           </button>
         </div>
-      </td>
-    </tr>
+      </div>
+    </article>
   );
 }
 
@@ -240,6 +264,8 @@ export default function BannersTable({ banners }: { banners: Banner[] }) {
   const [formIcon, setFormIcon] = useState("");
   const [formTitle, setFormTitle] = useState("");
   const [, startTransition] = useTransition();
+
+  const activeCount = banners.filter((b) => b.is_active).length;
 
   function handleCreate(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -289,9 +315,11 @@ export default function BannersTable({ banners }: { banners: Banner[] }) {
 
   return (
     <>
-      {/* Üst araç çubuğu: Yeni Banner accent butonu */}
+      {/* Ust arac cubugu: solda sayim ozeti, sagda Yeni Banner butonu */}
       <div className={styles.toolbar}>
-        <div />
+        <span className={css.countInfo}>
+          {banners.length} banner ({activeCount} aktif)
+        </span>
         <button
           type="button"
           onClick={() => setShowForm((v) => !v)}
@@ -408,32 +436,16 @@ export default function BannersTable({ banners }: { banners: Banner[] }) {
         </section>
       )}
 
-      {/* Banner tablosu */}
+      {/* Kart gridi: tum bannerlar ayni anda gorunur, ic scroll yok */}
       {banners.length === 0 ? (
         <div className={styles.empty}>
           Henüz banner yok. &quot;Yeni Banner&quot; ile ilk banner&apos;ı oluşturun.
         </div>
       ) : (
-        <div className={styles.tableCard}>
-          <div className={styles.tableScroll}>
-            <table className={styles.table}>
-              <thead>
-                <tr>
-                  <th>Banner</th>
-                  <th>İkon</th>
-                  <th>Renk</th>
-                  <th>Sıra</th>
-                  <th>Durum</th>
-                  <th></th>
-                </tr>
-              </thead>
-              <tbody>
-                {banners.map((b) => (
-                  <BannerRow key={b.id} banner={b} />
-                ))}
-              </tbody>
-            </table>
-          </div>
+        <div className={css.grid}>
+          {banners.map((b) => (
+            <BannerCard key={b.id} banner={b} />
+          ))}
         </div>
       )}
     </>

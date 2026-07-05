@@ -1,0 +1,235 @@
+/* ============================================================
+   Bannerlar sayfasi: ic scroll'suz, tam boy kart gridi.
+   Ortak admin.module.css SALT OKUNUR oldugundan liste duzeni ve
+   canli mini onizleme stilleri bu dosyada tanimlanir.
+   Tint renkleri inline --bnr-bg / --bnr-fg degiskenleriyle gelir
+   (vitrindeki PromoBanners slaytlariyla ayni kalip).
+   ============================================================ */
+
+/* Toolbar sol slotu: banner sayisi ozeti */
+.countInfo {
+  font-size: 13px;
+  color: var(--gray-500);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Kart gridi: genis ekranda 2 sutun, darda tek kolon.
+   max-height / overflow YOK; liste sayfa akisinda dogal uzar. */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  align-items: stretch;
+}
+
+/* Dar icerik alaninda (ve mobilde) tek kolon */
+@media (max-width: 1100px) {
+  .grid { grid-template-columns: 1fr; }
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  background: var(--white);
+  border: 1px solid rgba(10, 10, 10, 0.08);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  box-shadow: 0 1px 2px rgba(10, 10, 10, 0.04);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.card:hover {
+  border-color: rgba(10, 10, 10, 0.16);
+  box-shadow: 0 8px 22px -14px rgba(10, 10, 10, 0.14);
+}
+
+/* -------- Mini onizleme: vitrindeki slaytin kucuk kopyasi --------
+   Tint gradient zemin + sagda dekoratif daireler + tematik ikon.
+   Admin kabugunda tipografi Geist kalir (display font kullanilmaz). */
+.preview {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: 104px;
+  padding: 18px 20px;
+  overflow: hidden;
+  background: linear-gradient(
+    115deg,
+    var(--bnr-bg) 0%,
+    color-mix(in srgb, var(--bnr-bg) 34%, var(--white)) 100%
+  );
+  transition: opacity 0.2s var(--ease), filter 0.2s var(--ease);
+}
+
+/* Pasif banner: onizleme solgun + hafif gri, durum bir bakista belli */
+.card--off .preview {
+  opacity: 0.45;
+  filter: grayscale(0.4);
+}
+
+.previewCopy {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-width: 68%;
+  min-width: 0;
+}
+
+.previewTitle {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 16px;
+  letter-spacing: -0.015em;
+  line-height: 1.25;
+  color: var(--black);
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+
+/* Alt baslik en cok 2 satir; kart yuksekligi kontrollu kalir */
+.previewSub {
+  font-size: 12.5px;
+  line-height: 1.4;
+  color: var(--gray-700);
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+
+/* Sag dekor katmani: daireler + buyuk ikon, her zaman metnin altinda */
+.previewArt {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.artCircleLg {
+  position: absolute;
+  top: 50%;
+  right: -34px;
+  width: 130px;
+  height: 130px;
+  transform: translateY(-50%);
+  border-radius: 50%;
+  background: var(--bnr-fg);
+  opacity: 0.1;
+}
+
+.artCircleMd {
+  position: absolute;
+  top: 50%;
+  right: 52px;
+  width: 58px;
+  height: 58px;
+  transform: translateY(-50%);
+  border-radius: 50%;
+  background: var(--bnr-fg);
+  opacity: 0.14;
+}
+
+.artIcon {
+  position: absolute;
+  top: 50%;
+  right: 22px;
+  transform: translateY(-50%);
+  display: inline-flex;
+  color: var(--bnr-fg);
+}
+
+/* Sira rozeti: onizlemenin sol ust kosesinde kayitli sira degeri */
+.sortChip {
+  position: absolute;
+  top: 10px;
+  left: 12px;
+  z-index: 2;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--gray-700);
+  background: color-mix(in srgb, var(--white) 78%, transparent);
+  border: 1px solid rgba(10, 10, 10, 0.1);
+  border-radius: var(--r-pill);
+  padding: 2px 8px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Pasif etiketi: onizlemenin sag ust kosesi (solgunluga ek net isaret) */
+.offTag {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  z-index: 2;
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--gray-700);
+  background: color-mix(in srgb, var(--white) 85%, transparent);
+  border: 1px solid rgba(10, 10, 10, 0.14);
+  border-radius: var(--r-pill);
+  padding: 2px 9px;
+}
+
+/* -------- Kontrol seridi: ikon / renk / sira + durum ve sil -------- */
+.controls {
+  display: flex;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 10px 14px;
+  padding: 12px 16px 14px;
+  border-top: 1px solid rgba(10, 10, 10, 0.06);
+  margin-top: auto;
+}
+
+.controlField {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.controlField--icon {
+  flex: 1 1 170px;
+}
+
+.controlLabel {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--gray-500);
+  line-height: 1;
+}
+
+/* Renk gostergesi: nokta + Turkce renk adi */
+.tintLine {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13px;
+  color: var(--gray-700);
+  min-height: 36px;
+  white-space: nowrap;
+}
+
+/* Sag uc: aktif/pasif toggle + sil butonu */
+.cardActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+  padding-bottom: 2px;
+}
+
+@media (max-width: 640px) {
+  .controls { padding: 12px 14px; }
+  .cardActions {
+    margin-left: 0;
+    width: 100%;
+    justify-content: flex-end;
+  }
+}

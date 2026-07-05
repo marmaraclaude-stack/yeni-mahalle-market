@@ -1,0 +1,162 @@
+/* Urunler sayfasi: sunucu tarafli sayfalama UI + tablo akis duzeni.
+   Ortak admin.module.css salt okunur oldugundan yeni stiller burada.
+   Token kaynagi: app/globals.css (--accent, --gray-*, --r-*, --ease). */
+
+/* Ust bilgi cubugu: solda "X-Y arasi, toplam N urun", sagda sayfa kontrolu */
+.pagerBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px 16px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.rangeInfo {
+  font-size: 13px;
+  color: var(--gray-500);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* Alt sayfa kontrolu: tablo altinda ortalanir */
+.pagerBottom {
+  display: flex;
+  justify-content: center;
+  margin-top: 16px;
+}
+
+.pager {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* Onceki / Sonraki metin butonlari (ok ikonu yok) */
+.pageBtn {
+  font-size: 13px;
+  font-weight: 600;
+  padding: 7px 14px;
+  border-radius: var(--r-pill, 999px);
+  border: 1px solid rgba(10, 10, 10, 0.14);
+  background: var(--white);
+  color: var(--black);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: border-color 0.15s var(--ease), background 0.15s var(--ease);
+}
+
+.pageBtn:hover {
+  border-color: rgba(10, 10, 10, 0.35);
+}
+
+/* Ilk/son sayfada pasif gorunen es boyutlu yer tutucu */
+.pageBtnOff {
+  font-size: 13px;
+  font-weight: 600;
+  padding: 7px 14px;
+  border-radius: var(--r-pill, 999px);
+  border: 1px solid rgba(10, 10, 10, 0.08);
+  background: var(--gray-100);
+  color: var(--gray-400);
+  white-space: nowrap;
+  cursor: not-allowed;
+  user-select: none;
+}
+
+.pageNums {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.pageNum {
+  min-width: 32px;
+  height: 32px;
+  padding: 0 7px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--gray-700);
+  text-decoration: none;
+  font-variant-numeric: tabular-nums;
+  border: 1px solid transparent;
+  transition: background 0.15s var(--ease), color 0.15s var(--ease),
+    border-color 0.15s var(--ease);
+}
+
+.pageNum:hover {
+  background: var(--gray-100);
+  color: var(--black);
+}
+
+/* Aktif sayfa: dolu siyah rozet (link degil, span) */
+.pageNumCurrent {
+  min-width: 32px;
+  height: 32px;
+  padding: 0 7px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9px;
+  font-size: 13px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  background: var(--black);
+  color: var(--white);
+}
+
+/* Kisaltma noktasi: 1 ... 5 6 7 ... 40 */
+.pageGap {
+  min-width: 22px;
+  text-align: center;
+  color: var(--gray-400);
+  font-size: 13px;
+  user-select: none;
+}
+
+/* Bos durumda filtre temizleme linki */
+.resetLink {
+  display: inline-block;
+  margin-top: 12px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.resetLink:hover {
+  color: var(--accent-deep);
+}
+
+/* Tablo akisi: yalniz yatay tasma icin kaydirma; dikey ic scroll tuzagi yok,
+   liste dogal sayfa akisinda uzar (eski .tableScroll max-height yerine). */
+.tableFlow {
+  overflow-x: auto;
+}
+
+/* Kompakt ama okunakli satirlar (yalniz masaustu tablo gorunumunde;
+   dar ekran kart yigininda ortak modulun ferah padding'i kalir). */
+@media (min-width: 761px) {
+  table.compactTable td {
+    padding: 8px 10px;
+  }
+
+  table.compactTable th {
+    padding: 9px 10px;
+  }
+}
+
+/* Klavye odagi: sayfalama linkleri */
+.pageBtn:focus-visible,
+.pageNum:focus-visible,
+.resetLink:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}

@@ -1,14 +1,14 @@
 "use client";
 
-// Ürün tablosu — üst araç çubuğu (sunucudan gelen filtre slotu + "Yeni Ürün"
-// accent butonu), hızlı filtre çipleri (client — İndirimli / Çok Satan /
-// Stokta Yok), collapse'lı yeni ürün formu (createProduct), satır içi
-// fiyat/eski fiyat/stok düzenleme (updateProduct — yalnız değişiklik varsa
-// Kaydet belirginleşir), çok satan + aktif/pasif toggle'ları, görsel önizleme
-// ve tam düzenleme sayfasına "Düzenle" linki. Tablo başlığı sabit (sticky);
-// dar ekranda satırlar kart benzeri yığılır.
+// Urun tablosu: ust arac cubugu (sunucudan gelen filtre slotu + "Yeni Urun"
+// accent butonu), hizli filtre cipleri (GET linki, sayilar sunucudan tum
+// katalog uzerinden gelir), collapse'li yeni urun formu (createProduct),
+// satir ici fiyat/eski fiyat/stok duzenleme (updateProduct, yalniz degisiklik
+// varsa Kaydet belirginlesir), cok satan + aktif/pasif toggle'lari ve tam
+// duzenleme sayfasina "Duzenle" linki. Sayfalama sunucu tarafli: ust ve alt
+// kontroller GET linkidir, k/q/filtre parametreleri korunur.
 
-import { useMemo, useState, useTransition } from "react";
+import { useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -29,14 +29,41 @@ import {
 import { SHOP_CATEGORIES, CATEGORY_TINTS, categoryBySlug } from "@/lib/shop/categories";
 import type { Product } from "@/lib/shop/types";
 import styles from "../../admin.module.css";
+import pstyles from "./products.module.css";
 
-/** "12,50" / "12.50" → 12.5; geçersizse null. */
+/** Hizli filtre cipi: sunucuda hesaplanir, link olarak gezinilir. */
+export interface ChipData {
+  key: "indirimli" | "cok-satan" | "stokta-yok";
+  label: string;
+  count: number;
+  href: string;
+  active: boolean;
+}
+
+/** Sayfa numarasi listesi elemani: link ya da kisaltma noktasi. */
+export type PageItem =
+  | { type: "page"; number: number; href: string; current: boolean }
+  | { type: "gap" };
+
+/** Sunucuda hesaplanan sayfalama durumu (tum linkler hazir gelir). */
+export interface PaginationData {
+  page: number;
+  totalPages: number;
+  total: number;
+  rangeStart: number;
+  rangeEnd: number;
+  prevHref: string | null;
+  nextHref: string | null;
+  items: PageItem[];
+}
+
+/** "12,50" / "12.50" -> 12.5; gecersizse null. */
 function parsePrice(value: string): number | null {
   const n = Number.parseFloat(value.replace(",", "."));
   return Number.isFinite(n) && n >= 0 ? n : null;
 }
 
-/** İndirim öncesi (eski) fiyat: boş = indirim yok (null); geçersizse undefined. */
+/** Indirim oncesi (eski) fiyat: bos = indirim yok (null); gecersizse undefined. */
 function parseCompare(value: string): number | null | undefined {
   const trimmed = value.trim();
   if (trimmed === "") return null;
@@ -44,12 +71,16 @@ function parseCompare(value: string): number | null | undefined {
   return Number.isFinite(n) && n >= 0 ? n : undefined;
 }
 
-/** Ürün indirimli mi? (eski fiyat, güncel fiyattan yüksek) */
+/** Urun indirimli mi? (eski fiyat, guncel fiyattan yuksek) */
 function isDiscounted(p: Product): boolean {
   return p.compare_at_price !== null && p.compare_at_price > p.price;
 }
 
-type QuickKey = "discounted" | "bestseller" | "outofstock";
+const CHIP_ICONS: Record<ChipData["key"], React.ReactNode> = {
+  indirimli: <Tag size={14} aria-hidden />,
+  "cok-satan": <Star size={14} aria-hidden />,
+  "stokta-yok": <PackageX size={14} aria-hidden />,
+};
 
 function ProductRow({ product }: { product: Product }) {
   const router = useRouter();
@@ -274,12 +305,75 @@ function ProductRow({ product }: { product: Product }) {
   );
 }
 
+/** Onceki / sayfa numaralari / Sonraki: tumu GET linki, ok ikonu yok. */
+function Pager({ pagination }: { pagination: PaginationData }) {
+  if (pagination.totalPages <= 1) return null;
+  return (
+    <nav className={pstyles.pager} aria-label="Sayfalar">
+      {pagination.prevHref ? (
+        <Link href={pagination.prevHref} className={pstyles.pageBtn}>
+          Önceki
+        </Link>
+      ) : (
+        <span className={pstyles.pageBtnOff} aria-disabled="true">
+          Önceki
+        </span>
+      )}
+      <span className={pstyles.pageNums}>
+        {pagination.items.map((item, i) =>
+          item.type === "gap" ? (
+            <span key={`gap-${i}`} className={pstyles.pageGap} aria-hidden>
+              …
+            </span>
+          ) : item.current ? (
+            <span
+              key={item.number}
+              className={pstyles.pageNumCurrent}
+              aria-current="page"
+            >
+              {item.number}
+            </span>
+          ) : (
+            <Link
+              key={item.number}
+              href={item.href}
+              className={pstyles.pageNum}
+              aria-label={`Sayfa ${item.number}`}
+            >
+              {item.number}
+            </Link>
+          ),
+        )}
+      </span>
+      {pagination.nextHref ? (
+        <Link href={pagination.nextHref} className={pstyles.pageBtn}>
+          Sonraki
+        </Link>
+      ) : (
+        <span className={pstyles.pageBtnOff} aria-disabled="true">
+          Sonraki
+        </span>
+      )}
+    </nav>
+  );
+}
+
 export default function ProductsTable({
   products,
+  chips,
+  clearFilterHref,
+  resetHref,
+  hasActiveFilters,
+  pagination,
   filterSlot,
   openForm = false,
 }: {
   products: Product[];
+  chips: ChipData[];
+  clearFilterHref: string | null;
+  resetHref: string;
+  hasActiveFilters: boolean;
+  pagination: PaginationData;
   filterSlot?: React.ReactNode;
   openForm?: boolean;
 }) {
@@ -287,44 +381,7 @@ export default function ProductsTable({
   const [showForm, setShowForm] = useState(openForm);
   const [busy, setBusy] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
-  const [quick, setQuick] = useState<Set<QuickKey>>(new Set());
   const [, startTransition] = useTransition();
-
-  // Hızlı filtre çipleri için sayımlar (yüklenen listeden — client tarafı).
-  const counts = useMemo(
-    () => ({
-      discounted: products.filter(isDiscounted).length,
-      bestseller: products.filter((p) => p.is_best_seller).length,
-      outofstock: products.filter((p) => !p.in_stock).length,
-    }),
-    [products],
-  );
-
-  // Aktif çiplerin HEPSİNİ karşılayan ürünler (VE mantığı).
-  const filtered = useMemo(() => {
-    if (quick.size === 0) return products;
-    return products.filter((p) => {
-      if (quick.has("discounted") && !isDiscounted(p)) return false;
-      if (quick.has("bestseller") && !p.is_best_seller) return false;
-      if (quick.has("outofstock") && p.in_stock) return false;
-      return true;
-    });
-  }, [products, quick]);
-
-  function toggleQuick(key: QuickKey) {
-    setQuick((prev) => {
-      const next = new Set(prev);
-      if (next.has(key)) next.delete(key);
-      else next.add(key);
-      return next;
-    });
-  }
-
-  const quickChips: { key: QuickKey; label: string; icon: React.ReactNode; count: number }[] = [
-    { key: "discounted", label: "İndirimli", icon: <Tag size={14} aria-hidden />, count: counts.discounted },
-    { key: "bestseller", label: "Çok Satan", icon: <Star size={14} aria-hidden />, count: counts.bestseller },
-    { key: "outofstock", label: "Stokta Yok", icon: <PackageX size={14} aria-hidden />, count: counts.outofstock },
-  ];
 
   function handleCreate(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -360,7 +417,7 @@ export default function ProductsTable({
 
   return (
     <>
-      {/* Üst araç çubuğu: filtre (sunucu GET formu) + Yeni Ürün accent butonu */}
+      {/* Ust arac cubugu: filtre (sunucu GET formu) + Yeni Urun accent butonu */}
       <div className={styles.toolbar}>
         {filterSlot}
         <button
@@ -378,40 +435,30 @@ export default function ProductsTable({
         </button>
       </div>
 
-      {/* Hızlı filtre çipleri (client) + sonuç sayacı */}
+      {/* Hizli filtre cipleri: GET linki, sayilar tum katalogdan (sunucu) */}
       <div className={styles.quickBar}>
         <div className={styles.quickChips}>
-          {quickChips.map((c) => (
-            <button
+          {chips.map((c) => (
+            <Link
               key={c.key}
-              type="button"
-              onClick={() => toggleQuick(c.key)}
-              className={`${styles.chip} ${quick.has(c.key) ? styles["chip--active"] : ""}`}
-              aria-pressed={quick.has(c.key)}
+              href={c.href}
+              className={`${styles.chip} ${c.active ? styles["chip--active"] : ""}`}
+              aria-current={c.active ? "true" : undefined}
             >
-              {c.icon}
+              {CHIP_ICONS[c.key]}
               {c.label}
               <span className={styles.chipCount}>{c.count}</span>
-            </button>
+            </Link>
           ))}
-          {quick.size > 0 && (
-            <button
-              type="button"
-              onClick={() => setQuick(new Set())}
-              className={styles.quickClear}
-            >
+          {clearFilterHref && (
+            <Link href={clearFilterHref} className={styles.quickClear}>
               Filtreyi temizle
-            </button>
+            </Link>
           )}
         </div>
-        <span className={styles.quickResult}>
-          {filtered.length === products.length
-            ? `${products.length} ürün`
-            : `${filtered.length} / ${products.length} ürün`}
-        </span>
       </div>
 
-      {/* Yeni ürün formu (collapse) */}
+      {/* Yeni urun formu (collapse) */}
       {showForm && (
         <section className={styles.panel} style={{ marginBottom: 16 }}>
           <h2 className={styles.panelTitle}>Yeni Ürün Ekle</h2>
@@ -467,37 +514,63 @@ export default function ProductsTable({
         </section>
       )}
 
-      {/* Ürün tablosu — başlıklar kaydırma alanında sabit, dar ekranda kart */}
+      {/* Liste ustu: aralik bilgisi + sayfa kontrolu */}
+      <div className={pstyles.pagerBar}>
+        <span className={pstyles.rangeInfo}>
+          {pagination.total === 0
+            ? "Sonuç yok"
+            : `${pagination.rangeStart}-${pagination.rangeEnd} arası, toplam ${pagination.total} ürün`}
+        </span>
+        <Pager pagination={pagination} />
+      </div>
+
+      {/* Urun tablosu: dogal sayfa akisi (dikey ic scroll yok), dar ekranda kart */}
       {products.length === 0 ? (
-        <div className={styles.empty}>Bu filtrede ürün yok.</div>
-      ) : filtered.length === 0 ? (
         <div className={styles.empty}>
-          Seçili hızlı filtrelere uyan ürün yok.
+          {hasActiveFilters
+            ? "Bu filtrelerle eşleşen ürün bulunamadı."
+            : "Henüz ürün eklenmemiş."}
+          {hasActiveFilters && (
+            <div>
+              <Link href={resetHref} className={pstyles.resetLink}>
+                Filtreleri temizle
+              </Link>
+            </div>
+          )}
         </div>
       ) : (
-        <div className={styles.tableCard}>
-          <div className={styles.tableScroll}>
-            <table className={`${styles.table} ${styles.productTable}`}>
-              <thead>
-                <tr>
-                  <th>Ürün</th>
-                  <th>Kategori</th>
-                  <th>Fiyat</th>
-                  <th>Eski Fiyat</th>
-                  <th>Stok</th>
-                  <th>Çok Satan</th>
-                  <th>Durum</th>
-                  <th></th>
-                </tr>
-              </thead>
-              <tbody>
-                {filtered.map((p) => (
-                  <ProductRow key={p.id} product={p} />
-                ))}
-              </tbody>
-            </table>
+        <>
+          <div className={styles.tableCard}>
+            <div className={pstyles.tableFlow}>
+              <table
+                className={`${styles.table} ${styles.productTable} ${pstyles.compactTable}`}
+              >
+                <thead>
+                  <tr>
+                    <th>Ürün</th>
+                    <th>Kategori</th>
+                    <th>Fiyat</th>
+                    <th>Eski Fiyat</th>
+                    <th>Stok</th>
+                    <th>Çok Satan</th>
+                    <th>Durum</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {products.map((p) => (
+                    <ProductRow key={p.id} product={p} />
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
-        </div>
+
+          {/* Liste alti sayfa kontrolu */}
+          <div className={pstyles.pagerBottom}>
+            <Pager pagination={pagination} />
+          </div>
+        </>
       )}
     </>
   );

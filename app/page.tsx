@@ -13,21 +13,6 @@ import { Check, ShoppingBasket, Package, Bike } from "lucide-react";
 /* ============================================================
    ICONS
    ============================================================ */
-function MapPinIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
-      <path d="M12 21s-7-7.2-7-12a7 7 0 1 1 14 0c0 4.8-7 12-7 12Z" />
-      <circle cx="12" cy="9" r="2.5" />
-    </svg>
-  );
-}
-function PhoneIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
-      <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.13 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.37 1.9.72 2.8a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.9.35 1.84.59 2.8.72A2 2 0 0 1 22 16.92Z" />
-    </svg>
-  );
-}
 function ScooterIcon() {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true">
@@ -220,9 +205,9 @@ export default function Home() {
                   Sorun mu var? Canlı destek yanında.
                 </h2>
                 <p className="features__p">
-                  Baloncuğa tıkla, anında yazışalım. Stoktan teyit eder, eksik
-                  olanı sorar, tezgâhtan özenle toplarız. Dilersen telefon ya da
-                  WhatsApp ile de ulaşabilirsin.
+                  Baloncuğa tıkla, anında yazışalım. Siparişine ürün ekletebilir,
+                  stok ve fiyat sorabilir, teslimatının durumunu öğrenebilirsin.
+                  Dilersen telefonla da ulaşabilirsin.
                 </p>
                 <LiveSupportCta />
               </div>
@@ -321,39 +306,43 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ===== CTA — command center ===== */}
-        <section className="cta">
+        {/* ===== KAPANIS CTA: online siparis paneli ===== */}
+        <section className="cta" aria-labelledby="cta-title">
           <div className="container">
-            <div className="cta__head">
-              <h2 className="cta__title">
-                <span className="cta__title-wa">Bir mesaj</span> uzaktayız.
+            <div className="cta__panel">
+              <h2 id="cta-title" className="cta__title">
+                Siparişini ver, gerisini biz halledelim.
               </h2>
-            </div>
-
-            <div className="cta__grid">
-              <a href="/urunler" className="cta-card">
-                <span className="cta-card__icon"><ShoppingBasket strokeWidth={1.8} /></span>
-                <span className="cta-card__eyebrow">Online Sipariş</span>
-                <span className="cta-card__title">Alışverişe Başla</span>
-                <span className="cta-card__detail">Sepetini oluştur, gerisi bizde</span>
-              </a>
-              <a href={BUSINESS.phone.href} className="cta-card">
-                <span className="cta-card__icon"><PhoneIcon /></span>
-                <span className="cta-card__eyebrow">Telefon</span>
-                <span className="cta-card__title">{BUSINESS.phone.display}</span>
-                <span className="cta-card__detail">Arayıp söyleyebilirsin</span>
-              </a>
-              <a
-                href={BUSINESS.googleMapsDirectionsUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="cta-card"
-              >
-                <span className="cta-card__icon"><MapPinIcon /></span>
-                <span className="cta-card__eyebrow">Yol tarifi</span>
-                <span className="cta-card__title">Kurtuluş Cad.</span>
-                <span className="cta-card__detail">Sapanca · Yeni Mahalle</span>
-              </a>
+              <p className="cta__sub">
+                Sepetini doldur, tezgâhtan özenle toplayalım, kapına getirelim.
+                Fiyatlar sitede, ödeme ister kapıda ister online.
+              </p>
+              <div className="cta__actions">
+                <a href="/urunler" className="btn btn--accent btn--lg">
+                  Alışverişe Başla
+                </a>
+                <a href="/firsatlar" className="btn btn--lg cta__ghost">
+                  Fırsatları Gör
+                </a>
+              </div>
+              <ul className="cta__chips" aria-label="Sipariş avantajları">
+                <li className="cta__chip">
+                  <ScooterIcon />
+                  ~30 dk teslimat
+                </li>
+                <li className="cta__chip">
+                  <ClockIcon />
+                  07:30 - 02:00 her gün
+                </li>
+                <li className="cta__chip">
+                  <CardIcon />
+                  Kapıda nakit, kart veya online ödeme
+                </li>
+              </ul>
+              <p className="cta__foot">
+                Telefonla sipariş vermek istersen:{" "}
+                <a href={BUSINESS.phone.href}>{BUSINESS.phone.display}</a>
+              </p>
             </div>
           </div>
         </section>

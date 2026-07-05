@@ -796,7 +796,8 @@ p { margin: 0; }
   animation: pulse 1.8s var(--ease) infinite;
 }
 
-/* WhatsApp tarzı sohbet — scroll'da staggered reveal (ChatPreview.tsx) */
+/* Canlı destek önizlemesi: scroll'da staggered reveal (ChatPreview.tsx) */
+/* Görünüm, sitenin gerçek ChatWidget'i ile aynı dili konuşur. */
 /* Sabit yükseklik: mesaj geldikçe alan büyümez, içeride kayar */
 .features__visual--chat {
   padding: 0;
@@ -809,53 +810,64 @@ p { margin: 0; }
   height: 100%;
   display: flex;
   flex-direction: column;
-  /* WhatsApp duvar kağıdı tonu + ince doku */
-  background:
-    radial-gradient(circle at 1px 1px, rgba(16,16,16,0.025) 1px, transparent 0),
-    #efeae2;
-  background-size: 22px 22px, auto;
+  /* ChatWidget gövdesiyle aynı krem zemin */
+  background: #faf8f4;
 }
 .chat__head {
   display: flex;
   align-items: center;
   gap: 12px;
   padding: 14px 18px;
-  background: #075e54;
-  color: #fff;
+  background: var(--black);
+  color: var(--white);
 }
 .chat__avatar {
   width: 38px; height: 38px;
   border-radius: 50%;
-  background: #25d366;
-  color: #04280f;
+  background: var(--white);
   display: inline-grid; place-items: center;
-  font-family: var(--font-display);
-  font-weight: 700; font-size: var(--fs-h4);
+  overflow: hidden;
   flex-shrink: 0;
+}
+.chat__avatar img {
+  width: 100%; height: 100%;
+  object-fit: contain;
+  padding: 3px;
+  display: block;
 }
 .chat__who { display: flex; flex-direction: column; line-height: 1.2; min-width: 0; }
 .chat__name { font-size: var(--fs-small); font-weight: 600; letter-spacing: -0.01em; }
-.chat__status { font-size: var(--fs-micro); color: rgba(255,255,255,0.75); }
+.chat__status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--fs-micro);
+  color: rgba(255,255,255,0.72);
+}
+.chat__dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  flex-shrink: 0;
+}
 .chat__body {
   flex: 1;
   min-height: 0;
   padding: clamp(18px, 2.6vw, 28px);
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
   overflow-y: auto;
   scrollbar-width: none;
 }
 .chat__body::-webkit-scrollbar { display: none; }
+/* Balonlar: widget'taki müşteri (turuncu, sağ) / mağaza (beyaz, sol) dili */
 .chat-bubble {
+  display: flex;
+  flex-direction: column;
   max-width: 82%;
-  padding: 7px 10px 6px 12px;
-  border-radius: 12px;
   font-size: var(--fs-eyebrow);
-  line-height: 1.4;
-  color: #111b21;
-  position: relative;
-  box-shadow: 0 1px 1px rgba(11,20,26,0.12);
+  line-height: 1.5;
   /* JS mount sırasında her baloncuk belirir */
   animation: bubbleIn 0.34s var(--ease) both;
 }
@@ -863,45 +875,53 @@ p { margin: 0; }
   from { opacity: 0; transform: translateY(10px) scale(0.96); }
   to   { opacity: 1; transform: none; }
 }
-.chat-bubble--in {
-  align-self: flex-start;
-  background: #ffffff;
-  border-top-left-radius: 3px;
-  transform-origin: bottom left;
+.chat-bubble__text {
+  padding: 9px 13px;
+  border-radius: 14px;
+  overflow-wrap: break-word;
 }
-.chat-bubble--out {
+.chat-bubble__meta {
+  font-size: var(--fs-micro);
+  color: var(--gray-500);
+  margin-top: 4px;
+  padding-inline: 4px;
+}
+.chat-bubble--customer {
   align-self: flex-end;
-  background: #d9fdd3;
-  border-top-right-radius: 3px;
+  align-items: flex-end;
   transform-origin: bottom right;
 }
-.chat-bubble__text { display: inline; }
-.chat-bubble__meta {
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  float: right;
-  margin: 6px 0 -2px 10px;
-  font-size: var(--fs-micro);
-  color: rgba(17,27,33,0.45);
-  white-space: nowrap;
+.chat-bubble--customer .chat-bubble__text {
+  background: var(--accent);
+  color: var(--white);
+  border-bottom-right-radius: 4px;
 }
-.chat-bubble__checks { width: 15px; height: 10px; color: #53bdeb; }
+.chat-bubble--store {
+  align-self: flex-start;
+  align-items: flex-start;
+  transform-origin: bottom left;
+}
+.chat-bubble--store .chat-bubble__text {
+  background: var(--white);
+  border: 1px solid rgba(10,10,10,0.08);
+  color: var(--ink);
+  border-bottom-left-radius: 4px;
+}
 /* yazıyor göstergesi */
 .chat-typing {
   align-self: flex-start;
   display: inline-flex;
   gap: 4px;
-  padding: 11px 14px;
-  background: #fff;
-  border-radius: 12px;
-  border-top-left-radius: 3px;
-  box-shadow: 0 1px 1px rgba(11,20,26,0.12);
+  padding: 12px 14px;
+  background: var(--white);
+  border: 1px solid rgba(10,10,10,0.08);
+  border-radius: 14px;
+  border-bottom-left-radius: 4px;
   animation: bubbleIn 0.28s var(--ease) both;
 }
 .chat-typing span {
   width: 6px; height: 6px; border-radius: 50%;
-  background: rgba(17,27,33,0.35);
+  background: rgba(10,10,10,0.35);
   animation: typingDot 1.3s infinite both;
 }
 .chat-typing span:nth-child(2) { animation-delay: 0.18s; }
@@ -910,6 +930,36 @@ p { margin: 0; }
   0%, 60%, 100% { opacity: 0.35; transform: translateY(0); }
   30% { opacity: 1; transform: translateY(-3px); }
 }
+/* dekoratif yazı çubuğu: widget composer'ının statik hali */
+.chat__composer {
+  display: flex;
+  gap: 8px;
+  padding: 10px 12px;
+  border-top: 1px solid rgba(10,10,10,0.08);
+  background: var(--white);
+}
+.chat__composer-input {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 0 14px;
+  border: 1px solid rgba(10,10,10,0.12);
+  background: #faf8f4;
+  border-radius: 12px;
+  font-size: var(--fs-small);
+  color: var(--gray-500);
+}
+.chat__composer-send {
+  width: 40px; height: 40px;
+  border-radius: 12px;
+  background: var(--black);
+  color: var(--white);
+  display: inline-grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+.chat__composer-send svg { width: 17px; height: 17px; }
 @media (prefers-reduced-motion: reduce) {
   .chat-bubble, .chat-typing { animation: none; }
   .chat-typing span { animation: none; }
@@ -1365,54 +1415,51 @@ p { margin: 0; }
 }
 
 /* ============================================================
-   BIG CTA
+   KAPANIS CTA: online sipariş paneli
    ============================================================ */
-/* CTA — açık tema, sayfanın geri kalanıyla uyumlu */
 .cta {
   padding-block: var(--section-y);
   background: var(--white);
-  color: var(--ink);
+}
+/* Koyu premium panel + accent ışıltı */
+.cta__panel {
   position: relative;
   overflow: hidden;
-}
-.cta::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background:
-    /* üst kenarı beyazla kapat → üstteki bölümle pürüzsüz geçiş */
-    linear-gradient(180deg, var(--white) 0%, transparent 22%),
-    /* başlığın arkasında yumuşak yeşil ışıltı (üst kenara değmez) */
-    radial-gradient(ellipse 55% 45% at 50% 12%, rgba(37, 211, 102, 0.12) 0%, transparent 60%),
-    /* alt köşede çok hafif sıcak ton */
-    radial-gradient(circle 360px at 95% 108%, rgba(255, 90, 31, 0.05) 0%, transparent 60%);
-  pointer-events: none;
-}
-.cta::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background-image:
-    radial-gradient(circle at 1px 1px, rgba(16,16,16,0.05) 1px, transparent 0);
-  background-size: 32px 32px;
-  mask-image: radial-gradient(ellipse 75% 70% at 50% 40%, black 0%, transparent 85%);
-  -webkit-mask-image: radial-gradient(ellipse 75% 70% at 50% 40%, black 0%, transparent 85%);
-  opacity: 0.6;
-  pointer-events: none;
-}
-.cta > .container {
-  position: relative;
-  z-index: 1;
+  isolation: isolate;
+  border-radius: var(--r-xl);
+  background: var(--ink);
+  color: var(--white);
+  padding: clamp(44px, 6vw, 88px) clamp(24px, 5vw, 72px);
   display: flex;
   flex-direction: column;
-  gap: clamp(32px, 4vw, 56px);
-}
-
-/* Ortalı editorial başlık */
-.cta__head {
-  display: flex;
-  justify-content: center;
+  align-items: center;
   text-align: center;
+  gap: 18px;
+}
+.cta__panel::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    /* başlığın üstünde sıcak accent ışıltısı */
+    radial-gradient(ellipse 72% 58% at 50% -12%, rgba(255, 90, 31, 0.30) 0%, transparent 62%),
+    /* alt köşelerde hafif yankı */
+    radial-gradient(circle 340px at 8% 112%, rgba(255, 90, 31, 0.14) 0%, transparent 60%),
+    radial-gradient(circle 300px at 96% 104%, rgba(255, 90, 31, 0.10) 0%, transparent 60%);
+  pointer-events: none;
+}
+.cta__panel::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-image:
+    radial-gradient(circle at 1px 1px, rgba(255,255,255,0.05) 1px, transparent 0);
+  background-size: 26px 26px;
+  mask-image: radial-gradient(ellipse 80% 70% at 50% 30%, black 0%, transparent 90%);
+  -webkit-mask-image: radial-gradient(ellipse 80% 70% at 50% 30%, black 0%, transparent 90%);
+  pointer-events: none;
 }
 .cta__title {
   font-family: var(--font-display);
@@ -1420,86 +1467,77 @@ p { margin: 0; }
   font-weight: 700;
   letter-spacing: -0.035em;
   line-height: 1.05;
-  color: var(--ink);
+  color: var(--white);
   text-wrap: balance;
   margin: 0;
+  max-width: 24ch;
 }
-.cta__title-wa { color: var(--green); }
-
-/* 3 aksiyon kartı */
-.cta__grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 14px;
+.cta__sub {
+  margin: 0;
+  max-width: 52ch;
+  font-size: var(--fs-lead);
+  line-height: 1.55;
+  color: rgba(255,255,255,0.72);
 }
-@media (min-width: 760px) {
-  .cta__grid { grid-template-columns: repeat(3, 1fr); }
+.cta__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 8px;
 }
-.cta-card {
-  position: relative;
-  display: grid;
-  grid-template-areas:
-    "icon"
-    "eyebrow"
-    "title"
-    "detail";
-  grid-template-columns: 1fr;
-  align-items: start;
-  gap: 6px;
-  padding: 26px 26px 24px;
-  border-radius: var(--r-lg);
-  background: var(--white);
-  border: 1px solid var(--gray-200);
-  color: var(--ink);
-  text-decoration: none;
-  isolation: isolate;
-  transition: border-color 220ms var(--ease), transform 220ms var(--ease),
-    box-shadow 220ms var(--ease);
+/* Koyu zemin için hayalet buton varyantı */
+.cta__ghost {
+  background: rgba(255,255,255,0.06);
+  color: var(--white);
+  border: 1px solid rgba(255,255,255,0.24);
 }
-.cta-card:hover,
-.cta-card:focus-visible {
-  border-color: var(--gray-300);
-  transform: translateY(-3px);
-  box-shadow:
-    0 1px 0 rgba(255,255,255,0.9) inset,
-    0 20px 40px -24px rgba(16,16,16,0.20),
-    0 8px 16px -12px rgba(16,16,16,0.10);
+.cta__ghost:hover {
+  background: rgba(255,255,255,0.12);
+  border-color: rgba(255,255,255,0.5);
+  transform: translateY(-1px);
 }
-.cta-card__icon {
-  grid-area: icon;
-  width: 40px; height: 40px;
-  display: inline-grid; place-items: center;
-  border-radius: 12px;
-  background: var(--gray-100);
-  color: var(--ink);
-  transition: background 220ms var(--ease), color 220ms var(--ease);
+/* Güven çipleri */
+.cta__chips {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  list-style: none;
+  margin: 14px 0 0;
+  padding: 0;
 }
-.cta-card__icon svg { width: 19px; height: 19px; }
-.cta-card__eyebrow {
-  grid-area: eyebrow;
-  margin-top: 18px;
-  font-family: var(--font-display);
-  font-size: var(--fs-eyebrow);
-  font-weight: 600;
-  letter-spacing: -0.01em;
-  color: var(--gray-500);
-}
-.cta-card__title {
-  grid-area: title;
-  font-family: var(--font-display);
-  font-size: var(--fs-h4);
-  font-weight: 700;
-  letter-spacing: -0.025em;
-  line-height: 1.15;
-  color: var(--ink);
-}
-.cta-card__detail {
-  grid-area: detail;
-  margin-top: 4px;
+.cta__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 15px;
+  border-radius: var(--r-pill);
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.13);
   font-size: var(--fs-small);
-  line-height: 1.5;
-  color: var(--gray-500);
+  color: rgba(255,255,255,0.85);
 }
+.cta__chip svg {
+  width: 16px; height: 16px;
+  color: var(--accent);
+  flex-shrink: 0;
+}
+/* İkinci satır: telefonla sipariş linki */
+.cta__foot {
+  margin: 10px 0 0;
+  font-size: var(--fs-small);
+  color: rgba(255,255,255,0.55);
+}
+.cta__foot a {
+  color: var(--white);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-color: rgba(255,255,255,0.35);
+  transition: text-decoration-color 180ms var(--ease);
+}
+.cta__foot a:hover { text-decoration-color: var(--white); }
 
 /* ============================================================
    FOOTER

@@ -1,0 +1,292 @@
+/* ============================================================
+   Admin login sayfasi stilleri.
+   admin.module.css SALT OKUNUR oldugu icin login stilleri
+   bu ayri modulde tutulur. Tum tipografi Geist (--font-sans).
+   ============================================================ */
+
+.shell {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: 32px 20px;
+  background: var(--black);
+  color: var(--white);
+  font-family: var(--font-sans);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Cok hafif accent isik dokusu: sol ustte sicak bir parlama,
+   sag altta daha soluk bir yansima. */
+.shell::before,
+.shell::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.shell::before {
+  background:
+    radial-gradient(640px 480px at 18% 12%, rgba(255, 90, 31, 0.16), transparent 62%),
+    radial-gradient(760px 560px at 86% 92%, rgba(255, 90, 31, 0.07), transparent 60%);
+}
+
+/* Ince nokta dokusu: koyu zemine derinlik katar, dikkat cekmez. */
+.shell::after {
+  background-image: radial-gradient(rgba(255, 255, 255, 0.045) 1px, transparent 1px);
+  background-size: 26px 26px;
+  mask-image: radial-gradient(720px 560px at 50% 42%, rgba(0, 0, 0, 0.9), transparent 75%);
+}
+
+.wrap {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 424px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.card {
+  background: var(--white);
+  color: var(--black);
+  border: 1px solid rgba(10, 10, 10, 0.08);
+  border-radius: var(--r-xl);
+  padding: 40px 36px 36px;
+  box-shadow:
+    0 40px 90px rgba(0, 0, 0, 0.5),
+    0 4px 14px rgba(0, 0, 0, 0.3),
+    0 0 0 1px rgba(255, 255, 255, 0.04);
+  animation: cardIn 420ms var(--ease) both;
+}
+
+@keyframes cardIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card {
+    animation: none;
+  }
+}
+
+/* ---- Marka satiri ---- */
+.brandRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 18px;
+  margin-bottom: 22px;
+  border-bottom: 1px solid var(--gray-100);
+}
+
+.logo {
+  width: 42px;
+  height: 42px;
+  border-radius: var(--r-md);
+  background: var(--accent-soft);
+  padding: 4px;
+  flex-shrink: 0;
+  display: block;
+}
+
+.brandName {
+  font-size: 14.5px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--gray-900);
+}
+
+/* ---- Baslik ---- */
+.title {
+  font-family: var(--font-sans);
+  font-size: 27px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  margin: 0 0 8px;
+  color: var(--black);
+}
+
+.sub {
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--gray-500);
+  margin: 0 0 26px;
+}
+
+/* ---- Form ---- */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.label {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--gray-700);
+  letter-spacing: 0;
+}
+
+.inputWrap {
+  position: relative;
+}
+
+.input {
+  width: 100%;
+  min-height: 50px;
+  font: inherit;
+  font-size: 15.5px;
+  color: var(--black);
+  background: var(--gray-50);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--r-md);
+  padding: 12px 52px 12px 15px;
+  transition:
+    border-color 160ms var(--ease),
+    background 160ms var(--ease),
+    box-shadow 160ms var(--ease);
+}
+
+.input:hover {
+  border-color: var(--gray-300);
+}
+
+.input:focus-visible {
+  outline: none;
+  background: var(--white);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3.5px rgba(255, 90, 31, 0.2);
+}
+
+/* ---- Goster/gizle toggle ---- */
+.toggle {
+  position: absolute;
+  top: 50%;
+  right: 6px;
+  transform: translateY(-50%);
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  background: transparent;
+  border: none;
+  border-radius: var(--r-sm);
+  color: var(--gray-500);
+  cursor: pointer;
+  transition: color 160ms var(--ease), background 160ms var(--ease);
+}
+
+.toggle:hover {
+  color: var(--gray-900);
+  background: var(--gray-100);
+}
+
+.toggle:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+/* ---- Hata kutusu ---- */
+.error {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: #a32020;
+  background: #fff4f4;
+  border: 1px solid #f3c8c8;
+  border-radius: var(--r-md);
+  padding: 11px 13px;
+  margin: 0;
+}
+
+.errorIcon {
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+/* ---- Gonder butonu ---- */
+.submit {
+  margin-top: 6px;
+  min-height: 50px;
+  font: inherit;
+  font-size: 14.5px;
+  font-weight: 600;
+  color: var(--white);
+  background: var(--black);
+  border: none;
+  border-radius: var(--r-pill);
+  padding: 13px 20px;
+  cursor: pointer;
+  transition:
+    background 160ms var(--ease),
+    transform 160ms var(--ease),
+    opacity 160ms var(--ease);
+}
+
+.submit:hover:not(:disabled) {
+  background: var(--gray-900);
+  transform: translateY(-1px);
+}
+
+.submit:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.submit:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.submit:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+/* ---- Kart alti sessiz satir ---- */
+.footnote {
+  text-align: center;
+  font-size: 12.5px;
+  color: rgba(255, 255, 255, 0.38);
+  margin: 0;
+  letter-spacing: 0.01em;
+}
+
+/* ---- Mobil ---- */
+@media (max-width: 480px) {
+  .shell {
+    padding: 24px 16px;
+  }
+
+  .card {
+    padding: 30px 22px 28px;
+    border-radius: var(--r-lg);
+  }
+
+  .title {
+    font-size: 23px;
+  }
+
+  .brandRow {
+    padding-bottom: 15px;
+    margin-bottom: 18px;
+  }
+}

@@ -1,6 +1,6 @@
-// Admin — kampanya banner yönetimi (banners tablosu).
-// Server component: banner'ları service-role ile çeker, tabloyu client'a verir.
-// Tablo henüz kurulmamışsa (migration eksik) anlaşılır kurulum mesajı gösterir.
+// Admin: banner yonetimi (banners tablosu).
+// Server component: banner'lari service-role ile ceker, kart gridini client'a verir.
+// Tablo henuz kurulmamissa (migration eksik) anlasilir kurulum mesaji gosterir.
 
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { Banner } from "@/lib/shop/types";
@@ -48,8 +48,10 @@ export default async function AdminBannersPage() {
     <>
       <h1 className={styles.title}>Bannerlar</h1>
       <p className={styles.subtitle}>
-        Kampanya banner&apos;ları: ana sayfa ve ürünler sayfasının üstünde
-        sırayla döner, aktif olmayanlar gösterilmez.
+        Bannerlar ana sayfa ve ürünler sayfasının üstünde sırayla döner; aktif
+        olmayanlar gösterilmez. Aktif kuponlar vitrine otomatik banner olarak
+        eklenir; kupon varken /firsatlar hedefli eski kampanya bannerları
+        vitrinde gizlenir. Buradaki liste bilgi/kategori bannerlarıdır.
       </p>
 
       {needsSetup ? (

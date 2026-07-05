@@ -1,0 +1,326 @@
+/* ============================================================
+   Panel (dashboard) ek stilleri - admin.module.css'i tamamlar.
+   Yalniz dashboard sayfasina ozel widget stilleri burada yasar:
+   KPI degisim rozetleri, durum dagilimi, cok satanlar, katalog
+   sagligi, topluluk kartlari ve gelir grafigi rotuslari.
+   ============================================================ */
+
+/* ---- KPI degisim rozeti (dune gore) ---- */
+.delta {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  align-self: flex-start;
+  margin-top: 4px;
+  padding: 2px 9px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 600;
+  line-height: 1.5;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.delta--up { background: #e8f7ee; color: #157347; }
+.delta--down { background: #fdeceb; color: #a32020; }
+.delta--flat { background: var(--gray-100); color: var(--gray-500); }
+
+/* ---- Sol ana kolon: alt alta paneller ---- */
+.colStack {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+/* ---- Siparis durumu dagilimi ---- */
+.statusList {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.statusRow {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) 56px 30px;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 8px;
+  border-radius: 10px;
+  text-decoration: none;
+  color: inherit;
+  transition: background 0.15s ease;
+}
+
+.statusRow:hover { background: var(--gray-100); }
+
+.statusRow:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.statusName {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--gray-700);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.statusTrack {
+  height: 6px;
+  border-radius: 999px;
+  background: var(--gray-100);
+  overflow: hidden;
+}
+
+.statusFill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+}
+
+/* Renkler siparis chip'lerindeki durum noktalariyla ayni paletten */
+.statusFill--new { background: #cf8910; }
+.statusFill--confirmed { background: #0e93a8; }
+.statusFill--preparing { background: #2f6fed; }
+.statusFill--on_the_way { background: #7a52d6; }
+.statusFill--delivered { background: #159b57; }
+.statusFill--cancelled { background: #df513c; }
+
+.statusCount {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--black);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Panel alti kucuk aciklama satiri */
+.panelCap {
+  margin: 10px 0 0;
+  font-size: 11.5px;
+  color: var(--gray-400);
+  font-weight: 500;
+}
+
+/* ---- Cok satanlar listesi ---- */
+.topList {
+  display: flex;
+  flex-direction: column;
+}
+
+.topRow {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 2px;
+  border-bottom: 1px solid rgba(10, 10, 10, 0.06);
+}
+
+.topRow:last-child { border-bottom: none; }
+
+.topRank {
+  width: 28px;
+  height: 28px;
+  border-radius: 9px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--gray-100);
+  color: var(--gray-700);
+  font-size: 12.5px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.topRank--first {
+  background: var(--accent-soft);
+  color: var(--accent-deep);
+}
+
+.topInfo { min-width: 0; }
+
+.topName {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--black);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.topBar {
+  margin-top: 6px;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--gray-100);
+  overflow: hidden;
+  max-width: 220px;
+}
+
+.topBarFill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--accent), #ff7a45);
+  min-width: 3px;
+}
+
+.topSide { text-align: right; }
+
+.topQty {
+  display: block;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--gray-500);
+  white-space: nowrap;
+}
+
+.topTotal {
+  display: block;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--black);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* ---- Katalog sagligi satirlari ---- */
+.healthList {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.healthRow {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 8px;
+  border-radius: 10px;
+  text-decoration: none;
+  color: inherit;
+  transition: background 0.15s ease;
+}
+
+.healthRow:hover { background: var(--gray-100); }
+
+.healthRow:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.healthIcon {
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.healthIcon--warn { background: #fdeceb; color: #a32020; }
+.healthIcon--sale { background: #fdf4e1; color: #8a5b0a; }
+.healthIcon--star { background: var(--accent-soft); color: var(--accent); }
+
+.healthLabel {
+  flex: 1;
+  min-width: 0;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--gray-700);
+}
+
+.healthCount {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--black);
+  font-variant-numeric: tabular-nums;
+}
+
+.healthCount--warn { color: #a32020; }
+
+/* ---- Topluluk: bekleyen sohbet + uye sayisi ikilisi ---- */
+.duoGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.duoCard {
+  background: var(--white);
+  border: 1px solid rgba(10, 10, 10, 0.08);
+  border-radius: var(--r-lg);
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  text-decoration: none;
+  color: inherit;
+  box-shadow: 0 1px 2px rgba(10, 10, 10, 0.04);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+a.duoCard:hover {
+  border-color: rgba(10, 10, 10, 0.16);
+  box-shadow: 0 8px 22px -12px rgba(10, 10, 10, 0.14);
+}
+
+.duoCard:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.duoCard--hot {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(255, 90, 31, 0.08);
+}
+
+.duoIcon {
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.duoValue {
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--black);
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+
+.duoLabel {
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--gray-500);
+}
+
+/* ---- Gelir grafigi rotuslari ---- */
+/* Cirosu sifir olan gunlerde ince, gri bir taban cizgisi gosterilir */
+.barZero {
+  display: block;
+  width: 100%;
+  height: 2px;
+  border-radius: 999px;
+  background: var(--gray-300);
+}
+
+/* Bugunun bar etiketi vurgulu (miniBarLabel yerine kullanilir) */
+.barLabelToday {
+  font-size: 10.5px;
+  color: var(--black);
+  font-weight: 700;
+  text-transform: capitalize;
+}
