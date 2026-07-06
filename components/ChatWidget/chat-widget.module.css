@@ -181,6 +181,8 @@
 .body {
   flex: 1;
   overflow-y: auto;
+  /* Mesaj sonuna gelince kaydırma dışarı (sayfaya) zincirlenmesin */
+  overscroll-behavior: contain;
   padding: 20px 18px;
   display: flex;
   flex-direction: column;

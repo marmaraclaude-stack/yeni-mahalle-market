@@ -100,6 +100,7 @@ export default function ChatWidget() {
   const supabaseRef = useRef<ReturnType<typeof createClient> | null>(null);
   const channelRef = useRef<RealtimeChannel | null>(null);
   const bodyRef = useRef<HTMLDivElement | null>(null);
+  const panelRef = useRef<HTMLElement | null>(null);
 
   // Hydrate stored session
   useEffect(() => {
@@ -129,6 +130,34 @@ export default function ChatWidget() {
     document.body.style.overflow = "hidden";
     return () => {
       document.body.style.overflow = prev;
+    };
+  }, [open]);
+
+  // Mobil KLAVYE düzeltmesi: 100dvh klavyeyi hesaba katmaz; input'a
+  // odaklanınca tarayıcı sayfayı kaydırır, başlık ve mesajlar ekrandan
+  // çıkar (sadece boş gövde + input görünür kalır). Panel yüksekliğini
+  // canlı olarak visualViewport'a kilitleriz: başlık + mesajlar +
+  // composer klavyenin ÜSTÜNDE birlikte kalır.
+  useEffect(() => {
+    if (!open) return;
+    const vv = window.visualViewport;
+    if (!vv || !window.matchMedia("(max-width: 560px)").matches) return;
+    const el = panelRef.current;
+    if (!el) return;
+    const apply = () => {
+      el.style.height = `${Math.round(vv.height)}px`;
+      el.style.transform = `translateY(${Math.round(vv.offsetTop)}px)`;
+      const b = bodyRef.current;
+      if (b) b.scrollTop = b.scrollHeight;
+    };
+    apply();
+    vv.addEventListener("resize", apply);
+    vv.addEventListener("scroll", apply);
+    return () => {
+      vv.removeEventListener("resize", apply);
+      vv.removeEventListener("scroll", apply);
+      el.style.height = "";
+      el.style.transform = "";
     };
   }, [open]);
 
@@ -318,6 +347,7 @@ export default function ChatWidget() {
 
       {open && (
         <section
+          ref={panelRef}
           className={styles.panel}
           role="dialog"
           aria-modal="false"
@@ -438,6 +468,14 @@ export default function ChatWidget() {
                   value={draft}
                   onChange={(e) => setDraft(e.target.value)}
                   onKeyDown={handleKeyDown}
+                  onFocus={() => {
+                    // Klavye açılırken son mesajlar görünür kalsın
+                    setTimeout(() => {
+                      const b = bodyRef.current;
+                      if (b) b.scrollTop = b.scrollHeight;
+                    }, 60);
+                  }}
+                  enterKeyHint="send"
                   placeholder="Mesajınızı yazın..."
                   aria-label="Mesaj"
                 />
