@@ -267,7 +267,8 @@
   gap: 8px;
   align-self: flex-start;
   margin-top: 4px;
-  padding: 8px 16px;
+  height: 44px;
+  padding: 0 22px;
   border-radius: var(--r-pill);
   background: var(--white);
   border: 1px solid rgba(255, 90, 31, 0.35);
@@ -276,7 +277,8 @@
   font-weight: 600;
   text-decoration: none;
   font-variant-numeric: tabular-nums;
-  transition: background 160ms var(--ease), border-color 160ms var(--ease);
+  transition: background 160ms var(--ease), border-color 160ms var(--ease),
+    transform 160ms var(--ease);
 }
 .courierPhone svg {
   width: 16px;
@@ -285,6 +287,7 @@
 .courierPhone:hover {
   background: var(--accent-soft);
   border-color: var(--accent);
+  transform: translateY(-1px);
 }
 
 /* Zaman çizelgesi */
@@ -525,6 +528,13 @@
   flex-direction: column;
   gap: 14px;
   max-width: 380px;
+}
+/* Misafir sorgu submit'i ana form butonu: 52px pill standardı */
+.verifyForm :global(.btn) {
+  height: 52px;
+  padding: 0 28px;
+  font-size: var(--fs-body);
+  font-weight: 600;
 }
 
 /* Form alanları */
