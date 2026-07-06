@@ -10,7 +10,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   BadgePercent,
-  Clock,
   House,
   Menu,
   MessageCircle,
@@ -179,16 +178,12 @@ export default function SiteNav() {
             );
           })}
         </nav>
-        {/* Alt bilgi: telefon + çalışma saati (menü boşluğu anlam kazanır) */}
+        {/* Alt bilgi: telefonla arama, diğer butonlarla aynı dilde */}
         <div className="nav-panel__info">
-          <a href={BUSINESS.phone.href} className="nav-panel__info-row">
-            <Phone size={15} aria-hidden="true" />
+          <a href={BUSINESS.phone.href} className="btn btn--ghost nav-panel__call">
+            <Phone size={16} strokeWidth={2} aria-hidden="true" />
             {BUSINESS.phone.display}
           </a>
-          <span className="nav-panel__info-row">
-            <Clock size={15} aria-hidden="true" />
-            07:30 - 02:00 · Her gün açık
-          </span>
         </div>
         <div className={styles.panelAuth}>
           {authed === null ? null : authed ? (

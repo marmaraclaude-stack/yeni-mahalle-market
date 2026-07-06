@@ -125,7 +125,11 @@
   display: flex;
   gap: 8px;
   overflow-x: auto;
-  padding: 10px 2px;
+  padding: 10px var(--gutter);
+  /* Tam genişliğe taşır: pill'ler container kutusunda kesilmek yerine
+     EKRAN kenarında doğal biter, taşan parça kaydırmayı ima eder. */
+  margin-inline: calc(-1 * var(--gutter));
+  scroll-padding-inline: var(--gutter);
   scroll-snap-type: x proximity;
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;

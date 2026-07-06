@@ -261,7 +261,7 @@
 .qty {
   display: inline-flex;
   align-items: center;
-  height: 54px;
+  height: 52px; /* buton standardı: birincil CTA yüksekliği */
   border: 1px solid var(--gray-200);
   border-radius: var(--r-md);
   background: var(--white);
@@ -297,12 +297,12 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  height: 54px;
+  height: 52px; /* buton standardi: birincil CTA yuksekligi */
   padding: 0 22px;
   min-width: 220px;
   flex: 1 1 240px;
   max-width: 460px;
-  border-radius: var(--r-md);
+  border-radius: var(--r-pill); /* buton standardi: pill */
   background: linear-gradient(180deg, #ff6f38 0%, var(--accent) 55%, #f0510f 100%);
   color: var(--white);
   font-size: var(--fs-lead);
@@ -475,33 +475,28 @@
 
 /* Güven/teslimat rozet grid'i — sağ kolonu görselle dengeler.
    2 sütun kompakt; ince ayraç çizgisiyle aksiyonlardan ayrılır. */
-/* Güven şeridi: tek çerçeve, ince hairline bölmeli hücreler (hero stat
-   şeridiyle aynı dil). Geniş ekranda 4'ü tek satırda, darda 2x2. Turuncu
-   plaka yok: çıplak accent ikon + siyah başlık + sessiz alt metin. */
+/* Güven satırı: kutu/zemin YOK. 4 öğe her ekranda tek satırda hizalı;
+   üstte ince ayraç, her öğe ikon + başlık + sessiz alt metin. */
 .trust {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 1px;
+  gap: 10px 12px;
   margin-top: 22px;
-  background: var(--gray-100);
-  border: 1px solid var(--gray-100);
-  border-radius: var(--r-md);
-  overflow: hidden;
+  padding-top: 18px;
+  border-top: 1px solid var(--gray-100);
 }
 .trustItem {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 7px;
-  padding: 13px 14px;
-  background: var(--gray-50);
+  gap: 6px;
   min-width: 0;
 }
 .trustIcon {
   display: block;
   color: var(--accent);
 }
-.trustIcon svg { width: 18px; height: 18px; }
+.trustIcon svg { width: 17px; height: 17px; }
 .trustText {
   display: flex;
   flex-direction: column;
@@ -513,18 +508,11 @@
   font-weight: 600;
   color: var(--gray-900);
   line-height: 1.25;
-  white-space: nowrap;
 }
 .trustSub {
-  font-size: var(--fs-micro);
+  font-size: 11px;
   color: var(--gray-500);
-  line-height: 1.3;
-}
-@media (max-width: 700px) {
-  .trust { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-}
-@media (max-width: 360px) {
-  .trust { grid-template-columns: 1fr; }
+  line-height: 1.35;
 }
 
 /* Mobil: aksiyon satırı kompakt; Sepete Ekle dev görünmesin, adet
