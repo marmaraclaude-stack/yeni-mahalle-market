@@ -610,6 +610,10 @@
   color: var(--gray-500);
   font-size: var(--fs-small);
 }
+/* Rail sarmalayıcı: ok butonlarının konum referansı */
+.railWrap {
+  position: relative;
+}
 .rail {
   display: flex;
   gap: 12px;
@@ -630,3 +634,32 @@
 .railItem > * {
   width: 100%;
 }
+/* Mobil: 3 kart birden görünür (%34 x 3 + gap = kenardan taşan parça
+   kaydırılabilirliği kendiliğinden gösterir) */
+@media (max-width: 640px) {
+  .railItem { flex: 0 0 34%; }
+}
+/* Ok butonları — ana sayfa carousel diliyle: beyaz daire, kenarda */
+.railBtn {
+  position: absolute;
+  top: 33%;
+  z-index: 2;
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 1px solid var(--gray-200);
+  background: var(--white);
+  color: var(--ink);
+  box-shadow: 0 8px 20px -10px rgba(16, 16, 16, 0.28);
+  transition: background 160ms var(--ease), border-color 160ms var(--ease),
+    transform 160ms var(--ease);
+}
+.railBtn:hover {
+  background: var(--gray-50);
+  border-color: var(--gray-300);
+}
+.railBtn:active { transform: scale(0.94); }
+.railBtn--prev { left: -10px; }
+.railBtn--next { right: -10px; }

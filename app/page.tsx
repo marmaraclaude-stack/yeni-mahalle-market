@@ -8,7 +8,7 @@ import SiteFooter from "@/components/SiteFooter";
 import PromoBanners from "@/components/shop/PromoBanners";
 import Carousel from "@/components/Carousel";
 import CategoryGrid from "@/components/CategoryGrid";
-import { Check, ShoppingBasket, Package, Bike } from "lucide-react";
+import { Check, Phone, ShoppingBasket, Package, Bike } from "lucide-react";
 
 /* ============================================================
    ICONS
@@ -139,7 +139,7 @@ export default function Home() {
 
             {/* Online mağaza CTA — tam katalog */}
             <div className="section__more">
-              <a href="/urunler" className="btn btn--accent">
+              <a href="/urunler" className="btn btn--accent btn--lg">
                 Tüm ürünleri incele · Online sipariş
               </a>
               <p className="section__more-note">
@@ -320,25 +320,11 @@ export default function Home() {
                   <a href="/firsatlar" className="btn btn--ghost btn--lg">
                     Fırsatları Gör
                   </a>
+                  <a href={BUSINESS.phone.href} className="btn btn--ghost btn--lg">
+                    <Phone size={16} strokeWidth={2} aria-hidden="true" />
+                    {BUSINESS.phone.display}
+                  </a>
                 </div>
-                <ul className="cta__perks" aria-label="Sipariş avantajları">
-                  <li>
-                    <ScooterIcon />
-                    30 dk teslimat
-                  </li>
-                  <li>
-                    <ClockIcon />
-                    07:30 - 02:00 · her gün
-                  </li>
-                  <li>
-                    <CardIcon />
-                    Kapıda veya online ödeme
-                  </li>
-                </ul>
-                <p className="cta__foot">
-                  Telefonla sipariş vermek istersen:{" "}
-                  <a href={BUSINESS.phone.href}>{BUSINESS.phone.display}</a>
-                </p>
               </div>
 
               {/* Dekoratif mini sepet: sitedeki alışveriş deneyiminin önizlemesi */}

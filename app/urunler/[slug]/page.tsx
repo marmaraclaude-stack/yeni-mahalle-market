@@ -16,10 +16,11 @@ import { createClient } from "@/lib/supabase/server";
 import type { Product } from "@/lib/shop/types";
 import { formatTL } from "@/lib/shop/types";
 import { CATEGORY_TINTS, categoryBySlug } from "@/lib/shop/categories";
-import ProductCard, { iconFor } from "@/components/shop/ProductCard";
+import { iconFor } from "@/components/shop/ProductCard";
 import SiteNav from "@/components/SiteNav";
 import SiteFooter from "@/components/SiteFooter";
 import DetailActions from "./DetailActions";
+import SimilarRail from "./SimilarRail";
 import styles from "./urun.module.css";
 
 // Sağ kolon güven/teslimat rozetleri — kalıcı, kompakt grid (boşluğu doldurur,
@@ -412,13 +413,7 @@ export default async function UrunDetayPage({ params }: { params: Params }) {
                   Aynı kategoriden senin için seçtiklerimiz
                 </p>
               </div>
-              <div className={styles.rail} role="list">
-                {similar.map((p) => (
-                  <div key={p.id} className={styles.railItem} role="listitem">
-                    <ProductCard product={p} />
-                  </div>
-                ))}
-              </div>
+              <SimilarRail products={similar} />
             </section>
           )}
         </div>

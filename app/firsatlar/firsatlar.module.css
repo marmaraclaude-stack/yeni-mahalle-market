@@ -77,6 +77,17 @@
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
+/* Mobil: pill sağa itilmiş yalnız bir satıra düşüp havada kalıyordu;
+   başlığın altına sola yaslı, kompakt iner. */
+@media (max-width: 640px) {
+  .sectionHead { row-gap: 10px; }
+  .count {
+    margin-left: 0;
+    order: 3;
+    flex-basis: 100%;
+    width: fit-content;
+  }
+}
 
 /* --- İndirimli ürünler gridi (tam genişlik) --- */
 .grid {

@@ -1580,44 +1580,6 @@ p { margin: 0; }
   background: var(--white);
   border-color: var(--ink);
 }
-/* Avantaj satırı: ikonlu kısa maddeler */
-.cta__perks {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px 22px;
-  list-style: none;
-  margin: 8px 0 0;
-  padding: 0;
-}
-.cta__perks li {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-size: var(--fs-small);
-  color: var(--gray-700);
-}
-.cta__perks li svg {
-  width: 17px; height: 17px;
-  color: var(--accent);
-  flex-shrink: 0;
-}
-/* İkinci satır: telefonla sipariş linki */
-.cta__foot {
-  margin: 2px 0 0;
-  font-size: var(--fs-small);
-  color: var(--gray-500);
-}
-.cta__foot a {
-  color: var(--ink);
-  font-weight: 600;
-  white-space: nowrap; /* telefon numarası satır ortasından bölünmesin */
-  text-decoration: underline;
-  text-underline-offset: 3px;
-  text-decoration-color: var(--gray-300);
-  transition: text-decoration-color 180ms var(--ease);
-}
-.cta__foot a:hover { text-decoration-color: var(--accent); }
-
 /* ---- Sağ görsel: mini sepet kartı + kurye çipi ---- */
 .cta__visual {
   position: relative;
@@ -1757,8 +1719,6 @@ p { margin: 0; }
     align-items: stretch;
   }
   .cta__actions .btn { width: 100%; }
-  .cta__perks { gap: 9px 16px; }
-  .cta__foot { font-size: var(--fs-small); line-height: 1.5; }
   .cta-basket { transform: none; width: 100%; }
   .cta-float {
     transform: none;
