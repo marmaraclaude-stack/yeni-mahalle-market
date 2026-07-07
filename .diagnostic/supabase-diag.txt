@@ -1,4 +1,0 @@
-supabase/migrations/20260707100000_chat_rls_lockdown.sql -> HTTP 201 
-supabase/migrations/20260707200000_coupon_atomic.sql -> HTTP 201 
-dogrulama -> HTTP 201 
-[{"chat_policies":0,"coupon_fns":2}]
