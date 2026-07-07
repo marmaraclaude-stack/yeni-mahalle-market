@@ -1,0 +1,6 @@
+sigara sil -> HTTP 201 
+kalan sigara pasif -> HTTP 201 
+supabase/migrations/20260707300000_ev_yasam_seed.sql -> HTTP 201 
+2000e indir -> HTTP 201 
+ozet -> HTTP 201 
+[{"aktif":2000,"ev_yasam":45,"sigara_aktif":0}]
