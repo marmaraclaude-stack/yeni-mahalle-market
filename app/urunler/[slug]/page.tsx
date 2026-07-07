@@ -16,6 +16,7 @@ import { createClient } from "@/lib/supabase/server";
 import type { Product } from "@/lib/shop/types";
 import { formatTL } from "@/lib/shop/types";
 import { CATEGORY_TINTS, categoryBySlug } from "@/lib/shop/categories";
+import { BUSINESS } from "@/lib/business";
 import { iconFor } from "@/components/shop/ProductCard";
 import SiteNav from "@/components/SiteNav";
 import SiteFooter from "@/components/SiteFooter";
@@ -201,14 +202,21 @@ export async function generateMetadata({
   const { slug } = await params;
   const product = await getProduct(slug);
   if (!product) {
-    return { title: "Ürün bulunamadı" };
+    return { title: "Ürün bulunamadı", robots: { index: false } };
   }
+  const description =
+    product.description ||
+    `${product.name} ve yüzlerce market ürünü Yeni Mahalle Market'te. Seç, sepete ekle, Sapanca içinde adresine gelsin.`;
   return {
     // Kök layout şablonu "%s · Yeni Mahalle Market" ekler
     title: product.name,
-    description:
-      product.description ||
-      `${product.name} ve yüzlerce market ürünü Yeni Mahalle Market'te. Seç, sepete ekle, Sapanca içinde adresine gelsin.`,
+    description,
+    alternates: { canonical: `/urunler/${slug}` },
+    openGraph: {
+      title: product.name,
+      description,
+      images: product.image_url ? [product.image_url] : undefined,
+    },
   };
 }
 
@@ -247,9 +255,66 @@ export default async function UrunDetayPage({ params }: { params: Params }) {
     { label: "Satış birimi", value: product.unit },
   ].filter((s) => s.value && s.value.trim() !== "");
 
+  const productUrl = `${BUSINESS.url}/urunler/${slug}`;
+  const productDescription =
+    product.description ||
+    `${product.name} ve yüzlerce market ürünü Yeni Mahalle Market'te. Seç, sepete ekle, Sapanca içinde adresine gelsin.`;
+  const brand = product.brand.trim();
+
+  // Product yapisal verisi: fiyat, para birimi, stok durumu ve marka.
+  const productJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: product.name,
+    description: productDescription,
+    ...(product.image_url ? { image: [product.image_url] } : {}),
+    ...(brand ? { brand: { "@type": "Brand", name: brand } } : {}),
+    offers: {
+      "@type": "Offer",
+      price: product.price.toFixed(2),
+      priceCurrency: "TRY",
+      availability: product.in_stock
+        ? "https://schema.org/InStock"
+        : "https://schema.org/OutOfStock",
+      url: productUrl,
+    },
+  };
+
+  // BreadcrumbList: Ana Sayfa > Ürünler > kategori > ürün.
+  const breadcrumbItems = [
+    { name: "Ana Sayfa", item: BUSINESS.url },
+    { name: "Ürünler", item: `${BUSINESS.url}/urunler` },
+    ...(cat
+      ? [{ name: cat.name, item: `${BUSINESS.url}/urunler?k=${cat.slug}` }]
+      : []),
+    { name: product.name, item: productUrl },
+  ];
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: breadcrumbItems.map((b, i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      name: b.name,
+      item: b.item,
+    })),
+  };
+
   return (
     <>
       <SiteNav />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(productJsonLd).replace(/</g, "\\u003c"),
+        }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(breadcrumbJsonLd).replace(/</g, "\\u003c"),
+        }}
+      />
 
       <main className={styles.page}>
         <div className="container">

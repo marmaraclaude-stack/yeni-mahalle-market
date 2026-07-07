@@ -34,6 +34,7 @@ export const metadata: Metadata = {
   title: "Fırsatlar",
   description:
     "Yeni Mahalle Market'te kampanyalar ve indirimli ürünler. Kupon kodunu kopyala, fırsatları kaçırma, Sapanca içinde kapına gelsin.",
+  alternates: { canonical: "/firsatlar" },
 };
 
 /** İndirim oranı (0-1). compare_at_price dolu ürünler için çağrılır. */
@@ -154,9 +155,9 @@ export default async function FirsatlarPage() {
                 <span className={styles.sectionIcon} aria-hidden="true">
                   <BadgePercent size={19} strokeWidth={1.9} />
                 </span>
-                <h1 className={`${styles.sectionTitle} ${styles.sectionTitleLead}`}>
+                <h2 className={`${styles.sectionTitle} ${styles.sectionTitleLead}`}>
                   İndirimli Ürünler
-                </h1>
+                </h2>
               </div>
               <div className={styles.empty}>
                 <span className={styles.emptyIcon} aria-hidden="true">

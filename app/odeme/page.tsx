@@ -14,6 +14,7 @@ import CheckoutForm, { type CheckoutDefaults } from "./CheckoutForm";
 export const metadata: Metadata = {
   title: "Siparişi Tamamla",
   description: "Teslimat bilgilerinizi girin ve siparişinizi tamamlayın.",
+  robots: { index: false, follow: false },
 };
 
 export default async function OdemePage() {

@@ -25,13 +25,7 @@
 .shell h3,
 .shell h4,
 .shell h5,
-.shell h6,
-.loginShell h1,
-.loginShell h2,
-.loginShell h3,
-.loginShell h4,
-.loginShell h5,
-.loginShell h6 {
+.shell h6 {
   font-family: var(--font-sans);
   letter-spacing: -0.015em;
 }
@@ -41,8 +35,7 @@
 .shell .statLabel,
 .shell .label,
 .shell .kv dt,
-.shell .table th,
-.loginShell .loginEyebrow {
+.shell .table th {
   font-family: var(--font-sans);
 }
 
@@ -2251,71 +2244,6 @@
   background: var(--orange);
   color: var(--white);
   border-bottom-right-radius: 4px;
-}
-
-/* ============================================================
-   Login (sınıf adları korunur)
-   ============================================================ */
-.loginShell {
-  --cream: var(--gray-50, #fafafa);
-  --orange: var(--accent, #ff5a1f);
-  min-height: 100dvh;
-  display: grid;
-  place-items: center;
-  padding: 32px;
-  background: var(--black);
-  color: var(--white);
-  font-family: var(--font-sans);
-}
-
-.loginCard {
-  width: 100%;
-  max-width: 420px;
-  background: var(--white);
-  border: 1px solid rgba(10, 10, 10, 0.08);
-  border-radius: var(--r-xl);
-  padding: 44px 36px;
-  position: relative;
-  box-shadow: 0 40px 80px rgba(10, 10, 10, 0.25);
-}
-
-.loginEyebrow {
-  font-size: 13px;
-  letter-spacing: 0;
-  color: var(--orange);
-  font-weight: 600;
-}
-
-.loginTitle {
-  font-family: var(--font-sans);
-  font-weight: 600;
-  font-size: 36px;
-  letter-spacing: -0.02em;
-  margin: 10px 0 8px;
-  color: var(--black);
-  line-height: 1.05;
-}
-
-.loginSub {
-  color: var(--gray-500);
-  font-size: 14px;
-  margin-bottom: 26px;
-  line-height: 1.55;
-}
-
-.loginForm {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
-.loginError {
-  color: #a32020;
-  font-size: 13px;
-  background: #fff4f4;
-  border: 1px solid #f3c8c8;
-  padding: 10px 12px;
-  border-radius: 10px;
 }
 
 /* ============================================================

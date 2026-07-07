@@ -7,7 +7,7 @@
 import { BUSINESS } from "@/lib/business";
 import styles from "./iletisim.module.css";
 
-const FAQ = [
+export const FAQ_ITEMS = [
   {
     q: "Nerelere teslimat yapıyorsunuz?",
     a: "Sapanca içindeki tüm mahallelere adrese teslim hizmet veriyoruz. Adresin teslimat bölgemizde mi diye emin değilsen, siparişini vermeden bizi arayabilir ya da canlı destekten yazabilirsin.",
@@ -61,8 +61,8 @@ const FAQ = [
 export default function Faq() {
   // İki bağımsız kolon: geniş ekranda tam genişliği doldurur, accordion
   // açılınca yalnız kendi kolonunu uzatır (yan kolonu zıplatmaz).
-  const mid = Math.ceil(FAQ.length / 2);
-  const columns = [FAQ.slice(0, mid), FAQ.slice(mid)];
+  const mid = Math.ceil(FAQ_ITEMS.length / 2);
+  const columns = [FAQ_ITEMS.slice(0, mid), FAQ_ITEMS.slice(mid)];
 
   return (
     <div className={styles.faqList}>

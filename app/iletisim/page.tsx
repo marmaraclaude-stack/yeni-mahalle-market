@@ -17,13 +17,25 @@ import { BUSINESS } from "@/lib/business";
 import SiteNav from "@/components/SiteNav";
 import SiteFooter from "@/components/SiteFooter";
 import StatusIndicator from "@/components/StatusIndicator";
-import Faq from "./Faq";
+import Faq, { FAQ_ITEMS } from "./Faq";
 import styles from "./iletisim.module.css";
 
 export const metadata: Metadata = {
   title: "İletişim",
   description:
     "Yeni Mahalle Market iletişim: telefon, canlı destek, Instagram, adres ve çalışma saatleri. Sapanca Yeni Mahalle, Kurtuluş Caddesi. Sipariş verin, kapınıza gelsin.",
+  alternates: { canonical: "/iletisim" },
+};
+
+// FAQPage yapisal verisi: SSS accordion icerigiyle (FAQ_ITEMS) birebir.
+const faqJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: FAQ_ITEMS.map((item) => ({
+    "@type": "Question",
+    name: item.q,
+    acceptedAnswer: { "@type": "Answer", text: item.a },
+  })),
 };
 
 function InstagramIcon() {
@@ -48,6 +60,12 @@ export default function IletisimPage() {
   return (
     <>
       <SiteNav />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(faqJsonLd).replace(/</g, "\\u003c"),
+        }}
+      />
       <main className={styles.page}>
         <div className="container">
           {/* --- Hero --- */}

@@ -14,6 +14,7 @@ import CartView from "./CartView";
 export const metadata: Metadata = {
   title: "Sepetim",
   description: "Sepetinizdeki ürünleri düzenleyin ve siparişinizi tamamlayın.",
+  robots: { index: false, follow: false },
 };
 
 export default async function SepetPage() {

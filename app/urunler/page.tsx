@@ -67,6 +67,7 @@ export async function generateMetadata({
         : "Ürünler",
     description:
       "Yeni Mahalle Market online katalog: market ürünlerini seç, sepetine ekle, Sapanca içinde adresine gelsin.",
+    alternates: { canonical: "/urunler" },
   };
 }
 

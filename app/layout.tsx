@@ -91,7 +91,6 @@ export const metadata: Metadata = {
   creator: BUSINESS.name,
   publisher: BUSINESS.name,
   category: "Local Business",
-  alternates: { canonical: "/" },
   openGraph: {
     type: "website",
     locale: "tr_TR",
