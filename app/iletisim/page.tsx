@@ -230,7 +230,7 @@ export default function IletisimPage() {
                 href={BUSINESS.googleMapsDirectionsUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className={`btn btn--accent ${styles.dirBtn}`}
+                className={`btn btn--accent btn--lg ${styles.dirBtn}`}
               >
                 <Navigation size={15} strokeWidth={2} aria-hidden="true" />
                 Yol Tarifi Al
@@ -248,18 +248,21 @@ export default function IletisimPage() {
 
           {/* --- Çalışma saatleri şeridi --- */}
           <section className={styles.hoursStrip} aria-label="Çalışma saatleri">
-            <div className={styles.hoursLeft}>
-              <span className={styles.hoursIcon} aria-hidden="true">
-                <Clock size={19} strokeWidth={1.9} />
-              </span>
-              <div className={styles.hoursText}>
+            <div className={styles.hoursTop}>
+              <div className={styles.hoursLeft}>
+                <span className={styles.hoursIcon} aria-hidden="true">
+                  <Clock size={19} strokeWidth={1.9} />
+                </span>
                 <h2 className={styles.hoursTitle}>Çalışma Saatleri</h2>
-                <p className={styles.hoursDetail}>
-                  {BUSINESS.hours.display} · Bayram dahil her gün açık.
-                </p>
               </div>
+              <StatusIndicator />
             </div>
-            <StatusIndicator />
+            <p className={styles.hoursValue}>
+              {BUSINESS.hours.opens} - {BUSINESS.hours.closes}
+            </p>
+            <p className={styles.hoursDetail}>
+              Haftanın 7 günü · Bayramlar dahil her gün açığız.
+            </p>
           </section>
 
           {/* --- SSS --- */}

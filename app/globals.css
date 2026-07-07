@@ -692,10 +692,13 @@ p { margin: 0; }
   .stat-card__glyph { width: 60px; height: 60px; top: -10px; right: -10px; }
 }
 
-/* Mobil hero: CTA tam genişlik (başlık boyutu artık global ölçekten) */
+/* Mobil buton standardı: tekil/bağımsız CTA'lar tam genişlik.
+   Kapsam: hero, hizmet satırları (Yol tarifi al), katalog CTA'sı. */
 @media (max-width: 640px) {
   .hero__ctas { width: 100%; }
   .hero__ctas .btn { width: 100%; }
+  .features__copy .btn { width: 100%; }
+  .section__more .btn { width: 100%; }
 }
 
 /* ============================================================

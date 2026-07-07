@@ -189,7 +189,7 @@ export default function Home() {
                     href={BUSINESS.googleMapsDirectionsUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="btn btn--primary"
+                    className="btn btn--accent btn--lg"
                   >
                     Yol tarifi al
                   </a>
