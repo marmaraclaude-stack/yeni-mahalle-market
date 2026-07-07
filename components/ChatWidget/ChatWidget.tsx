@@ -1,10 +1,17 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { RealtimeChannel } from "@supabase/supabase-js";
-import { createClient } from "@/lib/supabase/client";
+import {
+  fetchChatUpdates,
+  sendVisitorMessage,
+  startChatSession,
+} from "@/lib/shop/chat-actions";
 import type { ChatMessage } from "@/lib/supabase/types";
 import styles from "./chat-widget.module.css";
+
+// Polling aralıkları: panel açıkken sık, kapalıyken seyrek (unread rozeti için).
+const POLL_OPEN_MS = 4000;
+const POLL_CLOSED_MS = 20000;
 
 const STORAGE_KEY = "ymm-chat-session";
 
@@ -34,6 +41,7 @@ function isBusinessOpen(): boolean {
 interface StoredSession {
   id: string;
   name: string;
+  token: string;
 }
 
 function readStoredSession(): StoredSession | null {
@@ -42,9 +50,17 @@ function readStoredSession(): StoredSession | null {
     const raw = window.localStorage.getItem(STORAGE_KEY);
     if (!raw) return null;
     const parsed = JSON.parse(raw);
-    if (parsed && typeof parsed.id === "string" && typeof parsed.name === "string") {
+    if (
+      parsed &&
+      typeof parsed.id === "string" &&
+      typeof parsed.name === "string" &&
+      typeof parsed.token === "string"
+    ) {
       return parsed;
     }
+    // Eski biçim (token'sız kayıt): server action'lar token istediği için
+    // oturum kullanılamaz — sıfırla, ziyaretçi yeni sohbet başlatsın.
+    window.localStorage.removeItem(STORAGE_KEY);
   } catch {
     /* ignore */
   }
@@ -97,10 +113,38 @@ export default function ChatWidget() {
   // Widget ssr:false ile yüklendiği için ilk değer client'ta hesaplanabilir.
   const [businessOpen, setBusinessOpen] = useState(isBusinessOpen);
 
-  const supabaseRef = useRef<ReturnType<typeof createClient> | null>(null);
-  const channelRef = useRef<RealtimeChannel | null>(null);
   const bodyRef = useRef<HTMLDivElement | null>(null);
   const panelRef = useRef<HTMLElement | null>(null);
+
+  // Polling yardımcıları state'in güncel kopyasına ref üzerinden erişir;
+  // böylece interval callback'leri effect'i yeniden kurmadan çalışır.
+  const messagesRef = useRef<ChatMessage[]>(messages);
+  useEffect(() => {
+    messagesRef.current = messages;
+  }, [messages]);
+
+  /** Son GERÇEK mesajın created_at'i (karşılama balonu hariç); yoksa null. */
+  const lastMessageIso = useCallback((): string | null => {
+    const real = messagesRef.current.filter((m) => m.id !== "__welcome__");
+    return real.length > 0 ? real[real.length - 1].created_at : null;
+  }, []);
+
+  /**
+   * Gelen mesajları id'ye göre tekilleştirip state'e ekle;
+   * gerçekten YENİ eklenen admin mesajı sayısını döndür (unread rozeti için).
+   */
+  const applyIncoming = useCallback((incoming: ChatMessage[]): number => {
+    if (incoming.length === 0) return 0;
+    const known = new Set(messagesRef.current.map((m) => m.id));
+    const fresh = incoming.filter((m) => !known.has(m.id));
+    if (fresh.length === 0) return 0;
+    setMessages((prev) => {
+      const ids = new Set(prev.map((m) => m.id));
+      const additions = incoming.filter((m) => !ids.has(m.id));
+      return additions.length > 0 ? [...prev, ...additions] : prev;
+    });
+    return fresh.filter((m) => m.sender === "admin").length;
+  }, []);
 
   // Hydrate stored session
   useEffect(() => {
@@ -161,71 +205,62 @@ export default function ChatWidget() {
     };
   }, [open]);
 
-  // Init supabase client lazily
-  const getSupabase = useCallback(() => {
-    if (!supabaseRef.current) {
-      supabaseRef.current = createClient();
-    }
-    return supabaseRef.current;
-  }, []);
-
-  // Load history + subscribe when session is ready
+  // Oturum hazır olunca tüm geçmişi server action ile yükle.
   useEffect(() => {
     if (!session) return;
-
     let cancelled = false;
-    const supabase = getSupabase();
 
     (async () => {
-      const { data, error: dbError } = await supabase
-        .from("chat_messages")
-        .select("*")
-        .eq("session_id", session.id)
-        .order("created_at", { ascending: true });
-
+      const res = await fetchChatUpdates(session.id, session.token, null);
       if (cancelled) return;
-
-      if (dbError) {
-        console.error("[chat] load history failed", dbError);
+      if (!res.ok || !res.messages) {
+        console.error("[chat] load history failed", res.error);
         setError("Geçmiş yüklenemedi.");
         return;
       }
-      setMessages([WELCOME_MESSAGE, ...((data ?? []) as ChatMessage[])]);
+      setMessages([WELCOME_MESSAGE, ...res.messages]);
     })();
-
-    const channel = supabase
-      .channel(`chat:${session.id}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "INSERT",
-          schema: "public",
-          table: "chat_messages",
-          filter: `session_id=eq.${session.id}`,
-        },
-        (payload) => {
-          const m = payload.new as ChatMessage;
-          setMessages((prev) => {
-            if (prev.some((x) => x.id === m.id)) return prev;
-            return [...prev, m];
-          });
-          if (m.sender === "admin" && !open) {
-            setUnread((u) => u + 1);
-          }
-        },
-      )
-      .subscribe();
-
-    channelRef.current = channel;
 
     return () => {
       cancelled = true;
-      if (channelRef.current) {
-        supabase.removeChannel(channelRef.current);
-        channelRef.current = null;
-      }
     };
-  }, [session, open, getSupabase]);
+  }, [session]);
+
+  // Panel AÇIKKEN: 4 sn'de bir yeni mesajları çek (afterIso = son mesaj).
+  useEffect(() => {
+    if (!open || !session) return;
+    let active = true;
+
+    const id = setInterval(async () => {
+      const res = await fetchChatUpdates(session.id, session.token, lastMessageIso());
+      if (!active || !res.ok || !res.messages) return;
+      applyIncoming(res.messages);
+    }, POLL_OPEN_MS);
+
+    return () => {
+      active = false;
+      clearInterval(id);
+    };
+  }, [open, session, lastMessageIso, applyIncoming]);
+
+  // Panel KAPALIYKEN (oturum varsa): 20 sn'de bir kontrol et,
+  // yeni admin mesajlarını unread rozetine say (mesajlar state'e de eklenir).
+  useEffect(() => {
+    if (open || !session) return;
+    let active = true;
+
+    const id = setInterval(async () => {
+      const res = await fetchChatUpdates(session.id, session.token, lastMessageIso());
+      if (!active || !res.ok || !res.messages) return;
+      const newAdmin = applyIncoming(res.messages);
+      if (newAdmin > 0) setUnread((u) => u + newAdmin);
+    }, POLL_CLOSED_MS);
+
+    return () => {
+      active = false;
+      clearInterval(id);
+    };
+  }, [open, session, lastMessageIso, applyIncoming]);
 
   // Auto-scroll to bottom when messages change or panel opens
   useEffect(() => {
@@ -248,20 +283,16 @@ export default function ChatWidget() {
       setCreating(true);
       setError(null);
       try {
-        const supabase = getSupabase();
-        const { data, error: insertError } = await supabase
-          .from("chat_sessions")
-          .insert({
-            visitor_name: name,
-            visitor_phone: introPhone.trim() || null,
-          })
-          .select("id")
-          .single();
-
-        if (insertError || !data) {
-          throw insertError ?? new Error("session yaratılamadı");
+        const res = await startChatSession(name, introPhone.trim());
+        if (!res.ok || !res.sessionId || !res.token) {
+          setError(res.error ?? "Sohbet başlatılamadı. Lütfen tekrar deneyin.");
+          return;
         }
-        const stored: StoredSession = { id: data.id as string, name };
+        const stored: StoredSession = {
+          id: res.sessionId,
+          name,
+          token: res.token,
+        };
         storeSession(stored);
         setSession(stored);
         setIntroName("");
@@ -273,7 +304,7 @@ export default function ChatWidget() {
         setCreating(false);
       }
     },
-    [introName, introPhone, getSupabase],
+    [introName, introPhone],
   );
 
   const sendMessage = useCallback(
@@ -283,21 +314,24 @@ export default function ChatWidget() {
       if (!content || !session) return;
       setSending(true);
       setError(null);
-      const supabase = getSupabase();
-      const { error: insertError } = await supabase.from("chat_messages").insert({
-        session_id: session.id,
-        sender: "visitor",
-        content,
-      });
-      if (insertError) {
-        console.error("[chat] send failed", insertError);
+      try {
+        const res = await sendVisitorMessage(session.id, session.token, content);
+        if (!res.ok || !res.message) {
+          console.error("[chat] send failed", res.error);
+          setError(res.error ?? "Mesaj gönderilemedi.");
+        } else {
+          // Optimistic ekleme yok: sunucunun döndürdüğü satır eklenir.
+          applyIncoming([res.message]);
+          setDraft("");
+        }
+      } catch (err) {
+        console.error("[chat] send failed", err);
         setError("Mesaj gönderilemedi.");
-      } else {
-        setDraft("");
+      } finally {
+        setSending(false);
       }
-      setSending(false);
     },
-    [draft, session, getSupabase],
+    [draft, session, applyIncoming],
   );
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -414,7 +448,7 @@ export default function ChatWidget() {
                     <input
                       className={styles.input}
                       type="tel"
-                      maxLength={30}
+                      maxLength={20}
                       value={introPhone}
                       onChange={(e) => setIntroPhone(e.target.value)}
                       placeholder="0532 ..."

@@ -1,4 +1,5 @@
-// Admin — sohbetler sayfası: chat oturum listesi (SessionList, realtime).
+// Admin — sohbetler sayfası: chat oturum listesi (SessionList, polling).
+// İlk yük service-role ile sunucuda çekilir; client 8 sn'de bir tazeler.
 // Eskiden panel ana sayfasındaydı; v3 ile ayrı sayfaya taşındı.
 
 import { createAdminClient } from "@/lib/supabase/admin";

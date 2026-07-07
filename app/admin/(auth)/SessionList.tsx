@@ -3,11 +3,12 @@
 import { useEffect, useMemo, useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import type { RealtimeChannel } from "@supabase/supabase-js";
-import { createClient } from "@/lib/supabase/client";
-import { deleteChatSession } from "@/lib/shop/admin-actions";
+import { deleteChatSession, listChatSessions } from "@/lib/shop/admin-actions";
 import type { ChatSession } from "@/lib/supabase/types";
 import styles from "../admin.module.css";
+
+// Liste polling aralığı — realtime yerine periyodik server action çağrısı.
+const POLL_MS = 8000;
 
 type Filter = "all" | "unread" | "read";
 
@@ -43,36 +44,20 @@ export default function SessionList({ initial }: { initial: ChatSession[] }) {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [, startTransition] = useTransition();
 
+  // Listeyi polling ile tazele: yalnız sekme görünürken server action çağır.
   useEffect(() => {
-    const supabase = createClient();
-    let channel: RealtimeChannel | null = null;
+    let active = true;
 
-    channel = supabase
-      .channel("admin:sessions")
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "chat_sessions" },
-        (payload) => {
-          setSessions((prev) => {
-            if (payload.eventType === "DELETE") {
-              const oldId = (payload.old as ChatSession | null)?.id;
-              return prev.filter((s) => s.id !== oldId);
-            }
-            const next = payload.new as ChatSession;
-            const idx = prev.findIndex((s) => s.id === next.id);
-            const merged = idx === -1 ? [next, ...prev] : prev.map((s) => (s.id === next.id ? next : s));
-            return [...merged].sort(
-              (a, b) =>
-                new Date(b.last_message_at).getTime() -
-                new Date(a.last_message_at).getTime(),
-            );
-          });
-        },
-      )
-      .subscribe();
+    const id = setInterval(async () => {
+      if (document.visibilityState !== "visible") return;
+      const result = await listChatSessions();
+      if (!active || !result.ok) return;
+      setSessions(result.sessions);
+    }, POLL_MS);
 
     return () => {
-      if (channel) supabase.removeChannel(channel);
+      active = false;
+      clearInterval(id);
     };
   }, []);
 

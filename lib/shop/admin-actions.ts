@@ -16,6 +16,7 @@ import type {
   PaymentStatus,
   ShopSettings,
 } from "@/lib/shop/types";
+import type { ChatMessage, ChatSession } from "@/lib/supabase/types";
 
 /** updateProduct için düzenlenebilir alanlar — slug BİLİNÇLİ olarak yok (URL kırılmasın). */
 export interface ProductPatch {
@@ -1385,6 +1386,101 @@ export async function deleteMember(userId: string): Promise<MemberActionResult> 
 export interface ChatActionResult {
   ok: boolean;
   error?: string;
+}
+
+/** listChatSessions dönüşü — oturum listesi + hata mesajı. */
+export interface ChatSessionsResult {
+  ok: boolean;
+  sessions: ChatSession[];
+  error?: string;
+}
+
+/** fetchSessionMessages dönüşü — mesaj listesi + hata mesajı. */
+export interface ChatMessagesResult {
+  ok: boolean;
+  messages: ChatMessage[];
+  error?: string;
+}
+
+/** sendAdminMessage dönüşü — eklenen mesaj satırı + hata mesajı. */
+export interface AdminMessageResult {
+  ok: boolean;
+  message?: ChatMessage;
+  error?: string;
+}
+
+/** Sohbet oturumlarını listele (en son mesaj alan üstte). Polling için kullanılır. */
+export async function listChatSessions(): Promise<ChatSessionsResult> {
+  await requireAdmin();
+  const supabase = createAdminClient();
+  const { data, error } = await supabase
+    .from("chat_sessions")
+    .select("*")
+    .order("last_message_at", { ascending: false })
+    .limit(200);
+  if (error) {
+    return { ok: false, sessions: [], error: `Sohbetler yüklenemedi: ${error.message}` };
+  }
+  return { ok: true, sessions: (data ?? []) as ChatSession[] };
+}
+
+/**
+ * Bir oturumun mesajlarını getir. afterIso verilirse yalnız created_at >
+ * afterIso olan yeni mesajlar döner (polling); verilmezse tüm geçmiş (artan).
+ */
+export async function fetchSessionMessages(
+  sessionId: string,
+  afterIso?: string | null,
+): Promise<ChatMessagesResult> {
+  await requireAdmin();
+  if (!sessionId.trim()) {
+    return { ok: false, messages: [], error: "Geçersiz sohbet." };
+  }
+
+  const supabase = createAdminClient();
+  let query = supabase
+    .from("chat_messages")
+    .select("*")
+    .eq("session_id", sessionId)
+    .order("created_at", { ascending: true })
+    .limit(500);
+  if (afterIso) {
+    query = query.gt("created_at", afterIso);
+  }
+
+  const { data, error } = await query;
+  if (error) {
+    return { ok: false, messages: [], error: `Mesajlar yüklenemedi: ${error.message}` };
+  }
+  return { ok: true, messages: (data ?? []) as ChatMessage[] };
+}
+
+/** Admin yanıtı gönder; eklenen satırı döndür. */
+export async function sendAdminMessage(
+  sessionId: string,
+  text: string,
+): Promise<AdminMessageResult> {
+  await requireAdmin();
+  if (!sessionId.trim()) return { ok: false, error: "Geçersiz sohbet." };
+  const content = text.trim();
+  if (!content || content.length > 1000) {
+    return { ok: false, error: "Mesaj 1-1000 karakter olmalı." };
+  }
+
+  const supabase = createAdminClient();
+  const { data, error } = await supabase
+    .from("chat_messages")
+    .insert({
+      session_id: sessionId,
+      sender: "admin",
+      content,
+    })
+    .select("*")
+    .single();
+  if (error || !data) {
+    return { ok: false, error: `Mesaj gönderilemedi: ${error?.message ?? "bilinmeyen hata"}` };
+  }
+  return { ok: true, message: data as ChatMessage };
 }
 
 /**
