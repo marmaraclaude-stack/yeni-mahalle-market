@@ -6,7 +6,8 @@
 // satir ici fiyat/eski fiyat/stok duzenleme (updateProduct, yalniz degisiklik
 // varsa Kaydet belirginlesir), cok satan + aktif/pasif toggle'lari ve tam
 // duzenleme sayfasina "Duzenle" linki. Sayfalama sunucu tarafli: ust ve alt
-// kontroller GET linkidir, k/q/filtre parametreleri korunur.
+// kontroller GET linkidir, k/altk/q/filtre parametreleri korunur. Kategori
+// rozetinin altinda kural tabanli alt kategori etiketi gosterilir.
 
 import { useState, useTransition } from "react";
 import Link from "next/link";
@@ -27,6 +28,11 @@ import {
   updateProduct,
 } from "@/lib/shop/admin-actions";
 import { SHOP_CATEGORIES, CATEGORY_TINTS, categoryBySlug } from "@/lib/shop/categories";
+import {
+  OTHER_SUB_NAME,
+  assignSubcategory,
+  subcatsFor,
+} from "@/lib/shop/subcategories";
 import type { Product } from "@/lib/shop/types";
 import styles from "../../admin.module.css";
 import pstyles from "./products.module.css";
@@ -157,6 +163,12 @@ function ProductRow({ product }: { product: Product }) {
 
   const category = categoryBySlug(product.category_slug);
   const [tintBg, tintFg] = CATEGORY_TINTS[category?.tint ?? 0];
+  // Kural tabanli alt kategori etiketi (DB kolonu yok): yonetici, urunun
+  // kategori gorunumunde hangi alta dustugunu gorsun. Tanimsiz slug donerse
+  // (pratikte "diger") "Diğer" etiketi gosterilir.
+  const subs = subcatsFor(product.category_slug);
+  const subSlug = assignSubcategory(product.category_slug, product.name, product.brand);
+  const subName = subs.find((s) => s.slug === subSlug)?.name ?? OTHER_SUB_NAME;
   const discount = isDiscounted(product);
   const discountPct =
     discount && product.compare_at_price
@@ -196,9 +208,12 @@ function ProductRow({ product }: { product: Product }) {
         </div>
       </td>
       <td data-label="Kategori">
-        <span className={styles.catBadge} style={{ background: tintBg, color: tintFg }}>
-          {category?.name ?? product.category_slug}
-        </span>
+        <div className={pstyles.catCell}>
+          <span className={styles.catBadge} style={{ background: tintBg, color: tintFg }}>
+            {category?.name ?? product.category_slug}
+          </span>
+          {subs.length > 0 && <span className={pstyles.subTag}>{subName}</span>}
+        </div>
       </td>
       <td data-label="Fiyat">
         <span className={styles.priceField}>

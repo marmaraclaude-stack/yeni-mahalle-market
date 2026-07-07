@@ -1,12 +1,17 @@
 // Admin urun yonetimi: SUNUCU TARAFLI sayfalama + filtreleme.
-// searchParams: k (kategori), q (arama), sayfa (1-tabanli), filtre
-// ("indirimli" | "cok-satan" | "stokta-yok"), yeni (formu acik baslat).
+// searchParams: k (kategori), altk (alt kategori; yalniz k ile anlamli),
+// q (arama), sayfa (1-tabanli), filtre ("indirimli" | "cok-satan" |
+// "stokta-yok"), yeni (formu acik baslat).
 // Sayfa boyutu 50; cip sayilari tum katalogdan (k/q kapsaminda) 3 ayri
 // head:true count sorgusuyla gelir. Cipler ve sayfa numaralari GET linkidir.
+// altk seciliyken: alt kategori DB kolonu olmadigindan kategori urunleri tek
+// sorguyla cekilir, assignSubcategory ile bellekte filtrelenir; cip sayilari,
+// hizli filtre ve 50'lik sayfalama bu filtrelenmis liste uzerinde uygulanir.
 
 import { Search } from "lucide-react";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { SHOP_CATEGORIES } from "@/lib/shop/categories";
+import { assignSubcategory, subcatsFor } from "@/lib/shop/subcategories";
 import type { Product } from "@/lib/shop/types";
 import ProductsTable, {
   type ChipData,
@@ -35,15 +40,18 @@ function parseFilter(value: string | undefined): CatalogFilter | null {
     : null;
 }
 
-/** k/q/filtre/sayfa parametrelerinden GET linki uret (bos olanlar atlanir). */
+/** k/altk/q/filtre/sayfa parametrelerinden GET linki uret (bos olanlar
+ *  atlanir; altk yalniz k ile birlikte anlamli oldugundan k yoksa dusulur). */
 function buildHref(params: {
   k?: string;
+  altk?: string | null;
   q?: string;
   filtre?: CatalogFilter | null;
   sayfa?: number;
 }): string {
   const sp = new URLSearchParams();
   if (params.k) sp.set("k", params.k);
+  if (params.k && params.altk) sp.set("altk", params.altk);
   if (params.q) sp.set("q", params.q);
   if (params.filtre) sp.set("filtre", params.filtre);
   if (params.sayfa && params.sayfa > 1) sp.set("sayfa", String(params.sayfa));
@@ -82,16 +90,23 @@ export default async function AdminProductsPage({
 }: {
   searchParams: Promise<{
     k?: string;
+    altk?: string;
     q?: string;
     yeni?: string;
     sayfa?: string;
     filtre?: string;
   }>;
 }) {
-  const { k, q, yeni, sayfa, filtre: filtreRaw } = await searchParams;
+  const { k, altk: altkRaw, q, yeni, sayfa, filtre: filtreRaw } = await searchParams;
   const category = k ?? "";
   const search = (q ?? "").trim();
   const filtre = parseFilter(filtreRaw);
+  // Alt kategori: yalniz k seciliyken ve o kategorinin tanimli alt slug'lari
+  // arasindaysa gecerli; aksi halde sessizce yok sayilir (kategori degisince
+  // formda kalan eski altk boylece temizlenir).
+  const subOptions = category ? subcatsFor(category) : [];
+  const altk =
+    altkRaw && subOptions.some((s) => s.slug === altkRaw) ? altkRaw : null;
   const parsedPage = Number.parseInt(sayfa ?? "1", 10);
   const requestedPage = Number.isFinite(parsedPage) && parsedPage >= 1 ? parsedPage : 1;
 
@@ -109,80 +124,128 @@ export default async function AdminProductsPage({
   try {
     const supabase = createAdminClient();
 
-    // Ortak k/q kosullu head:true count sorgusu.
-    const countBase = () => {
-      let query = supabase
+    if (altk) {
+      // ALT KATEGORI YOLU: altk DB kolonu degil, kural tabanli. Kategorinin
+      // tum urunleri tek sorguyla cekilir (kategori basina <100 urun; 1000'lik
+      // tek range yeterli), assignSubcategory ile bellekte filtrelenir. Cip
+      // sayilari, hizli filtre ve 50'lik sayfalama bellekte uygulanir.
+      let subQuery = supabase
         .from("products")
-        .select("*", { count: "exact", head: true });
-      if (category) query = query.eq("category_slug", category);
-      if (search) query = query.ilike("name", `%${search}%`);
-      return query;
-    };
+        .select("*")
+        .eq("category_slug", category)
+        .order("category_slug")
+        .order("sort")
+        .order("name")
+        .order("id")
+        .range(0, 999);
+      if (search) subQuery = subQuery.ilike("name", `%${search}%`);
 
-    // Cip sayilari TUM katalogdan (sayfadaki 50 satirdan degil): 3 ayri
-    // count sorgusu + toplam count, paralel calisir.
-    const [totalRes, discountedRes, bestRes, oosRes] = await Promise.all([
-      countBase(),
-      countBase().not("compare_at_price", "is", null),
-      countBase().eq("is_best_seller", true),
-      countBase().eq("in_stock", false),
-    ]);
+      const { data, error } = await subQuery;
+      if (error) throw new Error(error.message);
 
-    const countError =
-      totalRes.error ?? discountedRes.error ?? bestRes.error ?? oosRes.error;
-    if (countError) throw new Error(countError.message);
+      const inSub = ((data ?? []) as Product[]).filter(
+        (p) => assignSubcategory(category, p.name, p.brand) === altk,
+      );
 
-    chipCounts = {
-      indirimli: discountedRes.count ?? 0,
-      "cok-satan": bestRes.count ?? 0,
-      "stokta-yok": oosRes.count ?? 0,
-    };
-    const totalInScope = totalRes.count ?? 0;
-    total = filtre ? chipCounts[filtre] : totalInScope;
+      // Cip sayilari filtrelenmis alt kategori listesinden.
+      chipCounts = {
+        indirimli: inSub.filter((p) => p.compare_at_price !== null).length,
+        "cok-satan": inSub.filter((p) => p.is_best_seller).length,
+        "stokta-yok": inSub.filter((p) => !p.in_stock).length,
+      };
 
-    // Sayfa numarasini araliga sabitle (asiri sayfa istegi son sayfaya iner).
-    totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
-    page = Math.min(requestedPage, totalPages);
-    const from = (page - 1) * PAGE_SIZE;
+      let filtered = inSub;
+      if (filtre === "indirimli") {
+        filtered = inSub.filter((p) => p.compare_at_price !== null);
+      } else if (filtre === "cok-satan") {
+        filtered = inSub.filter((p) => p.is_best_seller);
+      } else if (filtre === "stokta-yok") {
+        filtered = inSub.filter((p) => !p.in_stock);
+      }
 
-    let dataQuery = supabase
-      .from("products")
-      .select("*", { count: "exact" })
-      .order("category_slug")
-      .order("sort")
-      .order("name")
-      .order("id")
-      .range(from, from + PAGE_SIZE - 1);
-    if (category) dataQuery = dataQuery.eq("category_slug", category);
-    if (search) dataQuery = dataQuery.ilike("name", `%${search}%`);
-    if (filtre === "indirimli") {
-      dataQuery = dataQuery.not("compare_at_price", "is", null);
-    } else if (filtre === "cok-satan") {
-      dataQuery = dataQuery.eq("is_best_seller", true);
-    } else if (filtre === "stokta-yok") {
-      dataQuery = dataQuery.eq("in_stock", false);
+      total = filtered.length;
+      totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+      page = Math.min(requestedPage, totalPages);
+      const from = (page - 1) * PAGE_SIZE;
+      products = filtered.slice(from, from + PAGE_SIZE);
+    } else {
+      // MEVCUT DB SAYFALAMA YOLU (altk yokken aynen korunur).
+      // Ortak k/q kosullu head:true count sorgusu.
+      const countBase = () => {
+        let query = supabase
+          .from("products")
+          .select("*", { count: "exact", head: true });
+        if (category) query = query.eq("category_slug", category);
+        if (search) query = query.ilike("name", `%${search}%`);
+        return query;
+      };
+
+      // Cip sayilari TUM katalogdan (sayfadaki 50 satirdan degil): 3 ayri
+      // count sorgusu + toplam count, paralel calisir.
+      const [totalRes, discountedRes, bestRes, oosRes] = await Promise.all([
+        countBase(),
+        countBase().not("compare_at_price", "is", null),
+        countBase().eq("is_best_seller", true),
+        countBase().eq("in_stock", false),
+      ]);
+
+      const countError =
+        totalRes.error ?? discountedRes.error ?? bestRes.error ?? oosRes.error;
+      if (countError) throw new Error(countError.message);
+
+      chipCounts = {
+        indirimli: discountedRes.count ?? 0,
+        "cok-satan": bestRes.count ?? 0,
+        "stokta-yok": oosRes.count ?? 0,
+      };
+      const totalInScope = totalRes.count ?? 0;
+      total = filtre ? chipCounts[filtre] : totalInScope;
+
+      // Sayfa numarasini araliga sabitle (asiri sayfa istegi son sayfaya iner).
+      totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+      page = Math.min(requestedPage, totalPages);
+      const from = (page - 1) * PAGE_SIZE;
+
+      let dataQuery = supabase
+        .from("products")
+        .select("*", { count: "exact" })
+        .order("category_slug")
+        .order("sort")
+        .order("name")
+        .order("id")
+        .range(from, from + PAGE_SIZE - 1);
+      if (category) dataQuery = dataQuery.eq("category_slug", category);
+      if (search) dataQuery = dataQuery.ilike("name", `%${search}%`);
+      if (filtre === "indirimli") {
+        dataQuery = dataQuery.not("compare_at_price", "is", null);
+      } else if (filtre === "cok-satan") {
+        dataQuery = dataQuery.eq("is_best_seller", true);
+      } else if (filtre === "stokta-yok") {
+        dataQuery = dataQuery.eq("in_stock", false);
+      }
+
+      const { data, error, count } = await dataQuery;
+      if (error) throw new Error(error.message);
+
+      products = (data ?? []) as Product[];
+      total = count ?? total;
+      totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
     }
-
-    const { data, error, count } = await dataQuery;
-    if (error) throw new Error(error.message);
-
-    products = (data ?? []) as Product[];
-    total = count ?? total;
-    totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
   } catch (e) {
     loadError = e instanceof Error ? e.message : "Bilinmeyen hata";
   }
 
-  const hasActiveFilters = Boolean(category || search || filtre);
+  const hasActiveFilters = Boolean(category || altk || search || filtre);
 
-  // Cipler: GET linki; aktif cipe tekrar tiklaninca filtre kalkar. k/q korunur,
-  // sayfa 1'e doner (buildHref sayfa parametresi almadiginda sayfa=1).
+  // Cipler: GET linki; aktif cipe tekrar tiklaninca filtre kalkar. k/altk/q
+  // korunur, sayfa 1'e doner (buildHref sayfa parametresi almadiginda sayfa=1).
   const chips: ChipData[] = FILTER_KEYS.map((key) => ({
     key,
     label: FILTER_LABELS[key],
     count: chipCounts[key],
     href: buildHref({
       k: category,
+      altk,
       q: search,
       filtre: filtre === key ? null : key,
     }),
@@ -190,7 +253,7 @@ export default async function AdminProductsPage({
   }));
 
   const hrefFor = (n: number) =>
-    buildHref({ k: category, q: search, filtre, sayfa: n });
+    buildHref({ k: category, altk, q: search, filtre, sayfa: n });
 
   const rangeStart = total === 0 ? 0 : (page - 1) * PAGE_SIZE + 1;
   const pagination: PaginationData = {
@@ -234,6 +297,23 @@ export default async function AdminProductsPage({
           </option>
         ))}
       </select>
+      {/* Alt kategori: yalniz kategori seciliyken gorunur. Kategori degisirse
+          formda kalan eski altk sunucuda gecersiz sayilip yok sayilir. */}
+      {category && subOptions.length > 0 && (
+        <select
+          name="altk"
+          defaultValue={altk ?? ""}
+          className={styles.select}
+          aria-label="Alt kategori filtresi"
+        >
+          <option value="">Tüm alt kategoriler</option>
+          {subOptions.map((s) => (
+            <option key={s.slug} value={s.slug}>
+              {s.name}
+            </option>
+          ))}
+        </select>
+      )}
       {filtre && <input type="hidden" name="filtre" value={filtre} />}
       <button type="submit" className={styles.actionBtn}>
         Filtrele
@@ -262,7 +342,9 @@ export default async function AdminProductsPage({
         <ProductsTable
           products={products}
           chips={chips}
-          clearFilterHref={filtre ? buildHref({ k: category, q: search }) : null}
+          clearFilterHref={
+            filtre ? buildHref({ k: category, altk, q: search }) : null
+          }
           resetHref="/admin/urunler"
           hasActiveFilters={hasActiveFilters}
           pagination={pagination}
