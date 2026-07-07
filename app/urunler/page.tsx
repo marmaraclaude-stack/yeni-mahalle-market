@@ -10,6 +10,7 @@
 
 import type { Metadata } from "next";
 import type { ComponentType } from "react";
+import Link from "next/link";
 import {
   ShoppingBasket,
   BadgePercent,
@@ -23,6 +24,12 @@ import {
   SHOP_CATEGORIES,
   categoryBySlug,
 } from "@/lib/shop/categories";
+import {
+  subcatsFor,
+  assignSubcategory,
+  OTHER_SUB_SLUG,
+  OTHER_SUB_NAME,
+} from "@/lib/shop/subcategories";
 import { specialByKey, type SpecialKey } from "@/lib/shop/specials";
 import { BUSINESS } from "@/lib/business";
 import { getShopSettings } from "@/lib/shop/settings";
@@ -49,6 +56,13 @@ type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>;
 /** string | string[] | undefined → ilk string değer. */
 function first(v: string | string[] | undefined): string | undefined {
   return Array.isArray(v) ? v[0] : v;
+}
+
+/** Kategori (+ opsiyonel alt kategori) görünümü linki. */
+function catHref(catSlug: string, subSlug?: string): string {
+  const params = new URLSearchParams({ k: catSlug });
+  if (subSlug) params.set("alt", subSlug);
+  return `/urunler?${params.toString()}`;
 }
 
 export async function generateMetadata({
@@ -84,6 +98,17 @@ export default async function UrunlerPage({
   const special = !q ? specialByKey(first(sp.ozel)) : undefined;
   // Geçersiz kategori slug'ı sessizce yok sayılır (tüm ürünler listelenir)
   const category = special ? undefined : categoryBySlug(first(sp.k) ?? "");
+
+  // Alt kategori (?alt=...) — yalnız kategori görünümünde (q ve ozel yokken)
+  // anlamlı; geçersiz/eşleşmeyen slug sessizce yok sayılır.
+  const subs = category && !q ? subcatsFor(category.slug) : [];
+  const altRaw = (first(sp.alt) ?? "").trim();
+  const altDef = subs.find((s) => s.slug === altRaw);
+  const altSlug =
+    subs.length > 0 && (altDef || altRaw === OTHER_SUB_SLUG)
+      ? altRaw
+      : undefined;
+  const altName = altSlug ? (altDef?.name ?? OTHER_SUB_NAME) : undefined;
 
   // Teslimat ayarları — CartPanel'deki ücretsiz teslimat ilerlemesi için
   // (tablo yoksa makul default döner, sayfa patlamaz).
@@ -195,6 +220,7 @@ export default async function UrunlerPage({
               active={category?.slug}
               q={q || undefined}
               ozel={special?.key}
+              alt={altSlug}
             />
 
             <div className={styles.main}>
@@ -262,11 +288,46 @@ export default async function UrunlerPage({
                   />
                 </section>
               ) : category ? (
-                /* Kategori seçili: o kategorinin tüm ürünleri grid */
+                /* Kategori seçili: alt kategori çip barı + Getir tarzı
+                   bölümlenmiş görünüm (alt tanımı varsa) ya da düz grid.
+                   Alt seçiliyse yalnız o alt kategorinin ürünleri. */
                 (() => {
                   const [bg, fg] =
                     CATEGORY_TINTS[category.tint] ?? CATEGORY_TINTS[0];
                   const Icon = iconFor(category.icon);
+
+                  // Ürünleri alt kategorilere grupla — assignSubcategory
+                  // ürün başına yalnız 1 kez çağrılır.
+                  const bySub = new Map<string, Product[]>();
+                  if (subs.length > 0) {
+                    for (const p of products) {
+                      const slug = assignSubcategory(
+                        category.slug,
+                        p.name,
+                        p.brand,
+                      );
+                      const list = bySub.get(slug);
+                      if (list) list.push(p);
+                      else bySub.set(slug, [p]);
+                    }
+                  }
+                  const countOf = (slug: string) =>
+                    bySub.get(slug)?.length ?? 0;
+                  const shown = altSlug
+                    ? (bySub.get(altSlug) ?? [])
+                    : products;
+
+                  // Bölümlenmiş görünüm: tanım sırası + en sonda "Diğer",
+                  // yalnız ürünü olan alt kategoriler.
+                  const subSections = altSlug
+                    ? []
+                    : [
+                        ...subs.map((s) => ({ slug: s.slug, name: s.name })),
+                        { slug: OTHER_SUB_SLUG, name: OTHER_SUB_NAME },
+                      ]
+                        .map((s) => ({ ...s, items: bySub.get(s.slug) ?? [] }))
+                        .filter((s) => s.items.length > 0);
+
                   return (
                     <section className={styles.section}>
                       <div className={styles.sectionHead}>
@@ -278,16 +339,94 @@ export default async function UrunlerPage({
                           >
                             <Icon size={18} strokeWidth={1.9} />
                           </span>
-                          {category.name}
+                          {altName
+                            ? `${category.name} · ${altName}`
+                            : category.name}
                         </h2>
                         <span className={styles.sectionCount}>
-                          {products.length} ürün
+                          {shown.length} ürün
                         </span>
                       </div>
-                      <ProductGrid
-                        products={products}
-                        emptyText="Bu kategoride henüz ürün yok."
-                      />
+
+                      {subs.length > 0 && (
+                        <nav
+                          className={styles.subBar}
+                          aria-label="Alt kategoriler"
+                        >
+                          <Link
+                            href={catHref(category.slug)}
+                            className={`${styles.subChip}${!altSlug ? ` ${styles.subChipActive}` : ""}`}
+                            aria-current={!altSlug ? "page" : undefined}
+                          >
+                            Tümü
+                          </Link>
+                          {subs
+                            .filter(
+                              (s) =>
+                                countOf(s.slug) > 0 || s.slug === altSlug,
+                            )
+                            .map((s) => {
+                              const on = s.slug === altSlug;
+                              return (
+                                <Link
+                                  key={s.slug}
+                                  href={catHref(category.slug, s.slug)}
+                                  className={`${styles.subChip}${on ? ` ${styles.subChipActive}` : ""}`}
+                                  aria-current={on ? "page" : undefined}
+                                >
+                                  {s.name}
+                                </Link>
+                              );
+                            })}
+                          {(countOf(OTHER_SUB_SLUG) > 0 ||
+                            altSlug === OTHER_SUB_SLUG) && (
+                            <Link
+                              href={catHref(category.slug, OTHER_SUB_SLUG)}
+                              className={`${styles.subChip}${altSlug === OTHER_SUB_SLUG ? ` ${styles.subChipActive}` : ""}`}
+                              aria-current={
+                                altSlug === OTHER_SUB_SLUG
+                                  ? "page"
+                                  : undefined
+                              }
+                            >
+                              {OTHER_SUB_NAME}
+                            </Link>
+                          )}
+                        </nav>
+                      )}
+
+                      {altSlug || subSections.length === 0 ? (
+                        <ProductGrid
+                          products={shown}
+                          emptyText={
+                            altSlug
+                              ? "Bu alt kategoride henüz ürün yok."
+                              : "Bu kategoride henüz ürün yok."
+                          }
+                        />
+                      ) : (
+                        subSections.map((s) => (
+                          <section
+                            key={s.slug}
+                            className={styles.subSection}
+                            aria-label={s.name}
+                          >
+                            <div className={styles.sectionHead}>
+                              <h3 className={styles.subSectionTitle}>
+                                {s.name}
+                              </h3>
+                              <span className={styles.sectionCount}>
+                                {s.items.length} ürün
+                              </span>
+                            </div>
+                            <div className={styles.grid}>
+                              {s.items.map((p) => (
+                                <ProductCard key={p.id} product={p} />
+                              ))}
+                            </div>
+                          </section>
+                        ))
+                      )}
                     </section>
                   );
                 })()
