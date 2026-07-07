@@ -46,7 +46,7 @@ export const SHOP_CATEGORIES: CategoryDef[] = [
   { slug: "bebek", name: "Bebek", tint: 6, icon: "baby", orderable: true },
   { slug: "evcil-hayvan", name: "Evcil Hayvan", tint: 5, icon: "paw-print", orderable: true },
   // Tütün: 4207/4733 sayılı kanunlar gereği online satış YASAK — sepete eklenemez.
-  { slug: "sigara-tutun", name: "Sigara & Tütün", tint: 1, icon: "cigarette", orderable: false },
+  { slug: "ev-yasam", name: "Ev & Yaşam", tint: 1, icon: "lamp", orderable: true },
   { slug: "mangal-komur", name: "Mangal & Kömür", tint: 2, icon: "flame", orderable: true },
   { slug: "cakmak-kibrit-tup", name: "Çakmak, Kibrit & Tüp", tint: 1, icon: "flame-kindling", orderable: true },
   { slug: "sarj-aleti-pil", name: "Şarj Aleti & Pil", tint: 3, icon: "battery-charging", orderable: true },

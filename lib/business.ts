@@ -74,7 +74,7 @@ export const PRODUCT_CATEGORIES = [
   "Tek Kullanımlık & Piknik",
   "Bebek",
   "Evcil Hayvan",
-  "Sigara & Tütün",
+  "Ev & Yaşam",
   "Mangal & Kömür",
   "Çakmak, Kibrit & Tüp",
   "Şarj Aleti & Pil",
