@@ -94,19 +94,35 @@ async function getRequestOrigin(): Promise<string> {
 }
 
 /**
- * Kupon kullanım sayacını artır — DB fonksiyonu atomik çalışır
- * (update ... set used_count = used_count + 1). Sayaç artmasa bile
- * sipariş geçerli kalır; hata yutulur.
+ * Kupon kullanımını ATOMIK rezerve et: DB fonksiyonu yalnız
+ * max_uses dolmamışsa sayacı artırır (yarış durumu kapalı).
+ * false = limit doldu. RPC hatasında (eski şema) sipariş engellenmez.
  */
-async function bumpCouponUsage(
+async function reserveCouponUsage(
+  admin: ReturnType<typeof createAdminClient>,
+  code: string,
+): Promise<boolean> {
+  try {
+    const { data, error } = await admin.rpc("increment_coupon_usage", {
+      p_code: code,
+    });
+    if (error) return true; // fonksiyon henüz güncellenmediyse engelleme
+    return data !== false;
+  } catch {
+    return true;
+  }
+}
+
+/** Sipariş oluşmadıysa rezerve edilen kupon kullanımını geri bırak. */
+async function releaseCouponUsage(
   admin: ReturnType<typeof createAdminClient>,
   code: string | null,
 ): Promise<void> {
   if (!code) return;
   try {
-    await admin.rpc("increment_coupon_usage", { p_code: code });
+    await admin.rpc("release_coupon_usage", { p_code: code });
   } catch {
-    // Kritik değil — sipariş zaten oluştu.
+    // Kritik değil.
   }
 }
 
@@ -278,6 +294,15 @@ export async function createOrder(
   const deliveryFee = calcDeliveryFee(settings, subtotal);
   const total = Math.max(0, round2(subtotal + deliveryFee - discountTotal));
 
+  // --- 3.5) Kupon kullanımını atomik rezerve et: eşzamanlı siparişler
+  // limitin üzerine çıkamaz. Aşağıdaki başarısızlık yollarında geri bırakılır.
+  if (couponCode) {
+    const reserved = await reserveCouponUsage(admin, couponCode);
+    if (!reserved) {
+      return { ok: false, error: "Bu kuponun kullanım limiti doldu." };
+    }
+  }
+
   // --- 4) Sipariş yaz — user_id her siparişte set (adım 0'da doğrulandı).
   // order_no çakışırsa yeniden dene ---
   let order: Order | null = null;
@@ -310,12 +335,16 @@ export async function createOrder(
       break;
     }
     // 23505 = unique violation (order_no çakıştı) → yeni numarayla dene
-    if (error && error.code !== "23505")
+    if (error && error.code !== "23505") {
+      await releaseCouponUsage(admin, couponCode);
       return { ok: false, error: "Sipariş kaydedilemedi. Lütfen tekrar deneyin." };
+    }
   }
 
-  if (!order)
+  if (!order) {
+    await releaseCouponUsage(admin, couponCode);
     return { ok: false, error: "Sipariş numarası üretilemedi. Lütfen tekrar deneyin." };
+  }
 
   const { error: itemsError } = await admin
     .from("order_items")
@@ -324,6 +353,7 @@ export async function createOrder(
   if (itemsError) {
     // Yarım sipariş bırakma — kalemler yazılamadıysa siparişi geri al.
     await admin.from("orders").delete().eq("id", order.id);
+    await releaseCouponUsage(admin, couponCode);
     return { ok: false, error: "Sipariş kaydedilemedi. Lütfen tekrar deneyin." };
   }
 
@@ -355,12 +385,11 @@ export async function createOrder(
         .update({ iyzico_token: init.token })
         .eq("id", order.id);
 
-      await bumpCouponUsage(admin, couponCode);
-
       return { ok: true, orderNo: order.order_no, paymentPageUrl: init.paymentPageUrl };
     } catch {
       // Ödeme sayfası açılamadıysa yarım sipariş bırakma (cascade: items + events silinir).
       await admin.from("orders").delete().eq("id", order.id);
+      await releaseCouponUsage(admin, couponCode);
       return {
         ok: false,
         error:
@@ -368,8 +397,6 @@ export async function createOrder(
       };
     }
   }
-
-  await bumpCouponUsage(admin, couponCode);
 
   return { ok: true, orderNo: order.order_no, paymentPageUrl: null };
 }
