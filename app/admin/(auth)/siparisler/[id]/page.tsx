@@ -8,9 +8,12 @@ import {
   updateAdminNote,
   updateOrderStatus,
 } from "@/lib/shop/admin-actions";
+import { BUSINESS } from "@/lib/business";
+import { courierShareToken } from "@/lib/shop/courier-token";
 import AdminBack from "../../AdminBack";
 import DeleteOrderButton from "./DeleteOrderButton";
 import CourierForm from "./CourierForm";
+import CourierTrackLink from "./CourierTrackLink";
 import PaymentStatusForm from "./PaymentStatusForm";
 import {
   formatTL,
@@ -252,6 +255,13 @@ export default async function AdminOrderDetailPage({
               initialName={order.courier_name}
               initialPhone={order.courier_phone}
             />
+            {order.status !== "delivered" && order.status !== "cancelled" && (
+              <CourierTrackLink
+                url={`${BUSINESS.url}/kurye/${encodeURIComponent(
+                  order.order_no,
+                )}?t=${courierShareToken(order.id)}`}
+              />
+            )}
           </section>
 
           {/* İç not */}

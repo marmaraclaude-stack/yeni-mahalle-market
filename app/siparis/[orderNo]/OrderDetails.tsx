@@ -14,6 +14,7 @@ import {
   type OrderItem,
   type OrderStatus,
 } from "@/lib/shop/types";
+import CourierLiveMap from "./CourierLiveMap";
 import styles from "./siparis.module.css";
 
 /** Tarihi Türkiye saatiyle kısa biçimde yaz. */
@@ -97,32 +98,35 @@ export default function OrderDetails({
       {/* Kurye yolda — canlı bilgi kartı (div: grid section sırasını bozmaz) */}
       {showCourier && (
         <div className={styles.courierCard} role="status">
-          <span className={styles.courierIcon} aria-hidden="true">
-            <Bike />
-          </span>
-          <div className={styles.courierBody}>
-            <span className={styles.courierEyebrow}>Kuryeniz yolda</span>
-            <p className={styles.courierText}>
-              {courierName ? (
-                <>
-                  <strong>{courierName}</strong> siparişinizi getiriyor.
-                </>
-              ) : (
-                "Siparişiniz kuryeye teslim edildi ve yola çıktı."
-              )}{" "}
-              Tahmini teslimat yaklaşık 30 dakika.
-            </p>
+          <div className={styles.courierTop}>
+            <span className={styles.courierIcon} aria-hidden="true">
+              <Bike />
+            </span>
+            <div className={styles.courierBody}>
+              <span className={styles.courierEyebrow}>Kuryeniz yolda</span>
+              <p className={styles.courierText}>
+                {courierName ? (
+                  <>
+                    <strong>{courierName}</strong> siparişinizi getiriyor.
+                  </>
+                ) : (
+                  "Siparişiniz kuryeye teslim edildi ve yola çıktı."
+                )}{" "}
+                Tahmini teslimat yaklaşık 30 dakika.
+              </p>
+            </div>
+            {courierPhone && (
+              <a
+                href={`tel:${courierPhone}`}
+                className={styles.courierCall}
+                aria-label={`Kuryeyi ara: ${courierPhone}`}
+              >
+                <Phone aria-hidden="true" />
+                Ara <span className={styles.courierCallNum}>{courierPhone}</span>
+              </a>
+            )}
           </div>
-          {courierPhone && (
-            <a
-              href={`tel:${courierPhone}`}
-              className={styles.courierCall}
-              aria-label={`Kuryeyi ara: ${courierPhone}`}
-            >
-              <Phone aria-hidden="true" />
-              Ara <span className={styles.courierCallNum}>{courierPhone}</span>
-            </a>
-          )}
+          <CourierLiveMap orderNo={order.order_no} />
         </div>
       )}
 

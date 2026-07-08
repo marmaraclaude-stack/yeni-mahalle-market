@@ -71,6 +71,9 @@ export interface Order {
   admin_note: string;
   courier_name: string;
   courier_phone: string;
+  courier_lat: number | null;
+  courier_lng: number | null;
+  courier_location_at: string | null;
   iyzico_token: string | null;
   iyzico_payment_id: string | null;
   created_at: string;

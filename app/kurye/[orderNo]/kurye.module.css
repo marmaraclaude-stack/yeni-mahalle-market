@@ -1,0 +1,131 @@
+.page {
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 16px calc(24px + env(safe-area-inset-bottom));
+  background: linear-gradient(180deg, var(--accent-soft), var(--white) 60%);
+}
+
+.card {
+  width: 100%;
+  max-width: 440px;
+  background: var(--white);
+  border: 1px solid var(--gray-200);
+  border-radius: 20px;
+  padding: 28px 24px;
+  box-shadow: 0 14px 40px rgba(17, 17, 17, 0.08);
+}
+
+.eyebrow {
+  display: block;
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--accent-deep);
+}
+
+.title {
+  margin: 6px 0 0;
+  font-family: var(--font-display);
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.customer {
+  margin: 14px 0 0;
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--gray-700);
+}
+
+.muted {
+  margin: 16px 0 0;
+  font-size: 14.5px;
+  line-height: 1.55;
+  color: var(--gray-500);
+}
+
+.share {
+  margin-top: 22px;
+}
+
+.startBtn,
+.stopBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 54px;
+  border-radius: 14px;
+  border: none;
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.05s ease;
+}
+
+.startBtn {
+  background: var(--accent);
+  color: var(--white);
+}
+.startBtn:hover {
+  background: var(--accent-deep);
+}
+.startBtn:active {
+  transform: translateY(1px);
+}
+.startBtn svg {
+  width: 20px;
+  height: 20px;
+}
+
+.stopBtn {
+  background: var(--gray-100);
+  color: var(--ink);
+  border: 1px solid var(--gray-200);
+}
+.stopBtn:hover {
+  background: var(--gray-200);
+}
+
+.status {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 14px 0 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--gray-700);
+}
+.status svg {
+  width: 17px;
+  height: 17px;
+  flex-shrink: 0;
+}
+.statusOk {
+  color: #15803d;
+}
+.statusErr {
+  color: var(--accent-deep);
+}
+
+.spin {
+  animation: kurye-spin 0.9s linear infinite;
+}
+@keyframes kurye-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.hint {
+  margin: 18px 0 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--gray-500);
+}

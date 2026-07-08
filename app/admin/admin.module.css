@@ -2445,3 +2445,39 @@
 
   .thread { height: calc(100dvh - 220px); }
 }
+
+/* Kurye canlı takip linki — Kurye Bilgisi paneli altında */
+.courierLinkBox {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px dashed rgba(10, 10, 10, 0.12);
+}
+.courierLinkHint {
+  margin: 0 0 10px;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--gray-600, #555);
+}
+.courierLinkRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+.courierLinkInput {
+  flex: 1 1 200px;
+  min-width: 0;
+  font: inherit;
+  font-size: 12.5px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(10, 10, 10, 0.14);
+  background: var(--gray-50, #fafafa);
+  color: var(--black);
+}
+.courierLinkRow .actionBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  text-decoration: none;
+}
