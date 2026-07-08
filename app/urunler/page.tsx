@@ -213,6 +213,7 @@ export default async function UrunlerPage({
               active={category?.slug}
               q={q || undefined}
               ozel={special?.key}
+              alt={altSlug}
             />
 
             <div className={styles.main}>
