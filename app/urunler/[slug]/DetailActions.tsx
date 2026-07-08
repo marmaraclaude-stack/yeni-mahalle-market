@@ -110,10 +110,12 @@ export default function DetailActions({ product }: { product: Product }) {
     <div className={styles.actions}>
       {byWeight && (
         <div className={styles.weightPicker}>
-          <p className={styles.weightHint}>
-            Kilogram fiyatı <strong>{formatTL(product.price)}</strong> · ne kadar
-            istersiniz?
-          </p>
+          <div className={styles.weightHead}>
+            <span className={styles.weightHeadLabel}>Ne kadar istersiniz?</span>
+            <span className={styles.weightHeadPrice}>
+              {formatTL(product.price)} / kg
+            </span>
+          </div>
           <div
             className={styles.weightChips}
             role="group"
@@ -127,7 +129,10 @@ export default function DetailActions({ product }: { product: Product }) {
                 onClick={() => setQty(g)}
                 aria-pressed={qty === g}
               >
-                {formatGrams(g)}
+                <span className={styles.weightChipAmt}>{formatGrams(g)}</span>
+                <span className={styles.weightChipPrice}>
+                  {formatTL(computeLineTotal(product.price, g, true))}
+                </span>
               </button>
             ))}
           </div>
@@ -150,21 +155,26 @@ export default function DetailActions({ product }: { product: Product }) {
             <Minus size={17} strokeWidth={2.2} aria-hidden="true" />
           </button>
           {byWeight ? (
-            <input
-              type="number"
-              className={styles.qtyInput}
-              value={qty}
-              min={WEIGHT_MIN_GRAMS}
-              max={WEIGHT_MAX_GRAMS}
-              step={WEIGHT_STEP_GRAMS}
-              inputMode="numeric"
-              aria-label="Gram cinsinden miktar"
-              onChange={(e) => {
-                const v = Number(e.target.value);
-                setQty(Number.isFinite(v) && v > 0 ? Math.round(v) : WEIGHT_MIN_GRAMS);
-              }}
-              onBlur={() => setQty((q) => clampGrams(q))}
-            />
+            <>
+              <input
+                type="number"
+                className={styles.qtyInput}
+                value={qty}
+                min={WEIGHT_MIN_GRAMS}
+                max={WEIGHT_MAX_GRAMS}
+                step={WEIGHT_STEP_GRAMS}
+                inputMode="numeric"
+                aria-label="Gram cinsinden miktar"
+                onChange={(e) => {
+                  const v = Number(e.target.value);
+                  setQty(Number.isFinite(v) && v > 0 ? Math.round(v) : WEIGHT_MIN_GRAMS);
+                }}
+                onBlur={() => setQty((q) => clampGrams(q))}
+              />
+              <span className={styles.qtyUnit} aria-hidden="true">
+                g
+              </span>
+            </>
           ) : (
             <span className={styles.qtyValue} aria-live="polite">
               {qty}
@@ -206,8 +216,8 @@ export default function DetailActions({ product }: { product: Product }) {
 
       {byWeight && (
         <p className={styles.weightGramNote}>
-          {formatGrams(qty)} için {lineTotal} — en az {formatGrams(WEIGHT_MIN_GRAMS)},{" "}
-          {formatGrams(WEIGHT_STEP_GRAMS)} adımlarla.
+          İstediğin gramı yazabilir veya {formatGrams(WEIGHT_STEP_GRAMS)}&apos;lık
+          adımlarla ayarlayabilirsin (en az {formatGrams(WEIGHT_MIN_GRAMS)}).
         </p>
       )}
 

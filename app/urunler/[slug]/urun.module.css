@@ -314,54 +314,92 @@
   background: var(--accent-soft);
 }
 
-/* Gram seçici — kilogram fiyatı notu + hazır miktar çipleri. */
+/* Gram seçici — başlık + fiyatlı hazır miktar kartları (r-md köşe dili). */
 .weightPicker {
   display: flex;
   flex-direction: column;
-  gap: 9px;
+  gap: 10px;
 }
-.weightHint {
-  margin: 0;
-  font-size: var(--fs-small);
-  color: var(--gray-700, #525252);
-}
-.weightHint strong {
-  color: var(--ink);
-  font-weight: 700;
-}
-.weightChips {
+.weightHead {
   display: flex;
-  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+.weightHeadLabel {
+  font-size: var(--fs-small);
+  font-weight: 700;
+  color: var(--ink);
+}
+.weightHeadPrice {
+  font-size: var(--fs-small);
+  font-weight: 600;
+  color: var(--accent-deep);
+  font-variant-numeric: tabular-nums;
+}
+/* 4 eşit kart; dar ekranda 2x2. */
+.weightChips {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
   gap: 8px;
 }
 .weightChip {
-  padding: 8px 16px;
-  border-radius: var(--r-pill);
-  border: 1px solid var(--gray-200);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 10px 6px;
+  border-radius: var(--r-md);
+  border: 1.5px solid var(--gray-200);
   background: var(--white);
-  font-size: var(--fs-small);
-  font-weight: 600;
-  color: var(--ink);
   cursor: pointer;
   transition: border-color 160ms var(--ease), background 160ms var(--ease),
-    color 160ms var(--ease);
+    box-shadow 160ms var(--ease);
+}
+.weightChipAmt {
+  font-size: var(--fs-body);
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1.1;
+}
+.weightChipPrice {
+  font-size: var(--fs-micro);
+  font-weight: 600;
+  color: var(--gray-500);
+  font-variant-numeric: tabular-nums;
 }
 .weightChip:hover {
   border-color: var(--accent);
-  color: var(--accent-deep);
 }
 .weightChipActive {
-  background: var(--accent);
   border-color: var(--accent);
-  color: var(--white);
+  background: var(--accent-soft);
+  box-shadow: 0 0 0 3px rgba(255, 90, 31, 0.12);
 }
-.weightChipActive:hover {
-  color: var(--white);
+.weightChipActive .weightChipAmt {
+  color: var(--accent-deep);
+}
+.weightChipActive .weightChipPrice {
+  color: var(--accent-deep);
+}
+/* Adet seçicideki gram birimi ("g") — düzenlenebilir sayının yanında. */
+.qtyUnit {
+  font-size: var(--fs-small);
+  font-weight: 700;
+  color: var(--gray-500);
+  padding-right: 4px;
+  margin-left: -6px;
 }
 .weightGramNote {
   margin: 0;
   font-size: var(--fs-small);
   color: var(--gray-500, #737373);
+}
+
+@media (max-width: 520px) {
+  .weightChips {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 .addBtn {
@@ -375,7 +413,7 @@
   min-width: 220px;
   flex: 1 1 240px;
   max-width: 460px;
-  border-radius: var(--r-pill); /* buton standardi: pill */
+  border-radius: var(--r-md); /* sol adet seçiciyle aynı köşe dili */
   background: linear-gradient(180deg, #ff6f38 0%, var(--accent) 55%, #f0510f 100%);
   color: var(--white);
   font-size: var(--fs-lead);
