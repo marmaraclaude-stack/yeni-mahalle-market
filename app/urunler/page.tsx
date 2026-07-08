@@ -10,7 +10,6 @@
 
 import type { Metadata } from "next";
 import type { ComponentType } from "react";
-import Link from "next/link";
 import {
   ShoppingBasket,
   BadgePercent,
@@ -37,6 +36,7 @@ import SiteNav from "@/components/SiteNav";
 import SiteFooter from "@/components/SiteFooter";
 import PromoBanners from "@/components/shop/PromoBanners";
 import CategoryRail from "@/components/shop/CategoryRail";
+import SubcatTabs from "@/components/shop/SubcatTabs";
 import CategorySidebar from "@/components/shop/CategorySidebar";
 import CartPanel from "@/components/shop/CartPanel";
 import SearchBox from "@/components/shop/SearchBox";
@@ -56,13 +56,6 @@ type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>;
 /** string | string[] | undefined → ilk string değer. */
 function first(v: string | string[] | undefined): string | undefined {
   return Array.isArray(v) ? v[0] : v;
-}
-
-/** Kategori (+ opsiyonel alt kategori) görünümü linki. */
-function catHref(catSlug: string, subSlug?: string): string {
-  const params = new URLSearchParams({ k: catSlug });
-  if (subSlug) params.set("alt", subSlug);
-  return `/urunler?${params.toString()}`;
 }
 
 export async function generateMetadata({
@@ -288,9 +281,11 @@ export default async function UrunlerPage({
                   />
                 </section>
               ) : category ? (
-                /* Kategori seçili: alt kategori sekme barı + Getir tarzı
-                   bölümlenmiş görünüm (alt tanımı varsa) ya da düz grid.
-                   Alt seçiliyse yalnız o alt kategorinin ürünleri. */
+                /* Kategori seçili: sticky alt kategori sekme barı (SubcatTabs)
+                   + Getir tarzı bölümlenmiş görünüm (alt tanımı varsa) ya da
+                   düz grid. Bölümlenmiş modda sekmeler bölüme anchor scroll
+                   yapar; ?alt= ile gelindiyse yalnız o altın ürünleri
+                   (sunucu filtreli tek grid). */
                 (() => {
                   const [bg, fg] =
                     CATEGORY_TINTS[category.tint] ?? CATEGORY_TINTS[0];
@@ -316,6 +311,15 @@ export default async function UrunlerPage({
                   const shown = altSlug
                     ? (bySub.get(altSlug) ?? [])
                     : products;
+
+                  // Sekme barı öğeleri: tanım sırası + en sonda "Diğer";
+                  // yalnız ürünü olanlar (aktif alt boş olsa da kalır).
+                  const tabItems = [
+                    ...subs.map((s) => ({ slug: s.slug, name: s.name })),
+                    { slug: OTHER_SUB_SLUG, name: OTHER_SUB_NAME },
+                  ]
+                    .map((s) => ({ ...s, count: countOf(s.slug) }))
+                    .filter((s) => s.count > 0 || s.slug === altSlug);
 
                   // Bölümlenmiş görünüm: tanım sırası + en sonda "Diğer",
                   // yalnız ürünü olan alt kategoriler.
@@ -348,60 +352,16 @@ export default async function UrunlerPage({
                         </span>
                       </div>
 
-                      {subs.length > 0 && (
-                        <nav
-                          className={styles.subBar}
-                          aria-label="Alt kategoriler"
-                        >
-                          <Link
-                            href={catHref(category.slug)}
-                            className={`${styles.subChip}${!altSlug ? ` ${styles.subChipActive}` : ""}`}
-                            aria-current={!altSlug ? "page" : undefined}
-                          >
-                            Tümü
-                            <span className={styles.subCount}>
-                              {products.length}
-                            </span>
-                          </Link>
-                          {subs
-                            .filter(
-                              (s) =>
-                                countOf(s.slug) > 0 || s.slug === altSlug,
-                            )
-                            .map((s) => {
-                              const on = s.slug === altSlug;
-                              return (
-                                <Link
-                                  key={s.slug}
-                                  href={catHref(category.slug, s.slug)}
-                                  className={`${styles.subChip}${on ? ` ${styles.subChipActive}` : ""}`}
-                                  aria-current={on ? "page" : undefined}
-                                >
-                                  {s.name}
-                                  <span className={styles.subCount}>
-                                    {countOf(s.slug)}
-                                  </span>
-                                </Link>
-                              );
-                            })}
-                          {(countOf(OTHER_SUB_SLUG) > 0 ||
-                            altSlug === OTHER_SUB_SLUG) && (
-                            <Link
-                              href={catHref(category.slug, OTHER_SUB_SLUG)}
-                              className={`${styles.subChip}${altSlug === OTHER_SUB_SLUG ? ` ${styles.subChipActive}` : ""}`}
-                              aria-current={
-                                altSlug === OTHER_SUB_SLUG
-                                  ? "page"
-                                  : undefined
-                              }
-                            >
-                              {OTHER_SUB_NAME}
-                              <span className={styles.subCount}>
-                                {countOf(OTHER_SUB_SLUG)}
-                              </span>
-                            </Link>
-                          )}
-                        </nav>
+                      {subs.length > 0 && tabItems.length > 0 && (
+                        /* Çift katmanlı sticky sekme barı. Bölümlenmiş
+                           görünümde anchor scroll (reload yok), ?alt= ile
+                           gelindiğinde normal link sekmeleri. */
+                        <SubcatTabs
+                          catSlug={category.slug}
+                          tabs={tabItems}
+                          totalCount={products.length}
+                          activeAlt={altSlug}
+                        />
                       )}
 
                       {altSlug || subSections.length === 0 ? (
@@ -417,6 +377,7 @@ export default async function UrunlerPage({
                         subSections.map((s) => (
                           <section
                             key={s.slug}
+                            id={`alt-${s.slug}`}
                             className={styles.subSection}
                             aria-label={s.name}
                           >

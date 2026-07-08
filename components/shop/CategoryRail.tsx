@@ -40,8 +40,28 @@ export default function CategoryRail({
   q?: string;
   ozel?: string;
 }) {
+  const barRef = useRef<HTMLDivElement>(null);
   const railRef = useRef<HTMLElement>(null);
   const [sheet, setSheet] = useState(false);
+
+  // Bar yüksekliği :root'ta --catbar-h değişkenine yazılır: alt kategori
+  // sekme barı (SubcatTabs) bunun altına sticky yapışır ve bölümlerin
+  // scroll-margin-top hesabı bunu kullanır. Masaüstünde bar display:none
+  // olduğundan 0px yazılır (CSS'te masaüstü değerleri zaten ayrı).
+  useEffect(() => {
+    const el = barRef.current;
+    if (!el) return;
+    const root = document.documentElement;
+    const apply = () =>
+      root.style.setProperty("--catbar-h", `${el.offsetHeight}px`);
+    apply();
+    const ro = new ResizeObserver(apply);
+    ro.observe(el);
+    return () => {
+      ro.disconnect();
+      root.style.removeProperty("--catbar-h");
+    };
+  }, []);
 
   // Aktif pill ilk yüklemede görünür alana gelsin
   useEffect(() => {
@@ -65,7 +85,7 @@ export default function CategoryRail({
   const close = () => setSheet(false);
 
   return (
-    <div className={styles.catbar}>
+    <div ref={barRef} className={styles.catbar}>
       <div className="container">
         <nav ref={railRef} className={styles.catRail} aria-label="Kategoriler">
           {/* Tüm kategorilere tek dokunuş: alt sayfa tetikleyici — aynı karo
