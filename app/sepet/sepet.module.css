@@ -17,7 +17,7 @@
   padding: clamp(24px, 4vw, 44px) 0 clamp(18px, 2.5vw, 28px);
 }
 .title {
-  font-family: var(--font-display);
+  font-family: var(--font-sans);
   font-size: var(--fs-h2);
   font-weight: 700;
   letter-spacing: -0.035em;
@@ -511,7 +511,7 @@
   height: 40px;
 }
 .emptyTitle {
-  font-family: var(--font-display);
+  font-family: var(--font-sans);
   font-size: var(--fs-h3);
   font-weight: 700;
   letter-spacing: -0.015em;
@@ -537,7 +537,7 @@
   gap: 2px;
 }
 .suggestTitle {
-  font-family: var(--font-display);
+  font-family: var(--font-sans);
   font-size: var(--fs-h5);
   font-weight: 700;
   letter-spacing: -0.02em;

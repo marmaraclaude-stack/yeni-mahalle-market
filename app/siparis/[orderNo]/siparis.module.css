@@ -146,7 +146,7 @@
 }
 .orderNo {
   margin: 0;
-  font-family: var(--font-display);
+  font-family: var(--font-sans);
   font-size: clamp(24px, 4vw, 32px);
   font-weight: 700;
   letter-spacing: -0.01em;
@@ -216,8 +216,9 @@
 }
 .courierCard {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 14px;
+  flex-wrap: wrap;
   padding: 18px 20px;
   border-radius: var(--r-lg);
   background: linear-gradient(120deg, var(--accent-soft), var(--white));
@@ -239,9 +240,10 @@
   height: 22px;
 }
 .courierBody {
+  flex: 1 1 220px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
   min-width: 0;
 }
 .courierEyebrow {
@@ -261,33 +263,43 @@
 .courierText strong {
   font-weight: 700;
 }
-.courierPhone {
+/* Sağdaki net "Ara" butonu: accent dolgulu 44px pill, telefon numarası içinde okunur. */
+.courierCall {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
-  align-self: flex-start;
-  margin-top: 4px;
+  flex-shrink: 0;
   height: 44px;
-  padding: 0 22px;
+  padding: 0 20px;
   border-radius: var(--r-pill);
-  background: var(--white);
-  border: 1px solid rgba(255, 90, 31, 0.35);
-  color: var(--accent-deep);
+  background: var(--accent);
+  color: var(--white);
   font-size: var(--fs-small);
   font-weight: 600;
   text-decoration: none;
   font-variant-numeric: tabular-nums;
-  transition: background 160ms var(--ease), border-color 160ms var(--ease),
-    transform 160ms var(--ease);
+  white-space: nowrap;
+  transition: background 160ms var(--ease), transform 160ms var(--ease),
+    box-shadow 160ms var(--ease);
 }
-.courierPhone svg {
+.courierCall svg {
   width: 16px;
   height: 16px;
 }
-.courierPhone:hover {
-  background: var(--accent-soft);
-  border-color: var(--accent);
+.courierCall:hover {
+  background: var(--accent-deep);
   transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(255, 90, 31, 0.28);
+}
+.courierCallNum {
+  font-weight: 700;
+}
+/* Mobilde buton alt satıra tam genişlik sarar. */
+@media (max-width: 520px) {
+  .courierCall {
+    flex: 1 1 100%;
+  }
 }
 
 /* Zaman çizelgesi */
@@ -511,7 +523,7 @@
 }
 .verifyTitle {
   margin: 0;
-  font-family: var(--font-display);
+  font-family: var(--font-sans);
   font-size: clamp(24px, 4vw, 32px);
   font-weight: 700;
   letter-spacing: -0.01em;

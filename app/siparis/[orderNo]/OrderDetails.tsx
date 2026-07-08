@@ -110,16 +110,19 @@ export default function OrderDetails({
               ) : (
                 "Siparişiniz kuryeye teslim edildi ve yola çıktı."
               )}{" "}
-              Tahmini teslimat yaklaşık 30 dakika. Durum bu sayfada canlı
-              güncellenir.
+              Tahmini teslimat yaklaşık 30 dakika.
             </p>
-            {courierPhone && (
-              <a href={`tel:${courierPhone}`} className={styles.courierPhone}>
-                <Phone aria-hidden="true" />
-                {courierPhone}
-              </a>
-            )}
           </div>
+          {courierPhone && (
+            <a
+              href={`tel:${courierPhone}`}
+              className={styles.courierCall}
+              aria-label={`Kuryeyi ara: ${courierPhone}`}
+            >
+              <Phone aria-hidden="true" />
+              Ara <span className={styles.courierCallNum}>{courierPhone}</span>
+            </a>
+          )}
         </div>
       )}
 

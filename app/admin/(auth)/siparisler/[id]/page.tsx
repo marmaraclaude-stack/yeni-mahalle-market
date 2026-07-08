@@ -5,13 +5,13 @@ import { notFound } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
 import {
   listCouriers,
-  setPaymentStatus,
   updateAdminNote,
   updateOrderStatus,
 } from "@/lib/shop/admin-actions";
 import AdminBack from "../../AdminBack";
 import DeleteOrderButton from "./DeleteOrderButton";
 import CourierForm from "./CourierForm";
+import PaymentStatusForm from "./PaymentStatusForm";
 import {
   formatTL,
   ORDER_STATUS_LABELS,
@@ -23,7 +23,6 @@ import type {
   Order,
   OrderItem,
   OrderStatus,
-  PaymentStatus,
 } from "@/lib/shop/types";
 import styles from "../../../admin.module.css";
 
@@ -36,8 +35,6 @@ const NEXT_STEP: Partial<Record<OrderStatus, { to: OrderStatus; label: string }>
   preparing: { to: "on_the_way", label: "Kurye Yolda" },
   on_the_way: { to: "delivered", label: "Teslim Edildi" },
 };
-
-const PAYMENT_STATUSES: PaymentStatus[] = ["pending", "paid", "failed", "refunded"];
 
 function formatDateTime(iso: string): string {
   try {
@@ -96,15 +93,7 @@ export default async function AdminOrderDetailPage({
     couriers = [];
   }
 
-  // Formlardan gelen değerleri action'lara bağlayan inline server action'lar.
-  async function savePaymentAction(formData: FormData) {
-    "use server";
-    const value = String(formData.get("payment_status") ?? "");
-    if ((PAYMENT_STATUSES as string[]).includes(value)) {
-      await setPaymentStatus(id, value as PaymentStatus);
-    }
-  }
-
+  // Not formu değerini action'a bağlayan inline server action.
   async function saveNoteAction(formData: FormData) {
     "use server";
     await updateAdminNote(id, String(formData.get("admin_note") ?? ""));
@@ -248,31 +237,10 @@ export default async function AdminOrderDetailPage({
           {/* Ödeme durumu */}
           <section className={styles.panel}>
             <h2 className={styles.panelTitle}>Ödeme Durumu</h2>
-            <form action={savePaymentAction} className={styles.inlineForm}>
-              <div className={styles.field} style={{ flex: "1 1 180px" }}>
-                <label className={styles.label} htmlFor="payment_status">
-                  Durum
-                </label>
-                <select
-                  id="payment_status"
-                  name="payment_status"
-                  defaultValue={order.payment_status}
-                  className={styles.select}
-                >
-                  {PAYMENT_STATUSES.map((s) => (
-                    <option key={s} value={s}>
-                      {PAYMENT_STATUS_LABELS[s]}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <button
-                type="submit"
-                className={`${styles.actionBtn} ${styles["actionBtn--primary"]}`}
-              >
-                Kaydet
-              </button>
-            </form>
+            <PaymentStatusForm
+              orderId={order.id}
+              initialStatus={order.payment_status}
+            />
           </section>
 
           {/* Kurye bilgisi — kayıtlı kuryeden seç veya elle gir */}
