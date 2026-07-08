@@ -100,9 +100,10 @@ export default function ProductCard({
 
   const compareAt = product.compare_at_price;
   const discounted = compareAt !== null && compareAt > product.price;
-  // Gram bazlı üründe gramaj gösterilmez (müşteri gramı kendi seçer).
+  // Kartta gramaj (ör. "1 kg") gösterilir; gram bazlı ürünlerde de yönetici
+  // girdiği referans miktarı görünür (detay sayfasında ise gizli tutulur).
   const byWeight = isWeightBased(product);
-  const meta = [product.brand, byWeight ? "" : product.size_text]
+  const meta = [product.brand, product.size_text]
     .filter(Boolean)
     .join(" · ");
 

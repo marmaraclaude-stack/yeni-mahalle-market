@@ -562,6 +562,34 @@ export async function removeProductImage(
   return { ok: true };
 }
 
+/**
+ * Ürünü KALICI olarak sil. cart_items FK cascade ile temizlenir; order_items
+ * product_id NULL olur (sipariş geçmişi korunur). Görsel storage'dan silinir.
+ */
+export async function deleteProduct(productId: string): Promise<void> {
+  await requireAdmin();
+  if (!productId.trim()) throw new Error("Geçersiz ürün.");
+  const supabase = createAdminClient();
+
+  const { data: prodData } = await supabase
+    .from("products")
+    .select("slug, image_url")
+    .eq("id", productId)
+    .maybeSingle();
+  const product = prodData as { slug: string; image_url: string | null } | null;
+
+  const { error } = await supabase.from("products").delete().eq("id", productId);
+  if (error) throw new Error(`Ürün silinemedi: ${error.message}`);
+
+  if (product?.image_url) {
+    await tryRemoveStorageFile(
+      supabase,
+      storagePathFromPublicUrl(product.image_url),
+    );
+  }
+  revalidateProductPages({ id: productId, slug: product?.slug });
+}
+
 // ------------------------------------------------------------
 // Ayarlar
 // ------------------------------------------------------------

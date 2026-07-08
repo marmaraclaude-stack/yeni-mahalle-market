@@ -20,10 +20,12 @@ import {
   Plus,
   Star,
   Tag,
+  Trash2,
   X,
 } from "lucide-react";
 import {
   createProduct,
+  deleteProduct,
   toggleProductActive,
   updateProduct,
 } from "@/lib/shop/admin-actions";
@@ -163,6 +165,26 @@ function ProductRow({ product }: { product: Product }) {
         });
         router.refresh();
       } finally {
+        setBusy(false);
+      }
+    });
+  }
+
+  function remove() {
+    if (
+      !window.confirm(
+        `"${product.name}" ürünü kalıcı olarak silinsin mi? Bu işlem geri alınamaz.`,
+      )
+    ) {
+      return;
+    }
+    setBusy(true);
+    startTransition(async () => {
+      try {
+        await deleteProduct(product.id);
+        router.refresh(); // satır listeden düşer
+      } catch (e) {
+        window.alert(e instanceof Error ? e.message : "Ürün silinemedi.");
         setBusy(false);
       }
     });
@@ -321,6 +343,16 @@ function ProductRow({ product }: { product: Product }) {
           >
             Düzenle
           </Link>
+          <button
+            type="button"
+            onClick={remove}
+            disabled={busy}
+            className={`${styles.btnRow} ${styles["btnRow--danger"]}`}
+            aria-label={`${product.name} ürününü sil`}
+          >
+            <Trash2 size={13} aria-hidden />
+            Sil
+          </button>
         </div>
       </td>
     </tr>
