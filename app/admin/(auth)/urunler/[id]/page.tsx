@@ -2,7 +2,6 @@
 // görsel yükleme/kaldırma. Yazma işlemleri lib/shop/admin-actions üzerinden;
 // formlar inline server action ile sarmalanır, sonuç query param mesajıyla gösterilir.
 
-import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
 import {
@@ -11,6 +10,7 @@ import {
   uploadProductImage,
 } from "@/lib/shop/admin-actions";
 import AdminBack from "../../AdminBack";
+import ProductInfoForm from "./ProductInfoForm";
 import { SHOP_CATEGORIES, CATEGORY_TINTS, categoryBySlug } from "@/lib/shop/categories";
 import type { Product } from "@/lib/shop/types";
 import styles from "../../../admin.module.css";
@@ -85,7 +85,8 @@ export default async function AdminProductEditPage({
       await updateProduct(id, {
         name,
         brand: String(formData.get("brand") ?? ""),
-        size_text: String(formData.get("size_text") ?? ""),
+        // Gram bazlıysa gramaj anlamsız — temizlenir (müşteri gramı kendi seçer).
+        size_text: soldByWeight ? "" : String(formData.get("size_text") ?? ""),
         description: String(formData.get("description") ?? ""),
         unit: soldByWeight ? "kg" : String(formData.get("unit") ?? "adet"),
         category_slug: String(formData.get("category_slug") ?? ""),
@@ -141,178 +142,15 @@ export default async function AdminProductEditPage({
         {/* Ürün bilgileri */}
         <section className={styles.panel}>
           <h2 className={styles.panelTitle}>Ürün Bilgileri</h2>
-          <form action={saveAction}>
-            <div className={styles.editFormGrid}>
-              <div className={`${styles.field} ${styles.fieldFull}`}>
-                <label className={styles.label} htmlFor="p-name">
-                  Ürün adı *
-                </label>
-                <input
-                  id="p-name"
-                  name="name"
-                  required
-                  defaultValue={product.name}
-                  className={styles.input}
-                />
-              </div>
-
-              <div className={styles.field}>
-                <label className={styles.label} htmlFor="p-brand">
-                  Marka
-                </label>
-                <input
-                  id="p-brand"
-                  name="brand"
-                  defaultValue={product.brand}
-                  className={styles.input}
-                />
-              </div>
-
-              <div className={styles.field}>
-                <label className={styles.label} htmlFor="p-size">
-                  Gramaj (örn. 1 L, 350 g)
-                </label>
-                <input
-                  id="p-size"
-                  name="size_text"
-                  defaultValue={product.size_text}
-                  className={styles.input}
-                />
-              </div>
-
-              <div className={styles.field}>
-                <label className={styles.label} htmlFor="p-category">
-                  Kategori
-                </label>
-                <select
-                  id="p-category"
-                  name="category_slug"
-                  defaultValue={product.category_slug}
-                  className={styles.select}
-                >
-                  {SHOP_CATEGORIES.map((c) => (
-                    <option key={c.slug} value={c.slug}>
-                      {c.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className={styles.field}>
-                <label className={styles.label} htmlFor="p-unit">
-                  Birim
-                </label>
-                <select
-                  id="p-unit"
-                  name="unit"
-                  defaultValue={product.unit || "adet"}
-                  className={styles.select}
-                >
-                  {units.map((u) => (
-                    <option key={u} value={u}>
-                      {u}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className={styles.field}>
-                <label className={styles.label} htmlFor="p-price">
-                  Fiyat (TL) *{" "}
-                  {product.sold_by_weight ? "— kilogram fiyatı" : ""}
-                </label>
-                <input
-                  id="p-price"
-                  name="price"
-                  required
-                  inputMode="decimal"
-                  defaultValue={String(product.price)}
-                  className={styles.input}
-                />
-              </div>
-
-              <div className={`${styles.field} ${styles.fieldFull}`}>
-                <label className={styles.checkLabel}>
-                  <input
-                    type="checkbox"
-                    name="sold_by_weight"
-                    defaultChecked={product.sold_by_weight}
-                  />
-                  Gram bazlı sat (kilogram fiyatı) — müşteri kaç gram istediğini
-                  seçer, fiyat kg üzerinden hesaplanır. Meyve-sebze için idealdir.
-                </label>
-              </div>
-
-              <div className={styles.field}>
-                <label className={styles.label} htmlFor="p-compare">
-                  Eski fiyat (indirim için, boş bırakılabilir)
-                </label>
-                <input
-                  id="p-compare"
-                  name="compare_at_price"
-                  inputMode="decimal"
-                  defaultValue={
-                    product.compare_at_price !== null
-                      ? String(product.compare_at_price)
-                      : ""
-                  }
-                  className={styles.input}
-                />
-              </div>
-
-              <div className={`${styles.field} ${styles.fieldFull}`}>
-                <label className={styles.label} htmlFor="p-desc">
-                  Açıklama
-                </label>
-                <textarea
-                  id="p-desc"
-                  name="description"
-                  rows={3}
-                  defaultValue={product.description}
-                  className={styles.textarea}
-                />
-              </div>
-
-              <div className={`${styles.fieldFull} ${styles.checksRow}`}>
-                <label className={styles.checkLabel}>
-                  <input
-                    type="checkbox"
-                    name="in_stock"
-                    defaultChecked={product.in_stock}
-                  />
-                  Stokta
-                </label>
-                <label className={styles.checkLabel}>
-                  <input
-                    type="checkbox"
-                    name="is_active"
-                    defaultChecked={product.is_active}
-                  />
-                  Aktif (vitrinde görünür)
-                </label>
-                <label className={styles.checkLabel}>
-                  <input
-                    type="checkbox"
-                    name="is_featured"
-                    defaultChecked={product.is_featured}
-                  />
-                  Öne çıkan
-                </label>
-              </div>
-            </div>
-
-            <div className={styles.formFoot}>
-              <button
-                type="submit"
-                className={`${styles.actionBtn} ${styles["actionBtn--primary"]}`}
-              >
-                Kaydet
-              </button>
-              <Link href="/admin/urunler" className={styles.actionBtn}>
-                Vazgeç
-              </Link>
-            </div>
-          </form>
+          <ProductInfoForm
+            saveAction={saveAction}
+            product={product}
+            categories={SHOP_CATEGORIES.map((c) => ({
+              slug: c.slug,
+              name: c.name,
+            }))}
+            units={units}
+          />
         </section>
 
         {/* Görsel yönetimi */}

@@ -100,7 +100,10 @@ export default function ProductCard({
 
   const compareAt = product.compare_at_price;
   const discounted = compareAt !== null && compareAt > product.price;
-  const meta = [product.brand, product.size_text].filter(Boolean).join(" · ");
+  // Gram bazlı üründe gramaj gösterilmez (müşteri gramı kendi seçer).
+  const meta = [product.brand, product.sold_by_weight ? "" : product.size_text]
+    .filter(Boolean)
+    .join(" · ");
 
   return (
     <article

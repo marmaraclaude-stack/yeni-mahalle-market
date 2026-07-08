@@ -237,7 +237,8 @@ export default async function UrunDetayPage({ params }: { params: Params }) {
     ? Math.round((1 - product.price / compareAt) * 100)
     : 0;
 
-  const metaText = [product.brand, product.size_text]
+  // Gram bazlı üründe gramaj gösterilmez (müşteri gramı kendi seçer).
+  const metaText = [product.brand, product.sold_by_weight ? "" : product.size_text]
     .filter(Boolean)
     .join(" · ");
 
@@ -250,7 +251,7 @@ export default async function UrunDetayPage({ params }: { params: Params }) {
   // "Ürün Hakkında" künye satırları — açıklama olmasa da sayfa dolu dursun.
   const specs = [
     { label: "Marka", value: product.brand },
-    { label: "Miktar", value: product.size_text },
+    { label: "Miktar", value: product.sold_by_weight ? "" : product.size_text },
     { label: "Kategori", value: cat?.name ?? "" },
     {
       label: "Satış birimi",

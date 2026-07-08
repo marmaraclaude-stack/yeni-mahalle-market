@@ -170,7 +170,7 @@ export default function CartView({
                         {line.name}
                       </Link>
                       <span className={styles.lineMeta}>
-                        {[line.brand, line.sizeText]
+                        {[line.brand, line.soldByWeight ? "" : line.sizeText]
                           .filter(Boolean)
                           .join(" · ")}
                       </span>
