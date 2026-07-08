@@ -95,8 +95,10 @@ export default function SubcatTabs({
             "--catbar-h",
           ),
         ) || 0;
+    // Bar hem mobil hem masaüstünde 69px (SiteNav) referansına yapışır;
+    // masaüstü nefes payı barın kendi üst dolgusundadır (offsetHeight'a dahil).
     const topOffset =
-      (desktop ? 85 : 69) + catbarH + (barRef.current?.offsetHeight ?? 44);
+      69 + catbarH + (barRef.current?.offsetHeight ?? 44);
 
     const visible = new Set<string>();
     const io = new IntersectionObserver(

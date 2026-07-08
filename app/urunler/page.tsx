@@ -213,7 +213,6 @@ export default async function UrunlerPage({
               active={category?.slug}
               q={q || undefined}
               ozel={special?.key}
-              alt={altSlug}
             />
 
             <div className={styles.main}>
@@ -343,9 +342,7 @@ export default async function UrunlerPage({
                           >
                             <Icon size={18} strokeWidth={1.9} />
                           </span>
-                          {altName
-                            ? `${category.name} · ${altName}`
-                            : category.name}
+                          {altName ?? category.name}
                         </h2>
                         <span className={styles.sectionCount}>
                           {shown.length} ürün
