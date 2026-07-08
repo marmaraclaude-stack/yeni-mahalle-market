@@ -1,0 +1,39 @@
+name: supabase-fix
+
+# Tek seferlik köprü: sandbox api.supabase.com'a erişemiyor.
+# Management API üzerinden verilen SQL'i çalıştırır. Token maskeli input.
+on:
+  workflow_dispatch:
+    inputs:
+      sbp:
+        description: "Supabase management token (sbp_...)"
+        required: true
+      ref:
+        description: "Project ref"
+        required: true
+      sql:
+        description: "SQL to run"
+        required: true
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Apply SQL via Management API
+        env:
+          SBP: ${{ inputs.sbp }}
+          REF: ${{ inputs.ref }}
+          SQL: ${{ inputs.sql }}
+        run: |
+          echo "::add-mask::$SBP"
+          RESP=$(jq -nc --arg q "$SQL" '{query:$q}' | \
+            curl -sS -X POST \
+              "https://api.supabase.com/v1/projects/$REF/database/query" \
+              -H "Authorization: Bearer $SBP" \
+              -H "Content-Type: application/json" \
+              --data @-)
+          echo "Response: $RESP"
+          # API hata objesi döndürdüyse ({message:...}) job'ı düşür.
+          if echo "$RESP" | jq -e 'type=="object" and has("message")' >/dev/null 2>&1; then
+            echo "API error"; exit 1
+          fi
