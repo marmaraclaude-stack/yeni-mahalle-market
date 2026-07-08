@@ -20,7 +20,7 @@ export const OTHER_SUB_NAME = "Diğer";
 export const CATEGORY_SUBS: Record<string, SubCategory[]> = {
   "meyve-sebze": [
     { slug: "yesillik", name: "Yeşillik", match: /maydanoz|dereotu|nane|roka|taze so[ğg]an|ye[şs]illik|marul|k[ıi]v[ıi]rc[ıi]k/ },
-    { slug: "meyve", name: "Meyve", match: /muz|elma|karpuz|[çc]ilek|[şs]eftali|portakal|mandalina|limon|[üu]z[üu]m|kivi|nar\b|hicaznar|avokado|armut|ayva|greyfurt|kavun|nektarin|kay[ıi]s[ıi]/ },
+    { slug: "meyve", name: "Meyve", match: /muz|elma|karpuz|[çc]ilek|[şs]eftali|portakal|mandalina|limon|[üu]z[üu]m|kivi|\bnar\b|hicaznar|avokado|armut|ayva|greyfurt|kavun|nektarin|kay[ıi]s[ıi]|incir|hurma|ananas|mango|erik|kiraz|vi[şs]ne|b[öo][ğg][üu]rtlen|yaban mersini|ahududu|ejder|[çc]a[ğg]la|kestane|yeni d[üu]nya|\bdut\b|karadut|pasiflora|[çc]ark[ıi]felek/ },
     { slug: "sebze", name: "Sebze", match: /./ },
   ],
   "sarkuteri-et": [
@@ -85,7 +85,7 @@ export const CATEGORY_SUBS: Record<string, SubCategory[]> = {
   "cips-kuruyemis": [
     { slug: "cips", name: "Cips", match: /cips|lay|ruffles|doritos|cheetos|pringles|patos|[çc]erezza|cerezza|nacho|patlam[ıi][şs]|patlatmal[ıi]k|patlatmalik|popcorn/ },
     { slug: "cekirdek", name: "Çekirdek", match: /[çc]ekird|cekird|[çc]itliyo|citliyo|nutzz/ },
-    { slug: "kuru-meyve", name: "Kuru Meyve", match: /kuru [üu]z[üu]m|kuru uzum|kuru kay[ıi]s[ıi]|kuru kayisi|kuru [ıi]ncir|hurma|mango|cranberry|kurusu/ },
+    { slug: "kuru-meyve", name: "Kuru Meyve", match: /kuru [üu]z[üu]m|kuru uzum|kuru kay[ıi]s[ıi]|kuru kayisi|kuru [ıi]ncir|hurma|mango|cranberry|kurusu|kuru dut|kuru erik|kuru muz|k[ıi]z[ıi]lc[ıi]k|kuru ananas|tropik|kuru elma|goji|vi[şs]ne/ },
     { slug: "kuruyemis", name: "Kuruyemiş", match: /./ },
   ],
   "cikolata-sekerleme": [
