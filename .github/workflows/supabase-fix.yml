@@ -33,4 +33,7 @@ jobs:
               -H "Content-Type: application/json" \
               --data @-)
           echo "Response: $RESP"
-          echo "$RESP" | jq -e 'if type=="object" and has("message") then error("api error") else . end' >/dev/null 2>&1 || true
+          # API hata objesi döndürdüyse ({message:...}) job'ı düşür.
+          if echo "$RESP" | jq -e 'type=="object" and has("message")' >/dev/null 2>&1; then
+            echo "API error"; exit 1
+          fi
