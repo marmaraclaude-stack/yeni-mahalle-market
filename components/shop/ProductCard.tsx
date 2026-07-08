@@ -9,7 +9,12 @@
 import { createElement } from "react";
 import Link from "next/link";
 import type { Product } from "@/lib/shop/types";
-import { formatTL, isWeightBased } from "@/lib/shop/types";
+import {
+  formatTL,
+  isGramPackUnit,
+  isWeightBased,
+  unitPriceLabel,
+} from "@/lib/shop/types";
 import { CATEGORY_TINTS, categoryBySlug } from "@/lib/shop/categories";
 import AddToCartButton from "@/components/shop/AddToCartButton";
 import {
@@ -106,6 +111,8 @@ export default function ProductCard({
   const meta = [product.brand, product.size_text]
     .filter(Boolean)
     .join(" · ");
+  // Gram-paket/paket ürünlerde küçük birim fiyat bilgisi (ör. "1.599,92 / kg").
+  const perUnit = unitPriceLabel(product);
 
   return (
     <article
@@ -142,12 +149,14 @@ export default function ProductCard({
               <s className={styles.compare}>{formatTL(compareAt)}</s>
             )}
             <span className={styles.price}>{formatTL(product.price)}</span>
-            {(byWeight || product.unit !== "adet") && (
+            {(byWeight ||
+              (product.unit !== "adet" && !isGramPackUnit(product.unit))) && (
               <span className={styles.unit}>
                 / {byWeight ? "kg" : product.unit}
               </span>
             )}
           </p>
+          {perUnit && <p className={styles.perUnit}>{perUnit}</p>}
           <h3 className={styles.name}>{product.name}</h3>
           <p className={styles.size}>{meta}</p>
         </div>

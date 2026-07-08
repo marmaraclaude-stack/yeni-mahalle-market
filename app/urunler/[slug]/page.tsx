@@ -14,7 +14,12 @@ import { cache } from "react";
 import { LayoutGrid, Leaf, ShieldCheck, Sparkles, Truck, Wallet } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import type { Product } from "@/lib/shop/types";
-import { formatTL, isWeightBased } from "@/lib/shop/types";
+import {
+  formatTL,
+  isGramPackUnit,
+  isWeightBased,
+  unitPriceLabel,
+} from "@/lib/shop/types";
 import { CATEGORY_TINTS, categoryBySlug } from "@/lib/shop/categories";
 import { BUSINESS } from "@/lib/business";
 import { iconFor } from "@/components/shop/ProductCard";
@@ -147,44 +152,6 @@ async function getSimilarProducts(product: Product): Promise<Product[]> {
  * Zaten kg bazlı satılan (unit "kg") ya da tam 1 kg / 1 L olan ürünlerde
  * bilgi tekrar olacağından null döner.
  */
-function unitPriceLabel(product: Product): string | null {
-  const { price, size_text, unit } = product;
-  if (!price || price <= 0 || unit === "kg") return null;
-  const s = size_text.toLocaleLowerCase("tr-TR").replace(/,/g, ".");
-
-  // Gramaj/hacim, opsiyonel "NxM birim" (örn. "6x0.5 l", "2x160 g")
-  const wv = s.match(/(?:(\d+(?:\.\d+)?)\s*[x×]\s*)?(\d+(?:\.\d+)?)\s*(kg|g|l|ml)\b/);
-  if (wv) {
-    const count = wv[1] ? parseFloat(wv[1]) : 1;
-    const qty = parseFloat(wv[2]);
-    const u = wv[3];
-    const total = count * qty;
-    if (total > 0) {
-      if (u === "kg" || u === "g") {
-        const grams = u === "kg" ? total * 1000 : total;
-        if (grams === 1000) return null;
-        const perKg = price / (grams / 1000);
-        return `${formatTL(Math.round(perKg * 100) / 100)} / kg`;
-      }
-      const ml = u === "l" ? total * 1000 : total;
-      if (ml === 1000) return null;
-      const perL = price / (ml / 1000);
-      return `${formatTL(Math.round(perL * 100) / 100)} / L`;
-    }
-  }
-
-  // Çoklu adet: "8'li", "60'lı", "12 adet" vb.
-  const cnt = s.match(/(\d+)\s*['’]?\s*(?:l[iıuü]|adet)\b/);
-  if (cnt) {
-    const n = parseInt(cnt[1], 10);
-    if (n > 1) {
-      const per = price / n;
-      return `${formatTL(Math.round(per * 100) / 100)} / adet`;
-    }
-  }
-  return null;
-}
-
 /** Görsel üzerine küçük bilgi çipleri (opsiyonel, kategoriye göre).
     Sadece taze kategoriler için "Günlük taze"; diğerlerinde çip yok. */
 function infoChips(categorySlug: string): { icon: typeof Leaf; label: string }[] {
@@ -401,7 +368,9 @@ export default async function UrunDetayPage({ params }: { params: Params }) {
 
               <p className={styles.priceRow}>
                 <span className={styles.price}>{formatTL(product.price)}</span>
-                {(byWeight || product.unit !== "adet") && (
+                {(byWeight ||
+                  (product.unit !== "adet" &&
+                    !isGramPackUnit(product.unit))) && (
                   <span className={styles.unit}>
                     / {byWeight ? "kg" : product.unit}
                   </span>

@@ -297,3 +297,60 @@ export function formatGrams(grams: number): string {
   const text = Number.isInteger(kg) ? String(kg) : String(kg).replace(".", ",");
   return `${text} kg`;
 }
+
+/**
+ * Birim fiyat bilgisi (Getir/Migros netliği): paket fiyatını gramaj/hacim ya
+ * da adede bölüp "₺X / kg" · "₺X / L" · "₺X / adet" döndürür. Gram bazlı
+ * (kg picker) ürünlerde ve tam 1 kg / 1 L olanlarda bilgi tekrar olacağından
+ * null döner. Ör. 125 g / ₺199,99 → "₺1.599,92 / kg".
+ */
+export function unitPriceLabel(product: {
+  price: number;
+  size_text: string;
+  unit: string;
+  sold_by_weight?: boolean | null;
+  category_slug?: string | null;
+}): string | null {
+  const { price, size_text, unit } = product;
+  if (!price || price <= 0) return null;
+  // Zaten kg ile (gram picker) satılıyorsa fiyat zaten "/kg" gösteriliyor.
+  if (unit === "kg" || isWeightBased(product)) return null;
+  const s = (size_text ?? "").toLocaleLowerCase("tr-TR").replace(/,/g, ".");
+
+  // Gramaj/hacim, opsiyonel "NxM birim" (örn. "6x0.5 l", "2x160 g")
+  const wv = s.match(/(?:(\d+(?:\.\d+)?)\s*[x×]\s*)?(\d+(?:\.\d+)?)\s*(kg|g|l|ml)\b/);
+  if (wv) {
+    const count = wv[1] ? parseFloat(wv[1]) : 1;
+    const qty = parseFloat(wv[2]);
+    const u = wv[3];
+    const total = count * qty;
+    if (total > 0) {
+      if (u === "kg" || u === "g") {
+        const grams = u === "kg" ? total * 1000 : total;
+        if (grams === 1000) return null;
+        const perKg = price / (grams / 1000);
+        return `${formatTL(Math.round(perKg * 100) / 100)} / kg`;
+      }
+      const ml = u === "l" ? total * 1000 : total;
+      if (ml === 1000) return null;
+      const perL = price / (ml / 1000);
+      return `${formatTL(Math.round(perL * 100) / 100)} / L`;
+    }
+  }
+
+  // Çoklu adet: "8'li", "60'lı", "12 adet" vb.
+  const cnt = s.match(/(\d+)\s*['’]?\s*(?:l[iıuü]|adet)\b/);
+  if (cnt) {
+    const n = parseInt(cnt[1], 10);
+    if (n > 1) {
+      const per = price / n;
+      return `${formatTL(Math.round(per * 100) / 100)} / adet`;
+    }
+  }
+  return null;
+}
+
+/** Gram-paket birimi mi? (fiyat pakete aittir; "/gram" son eki gösterilmez). */
+export function isGramPackUnit(unit: string | null | undefined): boolean {
+  return unit === "gram" || unit === "gr" || unit === "g";
+}

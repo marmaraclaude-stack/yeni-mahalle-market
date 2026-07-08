@@ -1142,6 +1142,16 @@
   font-weight: 500;
   white-space: nowrap;
 }
+/* Küçük birim fiyat bilgisi (ör. "1.599,92 / kg") — Getir/Migros netliği. */
+.perUnit {
+  color: var(--gray-500);
+  font-size: var(--fs-micro);
+  font-variant-numeric: tabular-nums;
+  margin-top: 1px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 .name {
   font-size: var(--fs-small);
   font-weight: 400;
