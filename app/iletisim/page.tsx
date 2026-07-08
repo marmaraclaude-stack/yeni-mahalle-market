@@ -246,24 +246,6 @@ export default function IletisimPage() {
             />
           </section>
 
-          {/* --- Çalışma saatleri şeridi --- */}
-          <section className={styles.hoursStrip} aria-label="Çalışma saatleri">
-            <div className={styles.hoursTop}>
-              <div className={styles.hoursLeft}>
-                <span className={styles.hoursIcon} aria-hidden="true">
-                  <Clock size={19} strokeWidth={1.9} />
-                </span>
-                <h2 className={styles.hoursTitle}>Çalışma Saatleri</h2>
-              </div>
-              <StatusIndicator />
-            </div>
-            <p className={styles.hoursValue}>
-              {BUSINESS.hours.opens} - {BUSINESS.hours.closes}
-            </p>
-            <p className={styles.hoursDetail}>
-              Haftanın 7 günü · Bayramlar dahil her gün açığız.
-            </p>
-          </section>
 
           {/* --- SSS --- */}
           <section className={styles.faqSection} aria-labelledby="sss-baslik">
