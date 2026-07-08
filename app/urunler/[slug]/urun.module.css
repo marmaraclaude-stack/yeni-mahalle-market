@@ -603,6 +603,11 @@
 /* Rail sarmalayıcı: ok butonlarının konum referansı */
 .railWrap {
   position: relative;
+  /* Masaüstünde ok butonlarına yer aç: kartlar okların ALTINDA kalmaz,
+     oklar bu boşlukta durur (iç içe geçme biter). Mobilde padding yok. */
+}
+@media (min-width: 641px) {
+  .railWrap { padding-inline: 48px; }
 }
 .rail {
   display: flex;
@@ -625,9 +630,10 @@
   width: 100%;
 }
 /* Mobil: 3 kart birden görünür (%34 x 3 + gap = kenardan taşan parça
-   kaydırılabilirliği kendiliğinden gösterir) */
+   kaydırılabilirliği kendiliğinden gösterir); oklar gizli (dokunmatik kaydırma) */
 @media (max-width: 640px) {
   .railItem { flex: 0 0 34%; }
+  .railBtn { display: none; }
 }
 /* Ok butonları — ana sayfa carousel diliyle: beyaz daire, kenarda */
 .railBtn {
@@ -651,5 +657,5 @@
   border-color: var(--gray-300);
 }
 .railBtn:active { transform: scale(0.94); }
-.railBtn--prev { left: -10px; }
-.railBtn--next { right: -10px; }
+.railBtn--prev { left: 2px; }
+.railBtn--next { right: 2px; }

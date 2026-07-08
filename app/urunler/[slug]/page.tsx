@@ -90,7 +90,7 @@ async function getSimilarProducts(product: Product): Promise<Product[]> {
       .order("is_featured", { ascending: false })
       .order("sort", { ascending: true })
       .order("name", { ascending: true })
-      .limit(30);
+      .limit(50);
     if (error) return [];
     const candidates = (data ?? []) as Product[];
     if (candidates.length === 0) return [];
@@ -125,12 +125,12 @@ async function getSimilarProducts(product: Product): Promise<Product[]> {
       )
       .map((s) => s.p);
 
-    const result = ranked.slice(0, 8);
+    const result = ranked.slice(0, 15);
     if (result.length < 4) {
       // Skorlu sonuç azsa kategori sırasından tamamla (doldurma, 8'e kadar).
       const picked = new Set(result.map((p) => p.id));
       for (const p of candidates) {
-        if (result.length >= 8) break;
+        if (result.length >= 15) break;
         if (!picked.has(p.id)) result.push(p);
       }
     }
