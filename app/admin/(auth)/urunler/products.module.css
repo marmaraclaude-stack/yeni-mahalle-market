@@ -135,6 +135,21 @@
   color: var(--accent-deep);
 }
 
+/* Aktif filtre cipleri satiri (Kategori / Alt / Arama + Hepsini temizle).
+   Cip icindeki X ikonu kaldirma jestini isaret eder (kapatma, ok degil). */
+.activeFilters {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.activeFilters svg {
+  flex-shrink: 0;
+  opacity: 0.8;
+}
+
 /* Tablo akisi: yalniz yatay tasma icin kaydirma; dikey ic scroll tuzagi yok,
    liste dogal sayfa akisinda uzar (eski .tableScroll max-height yerine). */
 .tableFlow {

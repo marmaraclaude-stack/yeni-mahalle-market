@@ -118,7 +118,7 @@ function CouponRow({ coupon }: { coupon: Coupon }) {
             type="button"
             onClick={toggle}
             disabled={busy}
-            className={`${styles.pillBtn} ${coupon.is_active ? styles["pillBtn--on"] : ""}`}
+            className={`${styles.btnRow} ${coupon.is_active ? styles["btnRow--on"] : ""}`}
             aria-label={`${coupon.code} kuponunu ${coupon.is_active ? "pasifleştir" : "aktifleştir"}`}
           >
             {coupon.is_active ? "Aktif" : "Pasif"}
@@ -127,7 +127,7 @@ function CouponRow({ coupon }: { coupon: Coupon }) {
             type="button"
             onClick={remove}
             disabled={busy}
-            className={`${styles.actionBtn} ${styles["actionBtn--danger"]}`}
+            className={`${styles.btnRow} ${styles["btnRow--danger"]}`}
             aria-label={`${coupon.code} kuponunu sil`}
           >
             Sil
@@ -202,7 +202,7 @@ export default function CouponsTable({ coupons }: { coupons: Coupon[] }) {
         <button
           type="button"
           onClick={() => setShowForm((v) => !v)}
-          className={styles.accentBtn}
+          className={styles.btnLg}
           aria-expanded={showForm}
         >
           {showForm ? (

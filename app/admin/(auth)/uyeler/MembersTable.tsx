@@ -215,7 +215,7 @@ function MemberRowView({ member }: { member: MemberRow }) {
                   type="button"
                   onClick={saveEdit}
                   disabled={busy}
-                  className={`${local.pillAction} ${local["pillAction--save"]}`}
+                  className={`${styles.btnRow} ${styles["btnRow--on"]}`}
                   aria-label={`${label} üyesindeki değişiklikleri kaydet`}
                 >
                   {busy ? "Kaydediliyor…" : "Kaydet"}
@@ -224,7 +224,7 @@ function MemberRowView({ member }: { member: MemberRow }) {
                   type="button"
                   onClick={cancelEdit}
                   disabled={busy}
-                  className={local.pillAction}
+                  className={styles.btnRow}
                   aria-label={`${label} üyesindeki düzenlemeyi iptal et`}
                 >
                   Vazgeç
@@ -236,7 +236,7 @@ function MemberRowView({ member }: { member: MemberRow }) {
                   type="button"
                   onClick={startEdit}
                   disabled={busy}
-                  className={local.pillAction}
+                  className={styles.btnRow}
                   aria-label={`${label} üyesinin ad ve telefonunu düzenle`}
                 >
                   Düzenle
@@ -245,7 +245,7 @@ function MemberRowView({ member }: { member: MemberRow }) {
                   type="button"
                   onClick={togglePassForm}
                   disabled={busy}
-                  className={local.pillAction}
+                  className={styles.btnRow}
                   aria-expanded={showPass}
                   aria-label={`${label} üyesinin parolasını sıfırla`}
                 >
@@ -255,7 +255,7 @@ function MemberRowView({ member }: { member: MemberRow }) {
                   type="button"
                   onClick={remove}
                   disabled={busy}
-                  className={`${styles.actionBtn} ${styles["actionBtn--danger"]}`}
+                  className={`${styles.btnRow} ${styles["btnRow--danger"]}`}
                   aria-label={`${label} üyesini sil`}
                 >
                   Sil
@@ -287,7 +287,7 @@ function MemberRowView({ member }: { member: MemberRow }) {
               <button
                 type="submit"
                 disabled={passBusy}
-                className={`${local.pillAction} ${local["pillAction--save"]}`}
+                className={`${styles.btnRow} ${styles["btnRow--on"]}`}
               >
                 {passBusy ? "Kaydediliyor…" : "Kaydet"}
               </button>
@@ -295,7 +295,7 @@ function MemberRowView({ member }: { member: MemberRow }) {
                 type="button"
                 onClick={togglePassForm}
                 disabled={passBusy}
-                className={local.pillAction}
+                className={styles.btnRow}
               >
                 Kapat
               </button>
@@ -372,7 +372,7 @@ export default function MembersTable({ members }: { members: MemberRow[] }) {
         <button
           type="button"
           onClick={() => setShowForm((v) => !v)}
-          className={styles.accentBtn}
+          className={styles.btnLg}
           aria-expanded={showForm}
         >
           {showForm ? (

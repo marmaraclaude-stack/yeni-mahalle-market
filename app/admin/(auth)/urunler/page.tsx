@@ -14,6 +14,7 @@ import { SHOP_CATEGORIES } from "@/lib/shop/categories";
 import { assignSubcategory, subcatsFor } from "@/lib/shop/subcategories";
 import type { Product } from "@/lib/shop/types";
 import ProductsTable, {
+  type ActiveFilter,
   type ChipData,
   type PageItem,
   type PaginationData,
@@ -40,6 +41,23 @@ function parseFilter(value: string | undefined): CatalogFilter | null {
     : null;
 }
 
+// Siralama secenekleri (?sirala=). Bos = varsayilan sira (kategori/sort/ad).
+const SORT_KEYS = ["isim", "fiyat-artan", "fiyat-azalan", "yeni"] as const;
+type CatalogSort = (typeof SORT_KEYS)[number];
+
+const SORT_LABELS: Record<CatalogSort, string> = {
+  isim: "İsim (A-Z)",
+  "fiyat-artan": "Fiyat (artan)",
+  "fiyat-azalan": "Fiyat (azalan)",
+  yeni: "Yeni eklenen",
+};
+
+function parseSort(value: string | undefined): CatalogSort | null {
+  return (SORT_KEYS as readonly string[]).includes(value ?? "")
+    ? (value as CatalogSort)
+    : null;
+}
+
 /** k/altk/q/filtre/sayfa parametrelerinden GET linki uret (bos olanlar
  *  atlanir; altk yalniz k ile birlikte anlamli oldugundan k yoksa dusulur). */
 function buildHref(params: {
@@ -47,6 +65,7 @@ function buildHref(params: {
   altk?: string | null;
   q?: string;
   filtre?: CatalogFilter | null;
+  sirala?: CatalogSort | null;
   sayfa?: number;
 }): string {
   const sp = new URLSearchParams();
@@ -54,6 +73,7 @@ function buildHref(params: {
   if (params.k && params.altk) sp.set("altk", params.altk);
   if (params.q) sp.set("q", params.q);
   if (params.filtre) sp.set("filtre", params.filtre);
+  if (params.sirala) sp.set("sirala", params.sirala);
   if (params.sayfa && params.sayfa > 1) sp.set("sayfa", String(params.sayfa));
   const qs = sp.toString();
   return qs ? `/admin/urunler?${qs}` : "/admin/urunler";
@@ -95,12 +115,15 @@ export default async function AdminProductsPage({
     yeni?: string;
     sayfa?: string;
     filtre?: string;
+    sirala?: string;
   }>;
 }) {
-  const { k, altk: altkRaw, q, yeni, sayfa, filtre: filtreRaw } = await searchParams;
+  const { k, altk: altkRaw, q, yeni, sayfa, filtre: filtreRaw, sirala: siralaRaw } =
+    await searchParams;
   const category = k ?? "";
   const search = (q ?? "").trim();
   const filtre = parseFilter(filtreRaw);
+  const sirala = parseSort(siralaRaw);
   // Alt kategori: yalniz k seciliyken ve o kategorinin tanimli alt slug'lari
   // arasindaysa gecerli; aksi halde sessizce yok sayilir (kategori degisince
   // formda kalan eski altk boylece temizlenir).
@@ -163,6 +186,22 @@ export default async function AdminProductsPage({
         filtered = inSub.filter((p) => !p.in_stock);
       }
 
+      // Siralama: DB yolundaki order ile ayni mantik, bellekte uygulanir.
+      // Varsayilan (sirala null) inSub'un kategori/sort/ad sirasini korur.
+      if (sirala === "isim") {
+        filtered = [...filtered].sort((a, b) =>
+          a.name.localeCompare(b.name, "tr"),
+        );
+      } else if (sirala === "fiyat-artan") {
+        filtered = [...filtered].sort((a, b) => Number(a.price) - Number(b.price));
+      } else if (sirala === "fiyat-azalan") {
+        filtered = [...filtered].sort((a, b) => Number(b.price) - Number(a.price));
+      } else if (sirala === "yeni") {
+        filtered = [...filtered].sort((a, b) =>
+          a.created_at < b.created_at ? 1 : a.created_at > b.created_at ? -1 : 0,
+        );
+      }
+
       total = filtered.length;
       totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
       page = Math.min(requestedPage, totalPages);
@@ -208,12 +247,7 @@ export default async function AdminProductsPage({
 
       let dataQuery = supabase
         .from("products")
-        .select("*", { count: "exact" })
-        .order("category_slug")
-        .order("sort")
-        .order("name")
-        .order("id")
-        .range(from, from + PAGE_SIZE - 1);
+        .select("*", { count: "exact" });
       if (category) dataQuery = dataQuery.eq("category_slug", category);
       if (search) dataQuery = dataQuery.ilike("name", `%${search}%`);
       if (filtre === "indirimli") {
@@ -223,6 +257,25 @@ export default async function AdminProductsPage({
       } else if (filtre === "stokta-yok") {
         dataQuery = dataQuery.eq("in_stock", false);
       }
+
+      // Siralama secimini order'a yansit; varsayilan kategori/sort/ad sirasi.
+      if (sirala === "isim") {
+        dataQuery = dataQuery.order("name", { ascending: true }).order("id");
+      } else if (sirala === "fiyat-artan") {
+        dataQuery = dataQuery.order("price", { ascending: true }).order("id");
+      } else if (sirala === "fiyat-azalan") {
+        dataQuery = dataQuery.order("price", { ascending: false }).order("id");
+      } else if (sirala === "yeni") {
+        dataQuery = dataQuery.order("created_at", { ascending: false }).order("id");
+      } else {
+        dataQuery = dataQuery
+          .order("category_slug")
+          .order("sort")
+          .order("name")
+          .order("id");
+      }
+
+      dataQuery = dataQuery.range(from, from + PAGE_SIZE - 1);
 
       const { data, error, count } = await dataQuery;
       if (error) throw new Error(error.message);
@@ -248,12 +301,45 @@ export default async function AdminProductsPage({
       altk,
       q: search,
       filtre: filtre === key ? null : key,
+      sirala,
     }),
     active: filtre === key,
   }));
 
+  // Aktif filtre cipleri: tek tikla kaldirilabilir (link, filtreyi dusuren
+  // href). Kategori kaldirilinca altk de duser (buildHref k yoksa altk atar).
+  // Siralama filtre sayilmaz; kaldirma linklerinde korunur.
+  const activeFilters: ActiveFilter[] = [];
+  if (category) {
+    const catName =
+      SHOP_CATEGORIES.find((c) => c.slug === category)?.name ?? category;
+    activeFilters.push({
+      key: "k",
+      label: `Kategori: ${catName}`,
+      href: buildHref({ q: search, filtre, sirala }),
+    });
+  }
+  if (altk) {
+    const subName = subOptions.find((s) => s.slug === altk)?.name ?? altk;
+    activeFilters.push({
+      key: "altk",
+      label: `Alt: ${subName}`,
+      href: buildHref({ k: category, q: search, filtre, sirala }),
+    });
+  }
+  if (search) {
+    activeFilters.push({
+      key: "q",
+      label: `Arama: ${search}`,
+      href: buildHref({ k: category, altk, filtre, sirala }),
+    });
+  }
+
+  // "Hepsini temizle" / bos sonuc CTA: filtreleri dusurur, siralamayi korur.
+  const clearAllHref = buildHref({ sirala });
+
   const hrefFor = (n: number) =>
-    buildHref({ k: category, altk, q: search, filtre, sayfa: n });
+    buildHref({ k: category, altk, q: search, filtre, sirala, sayfa: n });
 
   const rangeStart = total === 0 ? 0 : (page - 1) * PAGE_SIZE + 1;
   const pagination: PaginationData = {
@@ -314,8 +400,21 @@ export default async function AdminProductsPage({
           ))}
         </select>
       )}
+      <select
+        name="sirala"
+        defaultValue={sirala ?? ""}
+        className={styles.select}
+        aria-label="Sıralama"
+      >
+        <option value="">Sıralama: Varsayılan</option>
+        {SORT_KEYS.map((key) => (
+          <option key={key} value={key}>
+            {SORT_LABELS[key]}
+          </option>
+        ))}
+      </select>
       {filtre && <input type="hidden" name="filtre" value={filtre} />}
-      <button type="submit" className={styles.actionBtn}>
+      <button type="submit" className={styles.btnRow}>
         Filtrele
       </button>
     </form>
@@ -327,9 +426,7 @@ export default async function AdminProductsPage({
       <p className={styles.subtitle}>
         {loadError
           ? "Katalog yüklenemedi."
-          : hasActiveFilters
-            ? `${total} ürün bulundu.`
-            : `Toplam ${total} ürün.`}
+          : `${total} ürün · sayfa ${page}/${totalPages}`}
       </p>
 
       {loadError ? (
@@ -342,10 +439,12 @@ export default async function AdminProductsPage({
         <ProductsTable
           products={products}
           chips={chips}
+          activeFilters={activeFilters}
           clearFilterHref={
-            filtre ? buildHref({ k: category, altk, q: search }) : null
+            filtre ? buildHref({ k: category, altk, q: search, sirala }) : null
           }
-          resetHref="/admin/urunler"
+          clearAllHref={clearAllHref}
+          resetHref={clearAllHref}
           hasActiveFilters={hasActiveFilters}
           pagination={pagination}
           filterSlot={filterSlot}

@@ -46,6 +46,13 @@ export interface ChipData {
   active: boolean;
 }
 
+/** Aktif filtre cipi (Kategori / Alt / Arama): tek tikla kaldirilabilir link. */
+export interface ActiveFilter {
+  key: string;
+  label: string;
+  href: string;
+}
+
 /** Sayfa numarasi listesi elemani: link ya da kisaltma noktasi. */
 export type PageItem =
   | { type: "page"; number: number; href: string; current: boolean }
@@ -303,13 +310,13 @@ function ProductRow({ product }: { product: Product }) {
             type="button"
             onClick={save}
             disabled={!dirty || busy}
-            className={`${styles.actionBtn} ${dirty ? styles.saveDirty : ""}`}
+            className={`${styles.btnRow} ${dirty ? styles["btnRow--primary"] : ""}`}
           >
             {busy ? "Kaydediliyor" : dirty ? "Kaydet" : "Kayıtlı"}
           </button>
           <Link
             href={`/admin/urunler/${product.id}`}
-            className={styles.actionBtn}
+            className={styles.btnRow}
             aria-label={`${product.name} ürününü düzenle`}
           >
             Düzenle
@@ -376,7 +383,9 @@ function Pager({ pagination }: { pagination: PaginationData }) {
 export default function ProductsTable({
   products,
   chips,
+  activeFilters,
   clearFilterHref,
+  clearAllHref,
   resetHref,
   hasActiveFilters,
   pagination,
@@ -385,7 +394,9 @@ export default function ProductsTable({
 }: {
   products: Product[];
   chips: ChipData[];
+  activeFilters: ActiveFilter[];
   clearFilterHref: string | null;
+  clearAllHref: string;
   resetHref: string;
   hasActiveFilters: boolean;
   pagination: PaginationData;
@@ -438,7 +449,7 @@ export default function ProductsTable({
         <button
           type="button"
           onClick={() => setShowForm((v) => !v)}
-          className={styles.accentBtn}
+          className={styles.btnLg}
           aria-expanded={showForm}
         >
           {showForm ? (
@@ -449,6 +460,26 @@ export default function ProductsTable({
           {showForm ? "Formu Kapat" : "Yeni Ürün"}
         </button>
       </div>
+
+      {/* Aktif filtreler: tek tikla kaldirilabilir cipler + hepsini temizle */}
+      {activeFilters.length > 0 && (
+        <div className={pstyles.activeFilters}>
+          {activeFilters.map((f) => (
+            <Link
+              key={f.key}
+              href={f.href}
+              className={`${styles.chip} ${styles["chip--active"]}`}
+              aria-label={`${f.label} filtresini kaldır`}
+            >
+              {f.label}
+              <X size={13} aria-hidden />
+            </Link>
+          ))}
+          <Link href={clearAllHref} className={styles.quickClear}>
+            Hepsini temizle
+          </Link>
+        </div>
+      )}
 
       {/* Hizli filtre cipleri: GET linki, sayilar tum katalogdan (sunucu) */}
       <div className={styles.quickBar}>

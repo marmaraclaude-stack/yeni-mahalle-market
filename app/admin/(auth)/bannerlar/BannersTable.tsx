@@ -221,7 +221,7 @@ function BannerCard({ banner }: { banner: Banner }) {
                 type="button"
                 onClick={saveSort}
                 disabled={busy}
-                className={styles.actionBtn}
+                className={styles.btnRow}
               >
                 Kaydet
               </button>
@@ -234,7 +234,7 @@ function BannerCard({ banner }: { banner: Banner }) {
             type="button"
             onClick={toggle}
             disabled={busy}
-            className={`${styles.pillBtn} ${banner.is_active ? styles["pillBtn--on"] : ""}`}
+            className={`${styles.btnRow} ${banner.is_active ? styles["btnRow--on"] : ""}`}
             aria-label={`${banner.title} banner'ını ${banner.is_active ? "pasifleştir" : "aktifleştir"}`}
           >
             {banner.is_active ? "Aktif" : "Pasif"}
@@ -243,7 +243,7 @@ function BannerCard({ banner }: { banner: Banner }) {
             type="button"
             onClick={remove}
             disabled={busy}
-            className={`${styles.actionBtn} ${styles["actionBtn--danger"]}`}
+            className={`${styles.btnRow} ${styles["btnRow--danger"]}`}
             aria-label={`${banner.title} banner'ını sil`}
           >
             Sil
@@ -322,7 +322,7 @@ export default function BannersTable({ banners }: { banners: Banner[] }) {
         <button
           type="button"
           onClick={() => setShowForm((v) => !v)}
-          className={styles.accentBtn}
+          className={styles.btnLg}
           aria-expanded={showForm}
         >
           {showForm ? (

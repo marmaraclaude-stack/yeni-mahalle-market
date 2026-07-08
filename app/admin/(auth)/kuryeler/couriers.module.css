@@ -1,56 +1,14 @@
 /* Kuryeler sayfasına özel stiller - admin.module.css salt okunur olduğu
-   için satır içi düzenleme akışının stilleri burada tanımlanır. */
+   için satır içi düzenleme akışının stilleri burada tanımlanır.
+   NOT: Satır aksiyon butonları paylaşılan .btnRow standardını kullanır
+   (admin.module.css); eski .pillAction kuralları kaldırıldı. */
 
-/* 44px pill ikincil buton standardı (Düzenle / Kaydet / Vazgeç). */
-.pillAction {
-  font: inherit;
-  font-size: 13px;
-  font-weight: 600;
-  min-height: 44px;
-  padding: 8px 18px;
-  border-radius: 999px;
-  border: 1px solid rgba(10, 10, 10, 0.2);
-  background: var(--gray-100, #f4f4f4);
-  color: var(--gray-700, #3d3d3d);
-  cursor: pointer;
-  white-space: nowrap;
-  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
-}
-
-.pillAction:hover:not(:disabled) {
-  border-color: rgba(10, 10, 10, 0.4);
-  color: var(--black, #0a0a0a);
-}
-
-.pillAction:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.pillAction:focus-visible {
-  outline: 2px solid var(--orange, #ff5a1f);
-  outline-offset: 2px;
-}
-
-/* Kaydet: aynı pill gövdesi, onay yeşili vurgu. */
-.pillAction--save {
-  background: #e8f7ee;
-  border-color: #157347;
-  color: #157347;
-}
-
-.pillAction--save:hover:not(:disabled) {
-  background: #d8f0e2;
-  border-color: #0f5c38;
-  color: #0f5c38;
-}
-
-/* Satır içi düzenleme inputu (ad / telefon). */
+/* Satır içi düzenleme inputu (ad / telefon); .btnRow 34px yüksekliğiyle hizalı. */
 .inlineInput {
   font: inherit;
   font-size: 14px;
-  padding: 9px 12px;
-  min-height: 44px;
+  padding: 7px 12px;
+  min-height: 34px;
   border: 1px solid rgba(10, 10, 10, 0.14);
   border-radius: 12px;
   background: var(--white, #fff);

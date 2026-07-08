@@ -252,7 +252,7 @@ function CourierRow({ courier }: { courier: Courier }) {
                 type="button"
                 onClick={saveEdit}
                 disabled={busy}
-                className={`${local.pillAction} ${local["pillAction--save"]}`}
+                className={`${styles.btnRow} ${styles["btnRow--on"]}`}
                 aria-label={`${courier.name} kuryesindeki değişiklikleri kaydet`}
               >
                 {busy ? "Kaydediliyor…" : "Kaydet"}
@@ -261,7 +261,7 @@ function CourierRow({ courier }: { courier: Courier }) {
                 type="button"
                 onClick={cancelEdit}
                 disabled={busy}
-                className={local.pillAction}
+                className={styles.btnRow}
                 aria-label={`${courier.name} kuryesindeki düzenlemeyi iptal et`}
               >
                 Vazgeç
@@ -273,7 +273,7 @@ function CourierRow({ courier }: { courier: Courier }) {
                 type="button"
                 onClick={startEdit}
                 disabled={busy}
-                className={local.pillAction}
+                className={styles.btnRow}
                 aria-label={`${courier.name} kuryesinin ad ve telefonunu düzenle`}
               >
                 Düzenle
@@ -282,7 +282,7 @@ function CourierRow({ courier }: { courier: Courier }) {
                 type="button"
                 onClick={toggle}
                 disabled={busy}
-                className={`${styles.pillBtn} ${courier.is_active ? styles["pillBtn--on"] : ""}`}
+                className={`${styles.btnRow} ${courier.is_active ? styles["btnRow--on"] : ""}`}
                 aria-label={`${courier.name} kuryesini ${courier.is_active ? "pasifleştir" : "aktifleştir"}`}
               >
                 {courier.is_active ? "Aktif" : "Pasif"}
@@ -291,7 +291,7 @@ function CourierRow({ courier }: { courier: Courier }) {
                 type="button"
                 onClick={remove}
                 disabled={busy}
-                className={`${styles.actionBtn} ${styles["actionBtn--danger"]}`}
+                className={`${styles.btnRow} ${styles["btnRow--danger"]}`}
                 aria-label={`${courier.name} kuryesini sil`}
               >
                 Sil
@@ -351,7 +351,7 @@ export default function CouriersTable({ couriers }: { couriers: Courier[] }) {
         <button
           type="button"
           onClick={() => setShowForm((v) => !v)}
-          className={styles.accentBtn}
+          className={styles.btnLg}
           aria-expanded={showForm}
         >
           {showForm ? (

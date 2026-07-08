@@ -852,6 +852,130 @@
 .accentBtn:disabled { opacity: 0.5; cursor: not-allowed; }
 
 /* ============================================================
+   PAYLAŞILAN SATIR AKSİYON STANDARDI (tüm admin tabloları)
+   Tekil satır aksiyonları (Düzenle / Aktif / Sil / Şifre / Kaydet /
+   Vazgeç) TEK yükseklik-padding-şekilde hizalanır: 34px pill.
+   .btnLg büyük CTA içindir (Yeni Kurye / Yeni Üye / Yeni Ürün).
+   ============================================================ */
+.btnRow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 34px;
+  padding: 0 14px;
+  border-radius: var(--r-pill, 999px);
+  font: inherit;
+  font-size: var(--fs-small, 14px);
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+  border: 1px solid var(--gray-200);
+  background: var(--white);
+  color: var(--black);
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.btnRow svg { flex-shrink: 0; }
+
+.btnRow:hover:not(:disabled) {
+  background: var(--gray-50);
+  border-color: rgba(10, 10, 10, 0.22);
+}
+
+.btnRow:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.btnRow:focus-visible {
+  outline: 2px solid var(--orange);
+  outline-offset: 2px;
+}
+
+/* Accent dolu (birincil satır aksiyonu / dirty Kaydet / durum ilerlet) */
+.btnRow--primary {
+  background: var(--orange);
+  border-color: var(--orange);
+  color: var(--white);
+}
+
+.btnRow--primary:hover:not(:disabled) {
+  background: var(--accent-deep, #c43e0c);
+  border-color: var(--accent-deep, #c43e0c);
+}
+
+/* Yeşil aktif durum (aktif toggle / onay yeşili Kaydet) */
+.btnRow--on {
+  background: #e8f7ee;
+  border-color: #bfe6cf;
+  color: #157347;
+}
+
+.btnRow--on:hover:not(:disabled) {
+  background: #d8f0e2;
+  border-color: #157347;
+}
+
+/* Tehlikeli: kırmızı kenar/metin, hover kırmızı zemin (Sil / İptal) */
+.btnRow--danger {
+  background: var(--white);
+  border-color: #f3c8c8;
+  color: #a32020;
+}
+
+.btnRow--danger:hover:not(:disabled) {
+  background: #fdeceb;
+  border-color: #a32020;
+}
+
+/* Sönük ikincil (gri zemin, nötr) */
+.btnRow--ghost {
+  background: var(--gray-100);
+  border-color: var(--gray-200);
+  color: var(--gray-700);
+}
+
+.btnRow--ghost:hover:not(:disabled) {
+  border-color: rgba(10, 10, 10, 0.3);
+  color: var(--black);
+}
+
+/* Büyük CTA: 40px accent pill (Yeni Kurye / Yeni Üye / Yeni Ürün) */
+.btnLg {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  height: 40px;
+  padding: 0 18px;
+  border-radius: var(--r-pill, 999px);
+  font: inherit;
+  font-size: var(--fs-small, 14px);
+  font-weight: 600;
+  white-space: nowrap;
+  border: 1px solid var(--orange);
+  background: var(--orange);
+  color: var(--white);
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+}
+
+.btnLg svg { flex-shrink: 0; }
+
+.btnLg:hover:not(:disabled) {
+  background: var(--accent-deep, #c43e0c);
+  border-color: var(--accent-deep, #c43e0c);
+}
+
+.btnLg:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.btnLg:focus-visible {
+  outline: 2px solid var(--orange);
+  outline-offset: 2px;
+}
+
+/* ============================================================
    Odak halkaları (açık zemin): klavye gezinmesi için net görünürlük
    ============================================================ */
 .statCard:focus-visible,

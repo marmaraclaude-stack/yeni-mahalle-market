@@ -183,7 +183,7 @@ export default function OrdersBoard({ orders }: { orders: Order[] }) {
                     {next && (
                       <button
                         type="button"
-                        className={`${styles.actionBtn} ${styles["actionBtn--primary"]}`}
+                        className={`${styles.btnRow} ${styles["btnRow--primary"]}`}
                         disabled={busy}
                         onClick={() => setStatus(o, next.to)}
                         aria-label={`${o.order_no} durumunu ilerlet: ${next.label}`}
@@ -194,7 +194,7 @@ export default function OrdersBoard({ orders }: { orders: Order[] }) {
                     {o.status !== "delivered" && o.status !== "cancelled" && (
                       <button
                         type="button"
-                        className={`${styles.actionBtn} ${styles["actionBtn--danger"]}`}
+                        className={`${styles.btnRow} ${styles["btnRow--ghost"]}`}
                         disabled={busy}
                         onClick={() => setStatus(o, "cancelled")}
                         aria-label={`${o.order_no} siparişini iptal et`}
@@ -204,7 +204,7 @@ export default function OrdersBoard({ orders }: { orders: Order[] }) {
                     )}
                     <button
                       type="button"
-                      className={`${styles.actionBtn} ${styles["actionBtn--delete"]}`}
+                      className={`${styles.btnRow} ${styles["btnRow--danger"]}`}
                       disabled={busy}
                       onClick={() => removeOrder(o)}
                       aria-label={`${o.order_no} siparişini kalıcı olarak sil`}
