@@ -288,7 +288,7 @@ export default async function UrunlerPage({
                   />
                 </section>
               ) : category ? (
-                /* Kategori seçili: alt kategori çip barı + Getir tarzı
+                /* Kategori seçili: alt kategori sekme barı + Getir tarzı
                    bölümlenmiş görünüm (alt tanımı varsa) ya da düz grid.
                    Alt seçiliyse yalnız o alt kategorinin ürünleri. */
                 (() => {
@@ -359,6 +359,9 @@ export default async function UrunlerPage({
                             aria-current={!altSlug ? "page" : undefined}
                           >
                             Tümü
+                            <span className={styles.subCount}>
+                              {products.length}
+                            </span>
                           </Link>
                           {subs
                             .filter(
@@ -375,6 +378,9 @@ export default async function UrunlerPage({
                                   aria-current={on ? "page" : undefined}
                                 >
                                   {s.name}
+                                  <span className={styles.subCount}>
+                                    {countOf(s.slug)}
+                                  </span>
                                 </Link>
                               );
                             })}
@@ -390,6 +396,9 @@ export default async function UrunlerPage({
                               }
                             >
                               {OTHER_SUB_NAME}
+                              <span className={styles.subCount}>
+                                {countOf(OTHER_SUB_SLUG)}
+                              </span>
                             </Link>
                           )}
                         </nav>

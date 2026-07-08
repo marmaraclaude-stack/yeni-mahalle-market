@@ -28,13 +28,13 @@
   background: var(--gray-100);
 }
 
-/* Mobil panel: alttaki auth butonları */
+/* Mobil panel: alttaki auth butonları — telefon butonuyla (nav-panel__info)
+   TEK grup: margin-top:auto info'da, burada yalnız 10px grup içi boşluk. */
 .panelAuth {
-  margin-top: auto;
+  margin-top: 10px;
   display: flex;
   flex-direction: column;
   gap: 10px;
-  padding-top: 24px;
 }
 .panelBtn {
   width: 100%;

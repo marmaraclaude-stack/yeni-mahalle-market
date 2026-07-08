@@ -2,8 +2,9 @@
 
 // Kategori barı — YALNIZ mobil/tablet (<1024px; masaüstünde CategorySidebar).
 // İKİ katman:
-//  1) Sticky bar: başta koyu "Kategoriler" butonu + yatay kaydırılabilir
-//     pill raili (özel görünümler + Tümü + kategoriler).
+//  1) Sticky bar: Getir mobil tarzı İKON KARTLARI raili — başta koyu daireli
+//     "Kategoriler" tetikleyicisi, sonra Tümü + özel görünümler + kategoriler
+//     (tint zeminli yuvarlak ikon + 2 satıra kısalan ad), yatay kaydırılabilir.
 //  2) "Kategoriler" butonu ALT SAYFA (bottom sheet) açar: tüm kategoriler
 //     tint renkli ikon karolarıyla 3 sütunlu ızgarada; tek dokunuşla erişim.
 //     Kaydırma derdi yok — asıl işlevsellik burada.
@@ -11,7 +12,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { BadgePercent, Flame, LayoutGrid, X } from "lucide-react";
+import { BadgePercent, Flame, LayoutGrid, ShoppingBasket, X } from "lucide-react";
 import { CATEGORY_TINTS, SHOP_CATEGORIES } from "@/lib/shop/categories";
 import { SHOP_SPECIALS } from "@/lib/shop/specials";
 import { iconFor } from "@/components/shop/ProductCard";
@@ -67,24 +68,33 @@ export default function CategoryRail({
     <div className={styles.catbar}>
       <div className="container">
         <nav ref={railRef} className={styles.catRail} aria-label="Kategoriler">
-          {/* Tüm kategorilere tek dokunuş: alt sayfa tetikleyici */}
+          {/* Tüm kategorilere tek dokunuş: alt sayfa tetikleyici — aynı karo
+              dilinde, koyu ikon dairesiyle */}
           <button
             type="button"
-            className={styles.catAllBtn}
+            className={styles.railItem}
             onClick={() => setSheet(true)}
             aria-haspopup="dialog"
             aria-expanded={sheet}
           >
-            <LayoutGrid size={15} strokeWidth={2.1} aria-hidden="true" />
-            Kategoriler
+            <span
+              className={`${styles.railIcon} ${styles.railIconDark}`}
+              aria-hidden="true"
+            >
+              <LayoutGrid size={19} strokeWidth={2} />
+            </span>
+            <span className={styles.railName}>Kategoriler</span>
           </button>
 
           <Link
             href={buildHref(null, q)}
-            className={`${styles.pill}${!active && !ozel ? ` ${styles.pillActive}` : ""}`}
+            className={`${styles.railItem}${!active && !ozel ? ` ${styles.railItemActive}` : ""}`}
             aria-current={!active && !ozel ? "page" : undefined}
           >
-            Tümü
+            <span className={styles.railIcon} aria-hidden="true">
+              <ShoppingBasket size={19} strokeWidth={1.9} />
+            </span>
+            <span className={styles.railName}>Tümü</span>
           </Link>
 
           {SHOP_SPECIALS.map((s) => {
@@ -94,38 +104,44 @@ export default function CategoryRail({
               <Link
                 key={s.key}
                 href={`/urunler?ozel=${s.key}`}
-                className={`${styles.pill}${isActive ? ` ${styles.pillActive}` : ""}`}
+                className={`${styles.railItem}${isActive ? ` ${styles.railItemActive}` : ""}`}
                 aria-current={isActive ? "page" : undefined}
               >
-                <Icon
-                  size={15}
-                  strokeWidth={1.9}
+                <span
+                  className={styles.railIcon}
+                  style={
+                    isActive
+                      ? undefined
+                      : { background: s.tintBg, color: s.tintFg }
+                  }
                   aria-hidden="true"
-                  style={isActive ? undefined : { color: s.tintFg }}
-                />
-                {s.label}
+                >
+                  <Icon size={19} strokeWidth={1.9} />
+                </span>
+                <span className={styles.railName}>{s.label}</span>
               </Link>
             );
           })}
 
           {SHOP_CATEGORIES.map((c) => {
-            const [, fg] = CATEGORY_TINTS[c.tint] ?? CATEGORY_TINTS[0];
+            const [bg, fg] = CATEGORY_TINTS[c.tint] ?? CATEGORY_TINTS[0];
             const Icon = iconFor(c.icon);
             const isActive = active === c.slug;
             return (
               <Link
                 key={c.slug}
                 href={buildHref(c.slug, q)}
-                className={`${styles.pill}${isActive ? ` ${styles.pillActive}` : ""}`}
+                className={`${styles.railItem}${isActive ? ` ${styles.railItemActive}` : ""}`}
                 aria-current={isActive ? "page" : undefined}
               >
-                <Icon
-                  size={15}
-                  strokeWidth={1.9}
+                <span
+                  className={styles.railIcon}
+                  style={isActive ? undefined : { background: bg, color: fg }}
                   aria-hidden="true"
-                  style={isActive ? undefined : { color: fg }}
-                />
-                {c.name}
+                >
+                  <Icon size={19} strokeWidth={1.9} />
+                </span>
+                <span className={styles.railName}>{c.name}</span>
               </Link>
             );
           })}

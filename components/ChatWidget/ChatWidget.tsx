@@ -99,6 +99,14 @@ const WELCOME_MESSAGE: ChatMessage = {
 const WELCOME_OFFLINE =
   "Merhaba 👋 Şu an çevrimdışıyız. Mesajını bırak, market açılınca dönüş yapalım.";
 
+// Hızlı soru çipleri — ziyaretçi henüz hiç yazmamışken karşılama balonunun
+// altında gösterilir; dokununca metin doğrudan gönderilir.
+const QUICK_QUESTIONS = [
+  "Teslimat ne kadar sürüyor?",
+  "Çalışma saatleriniz nedir?",
+  "Siparişim nerede?",
+];
+
 export default function ChatWidget() {
   const [open, setOpen] = useState(false);
   const [session, setSession] = useState<StoredSession | null>(null);
@@ -307,11 +315,11 @@ export default function ChatWidget() {
     [introName, introPhone],
   );
 
-  const sendMessage = useCallback(
-    async (e?: React.FormEvent) => {
-      if (e) e.preventDefault();
-      const content = draft.trim();
-      if (!content || !session) return;
+  /** Ortak gönderim: composer da hızlı soru çipleri de bunu kullanır.
+      Başarıda true döner (composer draft'ı yalnız o zaman temizler). */
+  const doSend = useCallback(
+    async (content: string): Promise<boolean> => {
+      if (!content || !session) return false;
       setSending(true);
       setError(null);
       try {
@@ -319,19 +327,31 @@ export default function ChatWidget() {
         if (!res.ok || !res.message) {
           console.error("[chat] send failed", res.error);
           setError(res.error ?? "Mesaj gönderilemedi.");
-        } else {
-          // Optimistic ekleme yok: sunucunun döndürdüğü satır eklenir.
-          applyIncoming([res.message]);
-          setDraft("");
+          return false;
         }
+        // Optimistic ekleme yok: sunucunun döndürdüğü satır eklenir.
+        applyIncoming([res.message]);
+        return true;
       } catch (err) {
         console.error("[chat] send failed", err);
         setError("Mesaj gönderilemedi.");
+        return false;
       } finally {
         setSending(false);
       }
     },
-    [draft, session, applyIncoming],
+    [session, applyIncoming],
+  );
+
+  const sendMessage = useCallback(
+    async (e?: React.FormEvent) => {
+      if (e) e.preventDefault();
+      const content = draft.trim();
+      if (!content) return;
+      const ok = await doSend(content);
+      if (ok) setDraft("");
+    },
+    [draft, doSend],
   );
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -489,6 +509,22 @@ export default function ChatWidget() {
                     )}
                   </div>
                 ))}
+                {/* Hızlı soru çipleri — ziyaretçi ilk mesajını yazana kadar */}
+                {!messages.some((m) => m.sender === "visitor") && (
+                  <div className={styles.quickRow}>
+                    {QUICK_QUESTIONS.map((qq) => (
+                      <button
+                        key={qq}
+                        type="button"
+                        className={styles.quickChip}
+                        disabled={sending}
+                        onClick={() => void doSend(qq)}
+                      >
+                        {qq}
+                      </button>
+                    ))}
+                  </div>
+                )}
                 {error && (
                   <div className={`${styles.msg} ${styles["msg--system"]}`}>
                     <div className={styles.msg__bubble}>{error}</div>
@@ -515,7 +551,9 @@ export default function ChatWidget() {
                 />
                 <button
                   type="submit"
-                  className={styles.sendBtn}
+                  className={`${styles.sendBtn}${
+                    draft.trim() ? ` ${styles.sendBtnReady}` : ""
+                  }`}
                   disabled={sending || !draft.trim()}
                   aria-label="Gönder"
                 >

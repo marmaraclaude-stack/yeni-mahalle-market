@@ -111,8 +111,9 @@
 }
 
 /* ============================================================
-   Kategori pill barı — SADECE mobil/tablet (<1024px).
-   Sticky (navbar altı), yatay kaydırılabilir.
+   Kategori ikon-kart barı — SADECE mobil/tablet (<1024px).
+   Sticky (navbar altı), yatay kaydırılabilir; Getir mobil tarzı
+   dikey mini karolar (tint ikon dairesi + 2 satır ad).
    ============================================================ */
 .catbar {
   position: sticky;
@@ -123,10 +124,10 @@
 }
 .catRail {
   display: flex;
-  gap: 8px;
+  gap: 4px;
   overflow-x: auto;
-  padding: 10px var(--gutter);
-  /* Tam genişliğe taşır: pill'ler container kutusunda kesilmek yerine
+  padding: 10px var(--gutter) 0;
+  /* Tam genişliğe taşır: karolar container kutusunda kesilmek yerine
      EKRAN kenarında doğal biter, taşan parça kaydırmayı ima eder. */
   margin-inline: calc(-1 * var(--gutter));
   scroll-padding-inline: var(--gutter);
@@ -139,6 +140,72 @@
   .catbar { display: none; }
 }
 
+/* Rail karosu: üstte 40px yuvarlak ikon (tint zemin inline style ile),
+   altta 11px iki satıra kısalan ad. Buton ve link aynı sınıfı paylaşır. */
+.railItem {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  flex: 0 0 76px;
+  width: 76px;
+  padding: 2px 4px 10px;
+  border: none;
+  background: none;
+  text-align: center;
+  cursor: pointer;
+  scroll-snap-align: start;
+}
+.railIcon {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--gray-100);
+  color: var(--gray-700);
+  transition: background 180ms var(--ease), color 180ms var(--ease);
+}
+/* "Kategoriler" tetikleyicisi — koyu daire, kalıcı */
+.railIconDark {
+  background: var(--ink);
+  color: var(--white);
+}
+.railName {
+  max-width: 100%;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.2;
+  color: var(--gray-700);
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  transition: color 180ms var(--ease);
+}
+/* Aktif karo: accent dolu ikon dairesi + accent-deep ad + altta accent çizgi */
+.railItemActive .railIcon {
+  background: var(--accent);
+  color: var(--white);
+}
+.railItemActive .railName {
+  color: var(--accent-deep);
+  font-weight: 600;
+}
+.railItemActive::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 2px;
+  transform: translateX(-50%);
+  width: 20px;
+  height: 3px;
+  border-radius: var(--r-pill);
+  background: var(--accent);
+}
+
+/* Pill — artık yalnız bottom sheet'in "özel görünümler + Tümü" satırında */
 .pill {
   display: inline-flex;
   align-items: center;
@@ -168,25 +235,6 @@
   color: var(--white);
   font-weight: 600;
 }
-
-/* "Kategoriler" tetikleyici: railin başında koyu, kalıcı buton */
-.catAllBtn {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  flex-shrink: 0;
-  height: 36px;
-  padding: 0 14px;
-  border-radius: var(--r-pill);
-  border: 1px solid var(--ink);
-  background: var(--ink);
-  color: var(--white);
-  font-size: var(--fs-small);
-  font-weight: 600;
-  white-space: nowrap;
-  scroll-snap-align: start;
-}
-.catAllBtn:active { transform: scale(0.97); }
 
 /* -------- Alt sayfa (bottom sheet): tüm kategoriler ızgarası -------- */
 .sheetWrap {
@@ -697,16 +745,19 @@
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
 }
-/* --- Alt kategori çip barı — kategori görünümünde başlığın altında.
-   Mobil: catRail gibi tam genişliğe taşar, yatay kaydırılabilir.
-   Masaüstü: normal satır, flex-wrap. --- */
+/* --- Alt kategori SEKME barı — kategori görünümünde başlığın altında.
+   Metin sekmeleri: aktifte kalın yazı + 2.5px accent alt çizgi; bar
+   altında ince gray-200 taban çizgisi. Mobil: catRail gibi tam genişliğe
+   taşar, yatay kaydırılabilir. Masaüstünde de aynı tek satır sekme dili
+   (wrap yok, gerekirse kaydırma). --- */
 .subBar {
   display: flex;
-  gap: 8px;
-  margin-bottom: 14px;
+  gap: 6px;
+  margin-bottom: 16px;
   overflow-x: auto;
-  padding: 2px var(--gutter) 6px;
+  padding: 0 var(--gutter);
   margin-inline: calc(-1 * var(--gutter));
+  border-bottom: 1px solid var(--gray-200);
   scroll-padding-inline: var(--gutter);
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
@@ -714,38 +765,50 @@
 .subBar::-webkit-scrollbar { display: none; }
 @media (min-width: 1024px) {
   .subBar {
-    flex-wrap: wrap;
-    overflow-x: visible;
     margin-inline: 0;
     padding-inline: 0;
   }
 }
 .subChip {
+  position: relative;
   display: inline-flex;
-  align-items: center;
+  align-items: baseline;
+  gap: 5px;
   flex-shrink: 0;
-  height: 32px;
-  padding: 0 13px;
-  border-radius: var(--r-pill);
-  border: 1px solid var(--gray-200);
-  background: var(--white);
-  color: var(--gray-700);
+  padding: 9px 11px 11px;
+  border: none;
+  background: none;
+  color: var(--gray-500);
   font-size: var(--fs-small);
   font-weight: 500;
   white-space: nowrap;
-  transition: background 180ms var(--ease), border-color 180ms var(--ease),
-    color 180ms var(--ease);
+  transition: color 180ms var(--ease);
 }
-.subChip:hover {
-  background: var(--gray-50);
-  border-color: var(--gray-300);
+.subChip:hover { color: var(--ink); }
+/* Aktif sekme alt çizgisi — taban çizgisinin üstüne biner */
+.subChip::after {
+  content: "";
+  position: absolute;
+  left: 11px;
+  right: 11px;
+  bottom: -1px;
+  height: 2.5px;
+  border-radius: var(--r-pill) var(--r-pill) 0 0;
+  background: transparent;
+  transition: background 180ms var(--ease);
 }
 .subChipActive,
 .subChipActive:hover {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: var(--white);
-  font-weight: 600;
+  color: var(--ink);
+  font-weight: 700;
+}
+.subChipActive::after { background: var(--accent); }
+/* Sekme içi sayaç — küçük gri parantezsiz sayı */
+.subCount {
+  color: var(--gray-400);
+  font-size: var(--fs-micro);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
 }
 
 /* --- Alt kategori bölümü — sectionTitle'ın küçük varyantı --- */

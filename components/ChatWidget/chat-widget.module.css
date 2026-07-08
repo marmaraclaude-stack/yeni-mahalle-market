@@ -338,6 +338,42 @@
   text-align: center;
 }
 
+/* Hızlı soru çipleri — karşılama balonunun altında, ziyaretçi ilk
+   mesajını yazana kadar. Beyaz pill, gray-200 kenar, accent hover. */
+.quickRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 2px;
+  max-width: 92%;
+}
+
+.quickChip {
+  padding: 8px 13px;
+  border-radius: 999px;
+  border: 1px solid var(--gray-200, #e8e8e8);
+  background: var(--white, #fff);
+  color: var(--gray-700, #525252);
+  font: inherit;
+  font-size: var(--fs-micro, 12.5px);
+  font-weight: 500;
+  line-height: 1.3;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+}
+
+.quickChip:hover:not(:disabled) {
+  border-color: var(--orange, #ff5a1f);
+  color: var(--accent-deep, #c43e0c);
+  background: var(--accent-soft, #fff1ea);
+}
+
+.quickChip:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .msg--system .msg__bubble {
   background: transparent;
   border: 1px dashed rgba(10, 10, 10, 0.2);
@@ -393,6 +429,15 @@
 
 .sendBtn:hover:not(:disabled) {
   background: var(--orange, #ff5a1f);
+}
+
+/* Draft doluyken buton accent'e döner (geçiş .sendBtn transition'ında) */
+.sendBtnReady {
+  background: var(--orange, #ff5a1f);
+}
+
+.sendBtnReady:hover:not(:disabled) {
+  background: var(--accent-deep, #c43e0c);
 }
 
 .sendBtn:disabled {

@@ -31,15 +31,17 @@
 .section:last-child {
   margin-bottom: 0;
 }
+/* Başlık + sayaç taban çizgisinde hizalanır; ikon dikeyde ortalanır */
 .sectionHead {
   display: flex;
-  align-items: center;
+  align-items: baseline;
   gap: 12px;
   flex-wrap: wrap;
 }
 .sectionIcon {
   display: grid;
   place-items: center;
+  align-self: center;
   flex-shrink: 0;
   width: 36px;
   height: 36px;
@@ -65,28 +67,18 @@
   font-size: var(--fs-small);
   max-width: var(--measure);
 }
-/* Adet rozeti — /urunler bölüm rozetleriyle aynı dil */
+/* Sayaç — başlığın yanında satır içi sade metin: turuncu kalın sayı +
+   gri devam. Arka plansız, kenarlıksız; başlık uzunsa doğal sarar. */
 .count {
-  margin-left: auto;
-  padding: 5px 13px;
-  border-radius: var(--r-pill);
-  background: var(--accent-soft);
-  color: var(--accent-deep);
-  font-size: var(--fs-micro);
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
+  color: var(--gray-500);
+  font-size: var(--fs-small);
+  font-weight: 500;
   white-space: nowrap;
+  font-variant-numeric: tabular-nums;
 }
-/* Mobil: pill sağa itilmiş yalnız bir satıra düşüp havada kalıyordu;
-   başlığın altına sola yaslı, kompakt iner. */
-@media (max-width: 640px) {
-  .sectionHead { row-gap: 10px; }
-  .count {
-    margin-left: 0;
-    order: 3;
-    flex-basis: 100%;
-    width: fit-content;
-  }
+.count strong {
+  color: var(--accent);
+  font-weight: 700;
 }
 
 /* --- İndirimli ürünler gridi (tam genişlik) --- */

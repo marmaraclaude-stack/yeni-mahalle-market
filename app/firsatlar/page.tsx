@@ -189,7 +189,7 @@ export default async function FirsatlarPage() {
                   İndirimli Ürünler
                 </h1>
                 <span className={styles.count}>
-                  {products.length} indirimli ürün
+                  <strong>{products.length}</strong> indirimli ürün
                 </span>
               </div>
               <p className={styles.sectionSub}>
@@ -223,7 +223,7 @@ export default async function FirsatlarPage() {
                   Kampanyalar
                 </h2>
                 <span className={styles.count}>
-                  {coupons.length} aktif kupon
+                  <strong>{coupons.length}</strong> aktif kupon
                 </span>
               </div>
               <p className={styles.sectionSub}>
