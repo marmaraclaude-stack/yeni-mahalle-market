@@ -5,14 +5,18 @@
 // işlem sonrası router.refresh() ile tazelenir.
 
 import { useState, useTransition } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Plus, X } from "lucide-react";
 import {
+  adminSetMemberPassword,
   createMember,
   deleteMember,
+  updateMemberProfile,
   type MemberRow,
 } from "@/lib/shop/admin-actions";
 import styles from "../../admin.module.css";
+import local from "./members.module.css";
 
 function formatDate(iso: string): string {
   if (!iso) return "·";
@@ -32,8 +36,105 @@ function MemberRowView({ member }: { member: MemberRow }) {
   const [busy, setBusy] = useState(false);
   const [, startTransition] = useTransition();
 
+  // Ad/telefon satır içi düzenleme durumu.
+  const [editing, setEditing] = useState(false);
+  const [editName, setEditName] = useState(member.full_name);
+  const [editPhone, setEditPhone] = useState(member.phone);
+  const [editError, setEditError] = useState<string | null>(null);
+
+  // Parola sıfırlama mini formu durumu.
+  const [showPass, setShowPass] = useState(false);
+  const [newPass, setNewPass] = useState("");
+  const [passBusy, setPassBusy] = useState(false);
+  const [passMsg, setPassMsg] = useState<{ ok: boolean; text: string } | null>(
+    null,
+  );
+
+  const label = member.full_name || member.email || "Bu üye";
+
+  function startEdit() {
+    setEditName(member.full_name);
+    setEditPhone(member.phone);
+    setEditError(null);
+    setEditing(true);
+  }
+
+  function cancelEdit() {
+    setEditing(false);
+    setEditError(null);
+  }
+
+  function saveEdit() {
+    const fullName = editName.trim();
+    const phone = editPhone.trim();
+    if (fullName.length < 2 || fullName.length > 120) {
+      setEditError("Ad soyad 2-120 karakter olmalı.");
+      return;
+    }
+    if (phone.length > 40) {
+      setEditError("Telefon en fazla 40 karakter olabilir.");
+      return;
+    }
+    setEditError(null);
+    setBusy(true);
+    startTransition(async () => {
+      try {
+        const result = await updateMemberProfile(member.id, {
+          full_name: fullName,
+          phone,
+        });
+        if (!result.ok) {
+          setEditError(result.error ?? "Üye güncellenemedi.");
+          return;
+        }
+        setEditing(false);
+        router.refresh();
+      } catch (err) {
+        setEditError(err instanceof Error ? err.message : "Üye güncellenemedi.");
+      } finally {
+        setBusy(false);
+      }
+    });
+  }
+
+  function togglePassForm() {
+    setShowPass((v) => !v);
+    setNewPass("");
+    setPassMsg(null);
+  }
+
+  function savePassword(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (newPass.length < 6) {
+      setPassMsg({ ok: false, text: "Yeni parola en az 6 karakter olmalı." });
+      return;
+    }
+    setPassMsg(null);
+    setPassBusy(true);
+    startTransition(async () => {
+      try {
+        const result = await adminSetMemberPassword(member.id, newPass);
+        if (!result.ok) {
+          setPassMsg({
+            ok: false,
+            text: result.error ?? "Parola güncellenemedi.",
+          });
+          return;
+        }
+        setNewPass("");
+        setPassMsg({ ok: true, text: "Parola güncellendi." });
+      } catch (err) {
+        setPassMsg({
+          ok: false,
+          text: err instanceof Error ? err.message : "Parola güncellenemedi.",
+        });
+      } finally {
+        setPassBusy(false);
+      }
+    });
+  }
+
   function remove() {
-    const label = member.full_name || member.email || "Bu üye";
     const onay = window.confirm(
       `"${label}" üyesi kalıcı olarak silinecek. Emin misiniz?`,
     );
@@ -53,34 +154,166 @@ function MemberRowView({ member }: { member: MemberRow }) {
   }
 
   return (
-    <tr>
-      <td className={styles.prodName}>{member.full_name || "·"}</td>
-      <td>{member.email || "·"}</td>
-      <td>
-        {member.phone ? (
-          <a href={`tel:${member.phone}`} className={styles.telLink}>
-            {member.phone}
-          </a>
-        ) : (
-          "·"
-        )}
-      </td>
-      <td className={styles.couponUses}>{member.order_count}</td>
-      <td className={styles.timeCell}>{formatDate(member.created_at)}</td>
-      <td>
-        <div className={styles.cellActions}>
-          <button
-            type="button"
-            onClick={remove}
-            disabled={busy}
-            className={`${styles.actionBtn} ${styles["actionBtn--danger"]}`}
-            aria-label={`${member.full_name || member.email} üyesini sil`}
+    <>
+      <tr>
+        <td className={styles.prodName}>
+          {editing ? (
+            <>
+              <input
+                value={editName}
+                onChange={(e) => setEditName(e.target.value)}
+                maxLength={120}
+                disabled={busy}
+                className={local.inlineInput}
+                aria-label={`${label} üyesinin adını düzenle`}
+                placeholder="Ad Soyad"
+              />
+              {editError && (
+                <span className={local.inlineError}>{editError}</span>
+              )}
+            </>
+          ) : (
+            member.full_name || "·"
+          )}
+        </td>
+        <td>{member.email || "·"}</td>
+        <td>
+          {editing ? (
+            <input
+              value={editPhone}
+              onChange={(e) => setEditPhone(e.target.value)}
+              maxLength={40}
+              inputMode="tel"
+              disabled={busy}
+              className={local.inlineInput}
+              aria-label={`${label} üyesinin telefonunu düzenle`}
+              placeholder="05xx xxx xx xx"
+            />
+          ) : member.phone ? (
+            <a href={`tel:${member.phone}`} className={styles.telLink}>
+              {member.phone}
+            </a>
+          ) : (
+            "·"
+          )}
+        </td>
+        <td className={styles.couponUses}>
+          <Link
+            href={`/admin/siparisler?uye=${member.id}`}
+            className={local.ordersLink}
+            aria-label={`${label} üyesinin siparişlerini gör (${member.order_count} sipariş)`}
           >
-            Sil
-          </button>
-        </div>
-      </td>
-    </tr>
+            {member.order_count}
+          </Link>
+        </td>
+        <td className={styles.timeCell}>{formatDate(member.created_at)}</td>
+        <td>
+          <div className={styles.cellActions}>
+            {editing ? (
+              <>
+                <button
+                  type="button"
+                  onClick={saveEdit}
+                  disabled={busy}
+                  className={`${local.pillAction} ${local["pillAction--save"]}`}
+                  aria-label={`${label} üyesindeki değişiklikleri kaydet`}
+                >
+                  {busy ? "Kaydediliyor…" : "Kaydet"}
+                </button>
+                <button
+                  type="button"
+                  onClick={cancelEdit}
+                  disabled={busy}
+                  className={local.pillAction}
+                  aria-label={`${label} üyesindeki düzenlemeyi iptal et`}
+                >
+                  Vazgeç
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  type="button"
+                  onClick={startEdit}
+                  disabled={busy}
+                  className={local.pillAction}
+                  aria-label={`${label} üyesinin ad ve telefonunu düzenle`}
+                >
+                  Düzenle
+                </button>
+                <button
+                  type="button"
+                  onClick={togglePassForm}
+                  disabled={busy}
+                  className={local.pillAction}
+                  aria-expanded={showPass}
+                  aria-label={`${label} üyesinin parolasını sıfırla`}
+                >
+                  Şifre
+                </button>
+                <button
+                  type="button"
+                  onClick={remove}
+                  disabled={busy}
+                  className={`${styles.actionBtn} ${styles["actionBtn--danger"]}`}
+                  aria-label={`${label} üyesini sil`}
+                >
+                  Sil
+                </button>
+              </>
+            )}
+          </div>
+        </td>
+      </tr>
+      {showPass && (
+        <tr className={local.passRow}>
+          <td colSpan={6}>
+            <form onSubmit={savePassword} className={local.passForm}>
+              <span className={local.passLabel}>
+                {label} için yeni parola:
+              </span>
+              <input
+                type="password"
+                value={newPass}
+                onChange={(e) => setNewPass(e.target.value)}
+                minLength={6}
+                required
+                disabled={passBusy}
+                className={local.inlineInput}
+                placeholder="En az 6 karakter"
+                autoComplete="new-password"
+                aria-label={`${label} üyesi için yeni parola`}
+              />
+              <button
+                type="submit"
+                disabled={passBusy}
+                className={`${local.pillAction} ${local["pillAction--save"]}`}
+              >
+                {passBusy ? "Kaydediliyor…" : "Kaydet"}
+              </button>
+              <button
+                type="button"
+                onClick={togglePassForm}
+                disabled={passBusy}
+                className={local.pillAction}
+              >
+                Kapat
+              </button>
+              {passMsg &&
+                (passMsg.ok ? (
+                  <span className={local.inlineOk} role="status">
+                    {passMsg.text}
+                  </span>
+                ) : (
+                  <span className={local.inlineError} role="alert">
+                    {passMsg.text}
+                  </span>
+                ))}
+            </form>
+          </td>
+        </tr>
+      )}
+    </>
   );
 }
 

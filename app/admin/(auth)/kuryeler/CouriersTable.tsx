@@ -13,10 +13,12 @@ import {
   deleteCourier,
   removeCourierImage,
   toggleCourier,
+  updateCourier,
   uploadCourierImage,
 } from "@/lib/shop/admin-actions";
 import type { Courier } from "@/lib/shop/types";
 import styles from "../../admin.module.css";
+import local from "./couriers.module.css";
 
 /** Kurye avatarı: önizleme + yükle/değiştir (gizli file input) + kaldır. */
 function CourierAvatar({ courier }: { courier: Courier }) {
@@ -108,7 +110,55 @@ function CourierAvatar({ courier }: { courier: Courier }) {
 function CourierRow({ courier }: { courier: Courier }) {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
+  const [editing, setEditing] = useState(false);
+  const [editName, setEditName] = useState(courier.name);
+  const [editPhone, setEditPhone] = useState(courier.phone);
+  const [editError, setEditError] = useState<string | null>(null);
   const [, startTransition] = useTransition();
+
+  function startEdit() {
+    setEditName(courier.name);
+    setEditPhone(courier.phone);
+    setEditError(null);
+    setEditing(true);
+  }
+
+  function cancelEdit() {
+    setEditing(false);
+    setEditError(null);
+  }
+
+  function saveEdit() {
+    const name = editName.trim();
+    const phone = editPhone.trim();
+    if (name.length < 1 || name.length > 60) {
+      setEditError("Kurye adı 1-60 karakter olmalı.");
+      return;
+    }
+    if (phone.length > 20) {
+      setEditError("Telefon en fazla 20 karakter olabilir.");
+      return;
+    }
+    setEditError(null);
+    setBusy(true);
+    startTransition(async () => {
+      try {
+        const result = await updateCourier(courier.id, { name, phone });
+        if (!result.ok) {
+          setEditError(result.error ?? "Kurye güncellenemedi.");
+          return;
+        }
+        setEditing(false);
+        router.refresh();
+      } catch (err) {
+        setEditError(
+          err instanceof Error ? err.message : "Kurye güncellenemedi.",
+        );
+      } finally {
+        setBusy(false);
+      }
+    });
+  }
 
   function toggle() {
     setBusy(true);
@@ -149,9 +199,37 @@ function CourierRow({ courier }: { courier: Courier }) {
       <td>
         <CourierAvatar courier={courier} />
       </td>
-      <td className={styles.prodName}>{courier.name}</td>
+      <td className={styles.prodName}>
+        {editing ? (
+          <>
+            <input
+              value={editName}
+              onChange={(e) => setEditName(e.target.value)}
+              maxLength={60}
+              disabled={busy}
+              className={local.inlineInput}
+              aria-label={`${courier.name} kuryesinin adını düzenle`}
+              placeholder="Ad Soyad"
+            />
+            {editError && <span className={local.inlineError}>{editError}</span>}
+          </>
+        ) : (
+          courier.name
+        )}
+      </td>
       <td>
-        {courier.phone ? (
+        {editing ? (
+          <input
+            value={editPhone}
+            onChange={(e) => setEditPhone(e.target.value)}
+            maxLength={20}
+            inputMode="tel"
+            disabled={busy}
+            className={local.inlineInput}
+            aria-label={`${courier.name} kuryesinin telefonunu düzenle`}
+            placeholder="05xx xxx xx xx"
+          />
+        ) : courier.phone ? (
           <a href={`tel:${courier.phone}`} className={styles.telLink}>
             {courier.phone}
           </a>
@@ -168,24 +246,58 @@ function CourierRow({ courier }: { courier: Courier }) {
       </td>
       <td>
         <div className={styles.cellActions}>
-          <button
-            type="button"
-            onClick={toggle}
-            disabled={busy}
-            className={`${styles.pillBtn} ${courier.is_active ? styles["pillBtn--on"] : ""}`}
-            aria-label={`${courier.name} kuryesini ${courier.is_active ? "pasifleştir" : "aktifleştir"}`}
-          >
-            {courier.is_active ? "Aktif" : "Pasif"}
-          </button>
-          <button
-            type="button"
-            onClick={remove}
-            disabled={busy}
-            className={`${styles.actionBtn} ${styles["actionBtn--danger"]}`}
-            aria-label={`${courier.name} kuryesini sil`}
-          >
-            Sil
-          </button>
+          {editing ? (
+            <>
+              <button
+                type="button"
+                onClick={saveEdit}
+                disabled={busy}
+                className={`${local.pillAction} ${local["pillAction--save"]}`}
+                aria-label={`${courier.name} kuryesindeki değişiklikleri kaydet`}
+              >
+                {busy ? "Kaydediliyor…" : "Kaydet"}
+              </button>
+              <button
+                type="button"
+                onClick={cancelEdit}
+                disabled={busy}
+                className={local.pillAction}
+                aria-label={`${courier.name} kuryesindeki düzenlemeyi iptal et`}
+              >
+                Vazgeç
+              </button>
+            </>
+          ) : (
+            <>
+              <button
+                type="button"
+                onClick={startEdit}
+                disabled={busy}
+                className={local.pillAction}
+                aria-label={`${courier.name} kuryesinin ad ve telefonunu düzenle`}
+              >
+                Düzenle
+              </button>
+              <button
+                type="button"
+                onClick={toggle}
+                disabled={busy}
+                className={`${styles.pillBtn} ${courier.is_active ? styles["pillBtn--on"] : ""}`}
+                aria-label={`${courier.name} kuryesini ${courier.is_active ? "pasifleştir" : "aktifleştir"}`}
+              >
+                {courier.is_active ? "Aktif" : "Pasif"}
+              </button>
+              <button
+                type="button"
+                onClick={remove}
+                disabled={busy}
+                className={`${styles.actionBtn} ${styles["actionBtn--danger"]}`}
+                aria-label={`${courier.name} kuryesini sil`}
+              >
+                Sil
+              </button>
+            </>
+          )}
         </div>
       </td>
     </tr>

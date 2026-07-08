@@ -1020,6 +1020,35 @@ export async function createCourier(
   return { ok: true };
 }
 
+/** Kurye adını ve telefonunu güncelle (ad 1-60, telefon en çok 20 karakter). */
+export async function updateCourier(
+  id: string,
+  patch: { name: string; phone: string },
+): Promise<CourierActionResult> {
+  await requireAdmin();
+  if (!id.trim()) return { ok: false, error: "Geçersiz kurye." };
+
+  const cleanName = patch.name.trim();
+  if (cleanName.length < 1 || cleanName.length > 60) {
+    return { ok: false, error: "Kurye adı 1-60 karakter olmalı." };
+  }
+  const cleanPhone = patch.phone.trim();
+  if (cleanPhone.length > 20) {
+    return { ok: false, error: "Telefon en fazla 20 karakter olabilir." };
+  }
+
+  const supabase = createAdminClient();
+  const { error } = await supabase
+    .from("couriers")
+    .update({ name: cleanName, phone: cleanPhone })
+    .eq("id", id);
+  if (error) {
+    return { ok: false, error: courierDbError(error, "Kurye güncellenemedi") };
+  }
+  revalidatePath("/admin/kuryeler");
+  return { ok: true };
+}
+
 /** Kuryeyi kalıcı olarak sil (siparişlere yazılmış ad/telefon etkilenmez). */
 export async function deleteCourier(id: string): Promise<CourierActionResult> {
   await requireAdmin();
@@ -1359,6 +1388,63 @@ export async function createMember(
       return { ok: false, error: "Bu e-posta ile kayıtlı bir üye zaten var." };
     }
     return { ok: false, error: `Üye oluşturulamadı: ${error.message}` };
+  }
+  revalidatePath("/admin/uyeler");
+  return { ok: true };
+}
+
+/**
+ * Üyenin parolasını admin yetkisiyle sıfırla. Service-role client'ın
+ * GoTrue admin API'si (auth.admin.updateUserById) kullanılır; üyenin
+ * mevcut oturumları etkilenmez, yeni girişte yeni parola geçerlidir.
+ */
+export async function adminSetMemberPassword(
+  userId: string,
+  newPassword: string,
+): Promise<MemberActionResult> {
+  await requireAdmin();
+  if (!userId.trim()) return { ok: false, error: "Geçersiz üye." };
+  if (typeof newPassword !== "string" || newPassword.length < 6) {
+    return { ok: false, error: "Yeni parola en az 6 karakter olmalı." };
+  }
+  if (newPassword.length > 72) {
+    return { ok: false, error: "Yeni parola en fazla 72 karakter olabilir." };
+  }
+
+  const supabase = createAdminClient();
+  const { error } = await supabase.auth.admin.updateUserById(userId, {
+    password: newPassword,
+  });
+  if (error) {
+    return { ok: false, error: `Parola güncellenemedi: ${error.message}` };
+  }
+  return { ok: true };
+}
+
+/** Üyenin ad soyad ve telefonunu güncelle (customer_profiles satırı). */
+export async function updateMemberProfile(
+  userId: string,
+  patch: { full_name: string; phone: string },
+): Promise<MemberActionResult> {
+  await requireAdmin();
+  if (!userId.trim()) return { ok: false, error: "Geçersiz üye." };
+
+  const fullName = patch.full_name.trim();
+  if (fullName.length < 2 || fullName.length > 120) {
+    return { ok: false, error: "Ad soyad 2-120 karakter olmalı." };
+  }
+  const phone = patch.phone.trim();
+  if (phone.length > 40) {
+    return { ok: false, error: "Telefon en fazla 40 karakter olabilir." };
+  }
+
+  const supabase = createAdminClient();
+  // Eski hesaplarda profil satırı eksik olabilir; upsert ile garanti edilir.
+  const { error } = await supabase
+    .from("customer_profiles")
+    .upsert({ id: userId, full_name: fullName, phone });
+  if (error) {
+    return { ok: false, error: `Üye güncellenemedi: ${error.message}` };
   }
   revalidatePath("/admin/uyeler");
   return { ok: true };

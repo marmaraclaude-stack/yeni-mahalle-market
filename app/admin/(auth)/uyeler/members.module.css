@@ -1,0 +1,130 @@
+/* Üyeler sayfasına özel stiller - admin.module.css salt okunur olduğu için
+   satır içi düzenleme ve parola sıfırlama akışının stilleri burada. */
+
+/* 44px pill ikincil buton standardı (Düzenle / Şifre / Kaydet / Vazgeç). */
+.pillAction {
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  min-height: 44px;
+  padding: 8px 18px;
+  border-radius: 999px;
+  border: 1px solid rgba(10, 10, 10, 0.2);
+  background: var(--gray-100, #f4f4f4);
+  color: var(--gray-700, #3d3d3d);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.pillAction:hover:not(:disabled) {
+  border-color: rgba(10, 10, 10, 0.4);
+  color: var(--black, #0a0a0a);
+}
+
+.pillAction:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pillAction:focus-visible {
+  outline: 2px solid var(--orange, #ff5a1f);
+  outline-offset: 2px;
+}
+
+/* Kaydet: aynı pill gövdesi, onay yeşili vurgu. */
+.pillAction--save {
+  background: #e8f7ee;
+  border-color: #157347;
+  color: #157347;
+}
+
+.pillAction--save:hover:not(:disabled) {
+  background: #d8f0e2;
+  border-color: #0f5c38;
+  color: #0f5c38;
+}
+
+/* Satır içi düzenleme inputu (ad / telefon / yeni parola). */
+.inlineInput {
+  font: inherit;
+  font-size: 14px;
+  padding: 9px 12px;
+  min-height: 44px;
+  border: 1px solid rgba(10, 10, 10, 0.14);
+  border-radius: 12px;
+  background: var(--white, #fff);
+  color: var(--black, #0a0a0a);
+  width: 100%;
+  min-width: 140px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.inlineInput:focus {
+  outline: none;
+  border-color: var(--orange, #ff5a1f);
+  box-shadow: 0 0 0 3px rgba(255, 90, 31, 0.15);
+}
+
+/* Parola sıfırlama mini formu (üye satırının altında açılır). */
+.passRow td {
+  background: var(--gray-50, #fafafa);
+}
+
+.passForm {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 4px 0;
+}
+
+.passForm .inlineInput {
+  max-width: 260px;
+}
+
+.passLabel {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--gray-700, #3d3d3d);
+  white-space: nowrap;
+}
+
+/* Satır içi durum mesajları. */
+.inlineError {
+  display: block;
+  color: #a32020;
+  font-size: 12.5px;
+  margin-top: 6px;
+}
+
+.inlineOk {
+  color: #157347;
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+/* Sipariş sayısı linki: /admin/siparisler?uye=<id> filtresine götürür. */
+.ordersLink {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 2px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(10, 10, 10, 0.14);
+  background: var(--gray-100, #f4f4f4);
+  color: var(--gray-700, #3d3d3d);
+  font-weight: 600;
+  text-decoration: none;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.ordersLink:hover {
+  border-color: var(--orange, #ff5a1f);
+  color: var(--orange, #ff5a1f);
+}
+
+.ordersLink:focus-visible {
+  outline: 2px solid var(--orange, #ff5a1f);
+  outline-offset: 2px;
+}
