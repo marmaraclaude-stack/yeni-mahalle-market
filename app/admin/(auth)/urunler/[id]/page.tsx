@@ -77,6 +77,9 @@ export default async function AdminProductEditPage({
       redirect(`${back}?hata=${encodeURIComponent("Eski fiyat geçersiz. Boş bırakabilirsin.")}`);
     }
 
+    // Gram bazlı satış işaretliyse fiyat kilogram başınadır; birim otomatik "kg".
+    const soldByWeight = formData.get("sold_by_weight") === "on";
+
     let errorMessage: string | null = null;
     try {
       await updateProduct(id, {
@@ -84,10 +87,11 @@ export default async function AdminProductEditPage({
         brand: String(formData.get("brand") ?? ""),
         size_text: String(formData.get("size_text") ?? ""),
         description: String(formData.get("description") ?? ""),
-        unit: String(formData.get("unit") ?? "adet"),
+        unit: soldByWeight ? "kg" : String(formData.get("unit") ?? "adet"),
         category_slug: String(formData.get("category_slug") ?? ""),
         price,
         compare_at_price: compareAt,
+        sold_by_weight: soldByWeight,
         is_featured: formData.get("is_featured") === "on",
         in_stock: formData.get("in_stock") === "on",
         is_active: formData.get("is_active") === "on",
@@ -214,7 +218,8 @@ export default async function AdminProductEditPage({
 
               <div className={styles.field}>
                 <label className={styles.label} htmlFor="p-price">
-                  Fiyat (TL) *
+                  Fiyat (TL) *{" "}
+                  {product.sold_by_weight ? "— kilogram fiyatı" : ""}
                 </label>
                 <input
                   id="p-price"
@@ -224,6 +229,18 @@ export default async function AdminProductEditPage({
                   defaultValue={String(product.price)}
                   className={styles.input}
                 />
+              </div>
+
+              <div className={`${styles.field} ${styles.fieldFull}`}>
+                <label className={styles.checkLabel}>
+                  <input
+                    type="checkbox"
+                    name="sold_by_weight"
+                    defaultChecked={product.sold_by_weight}
+                  />
+                  Gram bazlı sat (kilogram fiyatı) — müşteri kaç gram istediğini
+                  seçer, fiyat kg üzerinden hesaplanır. Meyve-sebze için idealdir.
+                </label>
               </div>
 
               <div className={styles.field}>

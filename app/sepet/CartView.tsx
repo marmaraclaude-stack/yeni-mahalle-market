@@ -18,8 +18,13 @@ import {
 } from "lucide-react";
 import { useCart } from "@/components/shop/CartProvider";
 import { CATEGORY_TINTS, categoryBySlug } from "@/lib/shop/categories";
-import type { Product } from "@/lib/shop/types";
-import { formatTL } from "@/lib/shop/types";
+import {
+  computeLineTotal,
+  formatGrams,
+  formatTL,
+  WEIGHT_STEP_GRAMS,
+  type Product,
+} from "@/lib/shop/types";
 import ProductCard from "@/components/shop/ProductCard";
 import styles from "./sepet.module.css";
 
@@ -171,6 +176,7 @@ export default function CartView({
                       </span>
                       <span className={styles.lineUnitPrice}>
                         Birim {formatTL(line.price)}
+                        {line.soldByWeight ? " / kg" : ""}
                       </span>
                     </div>
 
@@ -178,30 +184,52 @@ export default function CartView({
                       <div
                         className={styles.stepper}
                         role="group"
-                        aria-label={`${line.name} adedi`}
+                        aria-label={
+                          line.soldByWeight
+                            ? `${line.name} miktarı`
+                            : `${line.name} adedi`
+                        }
                       >
                         <button
                           type="button"
                           className={styles.stepBtn}
-                          onClick={() => setQty(line.productId, line.qty - 1)}
-                          aria-label={`${line.name} adedini azalt`}
+                          onClick={() =>
+                            setQty(
+                              line.productId,
+                              line.qty -
+                                (line.soldByWeight ? WEIGHT_STEP_GRAMS : 1),
+                            )
+                          }
+                          aria-label={`${line.name} miktarını azalt`}
                         >
                           <Minus aria-hidden="true" />
                         </button>
                         <span className={styles.stepQty} aria-live="polite">
-                          {line.qty}
+                          {line.soldByWeight ? formatGrams(line.qty) : line.qty}
                         </span>
                         <button
                           type="button"
                           className={styles.stepBtn}
-                          onClick={() => setQty(line.productId, line.qty + 1)}
-                          aria-label={`${line.name} adedini artır`}
+                          onClick={() =>
+                            setQty(
+                              line.productId,
+                              line.qty +
+                                (line.soldByWeight ? WEIGHT_STEP_GRAMS : 1),
+                            )
+                          }
+                          aria-label={`${line.name} miktarını artır`}
                         >
                           <Plus aria-hidden="true" />
                         </button>
                       </div>
                       <span className={styles.lineTotal}>
-                        {formatTL(line.price * line.qty)}
+                        {formatTL(
+                          computeLineTotal(
+                            line.price,
+                            line.qty,
+                            line.soldByWeight,
+                          ),
+                        )}
                       </span>
                       <button
                         type="button"

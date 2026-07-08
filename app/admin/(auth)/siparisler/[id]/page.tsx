@@ -16,6 +16,7 @@ import CourierForm from "./CourierForm";
 import CourierTrackLink from "./CourierTrackLink";
 import PaymentStatusForm from "./PaymentStatusForm";
 import {
+  formatGrams,
   formatTL,
   ORDER_STATUS_LABELS,
   PAYMENT_METHOD_LABELS,
@@ -176,8 +177,13 @@ export default async function AdminOrderDetailPage({
                   {items.map((it) => (
                     <tr key={it.id}>
                       <td>{it.name}</td>
-                      <td>{formatTL(Number(it.unit_price))}</td>
-                      <td>{it.qty}</td>
+                      <td>
+                        {formatTL(Number(it.unit_price))}
+                        {it.sold_by_weight ? " /kg" : ""}
+                      </td>
+                      <td>
+                        {it.sold_by_weight ? formatGrams(it.qty) : it.qty}
+                      </td>
                       <td>{formatTL(Number(it.line_total))}</td>
                     </tr>
                   ))}

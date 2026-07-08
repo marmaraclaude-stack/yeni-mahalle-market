@@ -28,6 +28,7 @@ export interface ProductPatch {
   category_slug?: string;
   price?: number;
   compare_at_price?: number | null;
+  sold_by_weight?: boolean;
   in_stock?: boolean;
   is_active?: boolean;
   is_featured?: boolean;
@@ -333,6 +334,8 @@ export async function updateProduct(
     }
     clean.compare_at_price = patch.compare_at_price;
   }
+  if (patch.sold_by_weight !== undefined)
+    clean.sold_by_weight = patch.sold_by_weight;
   if (patch.in_stock !== undefined) clean.in_stock = patch.in_stock;
   if (patch.is_active !== undefined) clean.is_active = patch.is_active;
   if (patch.is_featured !== undefined) clean.is_featured = patch.is_featured;

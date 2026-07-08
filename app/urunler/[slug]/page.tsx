@@ -252,7 +252,10 @@ export default async function UrunDetayPage({ params }: { params: Params }) {
     { label: "Marka", value: product.brand },
     { label: "Miktar", value: product.size_text },
     { label: "Kategori", value: cat?.name ?? "" },
-    { label: "Satış birimi", value: product.unit },
+    {
+      label: "Satış birimi",
+      value: product.sold_by_weight ? "Kilogram (gramla satılır)" : product.unit,
+    },
   ].filter((s) => s.value && s.value.trim() !== "");
 
   const productUrl = `${BUSINESS.url}/urunler/${slug}`;
@@ -396,8 +399,10 @@ export default async function UrunDetayPage({ params }: { params: Params }) {
 
               <p className={styles.priceRow}>
                 <span className={styles.price}>{formatTL(product.price)}</span>
-                {product.unit !== "adet" && (
-                  <span className={styles.unit}>/ {product.unit}</span>
+                {(product.sold_by_weight || product.unit !== "adet") && (
+                  <span className={styles.unit}>
+                    / {product.sold_by_weight ? "kg" : product.unit}
+                  </span>
                 )}
                 {discounted && (
                   <s className={styles.compare}>{formatTL(compareAt)}</s>

@@ -8,6 +8,7 @@ import {
   ORDER_STATUS_LABELS,
   PAYMENT_METHOD_LABELS,
   PAYMENT_STATUS_LABELS,
+  formatGrams,
   formatTL,
   type Order,
   type OrderEvent,
@@ -178,7 +179,9 @@ export default function OrderDetails({
               <div className={styles.itemInfo}>
                 <span className={styles.itemName}>{item.name}</span>
                 <span className={styles.itemQty}>
-                  {item.qty} × {formatTL(item.unit_price)}
+                  {item.sold_by_weight
+                    ? `${formatGrams(item.qty)} × ${formatTL(item.unit_price)}/kg`
+                    : `${item.qty} × ${formatTL(item.unit_price)}`}
                 </span>
               </div>
               <span className={styles.itemTotal}>

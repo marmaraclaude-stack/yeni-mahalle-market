@@ -1082,6 +1082,11 @@
   color: var(--ink);
   font-variant-numeric: tabular-nums;
 }
+/* Gram bazlı kart stepper'ı — "500 g" gibi değerler için biraz daha geniş. */
+.cardStepperWeight .cardStepQty {
+  min-width: 42px;
+  padding: 0 2px;
+}
 @media (prefers-reduced-motion: reduce) {
   .cardStepper { animation: none; }
 }

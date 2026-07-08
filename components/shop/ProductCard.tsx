@@ -137,8 +137,10 @@ export default function ProductCard({
               <s className={styles.compare}>{formatTL(compareAt)}</s>
             )}
             <span className={styles.price}>{formatTL(product.price)}</span>
-            {product.unit !== "adet" && (
-              <span className={styles.unit}>/ {product.unit}</span>
+            {(product.sold_by_weight || product.unit !== "adet") && (
+              <span className={styles.unit}>
+                / {product.sold_by_weight ? "kg" : product.unit}
+              </span>
             )}
           </p>
           <h3 className={styles.name}>{product.name}</h3>

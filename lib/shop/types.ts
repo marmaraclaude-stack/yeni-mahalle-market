@@ -21,6 +21,8 @@ export interface Product {
   price: number;
   compare_at_price: number | null;
   unit: string;
+  /** true ise fiyat KİLOGRAM başınadır ve müşteri gram seçer (meyve-sebze). */
+  sold_by_weight: boolean;
   image_url: string | null;
   is_active: boolean;
   in_stock: boolean;
@@ -86,8 +88,10 @@ export interface OrderItem {
   product_id: string | null;
   name: string;
   unit_price: number;
+  /** Gram bazlı ürünlerde qty = GRAM, unit_price = kg fiyatı; değilse adet. */
   qty: number;
   line_total: number;
+  sold_by_weight: boolean;
 }
 
 export interface OrderEvent {
@@ -172,7 +176,9 @@ export interface CartLine {
   price: number; // gösterim için; sipariş anında sunucu fiyatı esas alınır
   imageUrl: string | null;
   categorySlug: string;
+  /** Gram bazlı ürünlerde qty = GRAM (250'şer adım); değilse adet. */
   qty: number;
+  soldByWeight: boolean;
 }
 
 /** Sipariş durumlarının Türkçe etiketleri + akış sırası. */
@@ -213,4 +219,36 @@ export function formatTL(value: number): string {
     currency: "TRY",
     minimumFractionDigits: 2,
   }).format(value);
+}
+
+// ------------------------------------------------------------
+// Gram bazlı (kilogram fiyatlı) satış — meyve-sebze vb.
+// Fiyat kg başınadır; sepette/siparişte qty GRAM olarak tutulur.
+// ------------------------------------------------------------
+export const WEIGHT_STEP_GRAMS = 250; // +/- adım ve en küçük ekleme
+export const WEIGHT_MIN_GRAMS = 250; // en az sipariş miktarı
+export const WEIGHT_MAX_GRAMS = 10000; // en çok (10 kg)
+
+/** Gram bazlı qty'yi [min, max] arasına al ve tam sayıya yuvarla. */
+export function clampGrams(grams: number): number {
+  const g = Math.round(Number(grams) || 0);
+  return Math.min(WEIGHT_MAX_GRAMS, Math.max(WEIGHT_MIN_GRAMS, g));
+}
+
+/** Satır toplamı: gram bazlıysa kg fiyatı × (gram/1000), değilse fiyat × adet. */
+export function computeLineTotal(
+  price: number,
+  qty: number,
+  soldByWeight: boolean,
+): number {
+  const raw = soldByWeight ? (price * qty) / 1000 : price * qty;
+  return Math.round(raw * 100) / 100;
+}
+
+/** Gram miktarını okunur yaz: "500 g" · "1 kg" · "1,5 kg". */
+export function formatGrams(grams: number): string {
+  if (grams < 1000) return `${grams} g`;
+  const kg = grams / 1000;
+  const text = Number.isInteger(kg) ? String(kg) : String(kg).replace(".", ",");
+  return `${text} kg`;
 }

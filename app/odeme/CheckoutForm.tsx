@@ -20,7 +20,13 @@ import {
 import { useCart } from "@/components/shop/CartProvider";
 import { validateCoupon } from "@/lib/shop/coupons";
 import { createOrder } from "@/lib/shop/order-actions";
-import { formatTL, PAYMENT_METHOD_LABELS, type PaymentMethod } from "@/lib/shop/types";
+import {
+  computeLineTotal,
+  formatGrams,
+  formatTL,
+  PAYMENT_METHOD_LABELS,
+  type PaymentMethod,
+} from "@/lib/shop/types";
 import styles from "./odeme.module.css";
 
 export interface CheckoutDefaults {
@@ -337,10 +343,14 @@ export default function CheckoutForm({
               {lines.map((line) => (
                 <li key={line.productId}>
                   <span className={styles.summaryLineName}>
-                    {line.qty} × {line.name}
+                    {line.soldByWeight
+                      ? `${formatGrams(line.qty)} · ${line.name}`
+                      : `${line.qty} × ${line.name}`}
                   </span>
                   <span className={styles.summaryLinePrice}>
-                    {formatTL(line.price * line.qty)}
+                    {formatTL(
+                      computeLineTotal(line.price, line.qty, line.soldByWeight),
+                    )}
                   </span>
                 </li>
               ))}

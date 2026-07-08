@@ -24,7 +24,13 @@ import {
   type ReactNode,
 } from "react";
 import { createClient } from "@/lib/supabase/client";
-import type { CartLine, Product } from "@/lib/shop/types";
+import {
+  clampGrams,
+  computeLineTotal,
+  WEIGHT_STEP_GRAMS,
+  type CartLine,
+  type Product,
+} from "@/lib/shop/types";
 
 const GUEST_STORAGE_KEY = "ym_cart_guest_v1";
 const LEGACY_STORAGE_KEY = "ym_cart_v1"; // önceki sürümün anahtarı
@@ -44,7 +50,9 @@ export interface CartContextValue {
 
 const CartContext = createContext<CartContextValue | null>(null);
 
-function clampQty(qty: number): number {
+/** Adet/gram sınırlama: gram bazlıysa 250'şer adım [250, 10000], değilse [1, 99]. */
+function clampQty(qty: number, soldByWeight = false): number {
+  if (soldByWeight) return clampGrams(qty);
   return Math.min(MAX_QTY, Math.max(1, Math.floor(qty)));
 }
 
@@ -63,7 +71,10 @@ function parseLines(raw: string | null): CartLine[] {
           typeof (l as CartLine).price === "number" &&
           typeof (l as CartLine).qty === "number",
       )
-      .map((l) => ({ ...l, qty: clampQty(l.qty) }));
+      .map((l) => {
+        const byWeight = (l as CartLine).soldByWeight === true;
+        return { ...l, soldByWeight: byWeight, qty: clampQty(l.qty, byWeight) };
+      });
   } catch {
     return [];
   }
@@ -103,6 +114,7 @@ interface DbCartRow {
     brand: string;
     size_text: string;
     price: number;
+    sold_by_weight: boolean;
     image_url: string | null;
     category_slug: string;
   } | null;
@@ -111,6 +123,7 @@ interface DbCartRow {
 function dbRowToLine(row: DbCartRow): CartLine | null {
   const p = row.products;
   if (!p) return null; // ürün silinmiş/erişilemez - satırı atla
+  const byWeight = p.sold_by_weight === true;
   return {
     productId: p.id,
     slug: p.slug,
@@ -120,7 +133,8 @@ function dbRowToLine(row: DbCartRow): CartLine | null {
     price: Number(p.price),
     imageUrl: p.image_url,
     categorySlug: p.category_slug,
-    qty: clampQty(row.qty),
+    soldByWeight: byWeight,
+    qty: clampQty(row.qty, byWeight),
   };
 }
 
@@ -176,7 +190,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         const { data, error } = await getSupabase()
           .from("cart_items")
           .select(
-            "product_id, qty, products(id, slug, name, brand, size_text, price, image_url, category_slug)",
+            "product_id, qty, products(id, slug, name, brand, size_text, price, sold_by_weight, image_url, category_slug)",
           )
           .eq("user_id", userId);
         if (seq !== loadSeqRef.current) return;
@@ -201,7 +215,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
             byId.set(
               g.productId,
               existing
-                ? { ...existing, qty: clampQty(existing.qty + g.qty) }
+                ? {
+                    ...existing,
+                    qty: clampQty(existing.qty + g.qty, existing.soldByWeight),
+                  }
                 : g,
             );
           }
@@ -314,9 +331,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
   );
 
   const add = useCallback(
-    (product: Product, qty = 1) => {
+    (product: Product, amount?: number) => {
+      const byWeight = product.sold_by_weight === true;
+      // Gram bazlıysa varsayılan ekleme 250 g adımı; adetliyse 1.
+      const inc = amount ?? (byWeight ? WEIGHT_STEP_GRAMS : 1);
       const existing = linesRef.current.find((l) => l.productId === product.id);
-      const nextQty = clampQty((existing?.qty ?? 0) + qty);
+      const nextQty = clampQty((existing?.qty ?? 0) + inc, byWeight);
       applyLines((prev) => {
         if (prev.some((l) => l.productId === product.id)) {
           return prev.map((l) =>
@@ -332,6 +352,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
           price: product.price,
           imageUrl: product.image_url,
           categorySlug: product.category_slug,
+          soldByWeight: byWeight,
           qty: nextQty,
         };
         return [...prev, line];
@@ -348,7 +369,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
         dbDelete(productId);
         return;
       }
-      const clamped = clampQty(qty);
+      const byWeight =
+        linesRef.current.find((l) => l.productId === productId)?.soldByWeight ??
+        false;
+      const clamped = clampQty(qty, byWeight);
       applyLines((prev) =>
         prev.map((l) => (l.productId === productId ? { ...l, qty: clamped } : l)),
       );
@@ -371,9 +395,18 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }, [applyLines, dbDelete]);
 
   const value = useMemo<CartContextValue>(() => {
-    const count = lines.reduce((sum, l) => sum + l.qty, 0);
+    // Rozet sayısı: gram bazlı satır 1 ürün sayılır (gram toplamı anlamsız olur).
+    const count = lines.reduce(
+      (sum, l) => sum + (l.soldByWeight ? 1 : l.qty),
+      0,
+    );
     const subtotal =
-      Math.round(lines.reduce((sum, l) => sum + l.price * l.qty, 0) * 100) / 100;
+      Math.round(
+        lines.reduce(
+          (sum, l) => sum + computeLineTotal(l.price, l.qty, l.soldByWeight),
+          0,
+        ) * 100,
+      ) / 100;
     return { lines, count, subtotal, add, setQty, remove, clear };
   }, [lines, add, setQty, remove, clear]);
 

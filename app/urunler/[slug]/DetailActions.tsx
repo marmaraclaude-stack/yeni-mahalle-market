@@ -15,17 +15,29 @@ import {
   ShoppingBasket,
   Store,
 } from "lucide-react";
-import type { Product } from "@/lib/shop/types";
-import { formatTL } from "@/lib/shop/types";
+import {
+  clampGrams,
+  computeLineTotal,
+  formatGrams,
+  formatTL,
+  WEIGHT_MAX_GRAMS,
+  WEIGHT_MIN_GRAMS,
+  WEIGHT_STEP_GRAMS,
+  type Product,
+} from "@/lib/shop/types";
 import { categoryBySlug } from "@/lib/shop/categories";
 import { useCart } from "@/components/shop/CartProvider";
 import styles from "./urun.module.css";
 
 const MAX_QTY = 99;
+// Gram bazlı ürünlerde hızlı seçim kısayolları.
+const WEIGHT_PRESETS = [250, 500, 1000, 2000];
 
 export default function DetailActions({ product }: { product: Product }) {
   const { add, lines, setQty: setCartQty } = useCart();
-  const [qty, setQty] = useState(1);
+  const byWeight = product.sold_by_weight === true;
+  // Gram bazlıysa varsayılan 500 g; adetliyse 1.
+  const [qty, setQty] = useState(byWeight ? WEIGHT_STEP_GRAMS * 2 : 1);
   const [added, setAdded] = useState(false);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -76,8 +88,12 @@ export default function DetailActions({ product }: { product: Product }) {
     );
   }
 
-  // Ürünün sepetteki mevcut adedi (0 = sepette değil).
+  // Ürünün sepetteki mevcut miktarı (adet ya da gram; 0 = sepette değil).
   const inCartQty = lines.find((l) => l.productId === product.id)?.qty ?? 0;
+
+  const step = byWeight ? WEIGHT_STEP_GRAMS : 1;
+  const minQ = byWeight ? WEIGHT_MIN_GRAMS : 1;
+  const maxQ = byWeight ? WEIGHT_MAX_GRAMS : MAX_QTY;
 
   const handleAdd = () => {
     add(product, qty);
@@ -86,30 +102,79 @@ export default function DetailActions({ product }: { product: Product }) {
     timer.current = setTimeout(() => setAdded(false), 1400);
   };
 
-  const lineTotal = formatTL(Math.round(product.price * qty * 100) / 100);
+  const lineTotal = formatTL(computeLineTotal(product.price, qty, byWeight));
+  const qtyLabel = byWeight ? formatGrams(qty) : `${qty} adet`;
 
   return (
     <div className={styles.actions}>
+      {byWeight && (
+        <div className={styles.weightPicker}>
+          <p className={styles.weightHint}>
+            Kilogram fiyatı <strong>{formatTL(product.price)}</strong> · ne kadar
+            istersiniz?
+          </p>
+          <div
+            className={styles.weightChips}
+            role="group"
+            aria-label="Hazır miktarlar"
+          >
+            {WEIGHT_PRESETS.map((g) => (
+              <button
+                key={g}
+                type="button"
+                className={`${styles.weightChip}${qty === g ? ` ${styles.weightChipActive}` : ""}`}
+                onClick={() => setQty(g)}
+                aria-pressed={qty === g}
+              >
+                {formatGrams(g)}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
       <div className={styles.buyRow}>
-        <div className={styles.qty} role="group" aria-label="Adet seçici">
+        <div
+          className={styles.qty}
+          role="group"
+          aria-label={byWeight ? "Miktar seçici" : "Adet seçici"}
+        >
           <button
             type="button"
             className={styles.qtyBtn}
-            onClick={() => setQty((q) => Math.max(1, q - 1))}
-            disabled={qty <= 1}
-            aria-label="Adedi azalt"
+            onClick={() => setQty((q) => Math.max(minQ, q - step))}
+            disabled={qty <= minQ}
+            aria-label={byWeight ? "Miktarı azalt" : "Adedi azalt"}
           >
             <Minus size={17} strokeWidth={2.2} aria-hidden="true" />
           </button>
-          <span className={styles.qtyValue} aria-live="polite">
-            {qty}
-          </span>
+          {byWeight ? (
+            <input
+              type="number"
+              className={styles.qtyInput}
+              value={qty}
+              min={WEIGHT_MIN_GRAMS}
+              max={WEIGHT_MAX_GRAMS}
+              step={WEIGHT_STEP_GRAMS}
+              inputMode="numeric"
+              aria-label="Gram cinsinden miktar"
+              onChange={(e) => {
+                const v = Number(e.target.value);
+                setQty(Number.isFinite(v) && v > 0 ? Math.round(v) : WEIGHT_MIN_GRAMS);
+              }}
+              onBlur={() => setQty((q) => clampGrams(q))}
+            />
+          ) : (
+            <span className={styles.qtyValue} aria-live="polite">
+              {qty}
+            </span>
+          )}
           <button
             type="button"
             className={styles.qtyBtn}
-            onClick={() => setQty((q) => Math.min(MAX_QTY, q + 1))}
-            disabled={qty >= MAX_QTY}
-            aria-label="Adedi artır"
+            onClick={() => setQty((q) => Math.min(maxQ, q + step))}
+            disabled={qty >= maxQ}
+            aria-label={byWeight ? "Miktarı artır" : "Adedi artır"}
           >
             <Plus size={17} strokeWidth={2.2} aria-hidden="true" />
           </button>
@@ -119,7 +184,7 @@ export default function DetailActions({ product }: { product: Product }) {
           type="button"
           className={`${styles.addBtn}${added ? ` ${styles.addBtnDone}` : ""}`}
           onClick={handleAdd}
-          aria-label={`${product.name}, ${qty} adet sepete ekle`}
+          aria-label={`${product.name}, ${qtyLabel} sepete ekle`}
         >
           {added ? (
             <span className={styles.addBtnMain}>
@@ -138,34 +203,43 @@ export default function DetailActions({ product }: { product: Product }) {
         </button>
       </div>
 
+      {byWeight && (
+        <p className={styles.weightGramNote}>
+          {formatGrams(qty)} için {lineTotal} — en az {formatGrams(WEIGHT_MIN_GRAMS)},{" "}
+          {formatGrams(WEIGHT_STEP_GRAMS)} adımlarla.
+        </p>
+      )}
+
       {inCartQty > 0 && (
         <div className={styles.inCart}>
           <span className={styles.inCartLabel}>
             <ShoppingBasket size={15} strokeWidth={2.1} aria-hidden="true" />
-            Sepette {inCartQty} adet
+            Sepette {byWeight ? formatGrams(inCartQty) : `${inCartQty} adet`}
           </span>
           <div
             className={styles.inCartStepper}
             role="group"
-            aria-label="Sepetteki adedi güncelle"
+            aria-label={
+              byWeight ? "Sepetteki miktarı güncelle" : "Sepetteki adedi güncelle"
+            }
           >
             <button
               type="button"
               className={styles.inCartStepperBtn}
-              onClick={() => setCartQty(product.id, inCartQty - 1)}
-              aria-label="Sepetteki adedi azalt"
+              onClick={() => setCartQty(product.id, inCartQty - step)}
+              aria-label={byWeight ? "Sepetteki miktarı azalt" : "Sepetteki adedi azalt"}
             >
               <Minus size={15} strokeWidth={2.2} aria-hidden="true" />
             </button>
             <span className={styles.inCartStepperValue} aria-live="polite">
-              {inCartQty}
+              {byWeight ? formatGrams(inCartQty) : inCartQty}
             </span>
             <button
               type="button"
               className={styles.inCartStepperBtn}
-              onClick={() => setCartQty(product.id, Math.min(MAX_QTY, inCartQty + 1))}
-              disabled={inCartQty >= MAX_QTY}
-              aria-label="Sepetteki adedi artır"
+              onClick={() => setCartQty(product.id, Math.min(maxQ, inCartQty + step))}
+              disabled={inCartQty >= maxQ}
+              aria-label={byWeight ? "Sepetteki miktarı artır" : "Sepetteki adedi artır"}
             >
               <Plus size={15} strokeWidth={2.2} aria-hidden="true" />
             </button>

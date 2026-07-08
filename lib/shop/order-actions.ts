@@ -18,7 +18,11 @@ import {
 } from "@/lib/shop/iyzico";
 import { calcDeliveryFee, getShopSettings } from "@/lib/shop/settings";
 import {
+  computeLineTotal,
+  formatGrams,
   formatTL,
+  WEIGHT_MAX_GRAMS,
+  WEIGHT_MIN_GRAMS,
   type Order,
   type OrderEvent,
   type OrderItem,
@@ -57,6 +61,7 @@ interface ProductRow {
   size_text: string;
   category_slug: string;
   price: number;
+  sold_by_weight: boolean;
   is_active: boolean;
   in_stock: boolean;
 }
@@ -165,7 +170,9 @@ export async function createOrder(
     .filter((l) => typeof l?.productId === "string" && l.productId.length > 0)
     .map((l) => ({
       productId: l.productId,
-      qty: Math.min(MAX_QTY, Math.max(1, Math.floor(Number(l.qty) || 0))),
+      // Ham miktar — adet mi gram mı olduğu ürün DB'den çekilince belli olur.
+      // Üst sınır olarak gram tavanı; adetliler aşağıda 99'a indirilir.
+      qty: Math.max(0, Math.min(WEIGHT_MAX_GRAMS, Math.floor(Number(l.qty) || 0))),
     }))
     .filter((l) => l.qty > 0)
     .slice(0, MAX_LINES);
@@ -190,7 +197,7 @@ export async function createOrder(
 
   const { data: productData, error: productError } = await admin
     .from("products")
-    .select("id, name, brand, size_text, category_slug, price, is_active, in_stock")
+    .select("id, name, brand, size_text, category_slug, price, sold_by_weight, is_active, in_stock")
     .in("id", productIds);
 
   if (productError)
@@ -207,6 +214,7 @@ export async function createOrder(
     unit_price: number;
     qty: number;
     line_total: number;
+    sold_by_weight: boolean;
   }> = [];
   const basketItems: IyzicoBasketItemInput[] = [];
 
@@ -221,25 +229,33 @@ export async function createOrder(
     if (category && !category.orderable)
       return { ok: false, error: `"${product.name}" online satılamıyor (mağazadan alınır). Lütfen sepetten çıkarın.` };
 
+    // Gram bazlı ürünlerde qty = GRAM (250'şer, [250, 10000]); değilse adet [1, 99].
+    const byWeight = product.sold_by_weight === true;
+    const qty = byWeight
+      ? Math.min(WEIGHT_MAX_GRAMS, Math.max(WEIGHT_MIN_GRAMS, line.qty))
+      : Math.min(MAX_QTY, Math.max(1, line.qty));
     const unitPrice = round2(Number(product.price));
-    const lineTotal = round2(unitPrice * line.qty);
+    const lineTotal = computeLineTotal(unitPrice, qty, byWeight);
     subtotal = round2(subtotal + lineTotal);
 
     const displayName = [product.brand, product.name, product.size_text]
       .filter(Boolean)
       .join(" ")
       .trim();
+    const orderName = displayName || product.name;
 
     orderItems.push({
       product_id: product.id,
-      name: displayName || product.name,
+      name: orderName,
       unit_price: unitPrice,
-      qty: line.qty,
+      qty,
       line_total: lineTotal,
+      sold_by_weight: byWeight,
     });
     basketItems.push({
       id: product.id,
-      name: displayName || product.name,
+      // iyzico sepetinde gram bilgisi ada işlenir (dış sistem, bayrak taşımaz).
+      name: byWeight ? `${orderName} (${formatGrams(qty)})` : orderName,
       category: category?.name ?? "Market",
       lineTotal,
     });

@@ -290,6 +290,79 @@
   font-weight: 700;
   font-variant-numeric: tabular-nums;
 }
+/* Gram bazlı: ortadaki değer düzenlenebilir sayı girişi (gram). */
+.qtyInput {
+  width: 74px;
+  height: 100%;
+  border: none;
+  outline: none;
+  text-align: center;
+  font: inherit;
+  font-size: var(--fs-body);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  background: transparent;
+  color: var(--ink);
+  -moz-appearance: textfield;
+}
+.qtyInput::-webkit-outer-spin-button,
+.qtyInput::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.qtyInput:focus {
+  background: var(--accent-soft);
+}
+
+/* Gram seçici — kilogram fiyatı notu + hazır miktar çipleri. */
+.weightPicker {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+.weightHint {
+  margin: 0;
+  font-size: var(--fs-small);
+  color: var(--gray-700, #525252);
+}
+.weightHint strong {
+  color: var(--ink);
+  font-weight: 700;
+}
+.weightChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.weightChip {
+  padding: 8px 16px;
+  border-radius: var(--r-pill);
+  border: 1px solid var(--gray-200);
+  background: var(--white);
+  font-size: var(--fs-small);
+  font-weight: 600;
+  color: var(--ink);
+  cursor: pointer;
+  transition: border-color 160ms var(--ease), background 160ms var(--ease),
+    color 160ms var(--ease);
+}
+.weightChip:hover {
+  border-color: var(--accent);
+  color: var(--accent-deep);
+}
+.weightChipActive {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--white);
+}
+.weightChipActive:hover {
+  color: var(--white);
+}
+.weightGramNote {
+  margin: 0;
+  font-size: var(--fs-small);
+  color: var(--gray-500, #737373);
+}
 
 .addBtn {
   position: relative;
