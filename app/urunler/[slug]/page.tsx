@@ -14,7 +14,7 @@ import { cache } from "react";
 import { LayoutGrid, Leaf, ShieldCheck, Sparkles, Truck, Wallet } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import type { Product } from "@/lib/shop/types";
-import { formatTL } from "@/lib/shop/types";
+import { formatTL, isWeightBased } from "@/lib/shop/types";
 import { CATEGORY_TINTS, categoryBySlug } from "@/lib/shop/categories";
 import { BUSINESS } from "@/lib/business";
 import { iconFor } from "@/components/shop/ProductCard";
@@ -230,6 +230,7 @@ export default async function UrunDetayPage({ params }: { params: Params }) {
   const cat = categoryBySlug(product.category_slug);
   const [tintBg, tintFg] = CATEGORY_TINTS[cat?.tint ?? 0] ?? CATEGORY_TINTS[0];
   const Icon = iconFor(cat?.icon ?? "shopping-basket");
+  const byWeight = isWeightBased(product);
 
   const compareAt = product.compare_at_price;
   const discounted = compareAt !== null && compareAt > product.price;
@@ -238,7 +239,7 @@ export default async function UrunDetayPage({ params }: { params: Params }) {
     : 0;
 
   // Gram bazlı üründe gramaj gösterilmez (müşteri gramı kendi seçer).
-  const metaText = [product.brand, product.sold_by_weight ? "" : product.size_text]
+  const metaText = [product.brand, byWeight ? "" : product.size_text]
     .filter(Boolean)
     .join(" · ");
 
@@ -251,11 +252,11 @@ export default async function UrunDetayPage({ params }: { params: Params }) {
   // "Ürün Hakkında" künye satırları — açıklama olmasa da sayfa dolu dursun.
   const specs = [
     { label: "Marka", value: product.brand },
-    { label: "Miktar", value: product.sold_by_weight ? "" : product.size_text },
+    { label: "Miktar", value: byWeight ? "" : product.size_text },
     { label: "Kategori", value: cat?.name ?? "" },
     {
       label: "Satış birimi",
-      value: product.sold_by_weight ? "Kilogram (gramla satılır)" : product.unit,
+      value: byWeight ? "Kilogram (gramla satılır)" : product.unit,
     },
   ].filter((s) => s.value && s.value.trim() !== "");
 
@@ -400,9 +401,9 @@ export default async function UrunDetayPage({ params }: { params: Params }) {
 
               <p className={styles.priceRow}>
                 <span className={styles.price}>{formatTL(product.price)}</span>
-                {(product.sold_by_weight || product.unit !== "adet") && (
+                {(byWeight || product.unit !== "adet") && (
                   <span className={styles.unit}>
-                    / {product.sold_by_weight ? "kg" : product.unit}
+                    / {byWeight ? "kg" : product.unit}
                   </span>
                 )}
                 {discounted && (

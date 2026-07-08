@@ -21,6 +21,7 @@ import {
   computeLineTotal,
   formatGrams,
   formatTL,
+  isWeightBased,
   WEIGHT_MAX_GRAMS,
   WEIGHT_MIN_GRAMS,
   type Order,
@@ -61,6 +62,7 @@ interface ProductRow {
   size_text: string;
   category_slug: string;
   price: number;
+  unit: string;
   sold_by_weight: boolean;
   is_active: boolean;
   in_stock: boolean;
@@ -197,7 +199,7 @@ export async function createOrder(
 
   const { data: productData, error: productError } = await admin
     .from("products")
-    .select("id, name, brand, size_text, category_slug, price, sold_by_weight, is_active, in_stock")
+    .select("id, name, brand, size_text, category_slug, price, unit, sold_by_weight, is_active, in_stock")
     .in("id", productIds);
 
   if (productError)
@@ -230,7 +232,7 @@ export async function createOrder(
       return { ok: false, error: `"${product.name}" online satılamıyor (mağazadan alınır). Lütfen sepetten çıkarın.` };
 
     // Gram bazlı ürünlerde qty = GRAM (250'şer, [250, 10000]); değilse adet [1, 99].
-    const byWeight = product.sold_by_weight === true;
+    const byWeight = isWeightBased(product);
     const qty = byWeight
       ? Math.min(WEIGHT_MAX_GRAMS, Math.max(WEIGHT_MIN_GRAMS, line.qty))
       : Math.min(MAX_QTY, Math.max(1, line.qty));

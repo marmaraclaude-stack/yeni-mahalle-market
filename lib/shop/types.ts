@@ -229,6 +229,24 @@ export const WEIGHT_STEP_GRAMS = 250; // +/- adım ve en küçük ekleme
 export const WEIGHT_MIN_GRAMS = 250; // en az sipariş miktarı
 export const WEIGHT_MAX_GRAMS = 10000; // en çok (10 kg)
 
+/**
+ * Ürün gram bazlı mı satılıyor?
+ * - Açık işaret (sold_by_weight) VARSA her zaman gram bazlıdır, veya
+ * - Meyve-sebze kategorisinde ve kilogram fiyatlıysa (unit="kg") otomatik
+ *   gram bazlıdır — böylece her ürünü tek tek işaretlemek gerekmez, paketli
+ *   kg ürünleri (un, şeker vb. başka kategoriler) etkilenmez.
+ */
+export function isWeightBased(p: {
+  sold_by_weight?: boolean | null;
+  unit?: string | null;
+  category_slug?: string | null;
+}): boolean {
+  return (
+    p.sold_by_weight === true ||
+    (p.category_slug === "meyve-sebze" && p.unit === "kg")
+  );
+}
+
 /** Gram bazlı qty'yi [min, max] arasına al ve tam sayıya yuvarla. */
 export function clampGrams(grams: number): number {
   const g = Math.round(Number(grams) || 0);

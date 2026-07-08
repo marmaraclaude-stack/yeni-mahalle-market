@@ -439,24 +439,24 @@
   font-size: var(--fs-small);
 }
 
-/* Sepette N adet — hızlı artır/azalt satırı */
+/* Sepette N adet — sepette olan miktarın onaylı (accent-tint) satırı */
 .inCart {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding: 7px 7px 7px 14px;
-  border: 1px solid var(--gray-200);
+  padding: 8px 8px 8px 16px;
+  border: 1px solid rgba(255, 90, 31, 0.24);
   border-radius: var(--r-md);
-  background: var(--gray-50);
+  background: var(--accent-soft);
 }
 .inCartLabel {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
-  color: var(--gray-700);
+  gap: 8px;
+  color: var(--accent-deep);
   font-size: var(--fs-small);
-  font-weight: 600;
+  font-weight: 700;
 }
 .inCartLabel svg {
   color: var(--accent);
@@ -466,11 +466,12 @@
   display: inline-flex;
   align-items: center;
   height: 40px;
-  border: 1px solid var(--gray-200);
+  border: 1px solid rgba(255, 90, 31, 0.28);
   border-radius: var(--r-pill);
   background: var(--white);
   overflow: hidden;
   flex-shrink: 0;
+  box-shadow: 0 2px 8px -4px rgba(255, 90, 31, 0.3);
 }
 .inCartStepperBtn {
   display: grid;
@@ -686,15 +687,18 @@
   display: flex;
   gap: 12px;
   overflow-x: auto;
-  scroll-snap-type: x proximity;
+  /* Zorunlu snap: kaydırma her zaman tam karta hizalanır, yarım kart kalmaz. */
+  scroll-snap-type: x mandatory;
   padding-bottom: 10px;
   /* Scrollbar gizli (Getir raili gibi), kaydırma dokunmatik/tekerlekle */
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
 }
 .rail::-webkit-scrollbar { display: none; }
+/* Kartlar görünür alana TAM sığar: bir sayfada tam sayıda kart, yarım kart yok.
+   Genişlik = (100% - (N-1)*gap) / N. Masaüstünde 5, daralınca 4/3/2. */
 .railItem {
-  flex: 0 0 168px;
+  flex: 0 0 calc((100% - 4 * 12px) / 5);
   min-width: 0;
   scroll-snap-align: start;
   display: flex;
@@ -702,10 +706,15 @@
 .railItem > * {
   width: 100%;
 }
-/* Mobil: 3 kart birden görünür (%34 x 3 + gap = kenardan taşan parça
-   kaydırılabilirliği kendiliğinden gösterir); oklar gizli (dokunmatik kaydırma) */
+@media (max-width: 1100px) {
+  .railItem { flex-basis: calc((100% - 3 * 12px) / 4); }
+}
+@media (max-width: 860px) {
+  .railItem { flex-basis: calc((100% - 2 * 12px) / 3); }
+}
+/* Mobil: 2 kart tam görünür (yarım kart yok); oklar gizli (dokunmatik kaydırma) */
 @media (max-width: 640px) {
-  .railItem { flex: 0 0 34%; }
+  .railItem { flex-basis: calc((100% - 12px) / 2); }
   .railBtn { display: none; }
 }
 /* Ok butonları — ana sayfa carousel diliyle: beyaz daire, kenarda */

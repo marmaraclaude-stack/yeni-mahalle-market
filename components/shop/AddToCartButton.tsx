@@ -14,6 +14,7 @@
 import { Minus, Plus, Trash2 } from "lucide-react";
 import {
   formatGrams,
+  isWeightBased,
   WEIGHT_STEP_GRAMS,
   type Product,
 } from "@/lib/shop/types";
@@ -43,7 +44,7 @@ export default function AddToCartButton({ product }: { product: Product }) {
   }
 
   const qty = lines.find((l) => l.productId === product.id)?.qty ?? 0;
-  const byWeight = product.sold_by_weight === true;
+  const byWeight = isWeightBased(product);
   const step = byWeight ? WEIGHT_STEP_GRAMS : 1;
 
   // Ürün sepette: "+" yerine kompakt stepper (Getir kart davranışı)

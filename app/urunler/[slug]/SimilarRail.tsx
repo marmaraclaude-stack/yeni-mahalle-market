@@ -17,7 +17,8 @@ export default function SimilarRail({ products }: { products: Product[] }) {
   const scroll = (dir: 1 | -1) => {
     const el = ref.current;
     if (!el) return;
-    el.scrollBy({ left: dir * el.clientWidth * 0.85, behavior: "smooth" });
+    // Tam bir sayfa kaydır; zorunlu snap kartları hizalar (yarım kart kalmaz).
+    el.scrollBy({ left: dir * el.clientWidth, behavior: "smooth" });
   };
 
   return (

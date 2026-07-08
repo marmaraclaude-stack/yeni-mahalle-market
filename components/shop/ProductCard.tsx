@@ -9,7 +9,7 @@
 import { createElement } from "react";
 import Link from "next/link";
 import type { Product } from "@/lib/shop/types";
-import { formatTL } from "@/lib/shop/types";
+import { formatTL, isWeightBased } from "@/lib/shop/types";
 import { CATEGORY_TINTS, categoryBySlug } from "@/lib/shop/categories";
 import AddToCartButton from "@/components/shop/AddToCartButton";
 import {
@@ -101,7 +101,8 @@ export default function ProductCard({
   const compareAt = product.compare_at_price;
   const discounted = compareAt !== null && compareAt > product.price;
   // Gram bazlı üründe gramaj gösterilmez (müşteri gramı kendi seçer).
-  const meta = [product.brand, product.sold_by_weight ? "" : product.size_text]
+  const byWeight = isWeightBased(product);
+  const meta = [product.brand, byWeight ? "" : product.size_text]
     .filter(Boolean)
     .join(" · ");
 
@@ -140,9 +141,9 @@ export default function ProductCard({
               <s className={styles.compare}>{formatTL(compareAt)}</s>
             )}
             <span className={styles.price}>{formatTL(product.price)}</span>
-            {(product.sold_by_weight || product.unit !== "adet") && (
+            {(byWeight || product.unit !== "adet") && (
               <span className={styles.unit}>
-                / {product.sold_by_weight ? "kg" : product.unit}
+                / {byWeight ? "kg" : product.unit}
               </span>
             )}
           </p>

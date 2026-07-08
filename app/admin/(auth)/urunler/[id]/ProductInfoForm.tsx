@@ -130,7 +130,9 @@ export default function ProductInfoForm({
               onChange={(e) => setByWeight(e.target.checked)}
             />
             Gram bazlı sat (kilogram fiyatı) — müşteri kaç gram istediğini seçer,
-            fiyat kg üzerinden hesaplanır. Meyve-sebze için idealdir.
+            fiyat kg üzerinden hesaplanır. Not: Meyve &amp; Sebze kategorisindeki
+            birimi &quot;kg&quot; olan ürünler zaten otomatik gram bazlıdır; bu kutu
+            diğer kategoriler (ör. şarküteri) için.
           </label>
         </div>
 

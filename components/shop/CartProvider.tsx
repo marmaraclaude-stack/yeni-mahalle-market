@@ -27,6 +27,7 @@ import { createClient } from "@/lib/supabase/client";
 import {
   clampGrams,
   computeLineTotal,
+  isWeightBased,
   WEIGHT_STEP_GRAMS,
   type CartLine,
   type Product,
@@ -332,7 +333,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const add = useCallback(
     (product: Product, amount?: number) => {
-      const byWeight = product.sold_by_weight === true;
+      const byWeight = isWeightBased(product);
       // Gram bazlıysa varsayılan ekleme 250 g adımı; adetliyse 1.
       const inc = amount ?? (byWeight ? WEIGHT_STEP_GRAMS : 1);
       const existing = linesRef.current.find((l) => l.productId === product.id);

@@ -20,6 +20,7 @@ import {
   computeLineTotal,
   formatGrams,
   formatTL,
+  isWeightBased,
   WEIGHT_MAX_GRAMS,
   WEIGHT_MIN_GRAMS,
   WEIGHT_STEP_GRAMS,
@@ -35,7 +36,7 @@ const WEIGHT_PRESETS = [250, 500, 1000, 2000];
 
 export default function DetailActions({ product }: { product: Product }) {
   const { add, lines, setQty: setCartQty } = useCart();
-  const byWeight = product.sold_by_weight === true;
+  const byWeight = isWeightBased(product);
   // Gram bazlıysa varsayılan 500 g; adetliyse 1.
   const [qty, setQty] = useState(byWeight ? WEIGHT_STEP_GRAMS * 2 : 1);
   const [added, setAdded] = useState(false);
