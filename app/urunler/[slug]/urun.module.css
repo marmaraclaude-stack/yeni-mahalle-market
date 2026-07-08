@@ -326,16 +326,16 @@
   gap: 9px;
 }
 .addBtnMain svg { flex-shrink: 0; }
-/* Buton içinde canlı toplam (adet x fiyat) — sağa pinli, ince ayraçlı */
+/* Buton içinde canlı toplam (adet x fiyat) — etiketin YANINDA, ince ayraçlı.
+   Statik akış (absolute değil): dar/mobil butonda etikete BİNMEZ. */
 .addBtnPrice {
-  position: absolute;
-  right: 18px;
-  top: 50%;
-  transform: translateY(-50%);
+  position: relative;
+  margin-left: 2px;
   padding-left: 14px;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
   opacity: 0.94;
+  white-space: nowrap;
 }
 .addBtnPrice::before {
   content: "";
@@ -525,10 +525,12 @@
     min-width: 0;
     max-width: none;
     flex: 1 1 auto;
-    padding: 0 14px;
+    padding: 0 16px;
     font-size: var(--fs-body);
   }
-  .addBtnPrice { right: 12px; padding-left: 10px; }
+  /* Dar butonda fiyat gizli: yalnız "Sepete Ekle" (canlı toplam adet
+     seçici + üstteki fiyat blokunda zaten görünüyor). Çakışma biter. */
+  .addBtnPrice { display: none; }
 }
 
 /* --- "Ürün Hakkında" kartı --- */
