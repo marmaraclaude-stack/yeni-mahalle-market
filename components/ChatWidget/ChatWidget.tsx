@@ -99,14 +99,6 @@ const WELCOME_MESSAGE: ChatMessage = {
 const WELCOME_OFFLINE =
   "Merhaba 👋 Şu an çevrimdışıyız. Mesajını bırak, market açılınca dönüş yapalım.";
 
-// Hızlı soru çipleri — ziyaretçi henüz hiç yazmamışken karşılama balonunun
-// altında gösterilir; dokununca metin doğrudan gönderilir.
-const QUICK_QUESTIONS = [
-  "Teslimat ne kadar sürüyor?",
-  "Çalışma saatleriniz nedir?",
-  "Siparişim nerede?",
-];
-
 export default function ChatWidget() {
   const [open, setOpen] = useState(false);
   const [session, setSession] = useState<StoredSession | null>(null);
@@ -173,8 +165,8 @@ export default function ChatWidget() {
     return () => window.removeEventListener("ym:open-chat", openChat);
   }, []);
 
-  // Mobil tam ekran panel açıkken arkadaki sayfa kaymasın
-  // (panel altına scroll kaçması sohbeti kullanılmaz yapıyordu).
+  // Mobil bottom sheet açıkken arkadaki sayfa kaymasın
+  // (sheet altına scroll kaçması sohbeti kullanılmaz yapıyordu).
   useEffect(() => {
     if (!open) return;
     if (!window.matchMedia("(max-width: 560px)").matches) return;
@@ -185,11 +177,20 @@ export default function ChatWidget() {
     };
   }, [open]);
 
-  // Mobil KLAVYE düzeltmesi: 100dvh klavyeyi hesaba katmaz; input'a
-  // odaklanınca tarayıcı sayfayı kaydırır, başlık ve mesajlar ekrandan
-  // çıkar (sadece boş gövde + input görünür kalır). Panel yüksekliğini
-  // canlı olarak visualViewport'a kilitleriz: başlık + mesajlar +
-  // composer klavyenin ÜSTÜNDE birlikte kalır.
+  // Mobil KLAVYE düzeltmesi (bottom sheet): sheet fixed + bottom:0 durur,
+  // yüksekliği CSS'te min(78dvh, 640px). Klavye açılınca iki farklı davranış
+  // olabilir ve ikisinde de taşma olmamalı:
+  //
+  // 1) Android/çoğu tarayıcı: layout viewport klavyeyle KÜÇÜLÜR. bottom:0
+  //    zaten klavyenin üstüne oturur; sadece yüksekliği visualViewport'a
+  //    sığacak şekilde kısmak yeterli (min(..., vv.height - 12)).
+  // 2) iOS Safari: layout viewport küçülMEZ, klavye üstüne biner ve sayfa
+  //    görsel olarak kayar. bottom:0 layout viewport'un dibinde (klavyenin
+  //    ARKASINDA) kalabilir. Görsel viewport'un alt kenarı layout
+  //    koordinatında (vv.offsetTop + vv.height); fixed elemanın dibi ise
+  //    window.innerHeight. Aradaki fark kadar yukarı translateY ile
+  //    taşırız. Android'de bu fark ~0 çıktığı için transform etkisizdir;
+  //    yani formül iki durumda da güvenli, tek koda iner.
   useEffect(() => {
     if (!open) return;
     const vv = window.visualViewport;
@@ -197,8 +198,15 @@ export default function ChatWidget() {
     const el = panelRef.current;
     if (!el) return;
     const apply = () => {
-      el.style.height = `${Math.round(vv.height)}px`;
-      el.style.transform = `translateY(${Math.round(vv.offsetTop)}px)`;
+      // Yüksekliği görünür alana kıs (12px üst nefes payı); klavye
+      // kapanınca vv.height büyür ve CSS'teki taban değer yine kazanır.
+      const maxH = Math.max(160, Math.round(vv.height - 12));
+      el.style.height = `min(78dvh, 640px, ${maxH}px)`;
+      // iOS: fixed dibi ile görsel viewport dibi arasındaki fark kadar kaldır.
+      const gap = Math.round(
+        window.innerHeight - (vv.offsetTop + vv.height),
+      );
+      el.style.transform = gap > 0 ? `translateY(${-gap}px)` : "";
       const b = bodyRef.current;
       if (b) b.scrollTop = b.scrollHeight;
     };
@@ -315,8 +323,8 @@ export default function ChatWidget() {
     [introName, introPhone],
   );
 
-  /** Ortak gönderim: composer da hızlı soru çipleri de bunu kullanır.
-      Başarıda true döner (composer draft'ı yalnız o zaman temizler). */
+  /** Gönderim yardımcısı: başarıda true döner
+      (composer draft'ı yalnız o zaman temizler). */
   const doSend = useCallback(
     async (content: string): Promise<boolean> => {
       if (!content || !session) return false;
@@ -407,6 +415,10 @@ export default function ChatWidget() {
           aria-modal="false"
           aria-label="Yeni Mahalle Market sohbet"
         >
+          {/* Mobil sheet'te dekoratif sürükleme çubuğu (CSS masaüstünde gizler) */}
+          <div className={styles.grabber} aria-hidden>
+            <span className={styles.grabberBar} />
+          </div>
           <header className={styles.header}>
             <div className={styles.headerLeft}>
               <span className={styles.avatar} aria-hidden>
@@ -509,22 +521,6 @@ export default function ChatWidget() {
                     )}
                   </div>
                 ))}
-                {/* Hızlı soru çipleri — ziyaretçi ilk mesajını yazana kadar */}
-                {!messages.some((m) => m.sender === "visitor") && (
-                  <div className={styles.quickRow}>
-                    {QUICK_QUESTIONS.map((qq) => (
-                      <button
-                        key={qq}
-                        type="button"
-                        className={styles.quickChip}
-                        disabled={sending}
-                        onClick={() => void doSend(qq)}
-                      >
-                        {qq}
-                      </button>
-                    ))}
-                  </div>
-                )}
                 {error && (
                   <div className={`${styles.msg} ${styles["msg--system"]}`}>
                     <div className={styles.msg__bubble}>{error}</div>

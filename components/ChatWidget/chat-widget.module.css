@@ -70,22 +70,42 @@
   to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
+/* Mobil sheet'in üstündeki dekoratif sürükleme çubuğu; masaüstünde gizli. */
+.grabber {
+  display: none;
+}
+
 @media (max-width: 560px) {
+  /* Tam ekran yerine alttan açılan bottom sheet: arkada sayfa görünür kalır. */
   .panel {
     right: 0;
     left: 0;
     bottom: 0;
-    top: 0;
-    width: 100vw;
-    height: 100dvh;
-    border-radius: 0;
+    top: auto;
+    width: 100%;
+    height: min(78dvh, 640px);
+    border-radius: 20px 20px 0 0;
     border: none;
+  }
+  .grabber {
+    display: flex;
+    justify-content: center;
+    padding: 8px 0 0;
+    background: var(--black, #0a0a0a); /* header ile bütünleşsin */
+    flex-shrink: 0;
+  }
+  .grabberBar {
+    width: 36px;
+    height: 4px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.35);
   }
   /* iOS: 16px altı input odaklanınca sayfayı zoom'lar; engelle */
   .composerInput { font-size: 16px; }
   /* Home bar'ın altında kalmasın (safe area) */
   .composer { padding-bottom: calc(12px + env(safe-area-inset-bottom)); }
-  .header { padding-top: calc(16px + env(safe-area-inset-top)); }
+  /* Not: header'daki safe-area üst padding'i tam ekran içindi; sheet
+     ekranın üstüne dayanmadığı için gerekmiyor. */
 }
 
 .header {
@@ -336,42 +356,6 @@
   align-self: center;
   max-width: 90%;
   text-align: center;
-}
-
-/* Hızlı soru çipleri — karşılama balonunun altında, ziyaretçi ilk
-   mesajını yazana kadar. Beyaz pill, gray-200 kenar, accent hover. */
-.quickRow {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 2px;
-  max-width: 92%;
-}
-
-.quickChip {
-  padding: 8px 13px;
-  border-radius: 999px;
-  border: 1px solid var(--gray-200, #e8e8e8);
-  background: var(--white, #fff);
-  color: var(--gray-700, #525252);
-  font: inherit;
-  font-size: var(--fs-micro, 12.5px);
-  font-weight: 500;
-  line-height: 1.3;
-  text-align: left;
-  cursor: pointer;
-  transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
-}
-
-.quickChip:hover:not(:disabled) {
-  border-color: var(--orange, #ff5a1f);
-  color: var(--accent-deep, #c43e0c);
-  background: var(--accent-soft, #fff1ea);
-}
-
-.quickChip:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
 }
 
 .msg--system .msg__bubble {
