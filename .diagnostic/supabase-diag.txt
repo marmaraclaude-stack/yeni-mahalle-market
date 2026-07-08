@@ -1,0 +1,5 @@
+supabase/migrations/20260708100000_getir_katalog_a.sql -> HTTP 201 
+supabase/migrations/20260708100002_getir_katalog_b.sql -> HTTP 201 
+supabase/migrations/20260708100001_urun_duzeltmeleri.sql -> HTTP 201 
+ozet -> HTTP 201 
+[{"aktif":2632,"toplam":2632,"meyve_sebze":137,"kalan_baglama":0}]
