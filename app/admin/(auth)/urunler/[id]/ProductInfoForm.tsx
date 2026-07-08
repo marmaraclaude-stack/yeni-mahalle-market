@@ -7,7 +7,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import type { Product } from "@/lib/shop/types";
+import { isWeightBased, type Product } from "@/lib/shop/types";
 import styles from "../../../admin.module.css";
 
 interface Props {
@@ -17,6 +17,12 @@ interface Props {
   units: string[];
 }
 
+/** Gramı kg metnine çevir (250 → "0.25", 5000 → "5"). */
+function gramsToKgText(grams: number): string {
+  const kg = (Number(grams) || 0) / 1000;
+  return String(kg);
+}
+
 export default function ProductInfoForm({
   saveAction,
   product,
@@ -24,6 +30,16 @@ export default function ProductInfoForm({
   units,
 }: Props) {
   const [byWeight, setByWeight] = useState(product.sold_by_weight);
+  const [category, setCategory] = useState(product.category_slug);
+  const [unit, setUnit] = useState(product.unit || "adet");
+
+  // Etkin gram bazlı mı? (açık işaret VEYA meyve-sebze + kg). Ölçek alanları
+  // yalnız bu durumda görünür.
+  const effectiveWeight = isWeightBased({
+    sold_by_weight: byWeight,
+    unit: byWeight ? "kg" : unit,
+    category_slug: category,
+  });
 
   return (
     <form action={saveAction}>
@@ -75,7 +91,8 @@ export default function ProductInfoForm({
           <select
             id="p-category"
             name="category_slug"
-            defaultValue={product.category_slug}
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
             className={styles.select}
           >
             {categories.map((c) => (
@@ -95,7 +112,8 @@ export default function ProductInfoForm({
             <select
               id="p-unit"
               name="unit"
-              defaultValue={product.unit || "adet"}
+              value={unit}
+              onChange={(e) => setUnit(e.target.value)}
               className={styles.select}
             >
               {units.map((u) => (
@@ -135,6 +153,46 @@ export default function ProductInfoForm({
             diğer kategoriler (ör. şarküteri) için.
           </label>
         </div>
+
+        {/* Gram satış ölçeği — yalnız gram bazlı ürünlerde. Karpuz/kavun gibi
+            iri ürünlerde en az 5 kg, 1 kg adım gibi seçim sağlar. */}
+        {effectiveWeight && (
+          <div className={`${styles.fieldFull} ${styles.editFormGrid}`}>
+            <div className={styles.field}>
+              <label className={styles.label} htmlFor="p-wmin">
+                En az miktar (kg)
+              </label>
+              <input
+                id="p-wmin"
+                name="weight_min_kg"
+                inputMode="decimal"
+                defaultValue={gramsToKgText(product.weight_min_grams)}
+                className={styles.input}
+              />
+            </div>
+            <div className={styles.field}>
+              <label className={styles.label} htmlFor="p-wstep">
+                Adım (kg)
+              </label>
+              <input
+                id="p-wstep"
+                name="weight_step_kg"
+                inputMode="decimal"
+                defaultValue={gramsToKgText(product.weight_step_grams)}
+                className={styles.input}
+              />
+            </div>
+            <p
+              className={styles.fieldFull}
+              style={{ margin: 0, fontSize: 12.5, color: "var(--gray-600,#555)" }}
+            >
+              Müşteri hazır seçenekleri: {gramsToKgText(product.weight_min_grams)}{" "}
+              kg&apos;dan başlayıp adım kadar artan 4 miktar. Örn. karpuz için en az{" "}
+              <b>5</b>, adım <b>1</b> → 5, 6, 7, 8 kg. Normal meyve-sebze için{" "}
+              <b>0.25</b> / <b>0.25</b> bırakın.
+            </p>
+          </div>
+        )}
 
         <div className={styles.field}>
           <label className={styles.label} htmlFor="p-compare">

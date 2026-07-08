@@ -80,6 +80,23 @@ export default async function AdminProductEditPage({
     // Gram bazlı satış işaretliyse fiyat kilogram başınadır; birim otomatik "kg".
     const soldByWeight = formData.get("sold_by_weight") === "on";
 
+    // Gram satış ölçeği (kg cinsinden girilir → grama çevrilir). Yalnız gram
+    // bazlı ürünlerde formda bulunur; yoksa alanlar güncellenmez.
+    const minKg = Number.parseFloat(
+      String(formData.get("weight_min_kg") ?? "").replace(",", "."),
+    );
+    const stepKg = Number.parseFloat(
+      String(formData.get("weight_step_kg") ?? "").replace(",", "."),
+    );
+    const weightScale: {
+      weight_min_grams?: number;
+      weight_step_grams?: number;
+    } = {};
+    if (Number.isFinite(minKg) && minKg > 0)
+      weightScale.weight_min_grams = Math.round(minKg * 1000);
+    if (Number.isFinite(stepKg) && stepKg > 0)
+      weightScale.weight_step_grams = Math.round(stepKg * 1000);
+
     let errorMessage: string | null = null;
     try {
       await updateProduct(id, {
@@ -93,6 +110,7 @@ export default async function AdminProductEditPage({
         price,
         compare_at_price: compareAt,
         sold_by_weight: soldByWeight,
+        ...weightScale,
         is_featured: formData.get("is_featured") === "on",
         in_stock: formData.get("in_stock") === "on",
         is_active: formData.get("is_active") === "on",

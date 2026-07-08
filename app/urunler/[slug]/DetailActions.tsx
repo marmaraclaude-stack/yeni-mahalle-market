@@ -21,9 +21,10 @@ import {
   formatGrams,
   formatTL,
   isWeightBased,
+  weightMinFor,
+  weightPresets,
+  weightStepFor,
   WEIGHT_MAX_GRAMS,
-  WEIGHT_MIN_GRAMS,
-  WEIGHT_STEP_GRAMS,
   type Product,
 } from "@/lib/shop/types";
 import { categoryBySlug } from "@/lib/shop/categories";
@@ -31,14 +32,15 @@ import { useCart } from "@/components/shop/CartProvider";
 import styles from "./urun.module.css";
 
 const MAX_QTY = 99;
-// Gram bazlı ürünlerde hızlı seçim kısayolları.
-const WEIGHT_PRESETS = [250, 500, 1000, 2000];
 
 export default function DetailActions({ product }: { product: Product }) {
   const { add, lines, setQty: setCartQty } = useCart();
   const byWeight = isWeightBased(product);
-  // Gram bazlıysa varsayılan 500 g; adetliyse 1.
-  const [qty, setQty] = useState(byWeight ? WEIGHT_STEP_GRAMS * 2 : 1);
+  const gramMin = weightMinFor(product);
+  const gramStep = weightStepFor(product);
+  const presets = weightPresets(gramMin, gramStep);
+  // Gram bazlıysa varsayılan olarak ikinci hazır miktar (min + adım); adetliyse 1.
+  const [qty, setQty] = useState(byWeight ? gramMin + gramStep : 1);
   const [added, setAdded] = useState(false);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -92,8 +94,8 @@ export default function DetailActions({ product }: { product: Product }) {
   // Ürünün sepetteki mevcut miktarı (adet ya da gram; 0 = sepette değil).
   const inCartQty = lines.find((l) => l.productId === product.id)?.qty ?? 0;
 
-  const step = byWeight ? WEIGHT_STEP_GRAMS : 1;
-  const minQ = byWeight ? WEIGHT_MIN_GRAMS : 1;
+  const step = byWeight ? gramStep : 1;
+  const minQ = byWeight ? gramMin : 1;
   const maxQ = byWeight ? WEIGHT_MAX_GRAMS : MAX_QTY;
 
   const handleAdd = () => {
@@ -121,7 +123,7 @@ export default function DetailActions({ product }: { product: Product }) {
             role="group"
             aria-label="Hazır miktarlar"
           >
-            {WEIGHT_PRESETS.map((g) => (
+            {presets.map((g) => (
               <button
                 key={g}
                 type="button"
@@ -160,16 +162,16 @@ export default function DetailActions({ product }: { product: Product }) {
                 type="number"
                 className={styles.qtyInput}
                 value={qty}
-                min={WEIGHT_MIN_GRAMS}
+                min={gramMin}
                 max={WEIGHT_MAX_GRAMS}
-                step={WEIGHT_STEP_GRAMS}
+                step={gramStep}
                 inputMode="numeric"
                 aria-label="Gram cinsinden miktar"
                 onChange={(e) => {
                   const v = Number(e.target.value);
-                  setQty(Number.isFinite(v) && v > 0 ? Math.round(v) : WEIGHT_MIN_GRAMS);
+                  setQty(Number.isFinite(v) && v > 0 ? Math.round(v) : gramMin);
                 }}
-                onBlur={() => setQty((q) => clampGrams(q))}
+                onBlur={() => setQty((q) => clampGrams(q, gramMin))}
               />
               <span className={styles.qtyUnit} aria-hidden="true">
                 g
@@ -216,8 +218,8 @@ export default function DetailActions({ product }: { product: Product }) {
 
       {byWeight && (
         <p className={styles.weightGramNote}>
-          İstediğin gramı yazabilir veya {formatGrams(WEIGHT_STEP_GRAMS)}&apos;lık
-          adımlarla ayarlayabilirsin (en az {formatGrams(WEIGHT_MIN_GRAMS)}).
+          İstediğin miktarı yazabilir veya {formatGrams(gramStep)}&apos;lık
+          adımlarla ayarlayabilirsin (en az {formatGrams(gramMin)}).
         </p>
       )}
 
@@ -237,7 +239,12 @@ export default function DetailActions({ product }: { product: Product }) {
             <button
               type="button"
               className={styles.inCartStepperBtn}
-              onClick={() => setCartQty(product.id, inCartQty - step)}
+              onClick={() =>
+                setCartQty(
+                  product.id,
+                  inCartQty - step < minQ ? 0 : inCartQty - step,
+                )
+              }
               aria-label={byWeight ? "Sepetteki miktarı azalt" : "Sepetteki adedi azalt"}
             >
               <Minus size={15} strokeWidth={2.2} aria-hidden="true" />

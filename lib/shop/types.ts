@@ -23,6 +23,9 @@ export interface Product {
   unit: string;
   /** true ise fiyat KİLOGRAM başınadır ve müşteri gram seçer (meyve-sebze). */
   sold_by_weight: boolean;
+  /** Gram satış ölçeği: en az miktar + adım (iri ürünlerde kg ölçeği). */
+  weight_min_grams: number;
+  weight_step_grams: number;
   image_url: string | null;
   is_active: boolean;
   in_stock: boolean;
@@ -176,9 +179,12 @@ export interface CartLine {
   price: number; // gösterim için; sipariş anında sunucu fiyatı esas alınır
   imageUrl: string | null;
   categorySlug: string;
-  /** Gram bazlı ürünlerde qty = GRAM (250'şer adım); değilse adet. */
+  /** Gram bazlı ürünlerde qty = GRAM (adım kadar); değilse adet. */
   qty: number;
   soldByWeight: boolean;
+  /** Gram satış ölçeği (ürün bazında) — stepper/clamp bunları kullanır. */
+  weightMin: number;
+  weightStep: number;
 }
 
 /** Sipariş durumlarının Türkçe etiketleri + akış sırası. */
@@ -225,9 +231,27 @@ export function formatTL(value: number): string {
 // Gram bazlı (kilogram fiyatlı) satış — meyve-sebze vb.
 // Fiyat kg başınadır; sepette/siparişte qty GRAM olarak tutulur.
 // ------------------------------------------------------------
-export const WEIGHT_STEP_GRAMS = 250; // +/- adım ve en küçük ekleme
-export const WEIGHT_MIN_GRAMS = 250; // en az sipariş miktarı
-export const WEIGHT_MAX_GRAMS = 10000; // en çok (10 kg)
+export const WEIGHT_STEP_GRAMS = 250; // varsayılan +/- adım ve en küçük ekleme
+export const WEIGHT_MIN_GRAMS = 250; // varsayılan en az miktar
+export const WEIGHT_MAX_GRAMS = 40000; // en çok (40 kg) — iri ürünler için tavan
+
+/**
+ * Ürünün gram satış ölçeği: en az miktar + adım (ürün bazında).
+ * Karpuz/kavun gibi iri ürünlerde admin 5 kg / 1 kg girer → 5-6-7-8 kg seçimi.
+ * Alanlar yoksa (eski kayıt) varsayılan 250 g / 250 g kullanılır.
+ */
+export function weightMinFor(p: { weight_min_grams?: number | null }): number {
+  const v = Number(p.weight_min_grams);
+  return Number.isFinite(v) && v > 0 ? Math.round(v) : WEIGHT_MIN_GRAMS;
+}
+export function weightStepFor(p: { weight_step_grams?: number | null }): number {
+  const v = Number(p.weight_step_grams);
+  return Number.isFinite(v) && v > 0 ? Math.round(v) : WEIGHT_STEP_GRAMS;
+}
+/** Hazır miktar çipleri: en azdan başlayıp 4 adım (min, min+adım, +2, +3). */
+export function weightPresets(minGrams: number, stepGrams: number): number[] {
+  return [0, 1, 2, 3].map((i) => minGrams + i * stepGrams);
+}
 
 /**
  * Ürün gram bazlı mı satılıyor?
@@ -248,9 +272,12 @@ export function isWeightBased(p: {
 }
 
 /** Gram bazlı qty'yi [min, max] arasına al ve tam sayıya yuvarla. */
-export function clampGrams(grams: number): number {
+export function clampGrams(
+  grams: number,
+  minGrams: number = WEIGHT_MIN_GRAMS,
+): number {
   const g = Math.round(Number(grams) || 0);
-  return Math.min(WEIGHT_MAX_GRAMS, Math.max(WEIGHT_MIN_GRAMS, g));
+  return Math.min(WEIGHT_MAX_GRAMS, Math.max(minGrams, g));
 }
 
 /** Satır toplamı: gram bazlıysa kg fiyatı × (gram/1000), değilse fiyat × adet. */

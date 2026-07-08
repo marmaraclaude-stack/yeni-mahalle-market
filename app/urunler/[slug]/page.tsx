@@ -125,12 +125,12 @@ async function getSimilarProducts(product: Product): Promise<Product[]> {
       )
       .map((s) => s.p);
 
-    const result = ranked.slice(0, 15);
+    const result = ranked.slice(0, 10);
     if (result.length < 4) {
-      // Skorlu sonuç azsa kategori sırasından tamamla (doldurma, 8'e kadar).
+      // Skorlu sonuç azsa kategori sırasından tamamla (doldurma, 10'a kadar).
       const picked = new Set(result.map((p) => p.id));
       for (const p of candidates) {
-        if (result.length >= 15) break;
+        if (result.length >= 10) break;
         if (!picked.has(p.id)) result.push(p);
       }
     }

@@ -22,7 +22,6 @@ import {
   computeLineTotal,
   formatGrams,
   formatTL,
-  WEIGHT_STEP_GRAMS,
   type Product,
 } from "@/lib/shop/types";
 import ProductCard from "@/components/shop/ProductCard";
@@ -136,6 +135,8 @@ export default function CartView({
               {lines.map((line) => {
                 const category = categoryBySlug(line.categorySlug);
                 const [bg, fg] = CATEGORY_TINTS[category?.tint ?? 0];
+                const lineStep = line.soldByWeight ? line.weightStep : 1;
+                const lineMin = line.soldByWeight ? line.weightMin : 1;
                 return (
                   <li
                     key={line.productId}
@@ -196,8 +197,9 @@ export default function CartView({
                           onClick={() =>
                             setQty(
                               line.productId,
-                              line.qty -
-                                (line.soldByWeight ? WEIGHT_STEP_GRAMS : 1),
+                              line.qty - lineStep < lineMin
+                                ? 0
+                                : line.qty - lineStep,
                             )
                           }
                           aria-label={`${line.name} miktarını azalt`}
@@ -210,13 +212,7 @@ export default function CartView({
                         <button
                           type="button"
                           className={styles.stepBtn}
-                          onClick={() =>
-                            setQty(
-                              line.productId,
-                              line.qty +
-                                (line.soldByWeight ? WEIGHT_STEP_GRAMS : 1),
-                            )
-                          }
+                          onClick={() => setQty(line.productId, line.qty + lineStep)}
                           aria-label={`${line.name} miktarını artır`}
                         >
                           <Plus aria-hidden="true" />

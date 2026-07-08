@@ -28,7 +28,9 @@ import {
   clampGrams,
   computeLineTotal,
   isWeightBased,
-  WEIGHT_STEP_GRAMS,
+  weightMinFor,
+  weightStepFor,
+  WEIGHT_MIN_GRAMS,
   type CartLine,
   type Product,
 } from "@/lib/shop/types";
@@ -51,9 +53,13 @@ export interface CartContextValue {
 
 const CartContext = createContext<CartContextValue | null>(null);
 
-/** Adet/gram sınırlama: gram bazlıysa 250'şer adım [250, 10000], değilse [1, 99]. */
-function clampQty(qty: number, soldByWeight = false): number {
-  if (soldByWeight) return clampGrams(qty);
+/** Adet/gram sınırlama: gram bazlıysa [min, tavan], değilse [1, 99]. */
+function clampQty(
+  qty: number,
+  soldByWeight = false,
+  min: number = WEIGHT_MIN_GRAMS,
+): number {
+  if (soldByWeight) return clampGrams(qty, min);
   return Math.min(MAX_QTY, Math.max(1, Math.floor(qty)));
 }
 
@@ -73,8 +79,17 @@ function parseLines(raw: string | null): CartLine[] {
           typeof (l as CartLine).qty === "number",
       )
       .map((l) => {
-        const byWeight = (l as CartLine).soldByWeight === true;
-        return { ...l, soldByWeight: byWeight, qty: clampQty(l.qty, byWeight) };
+        const line = l as CartLine;
+        const byWeight = line.soldByWeight === true;
+        const weightMin = weightMinFor({ weight_min_grams: line.weightMin });
+        const weightStep = weightStepFor({ weight_step_grams: line.weightStep });
+        return {
+          ...line,
+          soldByWeight: byWeight,
+          weightMin,
+          weightStep,
+          qty: clampQty(line.qty, byWeight, weightMin),
+        };
       });
   } catch {
     return [];
@@ -115,7 +130,10 @@ interface DbCartRow {
     brand: string;
     size_text: string;
     price: number;
+    unit: string;
     sold_by_weight: boolean;
+    weight_min_grams: number;
+    weight_step_grams: number;
     image_url: string | null;
     category_slug: string;
   } | null;
@@ -124,7 +142,9 @@ interface DbCartRow {
 function dbRowToLine(row: DbCartRow): CartLine | null {
   const p = row.products;
   if (!p) return null; // ürün silinmiş/erişilemez - satırı atla
-  const byWeight = p.sold_by_weight === true;
+  const byWeight = isWeightBased(p);
+  const weightMin = weightMinFor(p);
+  const weightStep = weightStepFor(p);
   return {
     productId: p.id,
     slug: p.slug,
@@ -135,7 +155,9 @@ function dbRowToLine(row: DbCartRow): CartLine | null {
     imageUrl: p.image_url,
     categorySlug: p.category_slug,
     soldByWeight: byWeight,
-    qty: clampQty(row.qty, byWeight),
+    weightMin,
+    weightStep,
+    qty: clampQty(row.qty, byWeight, weightMin),
   };
 }
 
@@ -191,7 +213,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         const { data, error } = await getSupabase()
           .from("cart_items")
           .select(
-            "product_id, qty, products(id, slug, name, brand, size_text, price, sold_by_weight, image_url, category_slug)",
+            "product_id, qty, products(id, slug, name, brand, size_text, price, unit, sold_by_weight, weight_min_grams, weight_step_grams, image_url, category_slug)",
           )
           .eq("user_id", userId);
         if (seq !== loadSeqRef.current) return;
@@ -218,7 +240,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
               existing
                 ? {
                     ...existing,
-                    qty: clampQty(existing.qty + g.qty, existing.soldByWeight),
+                    qty: clampQty(
+                      existing.qty + g.qty,
+                      existing.soldByWeight,
+                      existing.weightMin,
+                    ),
                   }
                 : g,
             );
@@ -334,10 +360,13 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const add = useCallback(
     (product: Product, amount?: number) => {
       const byWeight = isWeightBased(product);
-      // Gram bazlıysa varsayılan ekleme 250 g adımı; adetliyse 1.
-      const inc = amount ?? (byWeight ? WEIGHT_STEP_GRAMS : 1);
+      const weightMin = weightMinFor(product);
+      const weightStep = weightStepFor(product);
+      // Gram bazlıysa varsayılan ekleme bir adım; adetliyse 1.
+      // (İlk "+"'ta adım min'den küçükse clampGrams zaten min'e yükseltir.)
+      const inc = amount ?? (byWeight ? weightStep : 1);
       const existing = linesRef.current.find((l) => l.productId === product.id);
-      const nextQty = clampQty((existing?.qty ?? 0) + inc, byWeight);
+      const nextQty = clampQty((existing?.qty ?? 0) + inc, byWeight, weightMin);
       applyLines((prev) => {
         if (prev.some((l) => l.productId === product.id)) {
           return prev.map((l) =>
@@ -354,6 +383,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
           imageUrl: product.image_url,
           categorySlug: product.category_slug,
           soldByWeight: byWeight,
+          weightMin,
+          weightStep,
           qty: nextQty,
         };
         return [...prev, line];
@@ -370,10 +401,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
         dbDelete(productId);
         return;
       }
-      const byWeight =
-        linesRef.current.find((l) => l.productId === productId)?.soldByWeight ??
-        false;
-      const clamped = clampQty(qty, byWeight);
+      const existing = linesRef.current.find((l) => l.productId === productId);
+      const byWeight = existing?.soldByWeight ?? false;
+      const clamped = clampQty(qty, byWeight, existing?.weightMin);
       applyLines((prev) =>
         prev.map((l) => (l.productId === productId ? { ...l, qty: clamped } : l)),
       );

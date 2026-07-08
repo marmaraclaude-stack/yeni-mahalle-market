@@ -29,6 +29,8 @@ export interface ProductPatch {
   price?: number;
   compare_at_price?: number | null;
   sold_by_weight?: boolean;
+  weight_min_grams?: number;
+  weight_step_grams?: number;
   in_stock?: boolean;
   is_active?: boolean;
   is_featured?: boolean;
@@ -336,6 +338,20 @@ export async function updateProduct(
   }
   if (patch.sold_by_weight !== undefined)
     clean.sold_by_weight = patch.sold_by_weight;
+  if (patch.weight_min_grams !== undefined) {
+    const v = Math.round(patch.weight_min_grams);
+    if (!Number.isFinite(v) || v < 1 || v > 100000) {
+      throw new Error("Geçersiz en az miktar.");
+    }
+    clean.weight_min_grams = v;
+  }
+  if (patch.weight_step_grams !== undefined) {
+    const v = Math.round(patch.weight_step_grams);
+    if (!Number.isFinite(v) || v < 1 || v > 100000) {
+      throw new Error("Geçersiz adım miktarı.");
+    }
+    clean.weight_step_grams = v;
+  }
   if (patch.in_stock !== undefined) clean.in_stock = patch.in_stock;
   if (patch.is_active !== undefined) clean.is_active = patch.is_active;
   if (patch.is_featured !== undefined) clean.is_featured = patch.is_featured;

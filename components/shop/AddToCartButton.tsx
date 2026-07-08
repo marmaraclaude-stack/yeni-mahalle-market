@@ -15,7 +15,8 @@ import { Minus, Plus, Trash2 } from "lucide-react";
 import {
   formatGrams,
   isWeightBased,
-  WEIGHT_STEP_GRAMS,
+  weightMinFor,
+  weightStepFor,
   type Product,
 } from "@/lib/shop/types";
 import { categoryBySlug } from "@/lib/shop/categories";
@@ -45,7 +46,10 @@ export default function AddToCartButton({ product }: { product: Product }) {
 
   const qty = lines.find((l) => l.productId === product.id)?.qty ?? 0;
   const byWeight = isWeightBased(product);
-  const step = byWeight ? WEIGHT_STEP_GRAMS : 1;
+  const step = byWeight ? weightStepFor(product) : 1;
+  const min = byWeight ? weightMinFor(product) : 1;
+  // Bir adım azaltınca min'in altına düşüyorsa satır sepetten çıkar.
+  const removesOnDec = qty - step < min;
 
   // Ürün sepette: "+" yerine kompakt stepper (Getir kart davranışı)
   if (qty > 0) {
@@ -58,14 +62,14 @@ export default function AddToCartButton({ product }: { product: Product }) {
         <button
           type="button"
           className={styles.cardStepBtn}
-          onClick={() => setQty(product.id, qty - step)}
+          onClick={() => setQty(product.id, removesOnDec ? 0 : qty - step)}
           aria-label={
-            qty <= step
+            removesOnDec
               ? `${product.name}, sepetten çıkar`
               : `${product.name}, miktarı azalt`
           }
         >
-          {qty <= step ? (
+          {removesOnDec ? (
             <Trash2 size={14} strokeWidth={2} aria-hidden="true" />
           ) : (
             <Minus size={14} strokeWidth={2.4} aria-hidden="true" />

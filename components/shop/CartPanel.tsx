@@ -12,12 +12,7 @@
 import { createElement } from "react";
 import Link from "next/link";
 import { Minus, Plus, ShoppingBasket, Trash2 } from "lucide-react";
-import {
-  computeLineTotal,
-  formatGrams,
-  formatTL,
-  WEIGHT_STEP_GRAMS,
-} from "@/lib/shop/types";
+import { computeLineTotal, formatGrams, formatTL } from "@/lib/shop/types";
 import { CATEGORY_TINTS, categoryBySlug } from "@/lib/shop/categories";
 import { useCart } from "@/components/shop/CartProvider";
 import { iconFor } from "@/components/shop/ProductCard";
@@ -64,6 +59,9 @@ export default function CartPanel({
               const cat = categoryBySlug(l.categorySlug);
               const [bg, fg] =
                 CATEGORY_TINTS[cat?.tint ?? 0] ?? CATEGORY_TINTS[0];
+              const lStep = l.soldByWeight ? l.weightStep : 1;
+              const lMin = l.soldByWeight ? l.weightMin : 1;
+              const lRemoves = l.qty - lStep < lMin;
               return (
                 <li key={l.productId} className={styles.cartLine}>
                   <span
@@ -99,18 +97,15 @@ export default function CartPanel({
                       type="button"
                       className={styles.stepBtn}
                       onClick={() =>
-                        setQty(
-                          l.productId,
-                          l.qty - (l.soldByWeight ? WEIGHT_STEP_GRAMS : 1),
-                        )
+                        setQty(l.productId, lRemoves ? 0 : l.qty - lStep)
                       }
                       aria-label={
-                        l.qty <= (l.soldByWeight ? WEIGHT_STEP_GRAMS : 1)
+                        lRemoves
                           ? `${l.name}, sepetten çıkar`
                           : `${l.name}, miktarı azalt`
                       }
                     >
-                      {l.qty <= (l.soldByWeight ? WEIGHT_STEP_GRAMS : 1) ? (
+                      {lRemoves ? (
                         <Trash2 size={13} strokeWidth={2} aria-hidden="true" />
                       ) : (
                         <Minus size={13} strokeWidth={2.4} aria-hidden="true" />
@@ -125,7 +120,7 @@ export default function CartPanel({
                       onClick={() =>
                         setQty(
                           l.productId,
-                          l.qty + (l.soldByWeight ? WEIGHT_STEP_GRAMS : 1),
+                          l.qty + lStep,
                         )
                       }
                       aria-label={`${l.name}, miktarı artır`}
