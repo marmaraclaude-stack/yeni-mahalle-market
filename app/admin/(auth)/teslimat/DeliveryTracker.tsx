@@ -8,7 +8,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import {
-  Bike,
   Check,
   CheckCircle2,
   Copy,
@@ -246,234 +245,255 @@ export default function DeliveryTracker({
 
   const isSharing = state === "sharing" || state === "starting";
 
+  const waiting = list.filter((o) => o.courier_lat == null).length;
+
   return (
     <div className={styles.deliveryWrap}>
-      {/* Canlı harita — hero */}
-      <section className={styles.deliveryMapCard}>
-        <div className={styles.deliveryMapHead}>
-          <h2 className={styles.deliveryMapTitle}>
-            <MapPin size={18} aria-hidden /> Canlı harita
-          </h2>
-          {stats.length > 0 && (
-            <div className={styles.deliveryLegend}>
-              {stats.map((s) => (
-                <span key={s.id} className={styles.deliveryLegendItem}>
-                  <span
-                    className={styles.deliveryLegendDot}
-                    style={{ background: s.color }}
-                    aria-hidden
-                  />
-                  {s.name}
-                  <span
-                    className={
-                      s.lat != null
-                        ? styles.deliveryLegendLive
-                        : styles.deliveryLegendOff
-                    }
-                  >
-                    {s.lat != null ? agoText(s.lastLoc) : "konum yok"}
+      {/* Üst: özet + bu cihazdan paylaş */}
+      <div className={styles.deliveryTop}>
+        <div className={styles.deliveryStats}>
+          <div className={styles.deliveryStat}>
+            <span className={styles.deliveryStatNum}>{list.length}</span>
+            <span className={styles.deliveryStatLbl}>Aktif teslimat</span>
+          </div>
+          <div className={styles.deliveryStat}>
+            <span className={styles.deliveryStatNum}>
+              {mapCouriers.length}
+              <span className={styles.deliveryStatSub}>/{stats.length}</span>
+            </span>
+            <span className={styles.deliveryStatLbl}>Canlı kurye</span>
+          </div>
+          <div className={styles.deliveryStat}>
+            <span className={styles.deliveryStatNum}>{waiting}</span>
+            <span className={styles.deliveryStatLbl}>Konum bekleyen</span>
+          </div>
+        </div>
+
+        <div className={styles.deliverySharePane}>
+          <div className={styles.deliverySharePaneTop}>
+            <Navigation size={15} aria-hidden />
+            Bu cihazdan konum paylaş
+          </div>
+          <div className={styles.deliveryShareRow}>
+            <select
+              value={shareCourier}
+              onChange={(e) => setShareCourier(e.target.value)}
+              className={styles.select}
+              aria-label="Hangi kurye olarak"
+              disabled={isSharing}
+            >
+              <option value="">Tümü (tüm Kurye Yolda)</option>
+              {couriers.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name}
+                </option>
+              ))}
+            </select>
+            {!isSharing ? (
+              <button
+                type="button"
+                onClick={start}
+                className={`${styles.actionBtn} ${styles["actionBtn--primary"]}`}
+                style={{ display: "inline-flex", alignItems: "center", gap: 7 }}
+              >
+                <MapPin size={16} /> Başla
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={handleStop}
+                className={styles.actionBtn}
+                style={{ display: "inline-flex", alignItems: "center", gap: 7 }}
+              >
+                Durdur
+              </button>
+            )}
+          </div>
+          {state === "starting" && (
+            <p className={styles.deliveryStatus}>
+              <Loader2 className={styles.deliverySpin} /> Konum alınıyor…
+            </p>
+          )}
+          {state === "sharing" && !message && (
+            <p className={`${styles.deliveryStatus} ${styles.deliveryOk}`}>
+              <CheckCircle2 /> Canlı paylaşılıyor{lastAt ? ` · ${lastAt}` : ""}
+            </p>
+          )}
+          {message && (
+            <p
+              className={`${styles.deliveryStatus} ${
+                state === "error" ? styles.deliveryErr : ""
+              }`}
+            >
+              {message}
+            </p>
+          )}
+        </div>
+      </div>
+
+      {/* Ana pano: sol harita · sağ liste */}
+      <div className={styles.deliveryGrid}>
+        <section className={styles.deliveryMapCard}>
+          <div className={styles.deliveryMapHead}>
+            <h2 className={styles.deliveryMapTitle}>
+              <MapPin size={18} aria-hidden /> Canlı harita
+            </h2>
+            {stats.length > 0 && (
+              <div className={styles.deliveryLegend}>
+                {stats.map((s) => (
+                  <span key={s.id} className={styles.deliveryLegendItem}>
+                    <span
+                      className={styles.deliveryLegendDot}
+                      style={{ background: s.color }}
+                      aria-hidden
+                    />
+                    {s.name}
                   </span>
-                </span>
+                ))}
+              </div>
+            )}
+          </div>
+          <div className={styles.deliveryMapBox}>
+            <CourierMap market={BUSINESS.geo} couriers={mapCouriers} />
+          </div>
+        </section>
+
+        <div className={styles.deliverySide}>
+          <h2 className={styles.deliverySectionTitle}>
+            <Package size={16} aria-hidden /> Aktif teslimatlar ({list.length})
+          </h2>
+          {list.length === 0 ? (
+            <div className={styles.empty}>
+              Şu an &quot;Kurye Yolda&quot; sipariş yok.
+            </div>
+          ) : (
+            <div className={styles.deliverySideList}>
+              {list.map((o) => {
+                const has = o.courier_lat != null && o.courier_lng != null;
+                return (
+                  <div key={o.order_no} className={styles.deliveryCard}>
+                    <div className={styles.deliveryCardTop}>
+                      <span className={styles.deliveryOrderNo}>{o.order_no}</span>
+                      <span
+                        className={`${styles.deliveryDot} ${
+                          has ? styles.deliveryDotOn : ""
+                        }`}
+                      >
+                        {has
+                          ? `konum ${agoText(o.courier_location_at)}`
+                          : "konum yok"}
+                      </span>
+                    </div>
+                    <p className={styles.deliveryCustomer}>{o.customer_name}</p>
+                    <p className={styles.deliveryAddr}>{o.address_line}</p>
+                    {o.address_note && (
+                      <p className={styles.deliveryCourier}>
+                        Not: {o.address_note}
+                      </p>
+                    )}
+                    {o.courier_name && (
+                      <p className={styles.deliveryCourier}>
+                        Kurye: {o.courier_name}
+                      </p>
+                    )}
+                    <div className={styles.deliveryCardActions}>
+                      {o.phone && (
+                        <a
+                          href={`tel:${o.phone}`}
+                          className={styles.deliveryMini}
+                        >
+                          <Phone size={13} /> Ara
+                        </a>
+                      )}
+                      <a
+                        href={dirTo(o.address_line)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={styles.deliveryMini}
+                      >
+                        <Navigation size={13} /> Yol tarifi
+                      </a>
+                      {has && (
+                        <a
+                          href={mapsAt(o.courier_lat!, o.courier_lng!)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className={styles.deliveryMini}
+                        >
+                          <MapPin size={13} /> Haritada gör
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          <h2 className={styles.deliverySectionTitle}>
+            <Radio size={16} aria-hidden /> Kurye takip cihazları
+          </h2>
+          {stats.length === 0 ? (
+            <div className={styles.empty}>
+              Aktif kurye yok. Kuryeler sayfasından ekleyin.
+            </div>
+          ) : (
+            <div className={styles.deliverySideList}>
+              {stats.map((s) => (
+                <div key={s.id} className={styles.deliveryDeviceCard}>
+                  <div className={styles.deliveryCardTop}>
+                    <span className={styles.deliveryOrderNo}>
+                      <span
+                        className={styles.deliveryLegendDot}
+                        style={{ background: s.color, marginRight: 6 }}
+                        aria-hidden
+                      />
+                      {s.name}
+                    </span>
+                    <span
+                      className={`${styles.deliveryDot} ${
+                        s.lat != null ? styles.deliveryDotOn : ""
+                      }`}
+                    >
+                      {s.lat != null ? agoText(s.lastLoc) : "konum yok"}
+                    </span>
+                  </div>
+                  <p className={styles.deliveryCourier}>
+                    {s.activeCount} aktif teslimat · {s.phone || "telefon yok"}
+                  </p>
+                  <div className={styles.deliveryUrlRow} style={{ marginTop: 8 }}>
+                    <input
+                      type="text"
+                      readOnly
+                      value={s.ingestUrl}
+                      onFocus={(e) => e.currentTarget.select()}
+                      className={styles.deliveryUrl}
+                      aria-label={`${s.name} motor takip linki`}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => copy(s.id, s.ingestUrl)}
+                      className={`${styles.actionBtn} ${styles["actionBtn--primary"]}`}
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: 6,
+                      }}
+                    >
+                      {copiedId === s.id ? (
+                        <Check size={15} />
+                      ) : (
+                        <Copy size={15} />
+                      )}
+                      {copiedId === s.id ? "Kopyalandı" : "Kopyala"}
+                    </button>
+                  </div>
+                </div>
               ))}
             </div>
           )}
         </div>
-        <div className={styles.deliveryMapBox}>
-          <CourierMap market={BUSINESS.geo} couriers={mapCouriers} />
-        </div>
-        {mapCouriers.length === 0 && (
-          <p className={styles.deliveryMapHint}>
-            Haritada market ve teslimat çevresi görünür. Bir kurye konum
-            gönderdiğinde renkli pini burada belirir.
-          </p>
-        )}
-      </section>
-
-      {/* Bu cihazdan paylaş */}
-      <section className={styles.deliveryShare}>
-        <div className={styles.deliveryShareHead}>
-          <span className={styles.deliveryShareIcon} aria-hidden>
-            <Navigation size={20} />
-          </span>
-          <div>
-            <strong>Bu cihazdan konum paylaş</strong>
-            <p>Teslimatçı bu telefonun GPS&apos;ini paylaşır (kurye seçin).</p>
-          </div>
-        </div>
-        <div className={styles.deliveryShareRow}>
-          <select
-            value={shareCourier}
-            onChange={(e) => setShareCourier(e.target.value)}
-            className={styles.select}
-            aria-label="Hangi kurye olarak"
-            disabled={isSharing}
-          >
-            <option value="">Tümü (tüm Kurye Yolda)</option>
-            {couriers.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.name}
-              </option>
-            ))}
-          </select>
-          {!isSharing ? (
-            <button
-              type="button"
-              onClick={start}
-              className={`${styles.actionBtn} ${styles["actionBtn--primary"]}`}
-              style={{ display: "inline-flex", alignItems: "center", gap: 7 }}
-            >
-              <MapPin size={16} /> Paylaşmaya başla
-            </button>
-          ) : (
-            <button
-              type="button"
-              onClick={handleStop}
-              className={styles.actionBtn}
-              style={{ display: "inline-flex", alignItems: "center", gap: 7 }}
-            >
-              Durdur
-            </button>
-          )}
-        </div>
-        {state === "starting" && (
-          <p className={styles.deliveryStatus}>
-            <Loader2 className={styles.deliverySpin} /> Konum alınıyor…
-          </p>
-        )}
-        {state === "sharing" && !message && (
-          <p className={`${styles.deliveryStatus} ${styles.deliveryOk}`}>
-            <CheckCircle2 /> Canlı paylaşılıyor{lastAt ? ` · ${lastAt}` : ""}
-          </p>
-        )}
-        {message && (
-          <p
-            className={`${styles.deliveryStatus} ${
-              state === "error" ? styles.deliveryErr : ""
-            }`}
-          >
-            {message}
-          </p>
-        )}
-      </section>
-
-      {/* Aktif teslimatlar */}
-      <h2 className={styles.deliverySectionTitle}>
-        <Package size={16} aria-hidden /> Aktif teslimatlar ({list.length})
-      </h2>
-      {list.length === 0 ? (
-        <div className={styles.empty}>
-          Şu an &quot;Kurye Yolda&quot; sipariş yok.
-        </div>
-      ) : (
-        <div className={styles.deliveryList}>
-          {list.map((o) => {
-            const has = o.courier_lat != null && o.courier_lng != null;
-            return (
-              <div key={o.order_no} className={styles.deliveryCard}>
-                <div className={styles.deliveryCardTop}>
-                  <span className={styles.deliveryOrderNo}>{o.order_no}</span>
-                  <span
-                    className={`${styles.deliveryDot} ${
-                      has ? styles.deliveryDotOn : ""
-                    }`}
-                  >
-                    {has ? `konum ${agoText(o.courier_location_at)}` : "konum yok"}
-                  </span>
-                </div>
-                <p className={styles.deliveryCustomer}>{o.customer_name}</p>
-                <p className={styles.deliveryAddr}>{o.address_line}</p>
-                {o.address_note && (
-                  <p className={styles.deliveryCourier}>Not: {o.address_note}</p>
-                )}
-                {o.courier_name && (
-                  <p className={styles.deliveryCourier}>Kurye: {o.courier_name}</p>
-                )}
-                <div className={styles.deliveryCardActions}>
-                  {o.phone && (
-                    <a href={`tel:${o.phone}`} className={styles.deliveryMini}>
-                      <Phone size={13} /> Ara
-                    </a>
-                  )}
-                  <a
-                    href={dirTo(o.address_line)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={styles.deliveryMini}
-                  >
-                    <Navigation size={13} /> Yol tarifi
-                  </a>
-                  {has && (
-                    <a
-                      href={mapsAt(o.courier_lat!, o.courier_lng!)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={styles.deliveryMini}
-                    >
-                      <MapPin size={13} /> Haritada gör
-                    </a>
-                  )}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
-
-      {/* Kurye takip cihazları — kalıcı motor linkleri (bilgilendirme yok) */}
-      <h2 className={styles.deliverySectionTitle}>
-        <Radio size={16} aria-hidden /> Kurye takip cihazları
-      </h2>
-      {stats.length === 0 ? (
-        <div className={styles.empty}>
-          Aktif kurye yok. Kuryeler sayfasından ekleyin.
-        </div>
-      ) : (
-        <div className={styles.deliveryList}>
-          {stats.map((s) => (
-            <div key={s.id} className={styles.deliveryDeviceCard}>
-              <div className={styles.deliveryCardTop}>
-                <span className={styles.deliveryOrderNo}>
-                  <span
-                    className={styles.deliveryLegendDot}
-                    style={{ background: s.color, marginRight: 6 }}
-                    aria-hidden
-                  />
-                  {s.name}
-                </span>
-                <span
-                  className={`${styles.deliveryDot} ${
-                    s.lat != null ? styles.deliveryDotOn : ""
-                  }`}
-                >
-                  {s.lat != null ? agoText(s.lastLoc) : "konum yok"}
-                </span>
-              </div>
-              <p className={styles.deliveryCourier}>
-                {s.activeCount} aktif teslimat · {s.phone || "telefon yok"}
-              </p>
-              <div className={styles.deliveryUrlRow} style={{ marginTop: 8 }}>
-                <input
-                  type="text"
-                  readOnly
-                  value={s.ingestUrl}
-                  onFocus={(e) => e.currentTarget.select()}
-                  className={styles.deliveryUrl}
-                  aria-label={`${s.name} motor takip linki`}
-                />
-                <button
-                  type="button"
-                  onClick={() => copy(s.id, s.ingestUrl)}
-                  className={`${styles.actionBtn} ${styles["actionBtn--primary"]}`}
-                  style={{ display: "inline-flex", alignItems: "center", gap: 6 }}
-                >
-                  {copiedId === s.id ? <Check size={15} /> : <Copy size={15} />}
-                  {copiedId === s.id ? "Kopyalandı" : "Kopyala"}
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
+      </div>
     </div>
   );
 }

@@ -63,14 +63,6 @@ export default function CourierMap({
       maxZoom: 19,
       attribution: "&copy; OpenStreetMap",
     }).addTo(map);
-    // Teslimat çevresi (yaklaşık 2.5 km) + market pini.
-    L.circle([market.lat, market.lng], {
-      radius: 2500,
-      color: "#ff5a1f",
-      weight: 1.5,
-      fillColor: "#ff5a1f",
-      fillOpacity: 0.06,
-    }).addTo(map);
     L.marker([market.lat, market.lng], {
       icon: marketIcon,
       title: "Market",

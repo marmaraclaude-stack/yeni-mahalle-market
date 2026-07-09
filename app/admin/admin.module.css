@@ -2797,3 +2797,97 @@
   color: var(--black, #111);
 }
 .deliverySectionTitle svg { color: var(--orange, #ff7a1a); }
+
+/* Teslimat — sevkiyat panosu düzeni */
+.deliveryTop {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  align-items: stretch;
+  margin-bottom: 16px;
+}
+.deliveryStats {
+  display: flex;
+  gap: 12px;
+  flex: 1 1 340px;
+}
+.deliveryStat {
+  flex: 1;
+  min-width: 0;
+  padding: 14px 16px;
+  border-radius: 14px;
+  border: 1px solid var(--gray-200, #e8e8e8);
+  background: var(--white);
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  justify-content: center;
+}
+.deliveryStatNum {
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--black, #111);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+.deliveryStatSub {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--gray-400, #a3a3a3);
+}
+.deliveryStatLbl {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--gray-500, #737373);
+}
+.deliverySharePane {
+  flex: 1 1 300px;
+  max-width: 440px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 122, 26, 0.28);
+  background: linear-gradient(120deg, #fff3ec, var(--white));
+}
+.deliverySharePaneTop {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--black, #111);
+  margin-bottom: 10px;
+}
+.deliverySharePaneTop svg { color: var(--orange, #ff7a1a); }
+
+.deliveryGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  align-items: start;
+}
+@media (min-width: 1000px) {
+  .deliveryGrid {
+    grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr);
+  }
+}
+.deliverySide {
+  display: flex;
+  flex-direction: column;
+}
+.deliverySide .deliverySectionTitle:first-child { margin-top: 0; }
+.deliverySideList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+/* Panoda harita daha yüksek dursun */
+.deliveryMapBox {
+  height: clamp(360px, 62vh, 640px);
+}
+.deliveryMapCard {
+  position: sticky;
+  top: 12px;
+}
+@media (max-width: 999px) {
+  .deliveryMapCard { position: static; }
+}
