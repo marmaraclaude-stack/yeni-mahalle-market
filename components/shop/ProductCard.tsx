@@ -119,11 +119,13 @@ export default function ProductCard({
     packMode && compareAt !== null
       ? computeLineTotal(compareAt, weightMin, true)
       : compareAt;
-  // Fiyatın altındaki gri kg bilgisi. Ağırlık ürünlerinde (kg VE gram) her zaman
-  // kilogram fiyatı gösterilir; diğer paketlerde size_text'ten hesaplanır.
+  // Fiyatın altındaki gri birim bilgisi. Ağırlıkta kg fiyatı, adet ürünlerde
+  // "₺X / adet", diğer paketlerde size_text'ten hesaplanır.
   const perUnit = byWeight
     ? `${formatTL(product.price)} / kg`
-    : unitPriceLabel(product);
+    : product.unit === "adet"
+      ? `${formatTL(product.price)} / adet`
+      : unitPriceLabel(product);
   const meta = [product.brand, product.size_text]
     .filter(Boolean)
     .join(" · ");

@@ -31,6 +31,9 @@ import { categoryBySlug } from "@/lib/shop/categories";
 import { useCart } from "@/components/shop/CartProvider";
 import styles from "./urun.module.css";
 
+// Adet ürünlerde hızlı paket seçenekleri (müşteri 2/3/4/5'li paket seçer).
+const ADET_PACKS = [1, 2, 3, 4, 5];
+
 const MAX_QTY = 99;
 
 export default function DetailActions({ product }: { product: Product }) {
@@ -134,6 +137,38 @@ export default function DetailActions({ product }: { product: Product }) {
                 <span className={styles.weightChipAmt}>{formatGrams(g)}</span>
                 <span className={styles.weightChipPrice}>
                   {formatTL(computeLineTotal(product.price, g, true))}
+                </span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Adet ürünlerde hızlı paket seçenekleri (2/3/4/5'li) */}
+      {!byWeight && product.unit === "adet" && (
+        <div className={styles.weightPicker}>
+          <div className={styles.weightHead}>
+            <span className={styles.weightHeadLabel}>Kaç adet?</span>
+            <span className={styles.weightHeadPrice}>
+              {formatTL(product.price)} / adet
+            </span>
+          </div>
+          <div
+            className={styles.weightChips}
+            role="group"
+            aria-label="Adet seçenekleri"
+          >
+            {ADET_PACKS.map((n) => (
+              <button
+                key={n}
+                type="button"
+                className={`${styles.weightChip}${qty === n ? ` ${styles.weightChipActive}` : ""}`}
+                onClick={() => setQty(n)}
+                aria-pressed={qty === n}
+              >
+                <span className={styles.weightChipAmt}>{n} adet</span>
+                <span className={styles.weightChipPrice}>
+                  {formatTL(computeLineTotal(product.price, n, false))}
                 </span>
               </button>
             ))}

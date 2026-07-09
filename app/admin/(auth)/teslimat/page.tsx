@@ -3,6 +3,8 @@
 // sipariş takibinde haritada görür. Ayrı panel/link gerekmez.
 
 import { listOnTheWayOrders } from "@/lib/shop/admin-actions";
+import { ingestToken } from "@/lib/shop/location-ingest";
+import { BUSINESS } from "@/lib/business";
 import DeliveryTracker from "./DeliveryTracker";
 import styles from "../../admin.module.css";
 
@@ -11,6 +13,8 @@ export const metadata = { title: "Teslimat" };
 
 export default async function DeliveryPage() {
   const orders = await listOnTheWayOrders();
+  // Motora takılı GPS cihazı / telefon uygulaması için sabit konum alım linki.
+  const ingestUrl = `${BUSINESS.url}/api/konum?key=${ingestToken()}&lat={LAT}&lng={LNG}`;
   return (
     <>
       <h1 className={styles.title}>Teslimat</h1>
@@ -19,7 +23,7 @@ export default async function DeliveryPage() {
         kişi bu sayfadan <b>Konumu paylaş</b> derse müşteri siparişini canlı
         haritada takip eder.
       </p>
-      <DeliveryTracker orders={orders} />
+      <DeliveryTracker orders={orders} ingestUrl={ingestUrl} />
     </>
   );
 }

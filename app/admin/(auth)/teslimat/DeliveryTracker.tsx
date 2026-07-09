@@ -7,10 +7,13 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   CheckCircle2,
+  Copy,
+  Check,
   Loader2,
   MapPin,
   Navigation,
   Package,
+  Radio,
 } from "lucide-react";
 import {
   adminShareLocation,
@@ -31,14 +34,17 @@ function agoText(iso: string | null): string {
 
 export default function DeliveryTracker({
   orders,
+  ingestUrl,
 }: {
   orders: DeliveryOrder[];
+  ingestUrl: string;
 }) {
   const router = useRouter();
   const [list, setList] = useState(orders);
   const [state, setState] = useState<ShareState>("idle");
   const [message, setMessage] = useState("");
   const [lastAt, setLastAt] = useState("");
+  const [copied, setCopied] = useState(false);
   const watchId = useRef<number | null>(null);
   const sending = useRef(false);
 
@@ -236,6 +242,62 @@ export default function DeliveryTracker({
           })}
         </div>
       )}
+
+      {/* Kalıcı takip cihazı (motora takılı GPS) — link derdi olmadan sürekli konum */}
+      <section className={styles.deliveryDevice}>
+        <div className={styles.deliveryShareHead}>
+          <span
+            className={styles.deliveryShareIcon}
+            style={{ background: "#111" }}
+            aria-hidden
+          >
+            <Radio size={20} />
+          </span>
+          <div>
+            <strong>Kalıcı takip cihazı (motor)</strong>
+            <p>
+              SIM&apos;li bir GPS takip cihazı veya bir telefon uygulaması
+              (Android: GPSLogger, iOS/Android: Owntracks) aşağıdaki adrese
+              konum gönderirse motor sürekli takip edilir; link paylaşmaya gerek
+              kalmaz.
+            </p>
+          </div>
+        </div>
+        <div className={styles.deliveryUrlRow}>
+          <input
+            type="text"
+            readOnly
+            value={ingestUrl}
+            onFocus={(e) => e.currentTarget.select()}
+            className={styles.deliveryUrl}
+            aria-label="Konum gönderme adresi"
+          />
+          <button
+            type="button"
+            onClick={async () => {
+              try {
+                await navigator.clipboard.writeText(ingestUrl);
+                setCopied(true);
+                setTimeout(() => setCopied(false), 1800);
+              } catch {
+                /* pano yoksa geç */
+              }
+            }}
+            className={`${styles.actionBtn} ${styles["actionBtn--primary"]}`}
+            style={{ display: "inline-flex", alignItems: "center", gap: 6 }}
+          >
+            {copied ? <Check size={15} /> : <Copy size={15} />}
+            {copied ? "Kopyalandı" : "Kopyala"}
+          </button>
+        </div>
+        <p className={styles.deliveryDeviceNote}>
+          Cihaz/uygulama <b>{"{LAT}"}</b> ve <b>{"{LNG}"}</b> yerine gerçek
+          enlem/boylam koyar (çoğu cihazda %LAT %LON gibi). Konum yalnız &quot;Kurye
+          Yolda&quot; siparişlere işlenir; sipariş <b>Teslim Edildi</b> olunca o
+          siparişin takibi otomatik kapanır. <b>Not:</b> AirTag bu iş için
+          çalışmaz (GPS ve genel API yok); SIM&apos;li GPS takip cihazı gerekir.
+        </p>
+      </section>
     </div>
   );
 }
