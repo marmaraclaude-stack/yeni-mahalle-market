@@ -206,7 +206,8 @@ export default async function UrunDetayPage({ params }: { params: Params }) {
     : 0;
 
   // Gram bazlı üründe gramaj gösterilmez (müşteri gramı kendi seçer).
-  const metaText = [product.brand, byWeight ? "" : product.size_text]
+  // Gramaj (ör. "125 g" referans paket) yönetici ne girdiyse gösterilir.
+  const metaText = [product.brand, product.size_text]
     .filter(Boolean)
     .join(" · ");
 
@@ -219,7 +220,7 @@ export default async function UrunDetayPage({ params }: { params: Params }) {
   // "Ürün Hakkında" künye satırları — açıklama olmasa da sayfa dolu dursun.
   const specs = [
     { label: "Marka", value: product.brand },
-    { label: "Miktar", value: byWeight ? "" : product.size_text },
+    { label: "Miktar", value: product.size_text },
     { label: "Kategori", value: cat?.name ?? "" },
     {
       label: "Satış birimi",
