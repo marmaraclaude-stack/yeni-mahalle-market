@@ -15,10 +15,13 @@ import { LayoutGrid, Leaf, ShieldCheck, Sparkles, Truck, Wallet } from "lucide-r
 import { createClient } from "@/lib/supabase/server";
 import type { Product } from "@/lib/shop/types";
 import {
+  computeLineTotal,
+  formatGrams,
   formatTL,
   isGramPackUnit,
   isWeightBased,
   unitPriceLabel,
+  weightMinFor,
 } from "@/lib/shop/types";
 import { CATEGORY_TINTS, categoryBySlug } from "@/lib/shop/categories";
 import { BUSINESS } from "@/lib/business";
@@ -198,6 +201,12 @@ export default async function UrunDetayPage({ params }: { params: Params }) {
   const [tintBg, tintFg] = CATEGORY_TINTS[cat?.tint ?? 0] ?? CATEGORY_TINTS[0];
   const Icon = iconFor(cat?.icon ?? "shopping-basket");
   const byWeight = isWeightBased(product);
+  const weightMin = weightMinFor(product);
+  // Gram bazlıda başlık fiyatı EN AZ miktarın fiyatıdır (ör. 125 g → ₺200);
+  // kg fiyatı altta bilgi olarak. Değilse ürünün kendi fiyatı.
+  const headlinePrice = byWeight
+    ? computeLineTotal(product.price, weightMin, true)
+    : product.price;
 
   const compareAt = product.compare_at_price;
   const discounted = compareAt !== null && compareAt > product.price;
@@ -214,8 +223,13 @@ export default async function UrunDetayPage({ params }: { params: Params }) {
   const unitPrice = unitPriceLabel(product);
   const chips = infoChips(product.category_slug);
 
-  // İndirimdeki net tasarruf (eski fiyat - güncel fiyat).
-  const saving = discounted ? compareAt - product.price : 0;
+  // İndirimdeki net tasarruf (başlık fiyatı ölçeğinde).
+  const saving =
+    discounted && compareAt !== null
+      ? (byWeight
+          ? computeLineTotal(compareAt, weightMin, true)
+          : compareAt) - headlinePrice
+      : 0;
 
   // "Ürün Hakkında" künye satırları — açıklama olmasa da sayfa dolu dursun.
   const specs = [
@@ -368,25 +382,33 @@ export default async function UrunDetayPage({ params }: { params: Params }) {
               {metaText && <p className={styles.meta}>{metaText}</p>}
 
               <p className={styles.priceRow}>
-                <span className={styles.price}>{formatTL(product.price)}</span>
-                {(byWeight ||
-                  (product.unit !== "adet" &&
-                    !isGramPackUnit(product.unit))) && (
-                  <span className={styles.unit}>
-                    / {byWeight ? "kg" : product.unit}
-                  </span>
-                )}
+                <span className={styles.price}>{formatTL(headlinePrice)}</span>
+                {!byWeight &&
+                  product.unit !== "adet" &&
+                  !isGramPackUnit(product.unit) && (
+                    <span className={styles.unit}>/ {product.unit}</span>
+                  )}
                 {discounted && (
-                  <s className={styles.compare}>{formatTL(compareAt)}</s>
+                  <s className={styles.compare}>
+                    {formatTL(
+                      byWeight && compareAt !== null
+                        ? computeLineTotal(compareAt, weightMin, true)
+                        : compareAt!,
+                    )}
+                  </s>
                 )}
                 {discounted && (
                   <span className={styles.discount}>%{discountPct} indirim</span>
                 )}
               </p>
 
-              {unitPrice && (
+              {byWeight ? (
+                <p className={styles.unitPrice}>
+                  {formatGrams(weightMin)} · {formatTL(product.price)} / kg
+                </p>
+              ) : unitPrice ? (
                 <p className={styles.unitPrice}>Birim fiyat: {unitPrice}</p>
-              )}
+              ) : null}
 
               {discounted && (
                 <p className={styles.savings}>

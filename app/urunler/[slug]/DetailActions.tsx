@@ -39,8 +39,8 @@ export default function DetailActions({ product }: { product: Product }) {
   const gramMin = weightMinFor(product);
   const gramStep = weightStepFor(product);
   const presets = weightPresets(gramMin, gramStep);
-  // Gram bazlıysa varsayılan olarak ikinci hazır miktar (min + adım); adetliyse 1.
-  const [qty, setQty] = useState(byWeight ? gramMin + gramStep : 1);
+  // Gram bazlıysa varsayılan olarak en az miktar (başlık fiyatıyla hizalı); adetliyse 1.
+  const [qty, setQty] = useState(byWeight ? gramMin : 1);
   const [added, setAdded] = useState(false);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 

@@ -7,7 +7,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { isWeightBased, type Product } from "@/lib/shop/types";
+import { formatGrams, isWeightBased, type Product } from "@/lib/shop/types";
 import styles from "../../../admin.module.css";
 
 interface Props {
@@ -33,8 +33,45 @@ export default function ProductInfoForm({
   const [category, setCategory] = useState(product.category_slug);
   const [unit, setUnit] = useState(product.unit || "adet");
 
-  // Etkin gram bazlı mı? (açık işaret VEYA meyve-sebze + kg). Ölçek alanları
-  // yalnız bu durumda görünür.
+  // Fiyat + en az miktar birbirine bağlı: kg fiyatı canonical (name="price"),
+  // en az miktar fiyatı = kg fiyatı × en az miktar. Yönetici ikisinden birini
+  // yazar, diğeri otomatik güncellenir. "125 g fiyatı nedir / kg fiyatı nedir".
+  const r2 = (n: number) => Math.round(n * 100) / 100;
+  const parseNum = (s: string) => {
+    const n = Number.parseFloat(s.replace(",", "."));
+    return Number.isFinite(n) ? n : NaN;
+  };
+  const [kgPrice, setKgPrice] = useState(String(product.price));
+  const [minKg, setMinKg] = useState(gramsToKgText(product.weight_min_grams));
+  const [packPrice, setPackPrice] = useState(() => {
+    const p = (Number(product.price) || 0) * (product.weight_min_grams / 1000);
+    return String(r2(p));
+  });
+
+  function onKgChange(v: string) {
+    setKgPrice(v);
+    const kg = parseNum(v);
+    const m = parseNum(minKg);
+    if (Number.isFinite(kg) && Number.isFinite(m) && m > 0)
+      setPackPrice(String(r2(kg * m)));
+  }
+  function onMinChange(v: string) {
+    setMinKg(v);
+    const kg = parseNum(kgPrice);
+    const m = parseNum(v);
+    if (Number.isFinite(kg) && Number.isFinite(m) && m > 0)
+      setPackPrice(String(r2(kg * m)));
+  }
+  function onPackChange(v: string) {
+    setPackPrice(v);
+    const p = parseNum(v);
+    const m = parseNum(minKg);
+    if (Number.isFinite(p) && Number.isFinite(m) && m > 0)
+      setKgPrice(String(r2(p / m)));
+  }
+
+  // Etkin gram bazlı mı? (açık işaret VEYA meyve-sebze + kg/gram). Ölçek ve
+  // ikili fiyat alanları yalnız bu durumda görünür.
   const effectiveWeight = isWeightBased({
     sold_by_weight: byWeight,
     unit: byWeight ? "kg" : unit,
@@ -125,19 +162,51 @@ export default function ProductInfoForm({
           </div>
         )}
 
-        <div className={styles.field}>
-          <label className={styles.label} htmlFor="p-price">
-            {effectiveWeight ? "Kilogram fiyatı (₺/kg) *" : "Fiyat (TL) *"}
-          </label>
-          <input
-            id="p-price"
-            name="price"
-            required
-            inputMode="decimal"
-            defaultValue={String(product.price)}
-            className={styles.input}
-          />
-        </div>
+        {effectiveWeight ? (
+          <>
+            <div className={styles.field}>
+              <label className={styles.label} htmlFor="p-price">
+                Kilogram fiyatı (₺/kg) *
+              </label>
+              <input
+                id="p-price"
+                name="price"
+                required
+                inputMode="decimal"
+                value={kgPrice}
+                onChange={(e) => onKgChange(e.target.value)}
+                className={styles.input}
+              />
+            </div>
+            <div className={styles.field}>
+              <label className={styles.label} htmlFor="p-packprice">
+                {formatGrams(Math.round((parseNum(minKg) || 0) * 1000) || 0)} (en
+                az) fiyatı (₺)
+              </label>
+              <input
+                id="p-packprice"
+                inputMode="decimal"
+                value={packPrice}
+                onChange={(e) => onPackChange(e.target.value)}
+                className={styles.input}
+              />
+            </div>
+          </>
+        ) : (
+          <div className={styles.field}>
+            <label className={styles.label} htmlFor="p-price">
+              Fiyat (TL) *
+            </label>
+            <input
+              id="p-price"
+              name="price"
+              required
+              inputMode="decimal"
+              defaultValue={String(product.price)}
+              className={styles.input}
+            />
+          </div>
+        )}
 
         <div className={`${styles.field} ${styles.fieldFull}`}>
           <label className={styles.checkLabel}>
@@ -166,7 +235,8 @@ export default function ProductInfoForm({
                 id="p-wmin"
                 name="weight_min_kg"
                 inputMode="decimal"
-                defaultValue={gramsToKgText(product.weight_min_grams)}
+                value={minKg}
+                onChange={(e) => onMinChange(e.target.value)}
                 className={styles.input}
               />
             </div>
