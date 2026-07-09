@@ -87,7 +87,12 @@ export default function CartPanel({
                     </span>
                     <span className={styles.cartLinePrice}>
                       {formatTL(
-                        computeLineTotal(l.price, l.qty, l.soldByWeight),
+                        computeLineTotal(
+                          l.price,
+                          l.qty,
+                          l.soldByWeight,
+                          l.packPrices,
+                        ),
                       )}
                     </span>
                   </span>

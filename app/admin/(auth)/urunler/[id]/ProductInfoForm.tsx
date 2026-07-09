@@ -295,6 +295,43 @@ export default function ProductInfoForm({
           </div>
         )}
 
+        {/* Adet paket fiyatları — toplu alım indirimi (yalnız adet ürünlerde). */}
+        {unit === "adet" && !effectiveWeight && (
+          <div className={`${styles.fieldFull} ${styles.editFormGrid}`}>
+            <div className={`${styles.fieldFull}`}>
+              <label className={styles.label}>Paket fiyatları (opsiyonel)</label>
+            </div>
+            {[2, 3, 4].map((n) => (
+              <div className={styles.field} key={n}>
+                <label className={styles.label} htmlFor={`p-pack${n}`}>
+                  {n}&apos;li paket (₺)
+                </label>
+                <input
+                  id={`p-pack${n}`}
+                  name={`pack${n}`}
+                  inputMode="decimal"
+                  placeholder={`Boş = ${n} × birim`}
+                  defaultValue={
+                    product.pack_prices?.[String(n)] != null
+                      ? String(product.pack_prices[String(n)])
+                      : ""
+                  }
+                  className={styles.input}
+                />
+              </div>
+            ))}
+            <p
+              className={styles.fieldFull}
+              style={{ margin: 0, fontSize: 12.5, color: "var(--gray-600,#555)" }}
+            >
+              Müşteri detayda 1/2/3/4 adet seçer. Paket fiyatı girersen o adet o
+              fiyattan satılır (toplu indirim); boş bırakırsan adet × birim
+              fiyat. Ör. birim ₺100 iken 3&apos;lü paket <b>₺270</b> yaz →
+              müşteri 3 adedi ₺270&apos;e alır.
+            </p>
+          </div>
+        )}
+
         <div className={styles.field}>
           <label className={styles.label} htmlFor="p-compare">
             Eski fiyat (indirim için, boş bırakılabilir)

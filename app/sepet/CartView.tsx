@@ -224,6 +224,7 @@ export default function CartView({
                             line.price,
                             line.qty,
                             line.soldByWeight,
+                            line.packPrices,
                           ),
                         )}
                       </span>

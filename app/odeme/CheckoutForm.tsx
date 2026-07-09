@@ -349,7 +349,12 @@ export default function CheckoutForm({
                   </span>
                   <span className={styles.summaryLinePrice}>
                     {formatTL(
-                      computeLineTotal(line.price, line.qty, line.soldByWeight),
+                      computeLineTotal(
+                        line.price,
+                        line.qty,
+                        line.soldByWeight,
+                        line.packPrices,
+                      ),
                     )}
                   </span>
                 </li>

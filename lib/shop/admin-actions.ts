@@ -33,6 +33,7 @@ export interface ProductPatch {
   sold_by_weight?: boolean;
   weight_min_grams?: number;
   weight_step_grams?: number;
+  pack_prices?: Record<string, number> | null;
   in_stock?: boolean;
   is_active?: boolean;
   is_featured?: boolean;
@@ -356,6 +357,20 @@ export async function updateProduct(
       throw new Error("Geçersiz adım miktarı.");
     }
     clean.weight_step_grams = v;
+  }
+  if (patch.pack_prices !== undefined) {
+    // Yalnız pozitif sayısal değerleri sakla; boşsa null.
+    let cleaned: Record<string, number> | null = null;
+    if (patch.pack_prices) {
+      const acc: Record<string, number> = {};
+      for (const [k, v] of Object.entries(patch.pack_prices)) {
+        if (typeof v === "number" && Number.isFinite(v) && v > 0) {
+          acc[k] = Math.round(v * 100) / 100;
+        }
+      }
+      if (Object.keys(acc).length > 0) cleaned = acc;
+    }
+    clean.pack_prices = cleaned;
   }
   if (patch.in_stock !== undefined) clean.in_stock = patch.in_stock;
   if (patch.is_active !== undefined) clean.is_active = patch.is_active;

@@ -28,6 +28,8 @@ export interface Product {
   /** Gram satış ölçeği: en az miktar + adım (iri ürünlerde kg ölçeği). */
   weight_min_grams: number;
   weight_step_grams: number;
+  /** Adet ürünlerde paket fiyatları (toplu alım indirimi); null = yok. */
+  pack_prices: PackPrices | null;
   image_url: string | null;
   is_active: boolean;
   in_stock: boolean;
@@ -189,6 +191,8 @@ export interface CartLine {
   /** Gram satış ölçeği (ürün bazında) — stepper/clamp bunları kullanır. */
   weightMin: number;
   weightStep: number;
+  /** Adet paket fiyatları (toplu indirim); null = yok. */
+  packPrices: PackPrices | null;
 }
 
 /** Sipariş durumlarının Türkçe etiketleri + akış sırası. */
@@ -285,14 +289,34 @@ export function clampGrams(
   return Math.min(WEIGHT_MAX_GRAMS, Math.max(minGrams, g));
 }
 
-/** Satır toplamı: gram bazlıysa kg fiyatı × (gram/1000), değilse fiyat × adet. */
+/** Adet ürünlerde paket fiyatları: { "2": 189.99, "3": 279.99, "4": 359.99 }.
+ *  Tanımlıysa o adet için toplam fiyat budur (toplu alım indirimi); yoksa
+ *  adet × birim fiyat. */
+export type PackPrices = Record<string, number>;
+
+/** Belirli adet için tanımlı paket fiyatı (yoksa null). */
+export function packPriceFor(
+  packPrices: PackPrices | null | undefined,
+  qty: number,
+): number | null {
+  const v = packPrices?.[String(qty)];
+  return typeof v === "number" && Number.isFinite(v) && v >= 0 ? v : null;
+}
+
+/**
+ * Satır toplamı: gram bazlıysa kg fiyatı × (gram/1000); adet ürünlerde paket
+ * fiyatı tanımlıysa o (toplu indirim), değilse fiyat × adet.
+ */
 export function computeLineTotal(
   price: number,
   qty: number,
   soldByWeight: boolean,
+  packPrices?: PackPrices | null,
 ): number {
-  const raw = soldByWeight ? (price * qty) / 1000 : price * qty;
-  return Math.round(raw * 100) / 100;
+  if (soldByWeight) return Math.round(((price * qty) / 1000) * 100) / 100;
+  const pack = packPriceFor(packPrices, qty);
+  if (pack != null) return Math.round(pack * 100) / 100;
+  return Math.round(price * qty * 100) / 100;
 }
 
 /** Gram miktarını okunur yaz: "500 g" · "1 kg" · "1,5 kg". */

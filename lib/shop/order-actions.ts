@@ -66,6 +66,7 @@ interface ProductRow {
   sold_by_weight: boolean;
   weight_min_grams: number;
   weight_step_grams: number;
+  pack_prices: Record<string, number> | null;
   is_active: boolean;
   in_stock: boolean;
 }
@@ -201,7 +202,9 @@ export async function createOrder(
 
   const { data: productData, error: productError } = await admin
     .from("products")
-    .select("id, name, brand, size_text, category_slug, price, unit, sold_by_weight, weight_min_grams, weight_step_grams, is_active, in_stock")
+    // select("*") — pack_prices gibi yeni kolon migration'dan önce de sorguyu
+    // kırmaz (kolon yoksa alan undefined → paket fiyatı yok, zarif düşüş).
+    .select("*")
     .in("id", productIds);
 
   if (productError)
@@ -239,7 +242,12 @@ export async function createOrder(
       ? Math.min(WEIGHT_MAX_GRAMS, Math.max(weightMinFor(product), line.qty))
       : Math.min(MAX_QTY, Math.max(1, line.qty));
     const unitPrice = round2(Number(product.price));
-    const lineTotal = computeLineTotal(unitPrice, qty, byWeight);
+    const lineTotal = computeLineTotal(
+      unitPrice,
+      qty,
+      byWeight,
+      product.pack_prices,
+    );
     subtotal = round2(subtotal + lineTotal);
 
     const displayName = [product.brand, product.name, product.size_text]

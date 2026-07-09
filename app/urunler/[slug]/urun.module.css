@@ -779,3 +779,11 @@
 .railBtn:active { transform: scale(0.94); }
 .railBtn--prev { left: 2px; }
 .railBtn--next { right: 2px; }
+
+/* Paket çipinde indirim öncesi (üstü çizili) fiyat */
+.weightChipOld {
+  margin-right: 5px;
+  color: var(--gray-400);
+  font-weight: 500;
+  text-decoration: line-through;
+}

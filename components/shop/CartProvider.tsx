@@ -88,6 +88,7 @@ function parseLines(raw: string | null): CartLine[] {
           soldByWeight: byWeight,
           weightMin,
           weightStep,
+          packPrices: line.packPrices ?? null,
           qty: clampQty(line.qty, byWeight, weightMin),
         };
       });
@@ -134,6 +135,7 @@ interface DbCartRow {
     sold_by_weight: boolean;
     weight_min_grams: number;
     weight_step_grams: number;
+    pack_prices: Record<string, number> | null;
     image_url: string | null;
     category_slug: string;
   } | null;
@@ -157,6 +159,7 @@ function dbRowToLine(row: DbCartRow): CartLine | null {
     soldByWeight: byWeight,
     weightMin,
     weightStep,
+    packPrices: p.pack_prices ?? null,
     qty: clampQty(row.qty, byWeight, weightMin),
   };
 }
@@ -213,7 +216,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
         const { data, error } = await getSupabase()
           .from("cart_items")
           .select(
-            "product_id, qty, products(id, slug, name, brand, size_text, price, unit, sold_by_weight, weight_min_grams, weight_step_grams, image_url, category_slug)",
+            // products(*) — yeni kolonlar (pack_prices vb.) migration'dan önce de
+            // sorguyu kırmaz; kolon yoksa alan undefined gelir (zarif düşüş).
+            "product_id, qty, products(*)",
           )
           .eq("user_id", userId);
         if (seq !== loadSeqRef.current) return;
@@ -385,6 +390,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
           soldByWeight: byWeight,
           weightMin,
           weightStep,
+          packPrices: product.pack_prices ?? null,
           qty: nextQty,
         };
         return [...prev, line];
@@ -434,7 +440,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
     const subtotal =
       Math.round(
         lines.reduce(
-          (sum, l) => sum + computeLineTotal(l.price, l.qty, l.soldByWeight),
+          (sum, l) =>
+            sum + computeLineTotal(l.price, l.qty, l.soldByWeight, l.packPrices),
           0,
         ) * 100,
       ) / 100;

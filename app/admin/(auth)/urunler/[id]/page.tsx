@@ -99,6 +99,18 @@ export default async function AdminProductEditPage({
     if (Number.isFinite(stepKg) && stepKg > 0)
       weightScale.weight_step_grams = Math.round(stepKg * 1000);
 
+    // Adet paket fiyatları (2/3/4). Boş = o adet için indirim yok.
+    const packPrices: Record<string, number> = {};
+    for (const n of [2, 3, 4]) {
+      const raw = String(formData.get(`pack${n}`) ?? "").trim();
+      if (raw) {
+        const v = parsePrice(raw);
+        if (v !== null && v > 0) packPrices[String(n)] = v;
+      }
+    }
+    const packPricesValue =
+      Object.keys(packPrices).length > 0 ? packPrices : null;
+
     let errorMessage: string | null = null;
     try {
       await updateProduct(id, {
@@ -114,6 +126,7 @@ export default async function AdminProductEditPage({
         price,
         compare_at_price: compareAt,
         sold_by_weight: soldByWeight,
+        pack_prices: packPricesValue,
         ...weightScale,
         is_featured: formData.get("is_featured") === "on",
         in_stock: formData.get("in_stock") === "on",
