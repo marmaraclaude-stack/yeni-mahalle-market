@@ -267,7 +267,8 @@ export function isWeightBased(p: {
 }): boolean {
   return (
     p.sold_by_weight === true ||
-    (p.category_slug === "meyve-sebze" && p.unit === "kg")
+    (p.category_slug === "meyve-sebze" &&
+      (p.unit === "kg" || p.unit === "gram"))
   );
 }
 

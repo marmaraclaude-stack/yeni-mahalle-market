@@ -127,7 +127,7 @@ export default function ProductInfoForm({
 
         <div className={styles.field}>
           <label className={styles.label} htmlFor="p-price">
-            {byWeight ? "Kilogram fiyatı (₺/kg) *" : "Fiyat (TL) *"}
+            {effectiveWeight ? "Kilogram fiyatı (₺/kg) *" : "Fiyat (TL) *"}
           </label>
           <input
             id="p-price"
@@ -186,10 +186,11 @@ export default function ProductInfoForm({
               className={styles.fieldFull}
               style={{ margin: 0, fontSize: 12.5, color: "var(--gray-600,#555)" }}
             >
-              Müşteri hazır seçenekleri: {gramsToKgText(product.weight_min_grams)}{" "}
-              kg&apos;dan başlayıp adım kadar artan 4 miktar. Örn. karpuz için en az{" "}
-              <b>5</b>, adım <b>1</b> → 5, 6, 7, 8 kg. Normal meyve-sebze için{" "}
-              <b>0.25</b> / <b>0.25</b> bırakın.
+              Müşteri hazır seçenekleri: en az miktardan başlayıp adım kadar artan
+              4 değer. Fiyat <b>kilogram</b> başınadır. Örnekler: karpuz için en az{" "}
+              <b>5</b> / adım <b>1</b> → 5, 6, 7, 8 kg · ahududu için <b>0.125</b> /{" "}
+              <b>0.125</b> → 125, 250, 375, 500 g · normal meyve-sebze <b>0.25</b> /{" "}
+              <b>0.25</b>.
             </p>
           </div>
         )}
