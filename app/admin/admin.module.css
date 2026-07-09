@@ -2891,3 +2891,57 @@
 @media (max-width: 999px) {
   .deliveryMapCard { position: static; }
 }
+
+/* Teslimat — sipariş durum rozeti + boş durum + satır içi konum noktası */
+.deliveryBadge {
+  font-size: 11.5px;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+.deliveryBadge--new {
+  background: var(--gray-100, #f4f4f4);
+  color: var(--gray-600, #555);
+}
+.deliveryBadge--confirmed {
+  background: #e0edff;
+  color: #1d4ed8;
+}
+.deliveryBadge--preparing {
+  background: #fff0d6;
+  color: #b45309;
+}
+.deliveryBadge--on_the_way {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.deliverySideEmpty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 30px 18px;
+  border-radius: 14px;
+  border: 1px dashed var(--gray-300, #d4d4d4);
+  background: var(--gray-50, #fafafa);
+  text-align: center;
+  color: var(--gray-500, #737373);
+}
+.deliverySideEmpty svg { color: var(--gray-400, #a3a3a3); }
+.deliverySideEmpty span { font-weight: 700; color: var(--gray-700, #444); }
+.deliverySideEmpty small { font-size: 12.5px; }
+
+.deliveryDotInline {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--gray-300, #d4d4d4);
+  margin-right: 6px;
+  vertical-align: middle;
+}
+.deliveryDotInlineOn {
+  background: #22c55e;
+}

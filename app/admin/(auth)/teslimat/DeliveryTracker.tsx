@@ -20,7 +20,7 @@ import {
 } from "lucide-react";
 import {
   adminShareLocation,
-  listOnTheWayOrders,
+  listActiveDeliveries,
   type DeliveryOrder,
 } from "@/lib/shop/admin-actions";
 import { BUSINESS } from "@/lib/business";
@@ -49,6 +49,19 @@ const PALETTE = [
   "#ca8a04",
   "#db2777",
 ];
+
+const STATUS_LABELS: Record<string, string> = {
+  new: "Yeni",
+  confirmed: "Onaylandı",
+  preparing: "Hazırlanıyor",
+  on_the_way: "Kurye Yolda",
+};
+const STATUS_PRIORITY: Record<string, number> = {
+  on_the_way: 0,
+  preparing: 1,
+  confirmed: 2,
+  new: 3,
+};
 
 type ShareState = "idle" | "starting" | "sharing" | "error";
 
@@ -92,7 +105,7 @@ export default function DeliveryTracker({
     let cancelled = false;
     const id = setInterval(async () => {
       try {
-        const fresh = await listOnTheWayOrders();
+        const fresh = await listActiveDeliveries();
         if (!cancelled) setList(fresh);
       } catch {
         /* yut */
@@ -117,6 +130,7 @@ export default function DeliveryTracker({
       let lng: number | null = null;
       for (const o of my) {
         if (
+          o.status === "on_the_way" &&
           o.courier_location_at &&
           o.courier_lat != null &&
           o.courier_lng != null &&
@@ -175,7 +189,7 @@ export default function DeliveryTracker({
               : "",
           );
           try {
-            setList(await listOnTheWayOrders());
+            setList(await listActiveDeliveries());
           } catch {
             /* yut */
           }
@@ -245,7 +259,15 @@ export default function DeliveryTracker({
 
   const isSharing = state === "sharing" || state === "starting";
 
-  const waiting = list.filter((o) => o.courier_lat == null).length;
+  const onTheWayCount = list.filter((o) => o.status === "on_the_way").length;
+  const sorted = useMemo(
+    () =>
+      [...list].sort(
+        (a, b) =>
+          (STATUS_PRIORITY[a.status] ?? 9) - (STATUS_PRIORITY[b.status] ?? 9),
+      ),
+    [list],
+  );
 
   return (
     <div className={styles.deliveryWrap}>
@@ -254,7 +276,11 @@ export default function DeliveryTracker({
         <div className={styles.deliveryStats}>
           <div className={styles.deliveryStat}>
             <span className={styles.deliveryStatNum}>{list.length}</span>
-            <span className={styles.deliveryStatLbl}>Aktif teslimat</span>
+            <span className={styles.deliveryStatLbl}>Aktif sipariş</span>
+          </div>
+          <div className={styles.deliveryStat}>
+            <span className={styles.deliveryStatNum}>{onTheWayCount}</span>
+            <span className={styles.deliveryStatLbl}>Yolda</span>
           </div>
           <div className={styles.deliveryStat}>
             <span className={styles.deliveryStatNum}>
@@ -262,10 +288,6 @@ export default function DeliveryTracker({
               <span className={styles.deliveryStatSub}>/{stats.length}</span>
             </span>
             <span className={styles.deliveryStatLbl}>Canlı kurye</span>
-          </div>
-          <div className={styles.deliveryStat}>
-            <span className={styles.deliveryStatNum}>{waiting}</span>
-            <span className={styles.deliveryStatLbl}>Konum bekleyen</span>
           </div>
         </div>
 
@@ -360,28 +382,31 @@ export default function DeliveryTracker({
 
         <div className={styles.deliverySide}>
           <h2 className={styles.deliverySectionTitle}>
-            <Package size={16} aria-hidden /> Aktif teslimatlar ({list.length})
+            <Package size={16} aria-hidden /> Aktif siparişler ({list.length})
           </h2>
           {list.length === 0 ? (
-            <div className={styles.empty}>
-              Şu an &quot;Kurye Yolda&quot; sipariş yok.
+            <div className={styles.deliverySideEmpty}>
+              <Package size={26} aria-hidden />
+              <span>Aktif sipariş yok</span>
+              <small>Yeni sipariş geldiğinde teslim edilene kadar burada görünür.</small>
             </div>
           ) : (
             <div className={styles.deliverySideList}>
-              {list.map((o) => {
-                const has = o.courier_lat != null && o.courier_lng != null;
+              {sorted.map((o) => {
+                const has =
+                  o.status === "on_the_way" &&
+                  o.courier_lat != null &&
+                  o.courier_lng != null;
                 return (
                   <div key={o.order_no} className={styles.deliveryCard}>
                     <div className={styles.deliveryCardTop}>
                       <span className={styles.deliveryOrderNo}>{o.order_no}</span>
                       <span
-                        className={`${styles.deliveryDot} ${
-                          has ? styles.deliveryDotOn : ""
+                        className={`${styles.deliveryBadge} ${
+                          styles[`deliveryBadge--${o.status}`] ?? ""
                         }`}
                       >
-                        {has
-                          ? `konum ${agoText(o.courier_location_at)}`
-                          : "konum yok"}
+                        {STATUS_LABELS[o.status] ?? o.status}
                       </span>
                     </div>
                     <p className={styles.deliveryCustomer}>{o.customer_name}</p>
@@ -394,6 +419,19 @@ export default function DeliveryTracker({
                     {o.courier_name && (
                       <p className={styles.deliveryCourier}>
                         Kurye: {o.courier_name}
+                      </p>
+                    )}
+                    {o.status === "on_the_way" && (
+                      <p className={styles.deliveryCourier}>
+                        <span
+                          className={`${styles.deliveryDotInline} ${
+                            has ? styles.deliveryDotInlineOn : ""
+                          }`}
+                          aria-hidden
+                        />
+                        {has
+                          ? `Konum ${agoText(o.courier_location_at)}`
+                          : "Konum bekleniyor"}
                       </p>
                     )}
                     <div className={styles.deliveryCardActions}>

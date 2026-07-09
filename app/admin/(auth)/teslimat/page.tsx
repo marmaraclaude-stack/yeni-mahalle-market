@@ -3,7 +3,7 @@
 // - Aktif "Kurye Yolda" siparişler (müşteri ara, yol tarifi, haritada gör)
 // - Owner teslimat yapıyorsa bu cihazdan konum paylaşımı (kurye seçerek)
 
-import { listOnTheWayOrders, listCouriers } from "@/lib/shop/admin-actions";
+import { listActiveDeliveries, listCouriers } from "@/lib/shop/admin-actions";
 import { courierIngestToken } from "@/lib/shop/location-ingest";
 import { BUSINESS } from "@/lib/business";
 import type { Courier } from "@/lib/shop/types";
@@ -14,7 +14,7 @@ export const dynamic = "force-dynamic";
 export const metadata = { title: "Teslimat" };
 
 export default async function DeliveryPage() {
-  const orders = await listOnTheWayOrders();
+  const orders = await listActiveDeliveries();
 
   let activeCouriers: Courier[] = [];
   try {

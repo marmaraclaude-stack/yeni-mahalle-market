@@ -1160,6 +1160,7 @@ export async function deleteCourier(id: string): Promise<CourierActionResult> {
 
 export interface DeliveryOrder {
   order_no: string;
+  status: string;
   customer_name: string;
   phone: string;
   address_line: string;
@@ -1171,17 +1172,20 @@ export interface DeliveryOrder {
   courier_location_at: string | null;
 }
 
-/** "Kurye Yolda" durumundaki siparişler (teslimat sayfası). */
-export async function listOnTheWayOrders(): Promise<DeliveryOrder[]> {
+/**
+ * Aktif (teslim/iptal olmayan) tüm siparişler — teslimat sayfası bunları
+ * teslim edilene kadar gösterir. Konum yalnız "Kurye Yolda" için anlamlıdır.
+ */
+export async function listActiveDeliveries(): Promise<DeliveryOrder[]> {
   await requireAdmin();
   const supabase = createAdminClient();
   const { data, error } = await supabase
     .from("orders")
     .select(
-      "order_no, customer_name, phone, address_line, address_note, courier_name, courier_phone, courier_lat, courier_lng, courier_location_at",
+      "order_no, status, customer_name, phone, address_line, address_note, courier_name, courier_phone, courier_lat, courier_lng, courier_location_at",
     )
-    .eq("status", "on_the_way")
-    .order("updated_at", { ascending: false });
+    .not("status", "in", "(delivered,cancelled)")
+    .order("created_at", { ascending: false });
   if (error || !data) return [];
   return data as DeliveryOrder[];
 }
