@@ -8,7 +8,13 @@
 
 import { createAdminClient } from "@/lib/supabase/admin";
 import { verifyCourierToken } from "@/lib/shop/courier-token";
+import { getSessionCourier } from "@/lib/shop/courier-auth";
 import type { Order } from "@/lib/shop/types";
+
+/** Telefonun son 10 hanesi. */
+function last10(v: string): string {
+  return String(v ?? "").replace(/\D/g, "").slice(-10);
+}
 
 export interface CourierLocation {
   lat: number;
@@ -119,4 +125,85 @@ export async function getCourierLocation(
       at: row.courier_location_at,
     },
   };
+}
+
+// ------------------------------------------------------------
+// Kurye giriş paneli — oturumdaki kurye kendi siparişlerini görür ve
+// konumunu paylaşır (her sipariş için ayrı link gerekmez).
+// ------------------------------------------------------------
+
+export interface CourierPanelOrder {
+  orderNo: string;
+  customerName: string;
+  addressLine: string;
+  addressNote: string;
+  status: string;
+}
+
+/** Oturumdaki kuryenin aktif (teslim/iptal olmayan) siparişleri. */
+export async function getCourierActiveOrders(): Promise<CourierPanelOrder[]> {
+  const courier = await getSessionCourier();
+  if (!courier) return [];
+  const supabase = createAdminClient();
+  const { data, error } = await supabase
+    .from("orders")
+    .select(
+      "order_no, customer_name, address_line, address_note, status, courier_phone",
+    )
+    .not("status", "in", "(delivered,cancelled)")
+    .order("created_at", { ascending: true });
+  if (error || !data) return [];
+
+  type Row = {
+    order_no: string;
+    customer_name: string;
+    address_line: string;
+    address_note: string;
+    status: string;
+    courier_phone: string;
+  };
+  const mine = last10(courier.phone);
+  return (data as Row[])
+    .filter((o) => last10(o.courier_phone) === mine && mine.length === 10)
+    .map((o) => ({
+      orderNo: o.order_no,
+      customerName: o.customer_name,
+      addressLine: o.address_line,
+      addressNote: o.address_note,
+      status: o.status,
+    }));
+}
+
+/** Oturumdaki kuryenin GPS konumunu TÜM aktif siparişlerine yazar. */
+export async function shareCourierLocation(
+  lat: number,
+  lng: number,
+): Promise<UpdateLocationResult & { count?: number }> {
+  const courier = await getSessionCourier();
+  if (!courier) return { ok: false, error: "Oturum bulunamadı." };
+  if (!isValidCoord(lat, lng)) return { ok: false, error: "Konum geçersiz." };
+
+  const supabase = createAdminClient();
+  const { data, error } = await supabase
+    .from("orders")
+    .select("id, courier_phone, status")
+    .not("status", "in", "(delivered,cancelled)");
+  if (error || !data) return { ok: false, error: "Siparişler okunamadı." };
+
+  const mine = last10(courier.phone);
+  const ids = (data as { id: string; courier_phone: string }[])
+    .filter((o) => last10(o.courier_phone) === mine && mine.length === 10)
+    .map((o) => o.id);
+  if (ids.length === 0) return { ok: true, count: 0 };
+
+  const { error: updErr } = await supabase
+    .from("orders")
+    .update({
+      courier_lat: lat,
+      courier_lng: lng,
+      courier_location_at: new Date().toISOString(),
+    })
+    .in("id", ids);
+  if (updErr) return { ok: false, error: "Konum kaydedilemedi." };
+  return { ok: true, count: ids.length };
 }

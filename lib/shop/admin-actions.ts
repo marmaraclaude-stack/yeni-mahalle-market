@@ -1082,7 +1082,7 @@ export async function createCourier(
 /** Kurye adını ve telefonunu güncelle (ad 1-60, telefon en çok 20 karakter). */
 export async function updateCourier(
   id: string,
-  patch: { name: string; phone: string },
+  patch: { name: string; phone: string; login_code?: string },
 ): Promise<CourierActionResult> {
   await requireAdmin();
   if (!id.trim()) return { ok: false, error: "Geçersiz kurye." };
@@ -1095,11 +1095,19 @@ export async function updateCourier(
   if (cleanPhone.length > 20) {
     return { ok: false, error: "Telefon en fazla 20 karakter olabilir." };
   }
+  const update: { name: string; phone: string; login_code?: string } = {
+    name: cleanName,
+    phone: cleanPhone,
+  };
+  if (patch.login_code !== undefined) {
+    const code = patch.login_code.trim().slice(0, 20);
+    update.login_code = code;
+  }
 
   const supabase = createAdminClient();
   const { error } = await supabase
     .from("couriers")
-    .update({ name: cleanName, phone: cleanPhone })
+    .update(update)
     .eq("id", id);
   if (error) {
     return { ok: false, error: courierDbError(error, "Kurye güncellenemedi") };

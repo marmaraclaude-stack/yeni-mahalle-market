@@ -113,12 +113,14 @@ function CourierRow({ courier }: { courier: Courier }) {
   const [editing, setEditing] = useState(false);
   const [editName, setEditName] = useState(courier.name);
   const [editPhone, setEditPhone] = useState(courier.phone);
+  const [editCode, setEditCode] = useState(courier.login_code ?? "");
   const [editError, setEditError] = useState<string | null>(null);
   const [, startTransition] = useTransition();
 
   function startEdit() {
     setEditName(courier.name);
     setEditPhone(courier.phone);
+    setEditCode(courier.login_code ?? "");
     setEditError(null);
     setEditing(true);
   }
@@ -143,7 +145,11 @@ function CourierRow({ courier }: { courier: Courier }) {
     setBusy(true);
     startTransition(async () => {
       try {
-        const result = await updateCourier(courier.id, { name, phone });
+        const result = await updateCourier(courier.id, {
+          name,
+          phone,
+          login_code: editCode.trim(),
+        });
         if (!result.ok) {
           setEditError(result.error ?? "Kurye güncellenemedi.");
           return;
@@ -235,6 +241,39 @@ function CourierRow({ courier }: { courier: Courier }) {
           </a>
         ) : (
           "·"
+        )}
+      </td>
+      <td>
+        {editing ? (
+          <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
+            <input
+              value={editCode}
+              onChange={(e) => setEditCode(e.target.value)}
+              maxLength={20}
+              inputMode="numeric"
+              disabled={busy}
+              className={local.inlineInput}
+              style={{ width: 90 }}
+              aria-label={`${courier.name} kuryesinin giriş kodu`}
+              placeholder="kod"
+            />
+            <button
+              type="button"
+              onClick={() =>
+                setEditCode(String(1000 + Math.floor(Math.random() * 9000)))
+              }
+              disabled={busy}
+              className={styles.btnRow}
+            >
+              Üret
+            </button>
+          </div>
+        ) : courier.login_code ? (
+          <code className={local.codeChip}>{courier.login_code}</code>
+        ) : (
+          <span className={styles.telLink} style={{ opacity: 0.5 }}>
+            yok
+          </span>
         )}
       </td>
       <td>
@@ -363,6 +402,13 @@ export default function CouriersTable({ couriers }: { couriers: Courier[] }) {
         </button>
       </div>
 
+      <p className={styles.subtitle} style={{ marginBottom: 14 }}>
+        Kuryeler <b>sapancayenimahallemarket.com/kurye</b> adresinden{" "}
+        <b>telefon + giriş kodu</b> ile giriş yapar; tek girişle kendilerine
+        atanmış tüm siparişleri görüp konumlarını paylaşır. Kodu &quot;Düzenle
+        &rarr; Üret&quot; ile oluşturup kuryeye iletin.
+      </p>
+
       {/* Yeni kurye formu (collapse) */}
       {showForm && (
         <section className={styles.panel} style={{ marginBottom: 16 }}>
@@ -418,6 +464,7 @@ export default function CouriersTable({ couriers }: { couriers: Courier[] }) {
                   <th>Görsel</th>
                   <th>Ad Soyad</th>
                   <th>Telefon</th>
+                  <th>Giriş Kodu</th>
                   <th>Durum</th>
                   <th></th>
                 </tr>

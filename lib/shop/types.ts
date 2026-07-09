@@ -45,6 +45,8 @@ export interface Courier {
   phone: string;
   image_url: string; // avatar foto public URL'i; boş = görsel yok
   is_active: boolean;
+  /** Kurye paneline giriş kodu (telefon + kod). Boş = giriş kapalı. */
+  login_code: string;
   created_at: string;
 }
 
