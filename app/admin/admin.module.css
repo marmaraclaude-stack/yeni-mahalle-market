@@ -2945,3 +2945,19 @@
 .deliveryDotInlineOn {
   background: #22c55e;
 }
+
+/* Teslimat — sol harita kolonu ile sağ liste başlıklarını aynı hizada başlat */
+.deliveryMapCol {
+  position: sticky;
+  top: 12px;
+  min-width: 0;
+}
+.deliveryMapHead .deliverySectionTitle {
+  margin: 0;
+}
+.deliverySide > .deliverySectionTitle:first-child {
+  margin-top: 0;
+}
+@media (max-width: 999px) {
+  .deliveryMapCol { position: static; }
+}

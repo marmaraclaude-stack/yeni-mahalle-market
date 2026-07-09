@@ -353,12 +353,12 @@ export default function DeliveryTracker({
         </div>
       </div>
 
-      {/* Ana pano: sol harita · sağ liste */}
+      {/* Ana pano: sol harita · sağ liste (başlıklar aynı hizada başlar) */}
       <div className={styles.deliveryGrid}>
-        <section className={styles.deliveryMapCard}>
+        <div className={styles.deliveryMapCol}>
           <div className={styles.deliveryMapHead}>
-            <h2 className={styles.deliveryMapTitle}>
-              <MapPin size={18} aria-hidden /> Canlı harita
+            <h2 className={styles.deliverySectionTitle}>
+              <MapPin size={16} aria-hidden /> Canlı harita
             </h2>
             {stats.length > 0 && (
               <div className={styles.deliveryLegend}>
@@ -378,7 +378,7 @@ export default function DeliveryTracker({
           <div className={styles.deliveryMapBox}>
             <CourierMap market={BUSINESS.geo} couriers={mapCouriers} />
           </div>
-        </section>
+        </div>
 
         <div className={styles.deliverySide}>
           <h2 className={styles.deliverySectionTitle}>
