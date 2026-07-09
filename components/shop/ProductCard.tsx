@@ -10,10 +10,12 @@ import { createElement } from "react";
 import Link from "next/link";
 import type { Product } from "@/lib/shop/types";
 import {
+  computeLineTotal,
   formatTL,
   isGramPackUnit,
   isWeightBased,
   unitPriceLabel,
+  weightMinFor,
 } from "@/lib/shop/types";
 import { CATEGORY_TINTS, categoryBySlug } from "@/lib/shop/categories";
 import AddToCartButton from "@/components/shop/AddToCartButton";
@@ -105,14 +107,24 @@ export default function ProductCard({
 
   const compareAt = product.compare_at_price;
   const discounted = compareAt !== null && compareAt > product.price;
-  // Kartta gramaj (ör. "1 kg") gösterilir; gram bazlı ürünlerde de yönetici
-  // girdiği referans miktarı görünür (detay sayfasında ise gizli tutulur).
   const byWeight = isWeightBased(product);
+  const weightMin = weightMinFor(product);
+  // Gram bazlı: kartta EN AZ miktarın fiyatı gösterilir (ör. 125 g → ₺200),
+  // altında kg fiyatı bilgi olarak. Değilse ürünün kendi (paket) fiyatı.
+  const displayPrice = byWeight
+    ? computeLineTotal(product.price, weightMin, true)
+    : product.price;
+  const displayCompare =
+    byWeight && compareAt !== null
+      ? computeLineTotal(compareAt, weightMin, true)
+      : compareAt;
+  // Küçük birim fiyat bilgisi: gram bazlıda "₺.../kg", diğer paketlerde size_text'ten.
+  const perUnit = byWeight
+    ? `${formatTL(product.price)} / kg`
+    : unitPriceLabel(product);
   const meta = [product.brand, product.size_text]
     .filter(Boolean)
     .join(" · ");
-  // Gram-paket/paket ürünlerde küçük birim fiyat bilgisi (ör. "1.599,92 / kg").
-  const perUnit = unitPriceLabel(product);
 
   return (
     <article
@@ -145,16 +157,15 @@ export default function ProductCard({
 
         <div className={styles.cardBody}>
           <p className={styles.priceRow}>
-            {discounted && (
-              <s className={styles.compare}>{formatTL(compareAt)}</s>
+            {discounted && displayCompare !== null && (
+              <s className={styles.compare}>{formatTL(displayCompare)}</s>
             )}
-            <span className={styles.price}>{formatTL(product.price)}</span>
-            {(byWeight ||
-              (product.unit !== "adet" && !isGramPackUnit(product.unit))) && (
-              <span className={styles.unit}>
-                / {byWeight ? "kg" : product.unit}
-              </span>
-            )}
+            <span className={styles.price}>{formatTL(displayPrice)}</span>
+            {!byWeight &&
+              product.unit !== "adet" &&
+              !isGramPackUnit(product.unit) && (
+                <span className={styles.unit}>/ {product.unit}</span>
+              )}
           </p>
           {perUnit && <p className={styles.perUnit}>{perUnit}</p>}
           <h3 className={styles.name}>{product.name}</h3>
