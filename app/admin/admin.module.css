@@ -2961,3 +2961,11 @@
 @media (max-width: 999px) {
   .deliveryMapCol { position: static; }
 }
+
+/* Teslimat — üst özet kartları ile alt pano arasına nefes payı */
+.deliveryTop {
+  margin-bottom: 28px;
+}
+.deliveryGrid {
+  margin-top: 4px;
+}
