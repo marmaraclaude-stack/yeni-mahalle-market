@@ -7,6 +7,10 @@
 import { randomInt } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { isAuthenticated } from "@/app/admin/actions";
+import {
+  writeActiveLocation,
+  writeCourierLocation,
+} from "@/lib/shop/location-ingest";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { categoryBySlug } from "@/lib/shop/categories";
 import { BANNER_ICONS } from "@/lib/shop/icons";
@@ -1157,8 +1161,11 @@ export async function deleteCourier(id: string): Promise<CourierActionResult> {
 export interface DeliveryOrder {
   order_no: string;
   customer_name: string;
+  phone: string;
   address_line: string;
+  address_note: string;
   courier_name: string;
+  courier_phone: string;
   courier_lat: number | null;
   courier_lng: number | null;
   courier_location_at: string | null;
@@ -1171,7 +1178,7 @@ export async function listOnTheWayOrders(): Promise<DeliveryOrder[]> {
   const { data, error } = await supabase
     .from("orders")
     .select(
-      "order_no, customer_name, address_line, courier_name, courier_lat, courier_lng, courier_location_at",
+      "order_no, customer_name, phone, address_line, address_note, courier_name, courier_phone, courier_lat, courier_lng, courier_location_at",
     )
     .eq("status", "on_the_way")
     .order("updated_at", { ascending: false });
@@ -1179,35 +1186,22 @@ export async function listOnTheWayOrders(): Promise<DeliveryOrder[]> {
   return data as DeliveryOrder[];
 }
 
-/** Admin cihazının GPS konumunu "Kurye Yolda" tüm siparişlere yazar. */
+/**
+ * Bu cihazın GPS konumunu paylaş. courierId verilirse yalnız o kuryenin
+ * "Kurye Yolda" siparişlerine, yoksa tüm on_the_way siparişlere yazılır.
+ */
 export async function adminShareLocation(
   lat: number,
   lng: number,
+  courierId?: string,
 ): Promise<{ ok: boolean; count?: number; error?: string }> {
   await requireAdmin();
-  const okCoord =
-    typeof lat === "number" &&
-    typeof lng === "number" &&
-    Number.isFinite(lat) &&
-    Number.isFinite(lng) &&
-    lat >= -90 &&
-    lat <= 90 &&
-    lng >= -180 &&
-    lng <= 180;
-  if (!okCoord) return { ok: false, error: "Konum geçersiz." };
-
-  const supabase = createAdminClient();
-  const { data, error } = await supabase
-    .from("orders")
-    .update({
-      courier_lat: lat,
-      courier_lng: lng,
-      courier_location_at: new Date().toISOString(),
-    })
-    .eq("status", "on_the_way")
-    .select("id");
-  if (error) return { ok: false, error: "Konum kaydedilemedi." };
-  return { ok: true, count: (data ?? []).length };
+  const res =
+    courierId && courierId.trim()
+      ? await writeCourierLocation(courierId, lat, lng)
+      : await writeActiveLocation(lat, lng);
+  if (!res.ok) return { ok: false, error: "Konum kaydedilemedi." };
+  return { ok: true, count: res.count };
 }
 
 /** Kuryeyi aktif/pasif yap (pasif kurye sipariş dropdown'ında görünmez). */

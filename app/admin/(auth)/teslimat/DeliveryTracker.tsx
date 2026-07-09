@@ -1,18 +1,24 @@
 "use client";
 
-// Teslimat konum paylaşımı — admin cihazının GPS'ini "Kurye Yolda" siparişlere
-// yazar (watchPosition). Sipariş listesi 30 sn'de bir tazelenir.
+// Teslimat merkezi (kurye bazlı). Bölümler:
+//  1) Bu cihazdan paylaş — owner teslimattaysa kurye seçip GPS paylaşır
+//  2) Canlı harita — seçili kuryenin son konumu (API anahtarsız embed)
+//  3) Aktif teslimatlar — sipariş kartları (ara, yol tarifi, haritada gör)
+//  4) Kurye takip cihazları — her kuryenin KALICI motor linki (kopyala/aç)
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
+  Bike,
+  Check,
   CheckCircle2,
   Copy,
-  Check,
+  ExternalLink,
   Loader2,
   MapPin,
   Navigation,
   Package,
+  Phone,
   Radio,
 } from "lucide-react";
 import {
@@ -22,8 +28,18 @@ import {
 } from "@/lib/shop/admin-actions";
 import styles from "../../admin.module.css";
 
+interface CourierBase {
+  id: string;
+  name: string;
+  phone: string;
+  ingestUrl: string;
+}
+
 type ShareState = "idle" | "starting" | "sharing" | "error";
 
+function last10(v: string): string {
+  return String(v ?? "").replace(/\D/g, "").slice(-10);
+}
 function agoText(iso: string | null): string {
   if (!iso) return "konum yok";
   const mins = Math.floor((Date.now() - new Date(iso).getTime()) / 60000);
@@ -31,32 +47,37 @@ function agoText(iso: string | null): string {
   if (mins === 1) return "1 dk önce";
   return `${mins} dk önce`;
 }
+function mapsEmbed(lat: number, lng: number): string {
+  return `https://maps.google.com/maps?q=${lat},${lng}&z=15&output=embed`;
+}
+function mapsAt(lat: number, lng: number): string {
+  return `https://www.google.com/maps?q=${lat},${lng}`;
+}
+function dirTo(address: string): string {
+  return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(
+    address,
+  )}`;
+}
 
 export default function DeliveryTracker({
   orders,
-  ingestUrl,
+  couriers,
 }: {
   orders: DeliveryOrder[];
-  ingestUrl: string;
+  couriers: CourierBase[];
 }) {
   const router = useRouter();
   const [list, setList] = useState(orders);
   const [state, setState] = useState<ShareState>("idle");
   const [message, setMessage] = useState("");
   const [lastAt, setLastAt] = useState("");
-  const [copied, setCopied] = useState(false);
+  const [shareCourier, setShareCourier] = useState(couriers[0]?.id ?? "");
+  const [mapCourier, setMapCourier] = useState("");
+  const [copiedId, setCopiedId] = useState<string | null>(null);
   const watchId = useRef<number | null>(null);
   const sending = useRef(false);
 
-  const stop = useCallback(() => {
-    if (watchId.current != null && "geolocation" in navigator) {
-      navigator.geolocation.clearWatch(watchId.current);
-      watchId.current = null;
-    }
-  }, []);
-  useEffect(() => stop, [stop]);
-
-  // Liste tazeleme (yeni "Kurye Yolda" siparişler görünsün).
+  // Sipariş listesini periyodik tazele (yeni "Kurye Yolda" + konum güncellensin).
   useEffect(() => {
     let cancelled = false;
     const id = setInterval(async () => {
@@ -66,19 +87,59 @@ export default function DeliveryTracker({
       } catch {
         /* yut */
       }
-    }, 30_000);
+    }, 20_000);
     return () => {
       cancelled = true;
       clearInterval(id);
     };
   }, []);
 
+  // Kurye başına istatistik (sipariş sayısı + son konum) — listeden türetilir.
+  const stats = useMemo(() => {
+    return couriers.map((c) => {
+      const mine = last10(c.phone);
+      const my = list.filter(
+        (o) => mine.length === 10 && last10(o.courier_phone) === mine,
+      );
+      let lastLoc: string | null = null;
+      let lat: number | null = null;
+      let lng: number | null = null;
+      for (const o of my) {
+        if (
+          o.courier_location_at &&
+          o.courier_lat != null &&
+          o.courier_lng != null &&
+          (!lastLoc || o.courier_location_at > lastLoc)
+        ) {
+          lastLoc = o.courier_location_at;
+          lat = o.courier_lat;
+          lng = o.courier_lng;
+        }
+      }
+      return { ...c, activeCount: my.length, lastLoc, lat, lng };
+    });
+  }, [couriers, list]);
+
+  // Harita: seçili kurye yoksa konumu olan ilk kuryeyi seç.
+  const mapTarget =
+    stats.find((s) => s.id === mapCourier && s.lat != null) ??
+    stats.find((s) => s.lat != null) ??
+    null;
+
+  const stop = useCallback(() => {
+    if (watchId.current != null && "geolocation" in navigator) {
+      navigator.geolocation.clearWatch(watchId.current);
+      watchId.current = null;
+    }
+  }, []);
+  useEffect(() => stop, [stop]);
+
   const push = useCallback(
     async (lat: number, lng: number) => {
       if (sending.current) return;
       sending.current = true;
       try {
-        const res = await adminShareLocation(lat, lng);
+        const res = await adminShareLocation(lat, lng, shareCourier || undefined);
         if (res.ok) {
           setState("sharing");
           setLastAt(
@@ -90,7 +151,7 @@ export default function DeliveryTracker({
           );
           setMessage(
             res.count === 0
-              ? "Konum alındı ama şu an 'Kurye Yolda' sipariş yok."
+              ? "Konum alındı ama seçili kuryenin 'Kurye Yolda' siparişi yok."
               : "",
           );
           try {
@@ -109,7 +170,7 @@ export default function DeliveryTracker({
         sending.current = false;
       }
     },
-    [],
+    [shareCourier],
   );
 
   const start = useCallback(() => {
@@ -152,39 +213,66 @@ export default function DeliveryTracker({
     router.refresh();
   }, [stop, router]);
 
+  const copy = useCallback((id: string, url: string) => {
+    navigator.clipboard
+      .writeText(url)
+      .then(() => {
+        setCopiedId(id);
+        setTimeout(() => setCopiedId((c) => (c === id ? null : c)), 1800);
+      })
+      .catch(() => undefined);
+  }, []);
+
   const isSharing = state === "sharing" || state === "starting";
 
   return (
     <div className={styles.deliveryWrap}>
+      {/* 1) Bu cihazdan paylaş */}
       <section className={styles.deliveryShare}>
         <div className={styles.deliveryShareHead}>
           <span className={styles.deliveryShareIcon} aria-hidden>
             <Navigation size={20} />
           </span>
           <div>
-            <strong>Canlı konum paylaşımı</strong>
-            <p>Konumunuz tüm &quot;Kurye Yolda&quot; siparişlere işlenir.</p>
+            <strong>Bu cihazdan konum paylaş</strong>
+            <p>Owner/teslimatçı bu telefonun GPS&apos;ini paylaşır.</p>
           </div>
         </div>
-        {!isSharing ? (
-          <button
-            type="button"
-            onClick={start}
-            className={`${styles.actionBtn} ${styles["actionBtn--primary"]}`}
-            style={{ display: "inline-flex", alignItems: "center", gap: 7 }}
+        <div className={styles.deliveryShareRow}>
+          <select
+            value={shareCourier}
+            onChange={(e) => setShareCourier(e.target.value)}
+            className={styles.select}
+            aria-label="Hangi kurye olarak"
+            disabled={isSharing}
           >
-            <MapPin size={16} /> Konumu paylaşmaya başla
-          </button>
-        ) : (
-          <button
-            type="button"
-            onClick={handleStop}
-            className={styles.actionBtn}
-            style={{ display: "inline-flex", alignItems: "center", gap: 7 }}
-          >
-            Paylaşımı durdur
-          </button>
-        )}
+            <option value="">Tümü (tüm Kurye Yolda)</option>
+            {couriers.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.name}
+              </option>
+            ))}
+          </select>
+          {!isSharing ? (
+            <button
+              type="button"
+              onClick={start}
+              className={`${styles.actionBtn} ${styles["actionBtn--primary"]}`}
+              style={{ display: "inline-flex", alignItems: "center", gap: 7 }}
+            >
+              <MapPin size={16} /> Paylaşmaya başla
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={handleStop}
+              className={styles.actionBtn}
+              style={{ display: "inline-flex", alignItems: "center", gap: 7 }}
+            >
+              Durdur
+            </button>
+          )}
+        </div>
         {state === "starting" && (
           <p className={styles.deliveryStatus}>
             <Loader2 className={styles.deliverySpin} /> Konum alınıyor…
@@ -192,8 +280,7 @@ export default function DeliveryTracker({
         )}
         {state === "sharing" && !message && (
           <p className={`${styles.deliveryStatus} ${styles.deliveryOk}`}>
-            <CheckCircle2 /> Canlı paylaşılıyor
-            {lastAt ? ` · ${lastAt}` : ""}
+            <CheckCircle2 /> Canlı paylaşılıyor{lastAt ? ` · ${lastAt}` : ""}
           </p>
         )}
         {message && (
@@ -207,9 +294,71 @@ export default function DeliveryTracker({
         )}
       </section>
 
-      <h2 className={styles.panelTitle} style={{ marginTop: 22 }}>
-        <Package size={16} aria-hidden style={{ verticalAlign: "-3px" }} /> Kurye
-        Yolda ({list.length})
+      {/* 2) Canlı harita */}
+      {stats.length > 0 && (
+        <section className={styles.deliveryMapCard}>
+          <div className={styles.deliveryMapHead}>
+            <h2 className={styles.panelTitle} style={{ margin: 0 }}>
+              <MapPin size={16} aria-hidden style={{ verticalAlign: "-3px" }} />{" "}
+              Canlı harita
+            </h2>
+            <div className={styles.deliveryTabs}>
+              {stats.map((s) => (
+                <button
+                  key={s.id}
+                  type="button"
+                  onClick={() => setMapCourier(s.id)}
+                  className={`${styles.deliveryTab} ${
+                    mapTarget?.id === s.id ? styles.deliveryTabOn : ""
+                  }`}
+                >
+                  <Bike size={13} /> {s.name}
+                  <span
+                    className={`${styles.deliveryLive} ${
+                      s.lat != null ? styles.deliveryLiveOn : ""
+                    }`}
+                    aria-hidden
+                  />
+                </button>
+              ))}
+            </div>
+          </div>
+          {mapTarget && mapTarget.lat != null && mapTarget.lng != null ? (
+            <>
+              <div className={styles.deliveryMapFrame}>
+                <iframe
+                  key={`${mapTarget.id}-${mapTarget.lastLoc}`}
+                  title={`${mapTarget.name} konumu`}
+                  src={mapsEmbed(mapTarget.lat, mapTarget.lng)}
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                />
+              </div>
+              <p className={styles.deliveryMapMeta}>
+                <b>{mapTarget.name}</b> · güncellendi {agoText(mapTarget.lastLoc)}{" "}
+                ·{" "}
+                <a
+                  href={mapsAt(mapTarget.lat, mapTarget.lng)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Google Maps&apos;te aç
+                </a>
+              </p>
+            </>
+          ) : (
+            <div className={styles.deliveryMapEmpty}>
+              Henüz konum yok. Kuryenin motor cihazı veya telefonu konum
+              gönderince burada canlı harita belirir.
+            </div>
+          )}
+        </section>
+      )}
+
+      {/* 3) Aktif teslimatlar */}
+      <h2 className={styles.panelTitle} style={{ marginTop: 24 }}>
+        <Package size={16} aria-hidden style={{ verticalAlign: "-3px" }} /> Aktif
+        teslimatlar ({list.length})
       </h2>
       {list.length === 0 ? (
         <div className={styles.empty}>
@@ -234,70 +383,106 @@ export default function DeliveryTracker({
                 </div>
                 <p className={styles.deliveryCustomer}>{o.customer_name}</p>
                 <p className={styles.deliveryAddr}>{o.address_line}</p>
-                {o.courier_name && (
-                  <p className={styles.deliveryCourier}>Kurye: {o.courier_name}</p>
+                {o.address_note && (
+                  <p className={styles.deliveryCourier}>Not: {o.address_note}</p>
                 )}
+                {o.courier_name && (
+                  <p className={styles.deliveryCourier}>
+                    Kurye: {o.courier_name}
+                  </p>
+                )}
+                <div className={styles.deliveryCardActions}>
+                  {o.phone && (
+                    <a href={`tel:${o.phone}`} className={styles.deliveryMini}>
+                      <Phone size={13} /> Ara
+                    </a>
+                  )}
+                  <a
+                    href={dirTo(o.address_line)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={styles.deliveryMini}
+                  >
+                    <Navigation size={13} /> Yol tarifi
+                  </a>
+                  {has && (
+                    <a
+                      href={mapsAt(o.courier_lat!, o.courier_lng!)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={styles.deliveryMini}
+                    >
+                      <MapPin size={13} /> Haritada gör
+                    </a>
+                  )}
+                </div>
               </div>
             );
           })}
         </div>
       )}
 
-      {/* Kalıcı takip cihazı (motora takılı GPS) — link derdi olmadan sürekli konum */}
-      <section className={styles.deliveryDevice}>
-        <div className={styles.deliveryShareHead}>
-          <span
-            className={styles.deliveryShareIcon}
-            style={{ background: "#111" }}
-            aria-hidden
-          >
-            <Radio size={20} />
-          </span>
-          <div>
-            <strong>Kalıcı takip cihazı (motor)</strong>
-            <p>
-              SIM&apos;li bir GPS takip cihazı veya bir telefon uygulaması
-              (Android: GPSLogger, iOS/Android: Owntracks) aşağıdaki adrese
-              konum gönderirse motor sürekli takip edilir; link paylaşmaya gerek
-              kalmaz.
-            </p>
-          </div>
+      {/* 4) Kurye takip cihazları (kalıcı motor linkleri) */}
+      <h2 className={styles.panelTitle} style={{ marginTop: 24 }}>
+        <Radio size={16} aria-hidden style={{ verticalAlign: "-3px" }} /> Kurye
+        takip cihazları
+      </h2>
+      {stats.length === 0 ? (
+        <div className={styles.empty}>
+          Aktif kurye yok. Kuryeler sayfasından kurye ekleyin; her kuryeye özel
+          motor takip linki burada görünür.
         </div>
-        <div className={styles.deliveryUrlRow}>
-          <input
-            type="text"
-            readOnly
-            value={ingestUrl}
-            onFocus={(e) => e.currentTarget.select()}
-            className={styles.deliveryUrl}
-            aria-label="Konum gönderme adresi"
-          />
-          <button
-            type="button"
-            onClick={async () => {
-              try {
-                await navigator.clipboard.writeText(ingestUrl);
-                setCopied(true);
-                setTimeout(() => setCopied(false), 1800);
-              } catch {
-                /* pano yoksa geç */
-              }
-            }}
-            className={`${styles.actionBtn} ${styles["actionBtn--primary"]}`}
-            style={{ display: "inline-flex", alignItems: "center", gap: 6 }}
-          >
-            {copied ? <Check size={15} /> : <Copy size={15} />}
-            {copied ? "Kopyalandı" : "Kopyala"}
-          </button>
+      ) : (
+        <div className={styles.deliveryList}>
+          {stats.map((s) => (
+            <div key={s.id} className={styles.deliveryDeviceCard}>
+              <div className={styles.deliveryCardTop}>
+                <span className={styles.deliveryOrderNo}>
+                  <Bike size={14} style={{ verticalAlign: "-2px" }} /> {s.name}
+                </span>
+                <span
+                  className={`${styles.deliveryDot} ${
+                    s.lat != null ? styles.deliveryDotOn : ""
+                  }`}
+                >
+                  {s.lat != null ? agoText(s.lastLoc) : "konum yok"}
+                </span>
+              </div>
+              <p className={styles.deliveryCourier}>
+                {s.activeCount} aktif teslimat · {s.phone || "telefon yok"}
+              </p>
+              <div className={styles.deliveryUrlRow} style={{ marginTop: 8 }}>
+                <input
+                  type="text"
+                  readOnly
+                  value={s.ingestUrl}
+                  onFocus={(e) => e.currentTarget.select()}
+                  className={styles.deliveryUrl}
+                  aria-label={`${s.name} motor takip linki`}
+                />
+                <button
+                  type="button"
+                  onClick={() => copy(s.id, s.ingestUrl)}
+                  className={`${styles.actionBtn} ${styles["actionBtn--primary"]}`}
+                  style={{ display: "inline-flex", alignItems: "center", gap: 6 }}
+                >
+                  {copiedId === s.id ? <Check size={15} /> : <Copy size={15} />}
+                  {copiedId === s.id ? "Kopyalandı" : "Kopyala"}
+                </button>
+              </div>
+            </div>
+          ))}
+          <p className={styles.deliveryDeviceNote}>
+            Bu linki kuryenin motoruna takılı SIM&apos;li GPS cihazına ya da
+            telefon uygulamasına (Android: GPSLogger, iOS/Android: Owntracks)
+            girin. Cihaz <b>{"{LAT}"}</b> ve <b>{"{LNG}"}</b> yerine gerçek
+            konumu koyar; konum yalnız o kuryenin siparişlerine işlenir. Sipariş{" "}
+            <b>Teslim Edildi</b> olunca takip otomatik kapanır.{" "}
+            <b>Not:</b> AirTag çalışmaz (GPS/genel API yok); SIM&apos;li GPS
+            takip cihazı gerekir.
+          </p>
         </div>
-        <p className={styles.deliveryDeviceNote}>
-          Cihaz/uygulama <b>{"{LAT}"}</b> ve <b>{"{LNG}"}</b> yerine gerçek
-          enlem/boylam koyar (çoğu cihazda %LAT %LON gibi). Konum yalnız &quot;Kurye
-          Yolda&quot; siparişlere işlenir; sipariş <b>Teslim Edildi</b> olunca o
-          siparişin takibi otomatik kapanır. <b>Not:</b> AirTag bu iş için
-          çalışmaz (GPS ve genel API yok); SIM&apos;li GPS takip cihazı gerekir.
-        </p>
-      </section>
+      )}
     </div>
   );
 }
