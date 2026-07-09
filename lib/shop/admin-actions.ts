@@ -4,6 +4,7 @@
 // HER action önce parola oturumunu (admin_auth cookie) doğrular,
 // sonra service-role client ile yazar — RLS'te yazma policy'si bilinçli olarak yok.
 
+import { randomInt } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { isAuthenticated } from "@/app/admin/actions";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -1067,10 +1068,14 @@ export async function createCourier(
   const cleanName = name.trim().slice(0, 120);
   if (!cleanName) return { ok: false, error: "Kurye adı boş olamaz." };
 
+  // Panele giriş için 4 haneli kod otomatik üretilir (admin sonradan değiştirebilir).
+  const code = String(randomInt(1000, 10000));
+
   const supabase = createAdminClient();
   const { error } = await supabase.from("couriers").insert({
     name: cleanName,
     phone: phone.trim().slice(0, 40),
+    login_code: code,
   });
   if (error) {
     return { ok: false, error: courierDbError(error, "Kurye eklenemedi") };
