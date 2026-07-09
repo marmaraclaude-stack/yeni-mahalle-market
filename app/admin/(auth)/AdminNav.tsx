@@ -11,6 +11,7 @@ import {
   GalleryHorizontal,
   LayoutDashboard,
   MessageCircle,
+  Navigation,
   Package,
   Settings,
   ShoppingBag,
@@ -33,6 +34,7 @@ const SHOP_PREFIXES = [
   "/admin/kuponlar",
   "/admin/bannerlar",
   "/admin/kuryeler",
+  "/admin/teslimat",
   "/admin/uyeler",
   "/admin/ayarlar",
 ];
@@ -73,6 +75,12 @@ const ITEMS: NavItem[] = [
     label: "Kuryeler",
     icon: Bike,
     isActive: (p) => p.startsWith("/admin/kuryeler"),
+  },
+  {
+    href: "/admin/teslimat",
+    label: "Teslimat",
+    icon: Navigation,
+    isActive: (p) => p.startsWith("/admin/teslimat"),
   },
   {
     href: "/admin/uyeler",

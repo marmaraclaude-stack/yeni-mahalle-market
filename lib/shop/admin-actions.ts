@@ -1135,6 +1135,66 @@ export async function deleteCourier(id: string): Promise<CourierActionResult> {
   return { ok: true };
 }
 
+// ------------------------------------------------------------
+// Teslimat / canlı konum — admin panelinden (owner teslimat yapıyorsa)
+// ------------------------------------------------------------
+
+export interface DeliveryOrder {
+  order_no: string;
+  customer_name: string;
+  address_line: string;
+  courier_name: string;
+  courier_lat: number | null;
+  courier_lng: number | null;
+  courier_location_at: string | null;
+}
+
+/** "Kurye Yolda" durumundaki siparişler (teslimat sayfası). */
+export async function listOnTheWayOrders(): Promise<DeliveryOrder[]> {
+  await requireAdmin();
+  const supabase = createAdminClient();
+  const { data, error } = await supabase
+    .from("orders")
+    .select(
+      "order_no, customer_name, address_line, courier_name, courier_lat, courier_lng, courier_location_at",
+    )
+    .eq("status", "on_the_way")
+    .order("updated_at", { ascending: false });
+  if (error || !data) return [];
+  return data as DeliveryOrder[];
+}
+
+/** Admin cihazının GPS konumunu "Kurye Yolda" tüm siparişlere yazar. */
+export async function adminShareLocation(
+  lat: number,
+  lng: number,
+): Promise<{ ok: boolean; count?: number; error?: string }> {
+  await requireAdmin();
+  const okCoord =
+    typeof lat === "number" &&
+    typeof lng === "number" &&
+    Number.isFinite(lat) &&
+    Number.isFinite(lng) &&
+    lat >= -90 &&
+    lat <= 90 &&
+    lng >= -180 &&
+    lng <= 180;
+  if (!okCoord) return { ok: false, error: "Konum geçersiz." };
+
+  const supabase = createAdminClient();
+  const { data, error } = await supabase
+    .from("orders")
+    .update({
+      courier_lat: lat,
+      courier_lng: lng,
+      courier_location_at: new Date().toISOString(),
+    })
+    .eq("status", "on_the_way")
+    .select("id");
+  if (error) return { ok: false, error: "Konum kaydedilemedi." };
+  return { ok: true, count: (data ?? []).length };
+}
+
 /** Kuryeyi aktif/pasif yap (pasif kurye sipariş dropdown'ında görünmez). */
 export async function toggleCourier(
   id: string,
