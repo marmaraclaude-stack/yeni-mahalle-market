@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { logoutCourier } from "@/lib/shop/courier-auth";
 import {
+  getCourierActiveOrders,
   shareCourierLocation,
   type CourierPanelOrder,
 } from "@/lib/shop/courier-tracking";
@@ -40,6 +41,7 @@ export default function CourierDashboard({
   const [state, setState] = useState<ShareState>("idle");
   const [message, setMessage] = useState("");
   const [lastAt, setLastAt] = useState("");
+  const [orderList, setOrderList] = useState(orders);
   const watchId = useRef<number | null>(null);
   const sending = useRef(false);
 
@@ -50,6 +52,23 @@ export default function CourierDashboard({
     }
   }, []);
   useEffect(() => stop, [stop]);
+
+  // Yeni sipariş atandıkça panel kendini güncellesin (30 sn'de bir yoklar).
+  useEffect(() => {
+    let cancelled = false;
+    const id = setInterval(async () => {
+      try {
+        const fresh = await getCourierActiveOrders();
+        if (!cancelled) setOrderList(fresh);
+      } catch {
+        // sessizce geç — bir sonraki turda yeniden dener
+      }
+    }, 30_000);
+    return () => {
+      cancelled = true;
+      clearInterval(id);
+    };
+  }, []);
 
   const push = useCallback(async (lat: number, lng: number) => {
     if (sending.current) return;
@@ -153,7 +172,7 @@ export default function CourierDashboard({
               type="button"
               className={styles.primaryBtn}
               onClick={start}
-              disabled={orders.length === 0}
+              disabled={orderList.length === 0}
             >
               <MapPin size={18} aria-hidden="true" /> Konumu paylaşmaya başla
             </button>
@@ -187,21 +206,35 @@ export default function CourierDashboard({
               {message}
             </p>
           )}
+          {state === "error" && (
+            <div className={styles.permHelp}>
+              <strong>Konum açılmıyor mu?</strong>
+              <span>
+                iPhone: Ayarlar → Gizlilik ve Güvenlik → Konum Servisleri → açık;
+                sonra Safari → “Uygulamayı Kullanırken”. Ardından bu sayfayı
+                yenileyip tekrar deneyin.
+              </span>
+              <span>
+                Android: Chrome adres çubuğundaki kilit → İzinler → Konum → İzin
+                ver.
+              </span>
+            </div>
+          )}
         </div>
 
         {/* Aktif siparişler */}
         <h2 className={styles.sectionTitle}>
-          <Package size={16} aria-hidden="true" /> Aktif siparişleriniz (
-          {orders.length})
+          <Package size={16} aria-hidden="true" /> Götürdüğüm siparişler (
+          {orderList.length})
         </h2>
-        {orders.length === 0 ? (
+        {orderList.length === 0 ? (
           <p className={styles.muted}>
             Şu an size atanmış aktif sipariş yok. Yeni sipariş atandığında burada
-            görünür.
+            otomatik görünür.
           </p>
         ) : (
           <ul className={styles.orders}>
-            {orders.map((o) => (
+            {orderList.map((o) => (
               <li key={o.orderNo} className={styles.order}>
                 <div className={styles.orderTop}>
                   <span className={styles.orderNo}>{o.orderNo}</span>

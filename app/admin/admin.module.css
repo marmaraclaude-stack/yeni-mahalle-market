@@ -2481,3 +2481,13 @@
   gap: 6px;
   text-decoration: none;
 }
+
+/* Kurye paneli bilgi notu (sipariş detayı — Kurye Bilgisi) */
+.courierPanelNote {
+  margin: 14px 0 0;
+  padding-top: 12px;
+  border-top: 1px dashed rgba(10, 10, 10, 0.12);
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--gray-600, #555);
+}

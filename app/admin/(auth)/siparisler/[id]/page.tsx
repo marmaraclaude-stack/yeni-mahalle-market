@@ -9,11 +9,9 @@ import {
   updateOrderStatus,
 } from "@/lib/shop/admin-actions";
 import { BUSINESS } from "@/lib/business";
-import { courierShareToken } from "@/lib/shop/courier-token";
 import AdminBack from "../../AdminBack";
 import DeleteOrderButton from "./DeleteOrderButton";
 import CourierForm from "./CourierForm";
-import CourierTrackLink from "./CourierTrackLink";
 import PaymentStatusForm from "./PaymentStatusForm";
 import {
   formatGrams,
@@ -262,11 +260,12 @@ export default async function AdminOrderDetailPage({
               initialPhone={order.courier_phone}
             />
             {order.status !== "delivered" && order.status !== "cancelled" && (
-              <CourierTrackLink
-                url={`${BUSINESS.url}/kurye/${encodeURIComponent(
-                  order.order_no,
-                )}?t=${courierShareToken(order.id)}`}
-              />
+              <p className={styles.courierPanelNote}>
+                Kuryeye atadıktan sonra bu sipariş, kuryenin{" "}
+                <b>{BUSINESS.domain}/kurye</b> panelinde otomatik görünür. Kurye
+                telefonu + giriş kodu ile girip <b>Konumu paylaş</b> derse
+                müşteri canlı takip eder. (Kod: Kuryeler sayfası)
+              </p>
             )}
           </section>
 

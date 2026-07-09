@@ -384,13 +384,11 @@ export default async function UrunDetayPage({ params }: { params: Params }) {
 
               <p className={styles.priceRow}>
                 <span className={styles.price}>{formatTL(headlinePrice)}</span>
-                {!packMode &&
-                  (byWeight
-                    ? true
-                    : product.unit !== "adet" && product.unit !== "gram") && (
-                    <span className={styles.unit}>
-                      / {byWeight ? "kg" : product.unit}
-                    </span>
+                {/* kg/gram ürünlerde /kg alttaki bilgi satırında; burada yalnız paket vb. */}
+                {!byWeight &&
+                  product.unit !== "adet" &&
+                  product.unit !== "gram" && (
+                    <span className={styles.unit}>/ {product.unit}</span>
                   )}
                 {discounted && (
                   <s className={styles.compare}>
@@ -406,9 +404,10 @@ export default async function UrunDetayPage({ params }: { params: Params }) {
                 )}
               </p>
 
-              {packMode ? (
+              {byWeight ? (
                 <p className={styles.unitPrice}>
-                  {formatGrams(weightMin)} · {formatTL(product.price)} / kg
+                  {packMode ? `${formatGrams(weightMin)} · ` : ""}
+                  {formatTL(product.price)} / kg
                 </p>
               ) : unitPrice ? (
                 <p className={styles.unitPrice}>Birim fiyat: {unitPrice}</p>

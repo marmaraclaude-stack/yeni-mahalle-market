@@ -119,8 +119,9 @@ export default function ProductCard({
     packMode && compareAt !== null
       ? computeLineTotal(compareAt, weightMin, true)
       : compareAt;
-  // Küçük birim fiyat bilgisi: gram-pakette "₺.../kg", diğer paketlerde size_text'ten.
-  const perUnit = packMode
+  // Fiyatın altındaki gri kg bilgisi. Ağırlık ürünlerinde (kg VE gram) her zaman
+  // kilogram fiyatı gösterilir; diğer paketlerde size_text'ten hesaplanır.
+  const perUnit = byWeight
     ? `${formatTL(product.price)} / kg`
     : unitPriceLabel(product);
   const meta = [product.brand, product.size_text]
@@ -162,11 +163,11 @@ export default function ProductCard({
               <s className={styles.compare}>{formatTL(displayCompare)}</s>
             )}
             <span className={styles.price}>{formatTL(displayPrice)}</span>
-            {!packMode &&
-              (byWeight
-                ? true
-                : product.unit !== "adet" && product.unit !== "gram") && (
-                <span className={styles.unit}>/ {byWeight ? "kg" : product.unit}</span>
+            {/* kg/gram ürünlerde /kg alttaki gri satırda; burada yalnız paket vb. */}
+            {!byWeight &&
+              product.unit !== "adet" &&
+              product.unit !== "gram" && (
+                <span className={styles.unit}>/ {product.unit}</span>
               )}
           </p>
           {perUnit && <p className={styles.perUnit}>{perUnit}</p>}
