@@ -2731,3 +2731,69 @@
   border: 1px solid var(--gray-200, #e8e8e8);
   background: var(--white);
 }
+
+/* Teslimat — canlı harita (Leaflet) + lejant + bölüm başlıkları */
+.deliveryMapTitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--black, #111);
+}
+.deliveryMapTitle svg { color: var(--orange, #ff7a1a); }
+.deliveryLegend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.deliveryLegendItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--gray-50, #fafafa);
+  border: 1px solid var(--gray-200, #e8e8e8);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--gray-800, #222);
+}
+.deliveryLegendDot {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  box-shadow: 0 0 0 2px #fff, 0 1px 3px rgba(0, 0, 0, 0.3);
+  flex-shrink: 0;
+}
+.deliveryLegendLive { color: #15803d; }
+.deliveryLegendOff { color: var(--gray-400, #a3a3a3); }
+.deliveryMapBox {
+  width: 100%;
+  height: clamp(320px, 52vh, 460px);
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid var(--gray-200, #e8e8e8);
+  position: relative;
+  z-index: 0;
+}
+.deliveryMapBox :global(.leaflet-container) {
+  font: inherit;
+  background: #eaeef2;
+}
+.deliveryMapHint {
+  margin: 10px 0 0;
+  font-size: 13px;
+  color: var(--gray-600, #555);
+}
+.deliverySectionTitle {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 26px 0 12px;
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--black, #111);
+}
+.deliverySectionTitle svg { color: var(--orange, #ff7a1a); }

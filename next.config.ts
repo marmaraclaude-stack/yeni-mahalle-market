@@ -8,8 +8,11 @@ const securityHeaders = [
   { key: "X-Content-Type-Options", value: "nosniff" },
   { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
   {
+    // geolocation=(self): sitenin KENDİ sayfaları konum kullanabilsin (kurye
+    // paneli / teslimat "Konumu paylaş"). "geolocation=()" self dahil hepsini
+    // engelliyordu — tarayıcı konum paylaşımı bu yüzden çalışmıyordu.
     key: "Permissions-Policy",
-    value: "camera=(), microphone=(), geolocation=(), browsing-topics=()",
+    value: "camera=(), microphone=(), geolocation=(self), browsing-topics=()",
   },
   {
     key: "Strict-Transport-Security",

@@ -1,19 +1,17 @@
 "use client";
 
-// Teslimat merkezi (kurye bazlı). Bölümler:
-//  1) Bu cihazdan paylaş — owner teslimattaysa kurye seçip GPS paylaşır
-//  2) Canlı harita — seçili kuryenin son konumu (API anahtarsız embed)
-//  3) Aktif teslimatlar — sipariş kartları (ara, yol tarifi, haritada gör)
-//  4) Kurye takip cihazları — her kuryenin KALICI motor linki (kopyala/aç)
+// Teslimat merkezi (kurye bazlı). Canlı Leaflet haritası (market + çevresi +
+// renkli kurye pinleri), aktif teslimat kartları, owner konum paylaşımı ve
+// her kuryeye özel kalıcı motor takip linki.
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import dynamic from "next/dynamic";
 import {
   Bike,
   Check,
   CheckCircle2,
   Copy,
-  ExternalLink,
   Loader2,
   MapPin,
   Navigation,
@@ -26,7 +24,13 @@ import {
   listOnTheWayOrders,
   type DeliveryOrder,
 } from "@/lib/shop/admin-actions";
+import { BUSINESS } from "@/lib/business";
 import styles from "../../admin.module.css";
+
+const CourierMap = dynamic(() => import("./CourierMap"), {
+  ssr: false,
+  loading: () => <div className={styles.deliveryMapEmpty}>Harita yükleniyor…</div>,
+});
 
 interface CourierBase {
   id: string;
@@ -34,6 +38,18 @@ interface CourierBase {
   phone: string;
   ingestUrl: string;
 }
+
+// Kurye pin renkleri (haritada + lejantta).
+const PALETTE = [
+  "#e11d48",
+  "#2563eb",
+  "#16a34a",
+  "#9333ea",
+  "#ea580c",
+  "#0891b2",
+  "#ca8a04",
+  "#db2777",
+];
 
 type ShareState = "idle" | "starting" | "sharing" | "error";
 
@@ -46,9 +62,6 @@ function agoText(iso: string | null): string {
   if (mins <= 0) return "az önce";
   if (mins === 1) return "1 dk önce";
   return `${mins} dk önce`;
-}
-function mapsEmbed(lat: number, lng: number): string {
-  return `https://maps.google.com/maps?q=${lat},${lng}&z=15&output=embed`;
 }
 function mapsAt(lat: number, lng: number): string {
   return `https://www.google.com/maps?q=${lat},${lng}`;
@@ -72,12 +85,10 @@ export default function DeliveryTracker({
   const [message, setMessage] = useState("");
   const [lastAt, setLastAt] = useState("");
   const [shareCourier, setShareCourier] = useState(couriers[0]?.id ?? "");
-  const [mapCourier, setMapCourier] = useState("");
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const watchId = useRef<number | null>(null);
   const sending = useRef(false);
 
-  // Sipariş listesini periyodik tazele (yeni "Kurye Yolda" + konum güncellensin).
   useEffect(() => {
     let cancelled = false;
     const id = setInterval(async () => {
@@ -94,9 +105,10 @@ export default function DeliveryTracker({
     };
   }, []);
 
-  // Kurye başına istatistik (sipariş sayısı + son konum) — listeden türetilir.
+  // Kurye başına istatistik + renk (sipariş listesinden türetilir).
   const stats = useMemo(() => {
-    return couriers.map((c) => {
+    return couriers.map((c, i) => {
+      const color = PALETTE[i % PALETTE.length];
       const mine = last10(c.phone);
       const my = list.filter(
         (o) => mine.length === 10 && last10(o.courier_phone) === mine,
@@ -116,15 +128,24 @@ export default function DeliveryTracker({
           lng = o.courier_lng;
         }
       }
-      return { ...c, activeCount: my.length, lastLoc, lat, lng };
+      return { ...c, color, activeCount: my.length, lastLoc, lat, lng };
     });
   }, [couriers, list]);
 
-  // Harita: seçili kurye yoksa konumu olan ilk kuryeyi seç.
-  const mapTarget =
-    stats.find((s) => s.id === mapCourier && s.lat != null) ??
-    stats.find((s) => s.lat != null) ??
-    null;
+  const mapCouriers = useMemo(
+    () =>
+      stats
+        .filter((s) => s.lat != null && s.lng != null)
+        .map((s) => ({
+          id: s.id,
+          name: s.name,
+          lat: s.lat as number,
+          lng: s.lng as number,
+          color: s.color,
+          lastLoc: s.lastLoc,
+        })),
+    [stats],
+  );
 
   const stop = useCallback(() => {
     if (watchId.current != null && "geolocation" in navigator) {
@@ -227,7 +248,48 @@ export default function DeliveryTracker({
 
   return (
     <div className={styles.deliveryWrap}>
-      {/* 1) Bu cihazdan paylaş */}
+      {/* Canlı harita — hero */}
+      <section className={styles.deliveryMapCard}>
+        <div className={styles.deliveryMapHead}>
+          <h2 className={styles.deliveryMapTitle}>
+            <MapPin size={18} aria-hidden /> Canlı harita
+          </h2>
+          {stats.length > 0 && (
+            <div className={styles.deliveryLegend}>
+              {stats.map((s) => (
+                <span key={s.id} className={styles.deliveryLegendItem}>
+                  <span
+                    className={styles.deliveryLegendDot}
+                    style={{ background: s.color }}
+                    aria-hidden
+                  />
+                  {s.name}
+                  <span
+                    className={
+                      s.lat != null
+                        ? styles.deliveryLegendLive
+                        : styles.deliveryLegendOff
+                    }
+                  >
+                    {s.lat != null ? agoText(s.lastLoc) : "konum yok"}
+                  </span>
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+        <div className={styles.deliveryMapBox}>
+          <CourierMap market={BUSINESS.geo} couriers={mapCouriers} />
+        </div>
+        {mapCouriers.length === 0 && (
+          <p className={styles.deliveryMapHint}>
+            Haritada market ve teslimat çevresi görünür. Bir kurye konum
+            gönderdiğinde renkli pini burada belirir.
+          </p>
+        )}
+      </section>
+
+      {/* Bu cihazdan paylaş */}
       <section className={styles.deliveryShare}>
         <div className={styles.deliveryShareHead}>
           <span className={styles.deliveryShareIcon} aria-hidden>
@@ -235,7 +297,7 @@ export default function DeliveryTracker({
           </span>
           <div>
             <strong>Bu cihazdan konum paylaş</strong>
-            <p>Owner/teslimatçı bu telefonun GPS&apos;ini paylaşır.</p>
+            <p>Teslimatçı bu telefonun GPS&apos;ini paylaşır (kurye seçin).</p>
           </div>
         </div>
         <div className={styles.deliveryShareRow}>
@@ -294,76 +356,13 @@ export default function DeliveryTracker({
         )}
       </section>
 
-      {/* 2) Canlı harita */}
-      {stats.length > 0 && (
-        <section className={styles.deliveryMapCard}>
-          <div className={styles.deliveryMapHead}>
-            <h2 className={styles.panelTitle} style={{ margin: 0 }}>
-              <MapPin size={16} aria-hidden style={{ verticalAlign: "-3px" }} />{" "}
-              Canlı harita
-            </h2>
-            <div className={styles.deliveryTabs}>
-              {stats.map((s) => (
-                <button
-                  key={s.id}
-                  type="button"
-                  onClick={() => setMapCourier(s.id)}
-                  className={`${styles.deliveryTab} ${
-                    mapTarget?.id === s.id ? styles.deliveryTabOn : ""
-                  }`}
-                >
-                  <Bike size={13} /> {s.name}
-                  <span
-                    className={`${styles.deliveryLive} ${
-                      s.lat != null ? styles.deliveryLiveOn : ""
-                    }`}
-                    aria-hidden
-                  />
-                </button>
-              ))}
-            </div>
-          </div>
-          {mapTarget && mapTarget.lat != null && mapTarget.lng != null ? (
-            <>
-              <div className={styles.deliveryMapFrame}>
-                <iframe
-                  key={`${mapTarget.id}-${mapTarget.lastLoc}`}
-                  title={`${mapTarget.name} konumu`}
-                  src={mapsEmbed(mapTarget.lat, mapTarget.lng)}
-                  loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
-                />
-              </div>
-              <p className={styles.deliveryMapMeta}>
-                <b>{mapTarget.name}</b> · güncellendi {agoText(mapTarget.lastLoc)}{" "}
-                ·{" "}
-                <a
-                  href={mapsAt(mapTarget.lat, mapTarget.lng)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  Google Maps&apos;te aç
-                </a>
-              </p>
-            </>
-          ) : (
-            <div className={styles.deliveryMapEmpty}>
-              Henüz konum yok. Kuryenin motor cihazı veya telefonu konum
-              gönderince burada canlı harita belirir.
-            </div>
-          )}
-        </section>
-      )}
-
-      {/* 3) Aktif teslimatlar */}
-      <h2 className={styles.panelTitle} style={{ marginTop: 24 }}>
-        <Package size={16} aria-hidden style={{ verticalAlign: "-3px" }} /> Aktif
-        teslimatlar ({list.length})
+      {/* Aktif teslimatlar */}
+      <h2 className={styles.deliverySectionTitle}>
+        <Package size={16} aria-hidden /> Aktif teslimatlar ({list.length})
       </h2>
       {list.length === 0 ? (
         <div className={styles.empty}>
-          Şu an &quot;Kurye Yolda&quot; sipariş yok. Bir siparişi &quot;Kurye
-          Yolda&quot; yapınca burada görünür.
+          Şu an &quot;Kurye Yolda&quot; sipariş yok.
         </div>
       ) : (
         <div className={styles.deliveryList}>
@@ -387,9 +386,7 @@ export default function DeliveryTracker({
                   <p className={styles.deliveryCourier}>Not: {o.address_note}</p>
                 )}
                 {o.courier_name && (
-                  <p className={styles.deliveryCourier}>
-                    Kurye: {o.courier_name}
-                  </p>
+                  <p className={styles.deliveryCourier}>Kurye: {o.courier_name}</p>
                 )}
                 <div className={styles.deliveryCardActions}>
                   {o.phone && (
@@ -422,15 +419,13 @@ export default function DeliveryTracker({
         </div>
       )}
 
-      {/* 4) Kurye takip cihazları (kalıcı motor linkleri) */}
-      <h2 className={styles.panelTitle} style={{ marginTop: 24 }}>
-        <Radio size={16} aria-hidden style={{ verticalAlign: "-3px" }} /> Kurye
-        takip cihazları
+      {/* Kurye takip cihazları — kalıcı motor linkleri (bilgilendirme yok) */}
+      <h2 className={styles.deliverySectionTitle}>
+        <Radio size={16} aria-hidden /> Kurye takip cihazları
       </h2>
       {stats.length === 0 ? (
         <div className={styles.empty}>
-          Aktif kurye yok. Kuryeler sayfasından kurye ekleyin; her kuryeye özel
-          motor takip linki burada görünür.
+          Aktif kurye yok. Kuryeler sayfasından ekleyin.
         </div>
       ) : (
         <div className={styles.deliveryList}>
@@ -438,7 +433,12 @@ export default function DeliveryTracker({
             <div key={s.id} className={styles.deliveryDeviceCard}>
               <div className={styles.deliveryCardTop}>
                 <span className={styles.deliveryOrderNo}>
-                  <Bike size={14} style={{ verticalAlign: "-2px" }} /> {s.name}
+                  <span
+                    className={styles.deliveryLegendDot}
+                    style={{ background: s.color, marginRight: 6 }}
+                    aria-hidden
+                  />
+                  {s.name}
                 </span>
                 <span
                   className={`${styles.deliveryDot} ${
@@ -472,15 +472,6 @@ export default function DeliveryTracker({
               </div>
             </div>
           ))}
-          <p className={styles.deliveryDeviceNote}>
-            Bu linki kuryenin motoruna takılı SIM&apos;li GPS cihazına ya da
-            telefon uygulamasına (Android: GPSLogger, iOS/Android: Owntracks)
-            girin. Cihaz <b>{"{LAT}"}</b> ve <b>{"{LNG}"}</b> yerine gerçek
-            konumu koyar; konum yalnız o kuryenin siparişlerine işlenir. Sipariş{" "}
-            <b>Teslim Edildi</b> olunca takip otomatik kapanır.{" "}
-            <b>Not:</b> AirTag çalışmaz (GPS/genel API yok); SIM&apos;li GPS
-            takip cihazı gerekir.
-          </p>
         </div>
       )}
     </div>
