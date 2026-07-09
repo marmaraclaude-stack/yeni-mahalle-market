@@ -196,7 +196,12 @@ function ProductRow({ product }: { product: Product }) {
   // kategori gorunumunde hangi alta dustugunu gorsun. Tanimsiz slug donerse
   // (pratikte "diger") "Diğer" etiketi gosterilir.
   const subs = subcatsFor(product.category_slug);
-  const subSlug = assignSubcategory(product.category_slug, product.name, product.brand);
+  const subSlug = assignSubcategory(
+    product.category_slug,
+    product.name,
+    product.brand,
+    product.subcategory_slug,
+  );
   const subName = subs.find((s) => s.slug === subSlug)?.name ?? OTHER_SUB_NAME;
   const discount = isDiscounted(product);
   const discountPct =
@@ -456,18 +461,18 @@ export default function ProductsTable({
     setBusy(true);
     startTransition(async () => {
       try {
-        await createProduct({
+        const created = await createProduct({
           category_slug: categorySlug,
           name,
           price,
           brand: String(fd.get("brand") ?? ""),
           size_text: String(fd.get("size_text") ?? ""),
+          unit: String(fd.get("unit") ?? "adet"),
         });
-        form.reset();
-        router.refresh();
+        // Görsel, alt kategori ve ölçek için tam düzenleme sayfasına geç.
+        router.push(`/admin/urunler/${created.id}`);
       } catch (err) {
         setFormError(err instanceof Error ? err.message : "Ürün eklenemedi.");
-      } finally {
         setBusy(false);
       }
     });
@@ -536,59 +541,126 @@ export default function ProductsTable({
         </div>
       </div>
 
-      {/* Yeni urun formu (collapse) */}
+      {/* Yeni urun formu (collapse) — etiketli grid; kaydedince tam duzenleme
+          sayfasi acilir (gorsel, alt kategori, gram olcegi vs. orada). */}
       {showForm && (
         <section className={styles.panel} style={{ marginBottom: 16 }}>
           <h2 className={styles.panelTitle}>Yeni Ürün Ekle</h2>
-          <form onSubmit={handleCreate} className={styles.newProductForm}>
-            <select
-              name="category_slug"
-              required
-              defaultValue=""
-              className={styles.select}
-              aria-label="Kategori"
-            >
-              <option value="" disabled>
-                Kategori seçin…
-              </option>
-              {SHOP_CATEGORIES.map((c) => (
-                <option key={c.slug} value={c.slug}>
-                  {c.name}
-                </option>
-              ))}
-            </select>
-            <input
-              name="name"
-              required
-              placeholder="Ürün adı *"
-              className={styles.input}
-              aria-label="Ürün adı"
-            />
-            <input
-              name="brand"
-              placeholder="Marka"
-              className={styles.input}
-              aria-label="Marka"
-            />
-            <input
-              name="size_text"
-              placeholder="Gramaj (örn. 1 L, 350 g)"
-              className={styles.input}
-              aria-label="Gramaj"
-            />
-            <input
-              name="price"
-              required
-              inputMode="decimal"
-              placeholder="Fiyat (TL) *"
-              className={styles.input}
-              aria-label="Fiyat"
-            />
-            <button type="submit" disabled={busy} className={styles.accentBtn}>
-              {busy ? "Ekleniyor…" : "Ekle"}
-            </button>
+          <p
+            className={styles.subtitle}
+            style={{ marginTop: -2, marginBottom: 14 }}
+          >
+            Temel bilgileri girin. Kaydedince <b>görsel yükleme</b>, alt kategori
+            ve fiyat ölçeği için düzenleme sayfası açılır.
+          </p>
+          <form onSubmit={handleCreate}>
+            <div className={styles.editFormGrid}>
+              <div className={`${styles.field} ${styles.fieldFull}`}>
+                <label className={styles.label} htmlFor="np-name">
+                  Ürün adı *
+                </label>
+                <input
+                  id="np-name"
+                  name="name"
+                  required
+                  placeholder="Ör. Hindistan Cevizi"
+                  className={styles.input}
+                />
+              </div>
+              <div className={styles.field}>
+                <label className={styles.label} htmlFor="np-cat">
+                  Kategori *
+                </label>
+                <select
+                  id="np-cat"
+                  name="category_slug"
+                  required
+                  defaultValue=""
+                  className={styles.select}
+                >
+                  <option value="" disabled>
+                    Seçin…
+                  </option>
+                  {SHOP_CATEGORIES.map((c) => (
+                    <option key={c.slug} value={c.slug}>
+                      {c.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className={styles.field}>
+                <label className={styles.label} htmlFor="np-brand">
+                  Marka
+                </label>
+                <input
+                  id="np-brand"
+                  name="brand"
+                  placeholder="(opsiyonel)"
+                  className={styles.input}
+                />
+              </div>
+              <div className={styles.field}>
+                <label className={styles.label} htmlFor="np-unit">
+                  Birim
+                </label>
+                <select
+                  id="np-unit"
+                  name="unit"
+                  defaultValue="adet"
+                  className={styles.select}
+                >
+                  {["adet", "kg", "gram", "paket"].map((u) => (
+                    <option key={u} value={u}>
+                      {u}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className={styles.field}>
+                <label className={styles.label} htmlFor="np-size">
+                  Gramaj
+                </label>
+                <input
+                  id="np-size"
+                  name="size_text"
+                  placeholder="Ör. 1 L, 350 g"
+                  className={styles.input}
+                />
+              </div>
+              <div className={styles.field}>
+                <label className={styles.label} htmlFor="np-price">
+                  Fiyat (TL) *
+                </label>
+                <input
+                  id="np-price"
+                  name="price"
+                  required
+                  inputMode="decimal"
+                  placeholder="0,00"
+                  className={styles.input}
+                />
+              </div>
+            </div>
+            <div className={styles.formFoot}>
+              <button
+                type="submit"
+                disabled={busy}
+                className={`${styles.actionBtn} ${styles["actionBtn--primary"]}`}
+                style={{ display: "inline-flex", alignItems: "center", gap: 6 }}
+              >
+                <Plus size={15} strokeWidth={2.4} aria-hidden />
+                {busy ? "Ekleniyor…" : "Ekle ve Düzenle"}
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowForm(false)}
+                className={styles.actionBtn}
+              >
+                Vazgeç
+              </button>
+            </div>
+            {formError && <p className={styles.formError}>{formError}</p>}
           </form>
-          {formError && <p className={styles.formError}>{formError}</p>}
         </section>
       )}
 

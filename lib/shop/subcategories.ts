@@ -235,14 +235,20 @@ export function subcatsFor(categorySlug: string): SubCategory[] {
   return CATEGORY_SUBS[categorySlug] ?? [];
 }
 
-/** Ürünü alt kategoriye ata: ilk eşleşen kural, yoksa "diger". */
+/**
+ * Ürünü alt kategoriye ata. Yönetici elle bir alt kategori seçmişse (override)
+ * ve o kategoriye ait geçerli bir slug ise onu kullanır; yoksa ilk eşleşen
+ * kural, o da yoksa "diger".
+ */
 export function assignSubcategory(
   categorySlug: string,
   name: string,
   brand: string,
+  override?: string | null,
 ): string {
   const subs = CATEGORY_SUBS[categorySlug];
   if (!subs || subs.length === 0) return OTHER_SUB_SLUG;
+  if (override && subs.some((s) => s.slug === override)) return override;
   const hay = `${name} ${brand}`.toLocaleLowerCase("tr-TR");
   for (const s of subs) {
     if (s.match.test(hay)) return s.slug;

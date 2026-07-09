@@ -8,6 +8,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { formatGrams, isWeightBased, type Product } from "@/lib/shop/types";
+import { subcatsFor } from "@/lib/shop/subcategories";
 import styles from "../../../admin.module.css";
 
 interface Props {
@@ -31,7 +32,11 @@ export default function ProductInfoForm({
 }: Props) {
   const [byWeight, setByWeight] = useState(product.sold_by_weight);
   const [category, setCategory] = useState(product.category_slug);
+  const [subcategory, setSubcategory] = useState(
+    product.subcategory_slug ?? "",
+  );
   const [unit, setUnit] = useState(product.unit || "adet");
+  const subOptions = subcatsFor(category);
 
   // Fiyat + en az miktar birbirine bağlı: kg fiyatı canonical (name="price"),
   // en az miktar fiyatı = kg fiyatı × en az miktar. Yönetici ikisinden birini
@@ -129,7 +134,10 @@ export default function ProductInfoForm({
             id="p-category"
             name="category_slug"
             value={category}
-            onChange={(e) => setCategory(e.target.value)}
+            onChange={(e) => {
+              setCategory(e.target.value);
+              setSubcategory(""); // kategori değişince alt kategori sıfırlanır
+            }}
             className={styles.select}
           >
             {categories.map((c) => (
@@ -139,6 +147,28 @@ export default function ProductInfoForm({
             ))}
           </select>
         </div>
+
+        {subOptions.length > 0 && (
+          <div className={styles.field}>
+            <label className={styles.label} htmlFor="p-subcategory">
+              Alt kategori
+            </label>
+            <select
+              id="p-subcategory"
+              name="subcategory_slug"
+              value={subcategory}
+              onChange={(e) => setSubcategory(e.target.value)}
+              className={styles.select}
+            >
+              <option value="">Otomatik (ürün adına göre)</option>
+              {subOptions.map((s) => (
+                <option key={s.slug} value={s.slug}>
+                  {s.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
 
         {/* Gram bazlıysa birim otomatik "kg" — seçime gerek yok. */}
         {!byWeight && (

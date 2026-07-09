@@ -26,6 +26,7 @@ export interface ProductPatch {
   description?: string;
   unit?: string;
   category_slug?: string;
+  subcategory_slug?: string | null;
   price?: number;
   compare_at_price?: number | null;
   sold_by_weight?: boolean;
@@ -51,6 +52,7 @@ export interface NewProductInput {
   price: number;
   size_text?: string;
   brand?: string;
+  unit?: string;
 }
 
 /** shop_settings güncellemesi (id hariç kısmi). */
@@ -321,6 +323,8 @@ export async function updateProduct(
     }
     clean.category_slug = patch.category_slug;
   }
+  if (patch.subcategory_slug !== undefined)
+    clean.subcategory_slug = patch.subcategory_slug || null;
   if (patch.price !== undefined) {
     if (!Number.isFinite(patch.price) || patch.price < 0) {
       throw new Error("Geçersiz fiyat.");
@@ -370,8 +374,11 @@ export async function updateProduct(
   revalidateProductPages({ id, slug: (data as { slug: string } | null)?.slug });
 }
 
-/** Yeni ürün ekle — slug addan üretilir, çakışırsa rastgele son ek denenir. */
-export async function createProduct(data: NewProductInput): Promise<void> {
+/** Yeni ürün ekle — slug addan üretilir, çakışırsa rastgele son ek denenir.
+ *  Oluşturulan ürünün id + slug'ını döndürür (düzenleme sayfasına yönlendirme). */
+export async function createProduct(
+  data: NewProductInput,
+): Promise<{ id: string; slug: string }> {
   await requireAdmin();
   const name = data.name.trim();
   if (!name) throw new Error("Ürün adı boş olamaz.");
@@ -390,20 +397,25 @@ export async function createProduct(data: NewProductInput): Promise<void> {
       attempt === 0
         ? base
         : `${base}-${Math.random().toString(36).slice(2, 6)}`;
-    const { error } = await supabase.from("products").insert({
-      category_slug: data.category_slug,
-      name,
-      slug,
-      brand: (data.brand ?? "").trim(),
-      size_text: (data.size_text ?? "").trim(),
-      price: data.price,
-    });
-    if (!error) {
+    const { data: inserted, error } = await supabase
+      .from("products")
+      .insert({
+        category_slug: data.category_slug,
+        name,
+        slug,
+        brand: (data.brand ?? "").trim(),
+        size_text: (data.size_text ?? "").trim(),
+        unit: (data.unit ?? "adet").trim() || "adet",
+        price: data.price,
+      })
+      .select("id, slug")
+      .single();
+    if (!error && inserted) {
       revalidateProductPages();
-      return;
+      return inserted as { id: string; slug: string };
     }
-    lastError = error.message;
-    if (error.code !== "23505") break; // unique ihlali değilse tekrar deneme
+    lastError = error?.message ?? "bilinmeyen hata";
+    if (error?.code !== "23505") break; // unique ihlali değilse tekrar deneme
   }
   throw new Error(`Ürün eklenemedi: ${lastError}`);
 }

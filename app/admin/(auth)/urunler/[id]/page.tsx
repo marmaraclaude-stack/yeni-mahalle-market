@@ -109,6 +109,8 @@ export default async function AdminProductEditPage({
         description: String(formData.get("description") ?? ""),
         unit: soldByWeight ? "kg" : String(formData.get("unit") ?? "adet"),
         category_slug: String(formData.get("category_slug") ?? ""),
+        subcategory_slug:
+          String(formData.get("subcategory_slug") ?? "").trim() || null,
         price,
         compare_at_price: compareAt,
         sold_by_weight: soldByWeight,

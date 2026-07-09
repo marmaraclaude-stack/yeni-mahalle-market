@@ -12,8 +12,8 @@ import type { Product } from "@/lib/shop/types";
 import {
   computeLineTotal,
   formatTL,
-  isGramPackUnit,
   isWeightBased,
+  showsPackPrice,
   unitPriceLabel,
   weightMinFor,
 } from "@/lib/shop/types";
@@ -109,17 +109,18 @@ export default function ProductCard({
   const discounted = compareAt !== null && compareAt > product.price;
   const byWeight = isWeightBased(product);
   const weightMin = weightMinFor(product);
-  // Gram bazlı: kartta EN AZ miktarın fiyatı gösterilir (ör. 125 g → ₺200),
-  // altında kg fiyatı bilgi olarak. Değilse ürünün kendi (paket) fiyatı.
-  const displayPrice = byWeight
+  // Yalnız birimi "gram" olan ürünlerde kartta EN AZ miktarın fiyatı gösterilir
+  // (ör. 125 g → ₺200), altında kg bilgisi. Diğerlerinde ürünün kendi fiyatı.
+  const packMode = showsPackPrice(product);
+  const displayPrice = packMode
     ? computeLineTotal(product.price, weightMin, true)
     : product.price;
   const displayCompare =
-    byWeight && compareAt !== null
+    packMode && compareAt !== null
       ? computeLineTotal(compareAt, weightMin, true)
       : compareAt;
-  // Küçük birim fiyat bilgisi: gram bazlıda "₺.../kg", diğer paketlerde size_text'ten.
-  const perUnit = byWeight
+  // Küçük birim fiyat bilgisi: gram-pakette "₺.../kg", diğer paketlerde size_text'ten.
+  const perUnit = packMode
     ? `${formatTL(product.price)} / kg`
     : unitPriceLabel(product);
   const meta = [product.brand, product.size_text]
@@ -161,10 +162,11 @@ export default function ProductCard({
               <s className={styles.compare}>{formatTL(displayCompare)}</s>
             )}
             <span className={styles.price}>{formatTL(displayPrice)}</span>
-            {!byWeight &&
-              product.unit !== "adet" &&
-              !isGramPackUnit(product.unit) && (
-                <span className={styles.unit}>/ {product.unit}</span>
+            {!packMode &&
+              (byWeight
+                ? true
+                : product.unit !== "adet" && product.unit !== "gram") && (
+                <span className={styles.unit}>/ {byWeight ? "kg" : product.unit}</span>
               )}
           </p>
           {perUnit && <p className={styles.perUnit}>{perUnit}</p>}

@@ -167,7 +167,9 @@ export default async function AdminProductsPage({
       if (error) throw new Error(error.message);
 
       const inSub = ((data ?? []) as Product[]).filter(
-        (p) => assignSubcategory(category, p.name, p.brand) === altk,
+        (p) =>
+          assignSubcategory(category, p.name, p.brand, p.subcategory_slug) ===
+          altk,
       );
 
       // Cip sayilari filtrelenmis alt kategori listesinden.

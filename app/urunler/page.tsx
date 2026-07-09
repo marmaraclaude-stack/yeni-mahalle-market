@@ -300,6 +300,7 @@ export default async function UrunlerPage({
                         category.slug,
                         p.name,
                         p.brand,
+                        p.subcategory_slug,
                       );
                       const list = bySub.get(slug);
                       if (list) list.push(p);

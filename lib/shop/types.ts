@@ -13,6 +13,8 @@ export interface ShopCategory {
 export interface Product {
   id: string;
   category_slug: string;
+  /** Yönetici elle seçtiyse alt kategori slug'ı; null → kural tabanlı atama. */
+  subcategory_slug: string | null;
   name: string;
   slug: string;
   brand: string;
@@ -354,4 +356,17 @@ export function unitPriceLabel(product: {
 /** Gram-paket birimi mi? (fiyat pakete aittir; "/gram" son eki gösterilmez). */
 export function isGramPackUnit(unit: string | null | undefined): boolean {
   return unit === "gram" || unit === "gr" || unit === "g";
+}
+
+/**
+ * Listede/başlıkta kg fiyatı yerine EN AZ miktarın (paket) fiyatı gösterilsin mi?
+ * Yalnız birimi "gram" olan gram bazlı ürünlerde (ör. 125 g ahududu → ₺200).
+ * Birimi "kg" olanlar (domates, karpuz) kg fiyatını gösterir — manuel kontrol.
+ */
+export function showsPackPrice(p: {
+  sold_by_weight?: boolean | null;
+  unit?: string | null;
+  category_slug?: string | null;
+}): boolean {
+  return isWeightBased(p) && p.unit === "gram";
 }

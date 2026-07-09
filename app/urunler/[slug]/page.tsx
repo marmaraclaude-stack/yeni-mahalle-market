@@ -18,8 +18,8 @@ import {
   computeLineTotal,
   formatGrams,
   formatTL,
-  isGramPackUnit,
   isWeightBased,
+  showsPackPrice,
   unitPriceLabel,
   weightMinFor,
 } from "@/lib/shop/types";
@@ -202,9 +202,10 @@ export default async function UrunDetayPage({ params }: { params: Params }) {
   const Icon = iconFor(cat?.icon ?? "shopping-basket");
   const byWeight = isWeightBased(product);
   const weightMin = weightMinFor(product);
-  // Gram bazlıda başlık fiyatı EN AZ miktarın fiyatıdır (ör. 125 g → ₺200);
-  // kg fiyatı altta bilgi olarak. Değilse ürünün kendi fiyatı.
-  const headlinePrice = byWeight
+  // Yalnız birimi "gram" olan ürünlerde başlık fiyatı EN AZ miktarın fiyatıdır
+  // (ör. 125 g → ₺200); kg fiyatı altta bilgi. Diğerlerinde ürünün kendi fiyatı.
+  const packMode = showsPackPrice(product);
+  const headlinePrice = packMode
     ? computeLineTotal(product.price, weightMin, true)
     : product.price;
 
@@ -226,7 +227,7 @@ export default async function UrunDetayPage({ params }: { params: Params }) {
   // İndirimdeki net tasarruf (başlık fiyatı ölçeğinde).
   const saving =
     discounted && compareAt !== null
-      ? (byWeight
+      ? (packMode
           ? computeLineTotal(compareAt, weightMin, true)
           : compareAt) - headlinePrice
       : 0;
@@ -383,15 +384,18 @@ export default async function UrunDetayPage({ params }: { params: Params }) {
 
               <p className={styles.priceRow}>
                 <span className={styles.price}>{formatTL(headlinePrice)}</span>
-                {!byWeight &&
-                  product.unit !== "adet" &&
-                  !isGramPackUnit(product.unit) && (
-                    <span className={styles.unit}>/ {product.unit}</span>
+                {!packMode &&
+                  (byWeight
+                    ? true
+                    : product.unit !== "adet" && product.unit !== "gram") && (
+                    <span className={styles.unit}>
+                      / {byWeight ? "kg" : product.unit}
+                    </span>
                   )}
                 {discounted && (
                   <s className={styles.compare}>
                     {formatTL(
-                      byWeight && compareAt !== null
+                      packMode && compareAt !== null
                         ? computeLineTotal(compareAt, weightMin, true)
                         : compareAt!,
                     )}
@@ -402,7 +406,7 @@ export default async function UrunDetayPage({ params }: { params: Params }) {
                 )}
               </p>
 
-              {byWeight ? (
+              {packMode ? (
                 <p className={styles.unitPrice}>
                   {formatGrams(weightMin)} · {formatTL(product.price)} / kg
                 </p>
