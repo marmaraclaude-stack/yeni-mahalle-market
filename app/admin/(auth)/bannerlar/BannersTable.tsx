@@ -78,7 +78,34 @@ function BannerCard({ banner }: { banner: Banner }) {
   const [busy, setBusy] = useState(false);
   const [sortValue, setSortValue] = useState(String(banner.sort));
   const [icon, setIcon] = useState(banner.icon);
+  const [title, setTitle] = useState(banner.title);
+  const [subtitle, setSubtitle] = useState(banner.subtitle);
   const [, startTransition] = useTransition();
+
+  const textDirty =
+    title.trim() !== banner.title || subtitle.trim() !== banner.subtitle;
+
+  function saveText() {
+    if (!title.trim()) {
+      window.alert("Başlık boş olamaz.");
+      return;
+    }
+    setBusy(true);
+    startTransition(async () => {
+      try {
+        const result = await updateBanner(banner.id, {
+          title: title.trim(),
+          subtitle: subtitle.trim(),
+        });
+        if (!result.ok) {
+          window.alert(result.error ?? "Metin kaydedilemedi.");
+        }
+        router.refresh();
+      } finally {
+        setBusy(false);
+      }
+    });
+  }
 
   const [bg, fg] = CATEGORY_TINTS[safeTint(banner.tint)];
   const PreviewIcon = resolveBannerIcon(icon, banner.title);
@@ -164,10 +191,8 @@ function BannerCard({ banner }: { banner: Banner }) {
       >
         {!banner.is_active && <span className={css.offTag}>Pasif</span>}
         <div className={css.previewCopy}>
-          <div className={css.previewTitle}>{banner.title}</div>
-          {banner.subtitle && (
-            <div className={css.previewSub}>{banner.subtitle}</div>
-          )}
+          <div className={css.previewTitle}>{title}</div>
+          {subtitle && <div className={css.previewSub}>{subtitle}</div>}
         </div>
         <div className={css.previewArt} aria-hidden="true">
           <span className={css.artCircleLg} />
@@ -178,8 +203,43 @@ function BannerCard({ banner }: { banner: Banner }) {
         </div>
       </div>
 
-      {/* Kontroller: ikon, renk, sira, durum, sil */}
+      {/* Kontroller: baslik/metin, ikon, renk, sira, durum, sil */}
       <div className={css.controls}>
+        <div className={`${css.controlField} ${css["controlField--text"]}`}>
+          <span className={css.controlLabel}>Başlık</span>
+          <input
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            maxLength={80}
+            disabled={busy}
+            className={styles.inputSm}
+            aria-label={`${banner.title} banner başlığı`}
+          />
+        </div>
+        <div className={`${css.controlField} ${css["controlField--text"]}`}>
+          <span className={css.controlLabel}>Alt metin</span>
+          <input
+            value={subtitle}
+            onChange={(e) => setSubtitle(e.target.value)}
+            maxLength={160}
+            disabled={busy}
+            className={styles.inputSm}
+            aria-label={`${banner.title} banner alt metni`}
+          />
+        </div>
+        {textDirty && (
+          <div className={css.controlField}>
+            <span className={css.controlLabel}>&nbsp;</span>
+            <button
+              type="button"
+              onClick={saveText}
+              disabled={busy}
+              className={`${styles.btnRow} ${styles["btnRow--primary"]}`}
+            >
+              {busy ? "Kaydediliyor…" : "Metni Kaydet"}
+            </button>
+          </div>
+        )}
         <div className={`${css.controlField} ${css["controlField--icon"]}`}>
           <span className={css.controlLabel}>İkon</span>
           <select

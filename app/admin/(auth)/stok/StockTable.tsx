@@ -14,7 +14,7 @@ import {
   type StockRow,
 } from "@/lib/shop/admin-actions";
 import { categoryBySlug, CATEGORY_TINTS } from "@/lib/shop/categories";
-import { formatGrams } from "@/lib/shop/types";
+import { formatGrams, isWeightBased } from "@/lib/shop/types";
 import styles from "../../admin.module.css";
 import pstyles from "../urunler/products.module.css";
 
@@ -41,15 +41,19 @@ export interface StockChip {
   active: boolean;
 }
 
-/** Satır durumu: tükendi / düşük / stokta / takipsiz. */
-function stateOf(r: StockRow): "tukendi" | "dusuk" | "ok" | "takipsiz" {
+/** Satır durumu: tükendi / düşük / stokta / takipsiz.
+ *  Gram bazlılık isWeightBased ile (unit=kg/gram + meyve-sebze dahil). */
+function stateOf(
+  r: StockRow,
+  byWeight: boolean,
+): "tukendi" | "dusuk" | "ok" | "takipsiz" {
   if (r.stock_qty === null) return r.in_stock ? "takipsiz" : "tukendi";
   if (r.stock_qty <= 0 || !r.in_stock) return "tukendi";
-  if (r.stock_qty <= (r.sold_by_weight ? 2000 : 5)) return "dusuk";
+  if (r.stock_qty <= (byWeight ? 2000 : 5)) return "dusuk";
   return "ok";
 }
 
-function StockCell({ row }: { row: StockRow }) {
+function StockCell({ row, byWeight }: { row: StockRow; byWeight: boolean }) {
   const router = useRouter();
   const [value, setValue] = useState(
     row.stock_qty === null ? "" : String(row.stock_qty),
@@ -90,7 +94,7 @@ function StockCell({ row }: { row: StockRow }) {
         className={`${styles.inputSm} ${styles.stockInput}`}
         aria-label={`${row.name} stok adedi`}
       />
-      {row.sold_by_weight && <span className={styles.stockUnit}>g</span>}
+      {byWeight && <span className={styles.stockUnit}>g</span>}
       <button
         type="button"
         onClick={save}
@@ -223,7 +227,8 @@ export default function StockTable({
                   {rows.map((r) => {
                     const cat = categoryBySlug(r.category_slug);
                     const [bg, fg] = CATEGORY_TINTS[cat?.tint ?? 0];
-                    const st = stateOf(r);
+                    const byWeight = isWeightBased(r);
+                    const st = stateOf(r, byWeight);
                     return (
                       <tr
                         key={r.id}
@@ -255,7 +260,7 @@ export default function StockTable({
                                 {[r.brand, r.size_text]
                                   .filter(Boolean)
                                   .join(" · ") || "·"}
-                                {r.sold_by_weight && " · gram bazlı"}
+                                {byWeight && " · gram bazlı"}
                               </div>
                             </div>
                           </div>
@@ -278,14 +283,14 @@ export default function StockTable({
                             <span className={`${styles.pill} ${styles["pill--warn"]}`}>
                               Düşük
                               {r.stock_qty !== null &&
-                                ` · ${r.sold_by_weight ? formatGrams(r.stock_qty) : r.stock_qty}`}
+                                ` · ${byWeight ? formatGrams(r.stock_qty) : r.stock_qty}`}
                             </span>
                           )}
                           {st === "ok" && (
                             <span className={`${styles.pill} ${styles["pill--ok"]}`}>
                               Stokta
                               {r.stock_qty !== null &&
-                                ` · ${r.sold_by_weight ? formatGrams(r.stock_qty) : r.stock_qty}`}
+                                ` · ${byWeight ? formatGrams(r.stock_qty) : r.stock_qty}`}
                             </span>
                           )}
                           {st === "takipsiz" && (
@@ -293,7 +298,7 @@ export default function StockTable({
                           )}
                         </td>
                         <td data-label="Stok">
-                          <StockCell row={r} />
+                          <StockCell row={r} byWeight={byWeight} />
                         </td>
                       </tr>
                     );

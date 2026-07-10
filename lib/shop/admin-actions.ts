@@ -13,6 +13,7 @@ import {
 } from "@/lib/shop/location-ingest";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { categoryBySlug } from "@/lib/shop/categories";
+import { assignSubcategory } from "@/lib/shop/subcategories";
 import { BANNER_ICONS } from "@/lib/shop/icons";
 import type {
   Courier,
@@ -1310,6 +1311,7 @@ export interface StockRow {
   stock_qty: number | null;
   in_stock: boolean;
   image_url: string | null;
+  subcategory_slug: string | null;
 }
 
 export type StockFilter = "dusuk" | "tukendi" | "takipsiz";
@@ -1321,7 +1323,7 @@ export interface StockPageData {
 }
 
 const STOCK_COLS =
-  "id, name, brand, size_text, category_slug, unit, sold_by_weight, stock_qty, in_stock, image_url";
+  "id, name, brand, size_text, category_slug, subcategory_slug, unit, sold_by_weight, stock_qty, in_stock, image_url";
 const STOCK_PAGE_SIZE = 50;
 
 /** "Düşük" eşiği: adetlide ≤5, gram bazlıda ≤2000 g. */
@@ -1340,6 +1342,8 @@ function isLowStock(r: Pick<StockRow, "stock_qty" | "sold_by_weight">): boolean 
 export async function listStock(opts: {
   q?: string;
   category?: string;
+  /** Kural tabanlı alt kategori (yalnız category ile anlamlı) — bellekte süzülür. */
+  subcategory?: string;
   filter?: StockFilter;
   page?: number;
 }): Promise<StockPageData> {
@@ -1347,6 +1351,47 @@ export async function listStock(opts: {
   const supabase = createAdminClient();
   const q = opts.q?.trim();
   const page = Math.max(1, opts.page ?? 1);
+
+  // ALT KATEGORİ YOLU: altk DB kolonu değil (kural tabanlı). Kategori
+  // ürünleri tek sorguyla çekilir, assignSubcategory ile süzülür; çipler,
+  // filtre ve 50'lik sayfalama bellekte uygulanır (Ürünler sayfası ile aynı).
+  if (opts.category && opts.subcategory) {
+    let query = supabase
+      .from("products")
+      .select(STOCK_COLS)
+      .eq("is_active", true)
+      .eq("category_slug", opts.category)
+      .order("name", { ascending: true })
+      .range(0, 999);
+    if (q) query = query.ilike("name", `%${q}%`);
+    const { data } = await query;
+    const inSub = ((data ?? []) as StockRow[]).filter(
+      (p) =>
+        assignSubcategory(p.category_slug, p.name, p.brand, p.subcategory_slug) ===
+        opts.subcategory,
+    );
+    const counts: Record<StockFilter, number> = {
+      dusuk: inSub.filter(isLowStock).length,
+      tukendi: inSub.filter((r) => !r.in_stock).length,
+      takipsiz: inSub.filter((r) => r.stock_qty === null).length,
+    };
+    let filtered = inSub;
+    if (opts.filter === "dusuk") filtered = inSub.filter(isLowStock);
+    else if (opts.filter === "tukendi") filtered = inSub.filter((r) => !r.in_stock);
+    else if (opts.filter === "takipsiz")
+      filtered = inSub.filter((r) => r.stock_qty === null);
+    const sorted = [...filtered].sort((a, b) => {
+      const av = a.stock_qty ?? Number.MAX_SAFE_INTEGER;
+      const bv = b.stock_qty ?? Number.MAX_SAFE_INTEGER;
+      return av - bv || a.name.localeCompare(b.name, "tr");
+    });
+    const from = (page - 1) * STOCK_PAGE_SIZE;
+    return {
+      rows: sorted.slice(from, from + STOCK_PAGE_SIZE),
+      total: sorted.length,
+      counts,
+    };
+  }
 
   // Temel kapsam (kategori + arama) — çipler ve liste aynı kapsamı kullanır.
   const base = () => {

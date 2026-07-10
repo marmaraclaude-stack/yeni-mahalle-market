@@ -215,3 +215,12 @@
     justify-content: flex-end;
   }
 }
+
+/* Başlık/alt metin düzenleme alanları — geniş input */
+.controlField--text {
+  flex: 1 1 220px;
+  min-width: 180px;
+}
+.controlField--text input {
+  width: 100%;
+}

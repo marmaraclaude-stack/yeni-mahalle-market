@@ -21,7 +21,7 @@ import {
   Wallet,
 } from "lucide-react";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { formatTL, ORDER_STATUS_LABELS } from "@/lib/shop/types";
+import { formatGrams, formatTL, ORDER_STATUS_LABELS } from "@/lib/shop/types";
 import type { Order, OrderStatus, ShopSettings } from "@/lib/shop/types";
 import styles from "../admin.module.css";
 import ds from "./dashboard.module.css";
@@ -75,8 +75,10 @@ type RecentOrder = Pick<
 
 interface TopProduct {
   name: string;
+  /** Adetli üründe adet, gram bazlıda GRAM. */
   qty: number;
   total: number;
+  byWeight: boolean;
 }
 
 interface CatalogHealth {
@@ -376,7 +378,7 @@ async function loadTopProducts(): Promise<TopProduct[] | null> {
     if (ids.length === 0) return [];
     const itemsRes = await supabase
       .from("order_items")
-      .select("name, qty, line_total")
+      .select("name, qty, line_total, sold_by_weight")
       .in("order_id", ids);
     if (itemsRes.error) return null;
     const byName = new Map<string, TopProduct>();
@@ -384,14 +386,21 @@ async function loadTopProducts(): Promise<TopProduct[] | null> {
       name: string;
       qty: number;
       line_total: number;
+      sold_by_weight: boolean | null;
     }[];
     for (const item of items) {
-      const cur = byName.get(item.name) ?? { name: item.name, qty: 0, total: 0 };
+      const cur =
+        byName.get(item.name) ??
+        ({ name: item.name, qty: 0, total: 0, byWeight: false } as TopProduct);
       cur.qty += Number(item.qty);
       cur.total += Number(item.line_total);
+      cur.byWeight = cur.byWeight || item.sold_by_weight === true;
       byName.set(item.name, cur);
     }
-    return [...byName.values()].sort((a, b) => b.qty - a.qty).slice(0, 5);
+    // Sıralama skoru: gram bazlıda qty GRAM'dır — 1 kg ≈ 1 birim sayılır ki
+    // 250 g'lık bir satış 250 adetlik satışı ezmesin.
+    const score = (p: TopProduct) => (p.byWeight ? p.qty / 1000 : p.qty);
+    return [...byName.values()].sort((a, b) => score(b) - score(a)).slice(0, 5);
   } catch {
     return null;
   }
@@ -568,8 +577,10 @@ export default async function AdminHome({
     ? Math.max(...STATUS_ORDER.map((s) => stats.statusCounts?.[s] ?? 0), 1)
     : 1;
 
+  // Bar oranı: gram bazlıda kg cinsinden normalize (adet ile karışmasın).
+  const topScore = (p: TopProduct) => (p.byWeight ? p.qty / 1000 : p.qty);
   const topMax = topProducts && topProducts.length > 0
-    ? Math.max(...topProducts.map((p) => p.qty), 1)
+    ? Math.max(...topProducts.map(topScore), 1)
     : 1;
 
   return (
@@ -838,14 +849,16 @@ export default async function AdminHome({
                           <span
                             className={ds.topBarFill}
                             style={{
-                              width: `${Math.max(Math.round((p.qty / topMax) * 100), 4)}%`,
+                              width: `${Math.max(Math.round((topScore(p) / topMax) * 100), 4)}%`,
                             }}
                           />
                         </span>
                       </span>
                       <span className={ds.topSide}>
                         <span className={ds.topTotal}>{formatTL(p.total)}</span>
-                        <span className={ds.topQty}>{p.qty} adet</span>
+                        <span className={ds.topQty}>
+                          {p.byWeight ? formatGrams(p.qty) : `${p.qty} adet`}
+                        </span>
                       </span>
                     </div>
                   ))}

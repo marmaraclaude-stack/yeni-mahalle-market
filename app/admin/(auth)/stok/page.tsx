@@ -5,6 +5,7 @@
 import { Search } from "lucide-react";
 import { listStock, type StockFilter } from "@/lib/shop/admin-actions";
 import { SHOP_CATEGORIES } from "@/lib/shop/categories";
+import { subcatsFor } from "@/lib/shop/subcategories";
 import StockTable, { type StockPageItem } from "./StockTable";
 import styles from "../../admin.module.css";
 
@@ -21,12 +22,14 @@ const FILTER_LABELS: Record<StockFilter, string> = {
 
 function buildHref(params: {
   k?: string;
+  altk?: string | null;
   q?: string;
   filtre?: StockFilter | null;
   sayfa?: number;
 }): string {
   const sp = new URLSearchParams();
   if (params.k) sp.set("k", params.k);
+  if (params.k && params.altk) sp.set("altk", params.altk);
   if (params.q) sp.set("q", params.q);
   if (params.filtre) sp.set("filtre", params.filtre);
   if (params.sayfa && params.sayfa > 1) sp.set("sayfa", String(params.sayfa));
@@ -61,11 +64,21 @@ function buildPageItems(
 export default async function StockPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; k?: string; filtre?: string; sayfa?: string }>;
+  searchParams: Promise<{
+    q?: string;
+    k?: string;
+    altk?: string;
+    filtre?: string;
+    sayfa?: string;
+  }>;
 }) {
   const sp = await searchParams;
   const q = typeof sp.q === "string" ? sp.q.trim() : "";
   const k = SHOP_CATEGORIES.some((c) => c.slug === sp.k) ? sp.k! : "";
+  // Alt kategori: yalnız kategori seçiliyken ve tanımlı slug'lardansa geçerli.
+  const subOptions = k ? subcatsFor(k) : [];
+  const altk =
+    sp.altk && subOptions.some((s) => s.slug === sp.altk) ? sp.altk : "";
   const filtre = FILTERS.includes(sp.filtre as StockFilter)
     ? (sp.filtre as StockFilter)
     : undefined;
@@ -76,6 +89,7 @@ export default async function StockPage({
   const { rows, total, counts } = await listStock({
     q,
     category: k || undefined,
+    subcategory: altk || undefined,
     filter: filtre,
     page: requestedPage,
   });
@@ -85,7 +99,7 @@ export default async function StockPage({
   const rangeStart = total === 0 ? 0 : (page - 1) * PAGE_SIZE + 1;
   const rangeEnd = Math.min(total, page * PAGE_SIZE);
 
-  const hrefFor = (n: number) => buildHref({ k, q, filtre, sayfa: n });
+  const hrefFor = (n: number) => buildHref({ k, altk, q, filtre, sayfa: n });
   const pagination = {
     page,
     totalPages,
@@ -103,8 +117,8 @@ export default async function StockPage({
     count: counts[key],
     href:
       filtre === key
-        ? buildHref({ k, q })
-        : buildHref({ k, q, filtre: key }),
+        ? buildHref({ k, altk, q })
+        : buildHref({ k, altk, q, filtre: key }),
     active: filtre === key,
   }));
 
@@ -137,6 +151,22 @@ export default async function StockPage({
           </option>
         ))}
       </select>
+      {/* Alt kategori: yalnız kategori seçiliyken (Ürünler ile aynı davranış) */}
+      {k && subOptions.length > 0 && (
+        <select
+          name="altk"
+          defaultValue={altk}
+          className={styles.select}
+          aria-label="Alt kategori"
+        >
+          <option value="">Tüm alt kategoriler</option>
+          {subOptions.map((s) => (
+            <option key={s.slug} value={s.slug}>
+              {s.name}
+            </option>
+          ))}
+        </select>
+      )}
       {filtre && <input type="hidden" name="filtre" value={filtre} />}
       <button
         type="submit"
@@ -149,11 +179,9 @@ export default async function StockPage({
 
   return (
     <>
-      <h1 className={styles.title}>Stok</h1>
-      <p className={styles.subtitle} style={{ marginBottom: 18 }}>
-        {total} ürün · sayfa {page}/{totalPages} — adet girin; sipariş geldikçe
-        otomatik düşer, 0&apos;a inince ürün &quot;tükendi&quot; olur.
-      </p>
+      <h1 className={styles.title} style={{ marginBottom: 18 }}>
+        Stok
+      </h1>
       <StockTable
         rows={rows}
         chips={chips}

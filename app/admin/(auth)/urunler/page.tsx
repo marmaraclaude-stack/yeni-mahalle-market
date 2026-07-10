@@ -424,12 +424,10 @@ export default async function AdminProductsPage({
 
   return (
     <>
-      <h1 className={styles.title}>Ürünler</h1>
-      <p className={styles.subtitle}>
-        {loadError
-          ? "Katalog yüklenemedi."
-          : `${total} ürün · sayfa ${page}/${totalPages}`}
-      </p>
+      <h1 className={styles.title} style={{ marginBottom: 18 }}>
+        Ürünler
+      </h1>
+      {loadError && <p className={styles.subtitle}>Katalog yüklenemedi.</p>}
 
       {loadError ? (
         <div className={styles.empty}>

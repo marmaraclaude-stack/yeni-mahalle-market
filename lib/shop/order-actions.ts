@@ -267,7 +267,20 @@ export async function createOrder(
     );
     subtotal = round2(subtotal + lineTotal);
 
-    const displayName = [product.brand, product.name, product.size_text]
+    // Sipariş kalem adı: marka/gramaj ürün adında ZATEN geçiyorsa tekrar
+    // eklenmez ("Lay's Lay's Klasik 107 g 107 g" olmasın).
+    const nameLc = product.name.toLocaleLowerCase("tr-TR");
+    const brandPart =
+      product.brand &&
+      !nameLc.includes(product.brand.toLocaleLowerCase("tr-TR"))
+        ? product.brand
+        : "";
+    const sizePart =
+      product.size_text &&
+      !nameLc.includes(product.size_text.toLocaleLowerCase("tr-TR"))
+        ? product.size_text
+        : "";
+    const displayName = [brandPart, product.name, sizePart]
       .filter(Boolean)
       .join(" ")
       .trim();
