@@ -1,22 +1,21 @@
 "use client";
 
-// Teslimat merkezi (kurye bazlı). Canlı Leaflet haritası (market + çevresi +
-// renkli kurye pinleri), aktif teslimat kartları, owner konum paylaşımı ve
-// her kuryeye özel kalıcı motor takip linki.
+// Teslimat operasyon ekranı.
+//  - Üst: özet kutuları + "bu cihazdan paylaş" (kurye seçerek)
+//  - Sol: canlı Leaflet haritası — pinler ARAÇLARDAN (renkli, araç+kurye lejantı)
+//  - Sağ: teslim edilene kadar tüm aktif siparişler (durum rozetli)
+// Cihaz linkleri Araçlar sayfasına taşındı.
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import {
-  Check,
   CheckCircle2,
-  Copy,
   Loader2,
   MapPin,
   Navigation,
   Package,
   Phone,
-  Radio,
 } from "lucide-react";
 import {
   adminShareLocation,
@@ -35,10 +34,18 @@ interface CourierBase {
   id: string;
   name: string;
   phone: string;
-  ingestUrl: string;
+}
+interface VehiclePin {
+  id: string;
+  name: string;
+  plate: string;
+  courierName: string;
+  lat: number | null;
+  lng: number | null;
+  at: string | null;
 }
 
-// Kurye pin renkleri (haritada + lejantta).
+// Araç pin renkleri (haritada + lejantta).
 const PALETTE = [
   "#e11d48",
   "#2563eb",
@@ -65,9 +72,6 @@ const STATUS_PRIORITY: Record<string, number> = {
 
 type ShareState = "idle" | "starting" | "sharing" | "error";
 
-function last10(v: string): string {
-  return String(v ?? "").replace(/\D/g, "").slice(-10);
-}
 function agoText(iso: string | null): string {
   if (!iso) return "konum yok";
   const mins = Math.floor((Date.now() - new Date(iso).getTime()) / 60000);
@@ -87,9 +91,11 @@ function dirTo(address: string): string {
 export default function DeliveryTracker({
   orders,
   couriers,
+  vehicles,
 }: {
   orders: DeliveryOrder[];
   couriers: CourierBase[];
+  vehicles: VehiclePin[];
 }) {
   const router = useRouter();
   const [list, setList] = useState(orders);
@@ -97,16 +103,18 @@ export default function DeliveryTracker({
   const [message, setMessage] = useState("");
   const [lastAt, setLastAt] = useState("");
   const [shareCourier, setShareCourier] = useState(couriers[0]?.id ?? "");
-  const [copiedId, setCopiedId] = useState<string | null>(null);
   const watchId = useRef<number | null>(null);
   const sending = useRef(false);
 
+  // Sipariş listesi + araç konumları periyodik tazelensin (router.refresh
+  // araç verisini sunucudan yeniden getirir).
   useEffect(() => {
     let cancelled = false;
     const id = setInterval(async () => {
       try {
         const fresh = await listActiveDeliveries();
         if (!cancelled) setList(fresh);
+        router.refresh();
       } catch {
         /* yut */
       }
@@ -115,49 +123,27 @@ export default function DeliveryTracker({
       cancelled = true;
       clearInterval(id);
     };
-  }, []);
+  }, [router]);
 
-  // Kurye başına istatistik + renk (sipariş listesinden türetilir).
-  const stats = useMemo(() => {
-    return couriers.map((c, i) => {
-      const color = PALETTE[i % PALETTE.length];
-      const mine = last10(c.phone);
-      const my = list.filter(
-        (o) => mine.length === 10 && last10(o.courier_phone) === mine,
-      );
-      let lastLoc: string | null = null;
-      let lat: number | null = null;
-      let lng: number | null = null;
-      for (const o of my) {
-        if (
-          o.status === "on_the_way" &&
-          o.courier_location_at &&
-          o.courier_lat != null &&
-          o.courier_lng != null &&
-          (!lastLoc || o.courier_location_at > lastLoc)
-        ) {
-          lastLoc = o.courier_location_at;
-          lat = o.courier_lat;
-          lng = o.courier_lng;
-        }
-      }
-      return { ...c, color, activeCount: my.length, lastLoc, lat, lng };
-    });
-  }, [couriers, list]);
-
-  const mapCouriers = useMemo(
+  // Renkli araç pinleri (konumu olanlar haritada).
+  const colored = useMemo(
     () =>
-      stats
-        .filter((s) => s.lat != null && s.lng != null)
-        .map((s) => ({
-          id: s.id,
-          name: s.name,
-          lat: s.lat as number,
-          lng: s.lng as number,
-          color: s.color,
-          lastLoc: s.lastLoc,
+      vehicles.map((v, i) => ({ ...v, color: PALETTE[i % PALETTE.length] })),
+    [vehicles],
+  );
+  const mapPins = useMemo(
+    () =>
+      colored
+        .filter((v) => v.lat != null && v.lng != null)
+        .map((v) => ({
+          id: v.id,
+          name: v.courierName ? `${v.name} · ${v.courierName}` : v.name,
+          lat: v.lat as number,
+          lng: v.lng as number,
+          color: v.color,
+          lastLoc: v.at,
         })),
-    [stats],
+    [colored],
   );
 
   const stop = useCallback(() => {
@@ -185,14 +171,9 @@ export default function DeliveryTracker({
           );
           setMessage(
             res.count === 0
-              ? "Konum alındı ama seçili kuryenin 'Kurye Yolda' siparişi yok."
+              ? "Konum alındı; seçili kuryenin yolda siparişi yok."
               : "",
           );
-          try {
-            setList(await listActiveDeliveries());
-          } catch {
-            /* yut */
-          }
         } else {
           setState("error");
           setMessage(res.error ?? "Konum gönderilemedi.");
@@ -247,19 +228,9 @@ export default function DeliveryTracker({
     router.refresh();
   }, [stop, router]);
 
-  const copy = useCallback((id: string, url: string) => {
-    navigator.clipboard
-      .writeText(url)
-      .then(() => {
-        setCopiedId(id);
-        setTimeout(() => setCopiedId((c) => (c === id ? null : c)), 1800);
-      })
-      .catch(() => undefined);
-  }, []);
-
   const isSharing = state === "sharing" || state === "starting";
-
   const onTheWayCount = list.filter((o) => o.status === "on_the_way").length;
+  const liveVehicles = mapPins.length;
   const sorted = useMemo(
     () =>
       [...list].sort(
@@ -284,10 +255,10 @@ export default function DeliveryTracker({
           </div>
           <div className={styles.deliveryStat}>
             <span className={styles.deliveryStatNum}>
-              {mapCouriers.length}
-              <span className={styles.deliveryStatSub}>/{stats.length}</span>
+              {liveVehicles}
+              <span className={styles.deliveryStatSub}>/{vehicles.length}</span>
             </span>
-            <span className={styles.deliveryStatLbl}>Canlı kurye</span>
+            <span className={styles.deliveryStatLbl}>Canlı araç</span>
           </div>
         </div>
 
@@ -353,30 +324,40 @@ export default function DeliveryTracker({
         </div>
       </div>
 
-      {/* Ana pano: sol harita · sağ liste (başlıklar aynı hizada başlar) */}
+      {/* Ana pano: sol harita · sağ liste */}
       <div className={styles.deliveryGrid}>
         <div className={styles.deliveryMapCol}>
           <div className={styles.deliveryMapHead}>
             <h2 className={styles.deliverySectionTitle}>
               <MapPin size={16} aria-hidden /> Canlı harita
             </h2>
-            {stats.length > 0 && (
+            {colored.length > 0 && (
               <div className={styles.deliveryLegend}>
-                {stats.map((s) => (
-                  <span key={s.id} className={styles.deliveryLegendItem}>
+                {colored.map((v) => (
+                  <span key={v.id} className={styles.deliveryLegendItem}>
                     <span
                       className={styles.deliveryLegendDot}
-                      style={{ background: s.color }}
+                      style={{ background: v.color }}
                       aria-hidden
                     />
-                    {s.name}
+                    {v.name}
+                    {v.courierName ? ` · ${v.courierName}` : ""}
+                    <span
+                      className={
+                        v.lat != null
+                          ? styles.deliveryLegendLive
+                          : styles.deliveryLegendOff
+                      }
+                    >
+                      {v.lat != null ? agoText(v.at) : "sinyal yok"}
+                    </span>
                   </span>
                 ))}
               </div>
             )}
           </div>
           <div className={styles.deliveryMapBox}>
-            <CourierMap market={BUSINESS.geo} couriers={mapCouriers} />
+            <CourierMap market={BUSINESS.geo} couriers={mapPins} />
           </div>
         </div>
 
@@ -388,7 +369,9 @@ export default function DeliveryTracker({
             <div className={styles.deliverySideEmpty}>
               <Package size={26} aria-hidden />
               <span>Aktif sipariş yok</span>
-              <small>Yeni sipariş geldiğinde teslim edilene kadar burada görünür.</small>
+              <small>
+                Yeni sipariş geldiğinde teslim edilene kadar burada görünür.
+              </small>
             </div>
           ) : (
             <div className={styles.deliverySideList}>
@@ -412,9 +395,7 @@ export default function DeliveryTracker({
                     <p className={styles.deliveryCustomer}>{o.customer_name}</p>
                     <p className={styles.deliveryAddr}>{o.address_line}</p>
                     {o.address_note && (
-                      <p className={styles.deliveryCourier}>
-                        Not: {o.address_note}
-                      </p>
+                      <p className={styles.deliveryCourier}>Not: {o.address_note}</p>
                     )}
                     {o.courier_name && (
                       <p className={styles.deliveryCourier}>
@@ -436,10 +417,7 @@ export default function DeliveryTracker({
                     )}
                     <div className={styles.deliveryCardActions}>
                       {o.phone && (
-                        <a
-                          href={`tel:${o.phone}`}
-                          className={styles.deliveryMini}
-                        >
+                        <a href={`tel:${o.phone}`} className={styles.deliveryMini}>
                           <Phone size={13} /> Ara
                         </a>
                       )}
@@ -465,69 +443,6 @@ export default function DeliveryTracker({
                   </div>
                 );
               })}
-            </div>
-          )}
-
-          <h2 className={styles.deliverySectionTitle}>
-            <Radio size={16} aria-hidden /> Kurye takip cihazları
-          </h2>
-          {stats.length === 0 ? (
-            <div className={styles.empty}>
-              Aktif kurye yok. Kuryeler sayfasından ekleyin.
-            </div>
-          ) : (
-            <div className={styles.deliverySideList}>
-              {stats.map((s) => (
-                <div key={s.id} className={styles.deliveryDeviceCard}>
-                  <div className={styles.deliveryCardTop}>
-                    <span className={styles.deliveryOrderNo}>
-                      <span
-                        className={styles.deliveryLegendDot}
-                        style={{ background: s.color, marginRight: 6 }}
-                        aria-hidden
-                      />
-                      {s.name}
-                    </span>
-                    <span
-                      className={`${styles.deliveryDot} ${
-                        s.lat != null ? styles.deliveryDotOn : ""
-                      }`}
-                    >
-                      {s.lat != null ? agoText(s.lastLoc) : "konum yok"}
-                    </span>
-                  </div>
-                  <p className={styles.deliveryCourier}>
-                    {s.activeCount} aktif teslimat · {s.phone || "telefon yok"}
-                  </p>
-                  <div className={styles.deliveryUrlRow} style={{ marginTop: 8 }}>
-                    <input
-                      type="text"
-                      readOnly
-                      value={s.ingestUrl}
-                      onFocus={(e) => e.currentTarget.select()}
-                      className={styles.deliveryUrl}
-                      aria-label={`${s.name} motor takip linki`}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => copy(s.id, s.ingestUrl)}
-                      className={`${styles.actionBtn} ${styles["actionBtn--primary"]}`}
-                      style={{
-                        display: "inline-flex",
-                        alignItems: "center",
-                        gap: 6,
-                      }}
-                    >
-                      {copiedId === s.id ? (
-                        <Check size={15} />
-                      ) : (
-                        <Copy size={15} />
-                      )}
-                      {copiedId === s.id ? "Kopyalandı" : "Kopyala"}
-                    </button>
-                  </div>
-                </div>
-              ))}
             </div>
           )}
         </div>

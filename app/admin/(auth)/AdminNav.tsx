@@ -8,6 +8,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   Bike,
+  Boxes,
+  Car,
   GalleryHorizontal,
   LayoutDashboard,
   MessageCircle,
@@ -31,9 +33,11 @@ interface NavItem {
 const SHOP_PREFIXES = [
   "/admin/siparisler",
   "/admin/urunler",
+  "/admin/stok",
   "/admin/kuponlar",
   "/admin/bannerlar",
   "/admin/kuryeler",
+  "/admin/araclar",
   "/admin/teslimat",
   "/admin/uyeler",
   "/admin/ayarlar",
@@ -59,6 +63,12 @@ const ITEMS: NavItem[] = [
     isActive: (p) => p.startsWith("/admin/urunler"),
   },
   {
+    href: "/admin/stok",
+    label: "Stok",
+    icon: Boxes,
+    isActive: (p) => p.startsWith("/admin/stok"),
+  },
+  {
     href: "/admin/kuponlar",
     label: "Kuponlar",
     icon: Ticket,
@@ -75,6 +85,12 @@ const ITEMS: NavItem[] = [
     label: "Kuryeler",
     icon: Bike,
     isActive: (p) => p.startsWith("/admin/kuryeler"),
+  },
+  {
+    href: "/admin/araclar",
+    label: "Araçlar",
+    icon: Car,
+    isActive: (p) => p.startsWith("/admin/araclar"),
   },
   {
     href: "/admin/teslimat",

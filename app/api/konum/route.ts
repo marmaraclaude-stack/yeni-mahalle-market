@@ -9,8 +9,10 @@ import { NextResponse } from "next/server";
 import {
   verifyIngestToken,
   verifyCourierIngestToken,
+  verifyVehicleIngestToken,
   writeActiveLocation,
   writeCourierLocation,
+  writeVehicleLocation,
 } from "@/lib/shop/location-ingest";
 
 export const dynamic = "force-dynamic";
@@ -20,11 +22,23 @@ function num(v: unknown): number {
 }
 
 async function handle(
+  vehicleId: string | null,
   courierId: string | null,
   key: string | null,
   lat: number,
   lng: number,
 ): Promise<NextResponse> {
+  // Araç modu (v + key): GPS cihazı araca takılı — asıl kullanım.
+  if (vehicleId) {
+    if (!verifyVehicleIngestToken(vehicleId, key)) {
+      return NextResponse.json(
+        { ok: false, error: "unauthorized" },
+        { status: 401 },
+      );
+    }
+    const res = await writeVehicleLocation(vehicleId, lat, lng);
+    return NextResponse.json(res, { status: res.ok ? 200 : 400 });
+  }
   // Kuryeye özel mod: c + key. Yoksa genel mod (tüm on_the_way).
   if (courierId) {
     if (!verifyCourierIngestToken(courierId, key)) {
@@ -46,6 +60,7 @@ async function handle(
 export async function GET(req: Request) {
   const q = new URL(req.url).searchParams;
   return handle(
+    q.get("v") ?? q.get("vehicle"),
     q.get("c") ?? q.get("courier"),
     q.get("key") ?? q.get("token"),
     num(q.get("lat") ?? q.get("latitude")),
@@ -55,6 +70,7 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
   const q = new URL(req.url).searchParams;
+  let vehicleId = q.get("v") ?? q.get("vehicle");
   let courierId = q.get("c") ?? q.get("courier");
   let key = q.get("key") ?? q.get("token");
   let lat = num(q.get("lat") ?? q.get("latitude"));
@@ -64,6 +80,8 @@ export async function POST(req: Request) {
   try {
     if (ct.includes("application/json")) {
       const body = (await req.json()) as Record<string, unknown>;
+      vehicleId =
+        vehicleId ?? (body.v as string) ?? (body.vehicle as string) ?? null;
       courierId = courierId ?? (body.c as string) ?? (body.courier as string) ?? null;
       key = key ?? (body.key as string) ?? (body.token as string) ?? null;
       if (!Number.isFinite(lat)) lat = num(body.lat ?? body.latitude);
@@ -73,6 +91,8 @@ export async function POST(req: Request) {
       ct.includes("multipart/form-data")
     ) {
       const form = await req.formData();
+      vehicleId =
+        vehicleId ?? (form.get("v") as string) ?? (form.get("vehicle") as string) ?? null;
       courierId =
         courierId ?? (form.get("c") as string) ?? (form.get("courier") as string) ?? null;
       key = key ?? (form.get("key") as string) ?? (form.get("token") as string) ?? null;
@@ -84,5 +104,5 @@ export async function POST(req: Request) {
     // gövde okunamadı — query değerleriyle devam
   }
 
-  return handle(courierId, key, lat, lng);
+  return handle(vehicleId, courierId, key, lat, lng);
 }

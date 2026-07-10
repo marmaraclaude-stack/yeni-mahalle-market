@@ -20,6 +20,7 @@ import type {
   PaymentMethod,
   PaymentStatus,
   ShopSettings,
+  Vehicle,
 } from "@/lib/shop/types";
 import type { ChatMessage, ChatSession } from "@/lib/supabase/types";
 
@@ -192,25 +193,49 @@ export async function updateOrderStatus(
     status,
   };
 
+  const { data: cur } = await supabase
+    .from("orders")
+    .select("status, payment_method, payment_status")
+    .eq("id", orderId)
+    .maybeSingle();
+  const row = cur as {
+    status: OrderStatus;
+    payment_method: PaymentMethod;
+    payment_status: PaymentStatus;
+  } | null;
+
   // Kapıda ödeme + teslim edildi → tahsilat yapılmış say.
-  if (status === "delivered") {
-    const { data } = await supabase
-      .from("orders")
-      .select("payment_method, payment_status")
-      .eq("id", orderId)
-      .maybeSingle();
-    const row = data as {
-      payment_method: PaymentMethod;
-      payment_status: PaymentStatus;
-    } | null;
-    if (row && row.payment_method !== "iyzico" && row.payment_status === "pending") {
-      patch.payment_status = "paid";
-    }
+  if (
+    status === "delivered" &&
+    row &&
+    row.payment_method !== "iyzico" &&
+    row.payment_status === "pending"
+  ) {
+    patch.payment_status = "paid";
   }
 
   const { error } = await supabase.from("orders").update(patch).eq("id", orderId);
   if (error) throw new Error(`Sipariş durumu güncellenemedi: ${error.message}`);
+
+  // İptal edildiyse (ilk kez) kalemlerin stoğunu geri ekle.
+  if (status === "cancelled" && row && row.status !== "cancelled") {
+    await restoreOrderStock(orderId);
+  }
   revalidateOrderPages(orderId);
+}
+
+/** Siparişin kalemlerini stok takipli ürünlere geri ekle (iptal/silme). */
+async function restoreOrderStock(orderId: string): Promise<void> {
+  const supabase = createAdminClient();
+  const { data } = await supabase
+    .from("order_items")
+    .select("product_id, qty")
+    .eq("order_id", orderId);
+  const items = (data ?? []) as { product_id: string | null; qty: number }[];
+  for (const it of items) {
+    if (!it.product_id) continue;
+    await supabase.rpc("restore_stock", { pid: it.product_id, amount: it.qty });
+  }
 }
 
 /** Ödeme durumunu değiştir (paid / pending / failed / refunded). */
@@ -277,6 +302,15 @@ export async function deleteOrder(orderId: string): Promise<void> {
   await requireAdmin();
   if (!orderId.trim()) throw new Error("Geçersiz sipariş.");
   const supabase = createAdminClient();
+  // İptal edilmemiş siparişi silerken stok geri eklenir (iptalde zaten eklendi).
+  const { data: cur } = await supabase
+    .from("orders")
+    .select("status")
+    .eq("id", orderId)
+    .maybeSingle();
+  if ((cur as { status: string } | null)?.status !== "cancelled") {
+    await restoreOrderStock(orderId);
+  }
   const { error } = await supabase.from("orders").delete().eq("id", orderId);
   if (error) throw new Error(`Sipariş silinemedi: ${error.message}`);
   revalidateOrderPages();
@@ -1151,6 +1185,195 @@ export async function deleteCourier(id: string): Promise<CourierActionResult> {
     return { ok: false, error: courierDbError(error, "Kurye silinemedi") };
   }
   revalidatePath("/admin/kuryeler");
+  return { ok: true };
+}
+
+// ------------------------------------------------------------
+// Araçlar — GPS cihazı araca takılıdır; kurye ataması değiştirilebilir.
+// ------------------------------------------------------------
+
+export interface VehicleActionResult {
+  ok: boolean;
+  error?: string;
+}
+
+/** vehicles tablosu kurulmamışsa anlaşılır mesaj. */
+function vehicleDbError(error: { message: string }, fallback: string): string {
+  if (/vehicles/i.test(error.message) && /not (exist|found)|relation/i.test(error.message)) {
+    return "Araçlar tablosu henüz kurulmamış.";
+  }
+  return `${fallback}: ${error.message}`;
+}
+
+/** Araç listesini çek — aktifler üstte, sonra ada göre. */
+export async function listVehicles(): Promise<{
+  ok: boolean;
+  vehicles: Vehicle[];
+  error?: string;
+}> {
+  await requireAdmin();
+  const supabase = createAdminClient();
+  const { data, error } = await supabase
+    .from("vehicles")
+    .select("*")
+    .order("is_active", { ascending: false })
+    .order("name", { ascending: true });
+  if (error) {
+    return { ok: false, vehicles: [], error: vehicleDbError(error, "Araçlar yüklenemedi") };
+  }
+  return { ok: true, vehicles: (data ?? []) as Vehicle[] };
+}
+
+/** Yeni araç ekle — ad zorunlu, plaka opsiyonel. */
+export async function createVehicle(
+  name: string,
+  plate: string,
+): Promise<VehicleActionResult> {
+  await requireAdmin();
+  const cleanName = name.trim().slice(0, 60);
+  if (!cleanName) return { ok: false, error: "Araç adı boş olamaz." };
+  const supabase = createAdminClient();
+  const { error } = await supabase.from("vehicles").insert({
+    name: cleanName,
+    plate: plate.trim().slice(0, 20),
+  });
+  if (error) return { ok: false, error: vehicleDbError(error, "Araç eklenemedi") };
+  revalidatePath("/admin/araclar");
+  return { ok: true };
+}
+
+/** Araç güncelle: ad, plaka ve kurye ataması. */
+export async function updateVehicle(
+  id: string,
+  patch: { name: string; plate: string; courier_id: string | null },
+): Promise<VehicleActionResult> {
+  await requireAdmin();
+  if (!id.trim()) return { ok: false, error: "Geçersiz araç." };
+  const cleanName = patch.name.trim();
+  if (cleanName.length < 1 || cleanName.length > 60) {
+    return { ok: false, error: "Araç adı 1-60 karakter olmalı." };
+  }
+  const supabase = createAdminClient();
+  const { error } = await supabase
+    .from("vehicles")
+    .update({
+      name: cleanName,
+      plate: patch.plate.trim().slice(0, 20),
+      courier_id: patch.courier_id || null,
+    })
+    .eq("id", id);
+  if (error) return { ok: false, error: vehicleDbError(error, "Araç güncellenemedi") };
+  revalidatePath("/admin/araclar");
+  return { ok: true };
+}
+
+/** Aracı aktif/pasif yap (pasif araç konum yazsa da siparişe işlenmez). */
+export async function toggleVehicle(
+  id: string,
+  active: boolean,
+): Promise<VehicleActionResult> {
+  await requireAdmin();
+  if (!id.trim()) return { ok: false, error: "Geçersiz araç." };
+  const supabase = createAdminClient();
+  const { error } = await supabase
+    .from("vehicles")
+    .update({ is_active: active })
+    .eq("id", id);
+  if (error) return { ok: false, error: vehicleDbError(error, "Araç güncellenemedi") };
+  revalidatePath("/admin/araclar");
+  return { ok: true };
+}
+
+/** Aracı kalıcı olarak sil. */
+export async function deleteVehicle(id: string): Promise<VehicleActionResult> {
+  await requireAdmin();
+  if (!id.trim()) return { ok: false, error: "Geçersiz araç." };
+  const supabase = createAdminClient();
+  const { error } = await supabase.from("vehicles").delete().eq("id", id);
+  if (error) return { ok: false, error: vehicleDbError(error, "Araç silinemedi") };
+  revalidatePath("/admin/araclar");
+  return { ok: true };
+}
+
+// ------------------------------------------------------------
+// Stok — adet girilir; sipariş geldikçe otomatik düşer (decrement_stock RPC).
+// ------------------------------------------------------------
+
+export interface StockRow {
+  id: string;
+  name: string;
+  brand: string;
+  size_text: string;
+  category_slug: string;
+  unit: string;
+  sold_by_weight: boolean;
+  stock_qty: number | null;
+  in_stock: boolean;
+}
+
+/** Stok sayfası için ürünleri getir (arama + filtre; en çok 300 satır). */
+export async function listStock(opts: {
+  q?: string;
+  filter?: "dusuk" | "tukendi" | "takipsiz";
+}): Promise<StockRow[]> {
+  await requireAdmin();
+  const supabase = createAdminClient();
+  let query = supabase
+    .from("products")
+    .select(
+      "id, name, brand, size_text, category_slug, unit, sold_by_weight, stock_qty, in_stock",
+    )
+    .eq("is_active", true);
+
+  const q = opts.q?.trim();
+  if (q) query = query.ilike("name", `%${q}%`);
+  if (opts.filter === "tukendi") query = query.eq("in_stock", false);
+  if (opts.filter === "takipsiz") query = query.is("stock_qty", null);
+  if (opts.filter === "dusuk")
+    query = query.not("stock_qty", "is", null).gt("stock_qty", 0);
+
+  const { data, error } = await query
+    .order("stock_qty", { ascending: true, nullsFirst: false })
+    .order("name", { ascending: true })
+    .limit(300);
+  if (error || !data) return [];
+  let rows = data as StockRow[];
+  // "Düşük": adetlide ≤5, gram bazlıda ≤2000 g (sunucuda tek eşik zor; bellekte süz).
+  if (opts.filter === "dusuk") {
+    rows = rows.filter(
+      (r) =>
+        r.stock_qty !== null &&
+        r.stock_qty > 0 &&
+        r.stock_qty <= (r.sold_by_weight ? 2000 : 5),
+    );
+  }
+  return rows;
+}
+
+/** Stok adedini elle ayarla. null = takibi kapat (yalnız bayrakla yönetilir). */
+export async function setProductStock(
+  id: string,
+  qty: number | null,
+): Promise<{ ok: boolean; error?: string }> {
+  await requireAdmin();
+  if (!id.trim()) return { ok: false, error: "Geçersiz ürün." };
+  let clean: number | null = null;
+  if (qty !== null) {
+    clean = Math.round(Number(qty));
+    if (!Number.isFinite(clean) || clean < 0 || clean > 1000000) {
+      return { ok: false, error: "Geçersiz stok adedi." };
+    }
+  }
+  const supabase = createAdminClient();
+  const patch: { stock_qty: number | null; in_stock?: boolean } = {
+    stock_qty: clean,
+  };
+  // Adet girildiyse bayrak otomatik: 0 → tükendi, >0 → stokta.
+  if (clean !== null) patch.in_stock = clean > 0;
+  const { error } = await supabase.from("products").update(patch).eq("id", id);
+  if (error) return { ok: false, error: `Stok güncellenemedi: ${error.message}` };
+  revalidatePath("/admin/stok");
+  revalidateProductPages({ id });
   return { ok: true };
 }
 

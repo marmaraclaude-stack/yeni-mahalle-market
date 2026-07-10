@@ -67,6 +67,7 @@ interface ProductRow {
   weight_min_grams: number;
   weight_step_grams: number;
   pack_prices: Record<string, number> | null;
+  stock_qty: number | null;
   is_active: boolean;
   in_stock: boolean;
 }
@@ -241,6 +242,18 @@ export async function createOrder(
     const qty = byWeight
       ? Math.min(WEIGHT_MAX_GRAMS, Math.max(weightMinFor(product), line.qty))
       : Math.min(MAX_QTY, Math.max(1, line.qty));
+
+    // Stok takipli üründe yeterlilik kontrolü (qty ile aynı birim: adet/gram).
+    if (product.stock_qty !== null && qty > product.stock_qty) {
+      const kalan = byWeight
+        ? `${formatGrams(Math.max(0, product.stock_qty))}`
+        : `${product.stock_qty} adet`;
+      return {
+        ok: false,
+        error: `"${product.name}" için yeterli stok yok (kalan: ${kalan}). Lütfen sepeti güncelleyin.`,
+      };
+    }
+
     const unitPrice = round2(Number(product.price));
     const lineTotal = computeLineTotal(
       unitPrice,
@@ -383,6 +396,17 @@ export async function createOrder(
     await admin.from("orders").delete().eq("id", order.id);
     await releaseCouponUsage(admin, couponCode);
     return { ok: false, error: "Sipariş kaydedilemedi. Lütfen tekrar deneyin." };
+  }
+
+  // --- 4.5) Stok düş: takipli ürünlerde atomik azalt (0'a inince "tükendi").
+  for (const item of orderItems) {
+    const p = products.get(item.product_id);
+    if (p && p.stock_qty !== null) {
+      await admin.rpc("decrement_stock", {
+        pid: item.product_id,
+        amount: item.qty,
+      });
+    }
   }
 
   // --- 5) Online ödeme ise iyzico Checkout Form başlat ---

@@ -30,6 +30,8 @@ export interface Product {
   weight_step_grams: number;
   /** Adet ürünlerde paket fiyatları (toplu alım indirimi); null = yok. */
   pack_prices: PackPrices | null;
+  /** Stok adedi (adetli üründe adet, gram bazlıda GRAM). null = takip yok. */
+  stock_qty: number | null;
   image_url: string | null;
   is_active: boolean;
   in_stock: boolean;
@@ -38,6 +40,20 @@ export interface Product {
   sort: number;
   created_at: string;
   updated_at: string;
+}
+
+/** Araç (motor) — vehicles tablosu. GPS cihazı araca takılıdır; courier_id
+ *  o an aracı kullanan kurye (değiştirilebilir). Yalnız service-role okur/yazar. */
+export interface Vehicle {
+  id: string;
+  name: string;
+  plate: string;
+  courier_id: string | null;
+  last_lat: number | null;
+  last_lng: number | null;
+  last_at: string | null;
+  is_active: boolean;
+  created_at: string;
 }
 
 /** Kayıtlı kurye — couriers tablosu (yalnız service-role okur/yazar). */

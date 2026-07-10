@@ -25,6 +25,25 @@ export function verifyIngestToken(token: string | null | undefined): boolean {
   return timingSafeEqual(expected, provided);
 }
 
+/** Araca özel konum alım token'ı — GPS cihazı ARACA takılıdır. */
+export function vehicleIngestToken(vehicleId: string): string {
+  return createHmac("sha256", process.env.SUPABASE_SERVICE_ROLE_KEY!)
+    .update(`vehicle-ingest:${vehicleId}`)
+    .digest("hex")
+    .slice(0, 32);
+}
+
+export function verifyVehicleIngestToken(
+  vehicleId: string,
+  token: string | null | undefined,
+): boolean {
+  if (!vehicleId || typeof token !== "string" || token.trim() === "") return false;
+  const expected = Buffer.from(vehicleIngestToken(vehicleId), "utf8");
+  const provided = Buffer.from(token.trim(), "utf8");
+  if (expected.length !== provided.length) return false;
+  return timingSafeEqual(expected, provided);
+}
+
 /** Kuryeye özel konum alım token'ı (motora takılı cihaz bu linke gönderir). */
 export function courierIngestToken(courierId: string): string {
   return createHmac("sha256", process.env.SUPABASE_SERVICE_ROLE_KEY!)
@@ -84,6 +103,30 @@ export async function writeActiveLocation(
     .select("id");
   if (error) return { ok: false, error: "db error" };
   return { ok: true, count: (data ?? []).length };
+}
+
+/**
+ * Araç konumu: vehicles.last_* güncellenir; araca atanmış kurye varsa konum
+ * o kuryenin "Kurye Yolda" siparişlerine de işlenir (müşteri canlı görür).
+ */
+export async function writeVehicleLocation(
+  vehicleId: string,
+  lat: number,
+  lng: number,
+): Promise<IngestResult> {
+  if (!validCoord(lat, lng)) return { ok: false, error: "invalid coords" };
+  const supabase = createAdminClient();
+
+  const { data: vRow, error: vErr } = await supabase
+    .from("vehicles")
+    .update({ last_lat: lat, last_lng: lng, last_at: new Date().toISOString() })
+    .eq("id", vehicleId)
+    .select("courier_id, is_active")
+    .maybeSingle();
+  if (vErr || !vRow) return { ok: false, error: "vehicle not found" };
+  const v = vRow as { courier_id: string | null; is_active: boolean };
+  if (!v.is_active || !v.courier_id) return { ok: true, count: 0 };
+  return writeCourierLocation(v.courier_id, lat, lng);
 }
 
 /** Konumu YALNIZ bu kuryenin "Kurye Yolda" siparişlerine yaz (telefon eşleşmesi). */

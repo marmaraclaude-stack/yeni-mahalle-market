@@ -2969,3 +2969,54 @@
 .deliveryGrid {
   margin-top: 4px;
 }
+
+/* Stok sayfası */
+.stockSearch {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1 1 260px;
+  max-width: 360px;
+}
+.stockSearch svg { color: var(--gray-400, #a3a3a3); flex-shrink: 0; }
+.stockSearch .input { flex: 1; min-width: 0; }
+.stockCell {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.stockInput {
+  width: 84px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.stockUnit {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--gray-500, #737373);
+}
+.pill svg { vertical-align: -2px; margin-right: 3px; }
+
+/* Araçlar sayfası — cihaz linki hücresi */
+.vehicleUrlCell {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 220px;
+}
+.vehicleUrl {
+  flex: 1 1 160px;
+  min-width: 0;
+  font: inherit;
+  font-size: 11.5px;
+  padding: 7px 9px;
+  border-radius: 8px;
+  border: 1px solid var(--gray-200, #e8e8e8);
+  background: var(--gray-50, #fafafa);
+  color: var(--black, #111);
+}
+.vehicleUrlCell .btnRow {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
