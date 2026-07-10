@@ -9,13 +9,17 @@ const LEGAL_INFO: {
   mersis: string;
   kep: string;
   email: string;
+  address: string;
 } = {
-  ownerName: "", // Esnaf/şahıs işletmesi ise sahibinin adı soyadı
-  taxOffice: "", // Vergi dairesi (ör. "Sapanca Vergi Dairesi")
-  taxNo: "", // Vergi kimlik numarası (VKN)
-  mersis: "", // Şirket ise MERSİS numarası
-  kep: "", // KEP adresi (varsa)
-  email: "", // İşletme e-posta adresi
+  ownerName: "İsmail Tayyip Arkan", // Vergi levhasındaki mükellef
+  taxOffice: "Sapanca", // Vergi dairesi
+  taxNo: "0790667472", // Vergi kimlik numarası (VKN)
+  mersis: "", // Şirket değil (şahıs işletmesi) — MERSİS yok
+  kep: "", // KEP adresi (varsa doldurulacak)
+  email: "", // İşletme e-posta adresi (doldurulacak)
+  // Vergi levhasındaki iş yeri adresi — yasal sayfalarda "merkez adresi"
+  // olarak bu gösterilir (vitrin adresi BUSINESS.address'te kalır).
+  address: "Yeni Mah. Okur Sk. No:1 İç Kapı No:1, 54600 Sapanca / Sakarya",
 };
 
 export const BUSINESS = {

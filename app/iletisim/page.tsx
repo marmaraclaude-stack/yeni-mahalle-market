@@ -271,7 +271,7 @@ export default function IletisimPage() {
                   </>
                 )}
                 <dt>Merkez adresi</dt>
-                <dd>{BUSINESS.address.full}</dd>
+                <dd>{BUSINESS.legal.address || BUSINESS.address.full}</dd>
                 <dt>Telefon</dt>
                 <dd>
                   <a href={BUSINESS.phone.href}>{BUSINESS.phone.display}</a>

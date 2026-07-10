@@ -46,7 +46,7 @@ export default function MesafeliSatisPage() {
                 </>
               )}
               <dt>Adres</dt>
-              <dd>{BUSINESS.address.full}</dd>
+              <dd>{legal.address || BUSINESS.address.full}</dd>
               <dt>Telefon</dt>
               <dd>
                 <a href={BUSINESS.phone.href}>{BUSINESS.phone.display}</a>
