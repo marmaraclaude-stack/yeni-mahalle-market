@@ -95,6 +95,8 @@ export default function CheckoutForm({
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [method, setMethod] = useState<PaymentMethod | null>(methods[0] ?? null);
+  // Mesafeli satış sözleşmesi + ön bilgilendirme onayı (6502 sayılı kanun).
+  const [agree, setAgree] = useState(false);
 
   // Konaklama: otel/apart/bungalov seçimi — adres tesisten oluşturulur.
   const [stay, setStay] = useState(false);
@@ -247,6 +249,12 @@ export default function CheckoutForm({
     if (outOfZone) {
       setError(
         `Üzgünüz, teslimat bölgemizin dışındasınız (~${distanceKm} km; en fazla ${deliveryMaxKm} km).`,
+      );
+      return;
+    }
+    if (!agree) {
+      setError(
+        "Devam etmek için Ön Bilgilendirme Formu'nu ve Mesafeli Satış Sözleşmesi'ni onaylamanız gerekir.",
       );
       return;
     }
@@ -502,6 +510,16 @@ export default function CheckoutForm({
                   ))}
                 </div>
               )}
+              {/* iyzico satıcı kriteri: kart logoları + iyzico ile Öde bandı */}
+              <div className={styles.payLogos}>
+                <img
+                  src="/odeme/logo-band-colored.svg"
+                  alt="iyzico ile Öde · Mastercard · Visa · American Express · Troy"
+                  width={429}
+                  height={32}
+                  loading="lazy"
+                />
+              </div>
             </section>
           </div>
 
@@ -634,6 +652,26 @@ export default function CheckoutForm({
                 {error}
               </p>
             )}
+
+            {/* Sözleşme onayı — mesafeli satışta zorunlu (6502 sayılı kanun) */}
+            <label className={styles.agreeRow}>
+              <input
+                type="checkbox"
+                checked={agree}
+                onChange={(e) => setAgree(e.target.checked)}
+                required
+              />
+              <span>
+                <Link href="/on-bilgilendirme-formu" target="_blank">
+                  Ön Bilgilendirme Formu
+                </Link>
+                &apos;nu ve{" "}
+                <Link href="/mesafeli-satis-sozlesmesi" target="_blank">
+                  Mesafeli Satış Sözleşmesi
+                </Link>
+                &apos;ni okudum, onaylıyorum.
+              </span>
+            </label>
 
             <button
               type="submit"

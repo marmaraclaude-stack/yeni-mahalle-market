@@ -1736,8 +1736,8 @@ p { margin: 0; }
 }
 @media (min-width: 760px) {
   .footer__grid {
-    grid-template-columns: 2fr 1fr 1fr 1fr;
-    gap: 64px;
+    grid-template-columns: 1.7fr 0.9fr 1.1fr 1.3fr 1fr;
+    gap: 40px;
   }
 }
 .footer__brand-block {
@@ -1790,8 +1790,28 @@ p { margin: 0; }
 }
 .footer__socials a:hover { background: var(--gray-100); border-color: var(--gray-300); }
 .footer__socials svg { width: 15px; height: 15px; }
-.footer__bottom {
+/* Ödeme yöntemleri bandı — iyzico ile Öde + kart logoları (satıcı kriteri) */
+.footer__payments {
   margin-top: var(--section-y);
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+.footer__payments-label {
+  font-size: var(--fs-small);
+  font-weight: 600;
+  color: var(--gray-500);
+  white-space: nowrap;
+}
+.footer__payments img {
+  display: block;
+  max-width: min(429px, 100%);
+  height: auto;
+}
+
+.footer__bottom {
+  margin-top: 24px;
   padding-top: 20px;
   border-top: 1px solid var(--gray-200);
   display: flex;

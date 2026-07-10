@@ -101,12 +101,33 @@ export default function SiteFooter() {
             </ul>
           </div>
           <div className="footer__col">
+            <h4>Kurumsal</h4>
+            <ul>
+              <li><Link href="/hakkimizda">Hakkımızda</Link></li>
+              <li><Link href="/teslimat-ve-iade">Teslimat ve İade Şartları</Link></li>
+              <li><Link href="/gizlilik-politikasi">Gizlilik ve KVKK</Link></li>
+              <li><Link href="/mesafeli-satis-sozlesmesi">Mesafeli Satış Sözleşmesi</Link></li>
+              <li><Link href="/on-bilgilendirme-formu">Ön Bilgilendirme Formu</Link></li>
+            </ul>
+          </div>
+          <div className="footer__col">
             <h4>Saatler</h4>
             <ul>
               <li><p>Pzt - Paz · 07:30 - 02:00</p></li>
               <li><p>Bayram dahil her gün açık</p></li>
             </ul>
           </div>
+        </div>
+        {/* Ödeme yöntemleri bandı — iyzico satıcı kriteri: kart logoları + iyzico ile Öde */}
+        <div className="footer__payments">
+          <span className="footer__payments-label">Güvenli ödeme</span>
+          <img
+            src="/odeme/logo-band-colored.svg"
+            alt="iyzico ile Öde · Mastercard · Visa · American Express · Troy"
+            width={429}
+            height={32}
+            loading="lazy"
+          />
         </div>
         <div className="footer__bottom">
           <span>© {year} {BUSINESS.name}</span>

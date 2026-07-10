@@ -1,3 +1,23 @@
+/**
+ * Vergi levhasındaki resmi bilgiler — string olarak tutulur (as const dışında)
+ * ki boş/dolu kontrolü tip hatası vermesin. Doldurulunca sitede görünür.
+ */
+const LEGAL_INFO: {
+  ownerName: string;
+  taxOffice: string;
+  taxNo: string;
+  mersis: string;
+  kep: string;
+  email: string;
+} = {
+  ownerName: "", // Esnaf/şahıs işletmesi ise sahibinin adı soyadı
+  taxOffice: "", // Vergi dairesi (ör. "Sapanca Vergi Dairesi")
+  taxNo: "", // Vergi kimlik numarası (VKN)
+  mersis: "", // Şirket ise MERSİS numarası
+  kep: "", // KEP adresi (varsa)
+  email: "", // İşletme e-posta adresi
+};
+
 export const BUSINESS = {
   name: "Yeni Mahalle Market",
   legalName: "Yeni Mahalle Market",
@@ -39,6 +59,13 @@ export const BUSINESS = {
   // Google Place ID — bu doldurulduğunda /api/reviews Google Places API'ye gerçek çağrı atabilir.
   // Şimdilik bos. lib/reviews.ts placeholder veri kullanıyor.
   googlePlaceId: "",
+  /**
+   * Resmi işletme bilgileri — iyzico satıcı kriterleri ve 6563 sayılı
+   * E-Ticaret Kanunu gereği sitede (İletişim / yasal sayfalar) gösterilir.
+   * BOŞ bırakılan alanlar sitede otomatik gizlenir; işletme sahibi vergi
+   * levhasındaki bilgilerle birebir doldurmalıdır.
+   */
+  legal: LEGAL_INFO,
   domain: "sapancayenimahallemarket.com",
   url: "https://sapancayenimahallemarket.com",
   googleMapsCidUrl: "https://www.google.com/maps?cid=13227824233344056896",

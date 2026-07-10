@@ -1,0 +1,176 @@
+/* ============================================================
+   Kurumsal / yasal sayfalar (hakkımızda, sözleşmeler, KVKK):
+   ortak okunur tek kolon düzeni. Token'lar globals.css'ten.
+   ============================================================ */
+
+.page {
+  padding: 0 0 clamp(56px, 8vw, 96px);
+  min-height: calc(100dvh - 69px);
+  background: var(--white);
+}
+
+.head {
+  padding: clamp(32px, 5vw, 56px) 0 clamp(20px, 3vw, 32px);
+  border-bottom: 1px solid var(--gray-200);
+  margin-bottom: clamp(24px, 4vw, 40px);
+}
+.title {
+  font-family: var(--font-display);
+  font-size: var(--fs-h1);
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.04em;
+  text-wrap: balance;
+}
+.titleAccent {
+  color: var(--accent);
+}
+.sub {
+  margin-top: 12px;
+  color: var(--gray-500);
+  font-size: var(--fs-lead);
+  line-height: 1.55;
+  max-width: var(--measure);
+}
+.updated {
+  display: inline-block;
+  margin-top: 14px;
+  font-size: var(--fs-micro);
+  font-weight: 600;
+  color: var(--gray-500);
+  background: var(--gray-50);
+  border: 1px solid var(--gray-200);
+  border-radius: 999px;
+  padding: 5px 12px;
+}
+
+/* --- Gövde: okunur tek kolon --- */
+.body {
+  max-width: 760px;
+}
+.body h2 {
+  font-family: var(--font-display);
+  font-size: var(--fs-h3);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin: clamp(28px, 4vw, 40px) 0 12px;
+}
+.body h2:first-child {
+  margin-top: 0;
+}
+.body h3 {
+  font-size: var(--fs-body);
+  font-weight: 700;
+  margin: 22px 0 8px;
+}
+.body p,
+.body li {
+  font-size: var(--fs-body);
+  line-height: 1.7;
+  color: var(--gray-700);
+}
+.body p {
+  margin: 0 0 14px;
+}
+.body ul,
+.body ol {
+  margin: 0 0 14px;
+  padding-left: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.body a {
+  color: var(--accent-deep, var(--accent));
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.body strong {
+  color: var(--ink);
+}
+
+/* --- Bilgi kutusu (satıcı bilgileri, önemli notlar) --- */
+.infoBox {
+  background: var(--gray-50);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--r-lg);
+  padding: 18px 20px;
+  margin: 0 0 18px;
+}
+.infoBox dl {
+  margin: 0;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 8px 18px;
+}
+.infoBox dt {
+  font-size: var(--fs-small);
+  font-weight: 700;
+  color: var(--ink);
+  white-space: nowrap;
+}
+.infoBox dd {
+  margin: 0;
+  font-size: var(--fs-small);
+  color: var(--gray-700);
+  overflow-wrap: anywhere;
+}
+@media (max-width: 560px) {
+  .infoBox dl {
+    grid-template-columns: 1fr;
+    gap: 2px;
+  }
+  .infoBox dt {
+    margin-top: 8px;
+  }
+}
+
+/* --- Hakkımızda: özellik kartları --- */
+.cards {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+  margin: 20px 0 6px;
+}
+@media (min-width: 700px) {
+  .cards {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 20px;
+  background: var(--gray-50);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--r-lg);
+}
+.cardIcon {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+.cardTitle {
+  font-weight: 700;
+  font-size: var(--fs-body);
+  letter-spacing: -0.01em;
+}
+.card p {
+  margin: 0;
+  font-size: var(--fs-small);
+}
+
+/* --- Ödeme logoları şeridi (hakkımızda / sözleşme sayfaları) --- */
+.payBand {
+  margin-top: 18px;
+}
+.payBand img {
+  display: block;
+  max-width: min(429px, 100%);
+  height: auto;
+}

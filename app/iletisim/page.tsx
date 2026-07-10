@@ -19,6 +19,7 @@ import SiteFooter from "@/components/SiteFooter";
 import StatusIndicator from "@/components/StatusIndicator";
 import Faq, { FAQ_ITEMS } from "./Faq";
 import styles from "./iletisim.module.css";
+import kstyles from "../(kurumsal)/kurumsal.module.css";
 
 export const metadata: Metadata = {
   title: "İletişim",
@@ -246,6 +247,70 @@ export default function IletisimPage() {
             />
           </section>
 
+
+          {/* --- Resmi işletme bilgileri — 6563 sayılı Kanun / iyzico kriteri:
+                 İletişim altında unvan, adres ve vergi bilgileri gösterilir.
+                 Boş bırakılan alanlar (lib/business.ts legal) gizlenir. --- */}
+          <section
+            className={styles.faqSection}
+            aria-labelledby="isletme-baslik"
+          >
+            <div className={styles.faqHead}>
+              <h2 id="isletme-baslik" className={styles.faqTitle}>
+                İşletme Bilgileri
+              </h2>
+            </div>
+            <div className={kstyles.infoBox}>
+              <dl>
+                <dt>Unvan</dt>
+                <dd>{BUSINESS.legalName}</dd>
+                {BUSINESS.legal.ownerName && (
+                  <>
+                    <dt>İşletme sahibi</dt>
+                    <dd>{BUSINESS.legal.ownerName}</dd>
+                  </>
+                )}
+                <dt>Merkez adresi</dt>
+                <dd>{BUSINESS.address.full}</dd>
+                <dt>Telefon</dt>
+                <dd>
+                  <a href={BUSINESS.phone.href}>{BUSINESS.phone.display}</a>
+                </dd>
+                {BUSINESS.legal.email && (
+                  <>
+                    <dt>E-posta</dt>
+                    <dd>
+                      <a href={`mailto:${BUSINESS.legal.email}`}>
+                        {BUSINESS.legal.email}
+                      </a>
+                    </dd>
+                  </>
+                )}
+                {BUSINESS.legal.taxOffice && BUSINESS.legal.taxNo && (
+                  <>
+                    <dt>Vergi dairesi / no</dt>
+                    <dd>
+                      {BUSINESS.legal.taxOffice} / {BUSINESS.legal.taxNo}
+                    </dd>
+                  </>
+                )}
+                {BUSINESS.legal.mersis && (
+                  <>
+                    <dt>MERSİS</dt>
+                    <dd>{BUSINESS.legal.mersis}</dd>
+                  </>
+                )}
+                {BUSINESS.legal.kep && (
+                  <>
+                    <dt>KEP</dt>
+                    <dd>{BUSINESS.legal.kep}</dd>
+                  </>
+                )}
+                <dt>Web</dt>
+                <dd>{BUSINESS.domain}</dd>
+              </dl>
+            </div>
+          </section>
 
           {/* --- SSS --- */}
           <section className={styles.faqSection} aria-labelledby="sss-baslik">
