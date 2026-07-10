@@ -150,7 +150,7 @@ export default function ProfileEditor({
 
           <div className={styles.formActions}>
             <button type="submit" className="btn btn--accent" disabled={pending}>
-              {pending ? "Kaydediliyor..." : "Kaydet"}
+              {pending ? "Kaydediliyor…" : "Kaydet"}
             </button>
             <button
               type="button"

@@ -157,7 +157,7 @@ export default function AddressManager({ addresses }: AddressManagerProps) {
             disabled={pending}
           >
             {pending
-              ? "Kaydediliyor..."
+              ? "Kaydediliyor…"
               : mode === "edit"
                 ? "Değişiklikleri kaydet"
                 : "Adresi kaydet"}

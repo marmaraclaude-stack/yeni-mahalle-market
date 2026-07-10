@@ -81,7 +81,7 @@ export default function GuestTracking({ orderNo }: { orderNo: string }) {
 
         <button
           type="submit"
-          className="btn btn--accent"
+          className="btn btn--accent btn--lg"
           disabled={pending}
           aria-label="Siparişi görüntüle"
         >

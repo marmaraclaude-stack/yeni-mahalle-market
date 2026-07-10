@@ -107,7 +107,7 @@ export default async function AdminOrderDetailPage({
     <>
       <AdminBack href="/admin/siparisler" label="Siparişler" />
       <h1 className={styles.title}>{order.order_no}</h1>
-      <p className={styles.subtitle} style={{ marginBottom: 16 }}>
+      <p className={styles.subtitle} style={{ marginBottom: 18 }}>
         {formatDateTime(order.created_at)} ·{" "}
         {PAYMENT_METHOD_LABELS[order.payment_method]}
       </p>

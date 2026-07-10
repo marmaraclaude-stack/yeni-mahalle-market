@@ -146,7 +146,7 @@ export default function GirisForm({ next }: { next: string }) {
 
       <button
         type="submit"
-        className={`btn btn--accent ${styles.submit}`}
+        className={`btn btn--accent btn--lg ${styles.submit}`}
         disabled={pending}
       >
         {pending ? (

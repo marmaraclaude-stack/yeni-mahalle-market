@@ -189,7 +189,7 @@ function VehicleRowView({
             disabled={!dirty || busy}
             className={`${styles.btnRow} ${dirty ? styles["btnRow--primary"] : ""}`}
           >
-            {busy ? "…" : dirty ? "Kaydet" : "Kayıtlı"}
+            {busy ? "Kaydediliyor…" : dirty ? "Kaydet" : "Kayıtlı"}
           </button>
           <button
             type="button"

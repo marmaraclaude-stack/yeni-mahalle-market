@@ -168,7 +168,7 @@ export default async function FirsatlarPage() {
                   İndirimler eklendikçe burada yayınlanacak. O zamana kadar tüm
                   ürünlerimize göz atabilirsin.
                 </p>
-                <Link href="/urunler" className="btn btn--accent">
+                <Link href="/urunler" className="btn btn--accent btn--lg">
                   Ürünlere Göz At
                 </Link>
               </div>

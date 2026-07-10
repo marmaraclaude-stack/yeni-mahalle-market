@@ -410,13 +410,10 @@
   padding: 10px 12px;
 }
 
+/* Boyut standardı globals .btn--lg'den gelir; burada yalnız yerleşim. */
 .submitBtn {
   width: 100%;
   margin-top: 14px;
-  height: 52px;
-  padding: 0 28px;
-  font-size: var(--fs-body);
-  font-weight: 600;
 }
 .submitBtn:disabled {
   opacity: 0.55;

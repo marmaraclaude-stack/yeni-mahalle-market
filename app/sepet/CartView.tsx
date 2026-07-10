@@ -102,7 +102,7 @@ export default function CartView({
               Taze ürünler ve mahalle fiyatları sizi bekliyor. Alışverişe
               başlayın, siparişinizi kapınıza getirelim.
             </p>
-            <Link href="/urunler" className="btn btn--accent">
+            <Link href="/urunler" className="btn btn--accent btn--lg">
               Alışverişe Başla
             </Link>
           </div>
@@ -350,7 +350,7 @@ export default function CartView({
               /* Girişsiz: disabled görünümlü ama tıklanabilir → giriş sayfası */
               <Link
                 href="/giris?next=/odeme"
-                className={`btn btn--accent ${styles.checkoutBtn} ${styles.checkoutLocked}`}
+                className={`btn btn--accent btn--lg ${styles.checkoutBtn} ${styles.checkoutLocked}`}
                 aria-disabled="true"
               >
                 Siparişi Tamamla
@@ -358,13 +358,13 @@ export default function CartView({
             ) : canCheckout ? (
               <Link
                 href="/odeme"
-                className={`btn btn--accent ${styles.checkoutBtn}`}
+                className={`btn btn--accent btn--lg ${styles.checkoutBtn}`}
               >
                 Siparişi Tamamla
               </Link>
             ) : (
               <span
-                className={`btn btn--accent ${styles.checkoutBtn} ${styles.checkoutDisabled}`}
+                className={`btn btn--accent btn--lg ${styles.checkoutBtn} ${styles.checkoutDisabled}`}
                 aria-disabled="true"
               >
                 Siparişi Tamamla

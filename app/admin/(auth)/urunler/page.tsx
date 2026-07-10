@@ -416,7 +416,7 @@ export default async function AdminProductsPage({
         ))}
       </select>
       {filtre && <input type="hidden" name="filtre" value={filtre} />}
-      <button type="submit" className={styles.btnRow}>
+      <button type="submit" className={`${styles.actionBtn} ${styles["actionBtn--primary"]}`}>
         Filtrele
       </button>
     </form>

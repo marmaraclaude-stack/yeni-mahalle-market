@@ -588,11 +588,16 @@
   border-color: var(--accent);
   box-shadow: 0 0 0 3px var(--accent-soft);
 }
+/* Hata kutusu — vitrin standardı (auth/ödeme ile aynı görsel dil). */
 .formError {
   margin: 0;
-  font-size: var(--fs-micro);
-  font-weight: 500;
+  font-size: var(--fs-small);
   color: #c0392b;
+  background: #fdeceb;
+  border: 1px solid #f4c4be;
+  border-radius: var(--r-sm);
+  padding: 10px 12px;
+  line-height: 1.45;
 }
 .formActions {
   display: flex;

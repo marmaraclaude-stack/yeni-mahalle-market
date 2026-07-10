@@ -228,7 +228,7 @@ export default async function UrunlerPage({
                     alttaki baloncuktan canlı desteğe yazabilir ya da bizi
                     arayabilirsin, her zamanki gibi kapına getirelim.
                   </p>
-                  <a href={BUSINESS.phone.href} className="btn btn--accent">
+                  <a href={BUSINESS.phone.href} className="btn btn--accent btn--lg">
                     Bizi ara: {BUSINESS.phone.display}
                   </a>
                 </section>

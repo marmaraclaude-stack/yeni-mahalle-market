@@ -339,7 +339,7 @@ function ProductRow({ product }: { product: Product }) {
             disabled={!dirty || busy}
             className={`${styles.btnRow} ${dirty ? styles["btnRow--primary"] : ""}`}
           >
-            {busy ? "Kaydediliyor" : dirty ? "Kaydet" : "Kayıtlı"}
+            {busy ? "Kaydediliyor…" : dirty ? "Kaydet" : "Kayıtlı"}
           </button>
           <Link
             href={`/admin/urunler/${product.id}`}

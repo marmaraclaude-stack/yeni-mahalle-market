@@ -150,7 +150,7 @@ export default function CheckoutForm({
           <div className={styles.notice}>
             <ShoppingBasket aria-hidden="true" className={styles.noticeIcon} />
             <p>Sepetiniz boş. Önce sepete ürün ekleyin.</p>
-            <Link href="/urunler" className="btn btn--accent">
+            <Link href="/urunler" className="btn btn--accent btn--lg">
               Alışverişe Başla
             </Link>
           </div>
@@ -459,7 +459,7 @@ export default function CheckoutForm({
 
             <button
               type="submit"
-              className={`btn btn--accent ${styles.submitBtn}`}
+              className={`btn btn--accent btn--lg ${styles.submitBtn}`}
               disabled={pending || belowMin || methods.length === 0}
             >
               {pending

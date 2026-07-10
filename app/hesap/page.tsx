@@ -141,7 +141,7 @@ export default async function HesapPage() {
                 İlk siparişini ver, Sapanca içinde kapına getirelim. Verdiğin
                 siparişleri burada takip edebilirsin.
               </p>
-              <Link href="/urunler" className="btn btn--accent">
+              <Link href="/urunler" className="btn btn--accent btn--lg">
                 Alışverişe başla
               </Link>
             </div>

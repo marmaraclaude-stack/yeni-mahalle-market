@@ -443,14 +443,10 @@
   line-height: 1.45;
 }
 
-/* Büyük accent submit: 52px tam genişlik + hover lift */
+/* Büyük accent submit: boyut globals .btn--lg'den; burada yalnız yerleşim. */
 .submit {
   width: 100%;
-  height: 52px;
   margin-top: 4px;
-  padding: 0 28px;
-  font-size: var(--fs-body);
-  font-weight: 600;
 }
 .submit:hover:not(:disabled) {
   transform: translateY(-1px);

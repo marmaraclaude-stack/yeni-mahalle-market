@@ -402,7 +402,7 @@ export default function CouriersTable({ couriers }: { couriers: Courier[] }) {
         </button>
       </div>
 
-      <p className={styles.subtitle} style={{ marginBottom: 14 }}>
+      <p className={styles.subtitle} style={{ marginBottom: 18 }}>
         Kuryeler <b>sapancayenimahallemarket.com/kurye</b> adresinden{" "}
         <b>telefon + giriş kodu</b> ile giriş yapar; tek girişle kendilerine
         atanmış tüm siparişleri görüp konumlarını paylaşır. Kodu &quot;Düzenle
