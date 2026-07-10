@@ -556,3 +556,12 @@
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
+
+/* Kapalı mesajındaki tel: linki */
+.closedBanner a {
+  color: inherit;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  white-space: nowrap;
+}

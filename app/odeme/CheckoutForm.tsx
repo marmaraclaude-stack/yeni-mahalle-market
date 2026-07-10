@@ -18,6 +18,7 @@ import {
   Truck,
 } from "lucide-react";
 import { useCart } from "@/components/shop/CartProvider";
+import { linkifyPhone } from "@/components/shop/linkifyPhone";
 import { validateCoupon } from "@/lib/shop/coupons";
 import { createOrder } from "@/lib/shop/order-actions";
 import {
@@ -130,7 +131,7 @@ export default function CheckoutForm({
             <h1 className={styles.title}>Siparişi Tamamla</h1>
           </header>
           <div className={styles.notice} role="status">
-            <p>{closedMessage}</p>
+            <p>{linkifyPhone(closedMessage)}</p>
             <Link href="/urunler" className="btn btn--ghost">
               Ürünlere Dön
             </Link>

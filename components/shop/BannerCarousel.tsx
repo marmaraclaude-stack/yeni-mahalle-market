@@ -16,6 +16,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import type { Banner } from "@/lib/shop/types";
 import { CATEGORY_TINTS } from "@/lib/shop/categories";
 import { resolveBannerIcon } from "@/lib/shop/icons";
+import { linkifyPhone } from "@/components/shop/linkifyPhone";
 import styles from "@/components/shop/PromoBanners.module.css";
 
 /** Otomatik kayma aralığı (ms). */
@@ -118,7 +119,9 @@ export default function BannerCarousel({
               >
                 <div className={styles.slideCopy}>
                   <h3 className={styles.slideTitle}>{b.title}</h3>
-                  {b.subtitle && <p className={styles.slideSub}>{b.subtitle}</p>}
+                  {b.subtitle && (
+                    <p className={styles.slideSub}>{linkifyPhone(b.subtitle)}</p>
+                  )}
                 </div>
                 <div className={styles.slideArt} aria-hidden="true">
                   <span className={styles.circleLg} />

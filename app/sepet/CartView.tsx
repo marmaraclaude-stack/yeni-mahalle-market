@@ -25,6 +25,7 @@ import {
   type Product,
 } from "@/lib/shop/types";
 import ProductCard from "@/components/shop/ProductCard";
+import { linkifyPhone } from "@/components/shop/linkifyPhone";
 import styles from "./sepet.module.css";
 
 interface CartViewProps {
@@ -125,7 +126,7 @@ export default function CartView({
 
         {!orderingOpen && (
           <p className={styles.closedBanner} role="status">
-            {closedMessage}
+            {linkifyPhone(closedMessage)}
           </p>
         )}
 

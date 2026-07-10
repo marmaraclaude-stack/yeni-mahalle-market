@@ -328,3 +328,11 @@
     scroll-behavior: auto;
   }
 }
+
+/* Alt metindeki tel: linki — zeminle uyumlu, altı çizili */
+.slideSub a {
+  color: inherit;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}

@@ -477,3 +477,12 @@
   height: 40px;
   color: var(--gray-300);
 }
+
+/* Kapalı bildirimindeki tel: linki */
+.notice a {
+  color: var(--accent-deep);
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  white-space: nowrap;
+}
