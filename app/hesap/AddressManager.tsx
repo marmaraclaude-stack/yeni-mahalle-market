@@ -15,10 +15,7 @@ import {
   type AddressInput,
 } from "@/lib/shop/account-actions";
 import type { CustomerAddress } from "@/lib/shop/types";
-import {
-  ACCOMMODATIONS,
-  accommodationLabel,
-} from "@/lib/shop/accommodations";
+import AccommodationPicker from "@/components/shop/AccommodationPicker";
 import styles from "./hesap.module.css";
 
 interface AddressManagerProps {
@@ -41,11 +38,14 @@ export default function AddressManager({ addresses }: AddressManagerProps) {
   const [openForm, setOpenForm] = useState<string | null>(null);
   const [form, setForm] = useState<AddressInput>(EMPTY_FORM);
   const [error, setError] = useState<string | null>(null);
+  // Konaklama seçici girişi (yalnız yardımcı — asıl adres form.line'da).
+  const [stayQuery, setStayQuery] = useState("");
 
   const isEmpty = addresses.length === 0;
 
   function openNew() {
     setError(null);
+    setStayQuery("");
     setForm(EMPTY_FORM);
     setOpenForm("new");
   }
@@ -58,6 +58,7 @@ export default function AddressManager({ addresses }: AddressManagerProps) {
       district: address.district,
       note: address.note,
     });
+    setStayQuery("");
     setOpenForm(address.id);
   }
 
@@ -129,30 +130,22 @@ export default function AddressManager({ addresses }: AddressManagerProps) {
             />
           </label>
         </div>
-        {/* Otel/apart/bungalov: tesis seçilince açık adres tesisten doldurulur */}
-        <label className={styles.field}>
+        {/* Otel/apart/bungalov/site: tesis seçilince açık adres tesisten doldurulur */}
+        <div className={styles.field}>
           <span className={styles.fieldLabel}>
-            Otel / apart / bungalovda mı kalıyorsunuz? (isteğe bağlı)
+            Otel / bungalov / sitede mi kalıyorsunuz? (isteğe bağlı)
           </span>
-          <input
-            type="text"
-            list="hesap-stay-list"
-            className={styles.input}
-            placeholder="Tesis adını yazın, listeden seçin"
-            onChange={(e) => {
-              const v = e.target.value;
-              // Listeden tam eşleşme seçildiyse açık adresi tesisle doldur.
-              if (ACCOMMODATIONS.some((a) => accommodationLabel(a) === v)) {
-                setForm({ ...form, line: v });
-              }
+          <AccommodationPicker
+            value={stayQuery}
+            onChange={setStayQuery}
+            onSelect={(label) => {
+              setStayQuery(label);
+              setForm({ ...form, line: label });
             }}
+            inputClassName={styles.input}
+            placeholder="Tesis / site adını yazın, listeden seçin"
           />
-          <datalist id="hesap-stay-list">
-            {ACCOMMODATIONS.map((a) => (
-              <option key={accommodationLabel(a)} value={accommodationLabel(a)} />
-            ))}
-          </datalist>
-        </label>
+        </div>
         <label className={styles.field}>
           <span className={styles.fieldLabel}>Açık adres</span>
           <textarea

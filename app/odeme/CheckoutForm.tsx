@@ -33,11 +33,8 @@ import {
   PAYMENT_METHOD_LABELS,
   type PaymentMethod,
 } from "@/lib/shop/types";
-import {
-  ACCOMMODATIONS,
-  accommodationLabel,
-  coordsForAccommodationLabel,
-} from "@/lib/shop/accommodations";
+import { coordsForAccommodationLabel } from "@/lib/shop/accommodations";
+import AccommodationPicker from "@/components/shop/AccommodationPicker";
 import { BUSINESS } from "@/lib/business";
 import styles from "./odeme.module.css";
 
@@ -362,23 +359,15 @@ export default function CheckoutForm({
                 {stay && (
                   <>
                     <div className={styles.field}>
-                      <label htmlFor="stayName">Tesis adı *</label>
-                      <input
+                      <label htmlFor="stayName">Tesis / site adı *</label>
+                      <AccommodationPicker
                         id="stayName"
-                        list="stay-list"
                         value={stayName}
-                        onChange={(e) => setStayName(e.target.value)}
+                        onChange={setStayName}
+                        onSelect={(label) => setStayName(label)}
                         placeholder="Yazmaya başlayın, listeden seçin"
                         required={stay}
                       />
-                      <datalist id="stay-list">
-                        {ACCOMMODATIONS.map((a) => (
-                          <option
-                            key={accommodationLabel(a)}
-                            value={accommodationLabel(a)}
-                          />
-                        ))}
-                      </datalist>
                     </div>
                     <div className={styles.field}>
                       <label htmlFor="stayRoom">Oda / Bungalov no</label>
