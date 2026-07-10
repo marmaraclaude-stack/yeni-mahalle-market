@@ -16,7 +16,7 @@ const LEGAL_INFO: {
   taxNo: "0790667472", // Vergi kimlik numarası (VKN)
   mersis: "", // Şirket değil (şahıs işletmesi) — MERSİS yok
   kep: "", // KEP adresi (varsa doldurulacak)
-  email: "", // İşletme e-posta adresi (doldurulacak)
+  email: "arkantayyip54@gmail.com", // İşletme e-posta adresi
   // Vergi levhasındaki iş yeri adresi — yasal sayfalarda "merkez adresi"
   // olarak bu gösterilir (vitrin adresi BUSINESS.address'te kalır).
   address: "Yeni Mah. Okur Sk. No:1 İç Kapı No:1, 54600 Sapanca / Sakarya",

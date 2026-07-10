@@ -118,20 +118,19 @@ export default function SiteFooter() {
             </ul>
           </div>
         </div>
-        {/* Ödeme yöntemleri bandı — iyzico satıcı kriteri: kart logoları + iyzico ile Öde */}
-        <div className="footer__payments">
-          <span className="footer__payments-label">Güvenli ödeme</span>
-          <img
-            src="/odeme/logo-band-colored.svg"
-            alt="iyzico ile Öde · Mastercard · Visa · American Express · Troy"
-            width={429}
-            height={32}
-            loading="lazy"
-          />
-        </div>
+        {/* Alt satır: telif + güvenli ödeme bandı (iyzico satıcı kriteri) */}
         <div className="footer__bottom">
-          <span>© {year} {BUSINESS.name}</span>
-          <span>Sapanca · Sakarya · TR-54</span>
+          <span>© {year} {BUSINESS.name} · Sapanca / Sakarya</span>
+          <span className="footer__payments">
+            <span className="footer__payments-label">Güvenli ödeme</span>
+            <img
+              src="/odeme/logo-band-colored.svg"
+              alt="iyzico ile Öde · Mastercard · Visa · American Express · Troy"
+              width={429}
+              height={32}
+              loading="lazy"
+            />
+          </span>
         </div>
       </div>
     </footer>

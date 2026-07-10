@@ -15,6 +15,7 @@ import {
   MessageCircle,
   Phone,
   ShoppingBasket,
+  Store,
   UserRound,
   X,
 } from "lucide-react";
@@ -27,6 +28,7 @@ const LINKS = [
   { label: "Ana Sayfa", href: "/", icon: House },
   { label: "Ürünler", href: "/urunler", icon: ShoppingBasket },
   { label: "Fırsatlar", href: "/firsatlar", icon: BadgePercent },
+  { label: "Hakkımızda", href: "/hakkimizda", icon: Store },
   { label: "İletişim", href: "/iletisim", icon: MessageCircle },
 ];
 
