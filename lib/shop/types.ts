@@ -172,6 +172,8 @@ export interface ShopSettings {
   delivery_per_km: number;
   /** Taban ücrete dahil mesafe (km) — bunun üstü km başı ücretlendirilir. */
   delivery_km_included: number;
+  /** En uzak teslimat mesafesi (km); 0 = sınırsız. Aşılırsa sipariş alınmaz. */
+  delivery_max_km: number;
   min_order_total: number;
   cod_cash_enabled: boolean;
   cod_card_enabled: boolean;

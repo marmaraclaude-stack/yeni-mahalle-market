@@ -134,3 +134,28 @@ export const ACCOMMODATIONS: Accommodation[] = [
 export function accommodationLabel(a: Accommodation): string {
   return `${a.name} (${a.area})`;
 }
+
+/** Bölge merkezi yaklaşık koordinatları — tesis seçilince markete kuş uçuşu
+ *  mesafe tahmini için (müşteri konum paylaşmasa bile ücret/bölge kontrolü
+ *  çalışsın). Tesis bazında koordinat tutulmaz; bölge merkezi yeterli hassasiyettir. */
+export const AREA_COORDS: Record<string, { lat: number; lng: number }> = {
+  Sapanca: { lat: 40.6883, lng: 30.2675 },
+  "Kırkpınar": { lat: 40.7052, lng: 30.221 },
+  Mahmudiye: { lat: 40.666, lng: 30.235 },
+  "Kurtköy": { lat: 40.696, lng: 30.183 },
+  "Maşukiye": { lat: 40.689, lng: 30.158 },
+  Kartepe: { lat: 40.72, lng: 30.073 },
+  Serdivan: { lat: 40.766, lng: 30.367 },
+  "Adapazarı": { lat: 40.781, lng: 30.403 },
+  Arifiye: { lat: 40.713, lng: 30.352 },
+  "İzmit": { lat: 40.7654, lng: 29.9408 },
+};
+
+/** "Tesis Adı (Bölge)" etiketinden bölge koordinatını çöz; bulunamazsa null. */
+export function coordsForAccommodationLabel(
+  label: string,
+): { lat: number; lng: number } | null {
+  const m = label.match(/\(([^)]+)\)\s*$/);
+  const area = m?.[1]?.trim();
+  return (area && AREA_COORDS[area]) || null;
+}

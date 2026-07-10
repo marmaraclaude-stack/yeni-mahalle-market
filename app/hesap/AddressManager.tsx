@@ -15,6 +15,10 @@ import {
   type AddressInput,
 } from "@/lib/shop/account-actions";
 import type { CustomerAddress } from "@/lib/shop/types";
+import {
+  ACCOMMODATIONS,
+  accommodationLabel,
+} from "@/lib/shop/accommodations";
 import styles from "./hesap.module.css";
 
 interface AddressManagerProps {
@@ -125,13 +129,37 @@ export default function AddressManager({ addresses }: AddressManagerProps) {
             />
           </label>
         </div>
+        {/* Otel/apart/bungalov: tesis seçilince açık adres tesisten doldurulur */}
+        <label className={styles.field}>
+          <span className={styles.fieldLabel}>
+            Otel / apart / bungalovda mı kalıyorsunuz? (isteğe bağlı)
+          </span>
+          <input
+            type="text"
+            list="hesap-stay-list"
+            className={styles.input}
+            placeholder="Tesis adını yazın, listeden seçin"
+            onChange={(e) => {
+              const v = e.target.value;
+              // Listeden tam eşleşme seçildiyse açık adresi tesisle doldur.
+              if (ACCOMMODATIONS.some((a) => accommodationLabel(a) === v)) {
+                setForm({ ...form, line: v });
+              }
+            }}
+          />
+          <datalist id="hesap-stay-list">
+            {ACCOMMODATIONS.map((a) => (
+              <option key={accommodationLabel(a)} value={accommodationLabel(a)} />
+            ))}
+          </datalist>
+        </label>
         <label className={styles.field}>
           <span className={styles.fieldLabel}>Açık adres</span>
           <textarea
             className={styles.textarea}
             value={form.line}
             onChange={(e) => setForm({ ...form, line: e.target.value })}
-            placeholder="Mahalle, sokak, bina no, daire..."
+            placeholder="Mahalle, sokak, bina no, daire... (tesis seçtiyseniz oda/bungalov no ekleyin)"
             rows={3}
             required
           />

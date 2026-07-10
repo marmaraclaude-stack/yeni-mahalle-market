@@ -53,23 +53,45 @@ function stateOf(
   return "ok";
 }
 
-function StockCell({ row, byWeight }: { row: StockRow; byWeight: boolean }) {
+/** kg metni: 5000 g → "5" · 2500 g → "2,5". */
+function gramsToKgText(grams: number): string {
+  return String(grams / 1000).replace(".", ",");
+}
+
+/** Stok satırı — gram bazlı üründe giriş KG cinsindendir (2,5 = 2500 g);
+ *  adetli üründe adet. Kaydet, Ürünler'deki gibi sağdaki İşlem hücresinde. */
+function StockRowView({ row }: { row: StockRow }) {
   const router = useRouter();
-  const [value, setValue] = useState(
-    row.stock_qty === null ? "" : String(row.stock_qty),
-  );
+  const byWeight = isWeightBased(row);
+  const initial =
+    row.stock_qty === null
+      ? ""
+      : byWeight
+        ? gramsToKgText(row.stock_qty)
+        : String(row.stock_qty);
+  const [value, setValue] = useState(initial);
   const [busy, setBusy] = useState(false);
   const [, startTransition] = useTransition();
 
-  const initial = row.stock_qty === null ? "" : String(row.stock_qty);
   const dirty = value.trim() !== initial;
+  const cat = categoryBySlug(row.category_slug);
+  const [bg, fg] = CATEGORY_TINTS[cat?.tint ?? 0];
+  const st = stateOf(row, byWeight);
 
   function save() {
     const raw = value.trim();
-    const qty = raw === "" ? null : Math.round(Number(raw.replace(",", ".")));
-    if (raw !== "" && (!Number.isFinite(qty!) || qty! < 0)) {
-      window.alert("Geçerli bir stok adedi girin (boş = takibi kapat).");
-      return;
+    let qty: number | null = null;
+    if (raw !== "") {
+      const n = Number(raw.replace(",", "."));
+      if (!Number.isFinite(n) || n < 0) {
+        window.alert(
+          byWeight
+            ? "Geçerli bir kg değeri girin (örn. 2,5). Boş = takibi kapat."
+            : "Geçerli bir stok adedi girin (boş = takibi kapat).",
+        );
+        return;
+      }
+      qty = Math.round(byWeight ? n * 1000 : n);
     }
     setBusy(true);
     startTransition(async () => {
@@ -84,26 +106,88 @@ function StockCell({ row, byWeight }: { row: StockRow; byWeight: boolean }) {
   }
 
   return (
-    <div className={styles.stockCell}>
-      <input
-        type="text"
-        inputMode="numeric"
-        value={value}
-        onChange={(e) => setValue(e.target.value)}
-        placeholder="—"
-        className={`${styles.inputSm} ${styles.stockInput}`}
-        aria-label={`${row.name} stok adedi`}
-      />
-      {byWeight && <span className={styles.stockUnit}>g</span>}
-      <button
-        type="button"
-        onClick={save}
-        disabled={!dirty || busy}
-        className={`${styles.btnRow} ${dirty ? styles["btnRow--primary"] : ""}`}
-      >
-        {busy ? "Kaydediliyor…" : dirty ? "Kaydet" : "Kayıtlı"}
-      </button>
-    </div>
+    <tr className={st === "tukendi" ? styles.rowInactive : ""}>
+      <td data-label="Ürün">
+        <div className={styles.prodCell}>
+          {row.image_url ? (
+            <img
+              src={row.image_url}
+              alt=""
+              width={44}
+              height={44}
+              loading="lazy"
+              className={styles.thumb}
+            />
+          ) : (
+            <span
+              className={styles.thumbEmpty}
+              style={{ background: bg, color: fg }}
+              aria-hidden
+            >
+              {row.name.charAt(0).toLocaleUpperCase("tr-TR")}
+            </span>
+          )}
+          <div className={styles.prodText}>
+            <div className={styles.prodName}>{row.name}</div>
+            <div className={styles.prodMeta}>
+              {[row.brand, row.size_text].filter(Boolean).join(" · ") || "·"}
+              {byWeight && " · kg ile satılır"}
+            </div>
+          </div>
+        </div>
+      </td>
+      <td data-label="Kategori">
+        <span className={styles.catBadge} style={{ background: bg, color: fg }}>
+          {cat?.name ?? row.category_slug}
+        </span>
+      </td>
+      <td data-label="Durum">
+        {st === "tukendi" && (
+          <span className={`${styles.pill} ${styles["pill--err"]}`}>Tükendi</span>
+        )}
+        {st === "dusuk" && (
+          <span className={`${styles.pill} ${styles["pill--warn"]}`}>
+            Düşük
+            {row.stock_qty !== null &&
+              ` · ${byWeight ? formatGrams(row.stock_qty) : row.stock_qty}`}
+          </span>
+        )}
+        {st === "ok" && (
+          <span className={`${styles.pill} ${styles["pill--ok"]}`}>
+            Stokta
+            {row.stock_qty !== null &&
+              ` · ${byWeight ? formatGrams(row.stock_qty) : row.stock_qty}`}
+          </span>
+        )}
+        {st === "takipsiz" && <span className={styles.pill}>Takipsiz</span>}
+      </td>
+      <td data-label="Stok">
+        <span className={styles.stockCell}>
+          <input
+            type="text"
+            inputMode="decimal"
+            value={value}
+            onChange={(e) => setValue(e.target.value)}
+            placeholder="—"
+            className={`${styles.inputSm} ${styles.stockInput}`}
+            aria-label={`${row.name} stok (${byWeight ? "kg" : "adet"})`}
+          />
+          <span className={styles.stockUnit}>{byWeight ? "kg" : "adet"}</span>
+        </span>
+      </td>
+      <td data-label="İşlem">
+        <div className={styles.cellActions}>
+          <button
+            type="button"
+            onClick={save}
+            disabled={!dirty || busy}
+            className={`${styles.btnRow} ${dirty ? styles["btnRow--primary"] : ""}`}
+          >
+            {busy ? "Kaydediliyor…" : dirty ? "Kaydet" : "Kayıtlı"}
+          </button>
+        </div>
+      </td>
+    </tr>
   );
 }
 
@@ -221,88 +305,13 @@ export default function StockTable({
                     <th>Kategori</th>
                     <th>Durum</th>
                     <th>Stok</th>
+                    <th></th>
                   </tr>
                 </thead>
                 <tbody>
-                  {rows.map((r) => {
-                    const cat = categoryBySlug(r.category_slug);
-                    const [bg, fg] = CATEGORY_TINTS[cat?.tint ?? 0];
-                    const byWeight = isWeightBased(r);
-                    const st = stateOf(r, byWeight);
-                    return (
-                      <tr
-                        key={r.id}
-                        className={st === "tukendi" ? styles.rowInactive : ""}
-                      >
-                        <td data-label="Ürün">
-                          <div className={styles.prodCell}>
-                            {r.image_url ? (
-                              <img
-                                src={r.image_url}
-                                alt=""
-                                width={44}
-                                height={44}
-                                loading="lazy"
-                                className={styles.thumb}
-                              />
-                            ) : (
-                              <span
-                                className={styles.thumbEmpty}
-                                style={{ background: bg, color: fg }}
-                                aria-hidden
-                              >
-                                {r.name.charAt(0).toLocaleUpperCase("tr-TR")}
-                              </span>
-                            )}
-                            <div className={styles.prodText}>
-                              <div className={styles.prodName}>{r.name}</div>
-                              <div className={styles.prodMeta}>
-                                {[r.brand, r.size_text]
-                                  .filter(Boolean)
-                                  .join(" · ") || "·"}
-                                {byWeight && " · gram bazlı"}
-                              </div>
-                            </div>
-                          </div>
-                        </td>
-                        <td data-label="Kategori">
-                          <span
-                            className={styles.catBadge}
-                            style={{ background: bg, color: fg }}
-                          >
-                            {cat?.name ?? r.category_slug}
-                          </span>
-                        </td>
-                        <td data-label="Durum">
-                          {st === "tukendi" && (
-                            <span className={`${styles.pill} ${styles["pill--err"]}`}>
-                              Tükendi
-                            </span>
-                          )}
-                          {st === "dusuk" && (
-                            <span className={`${styles.pill} ${styles["pill--warn"]}`}>
-                              Düşük
-                              {r.stock_qty !== null &&
-                                ` · ${byWeight ? formatGrams(r.stock_qty) : r.stock_qty}`}
-                            </span>
-                          )}
-                          {st === "ok" && (
-                            <span className={`${styles.pill} ${styles["pill--ok"]}`}>
-                              Stokta
-                              {r.stock_qty !== null &&
-                                ` · ${byWeight ? formatGrams(r.stock_qty) : r.stock_qty}`}
-                            </span>
-                          )}
-                          {st === "takipsiz" && (
-                            <span className={styles.pill}>Takipsiz</span>
-                          )}
-                        </td>
-                        <td data-label="Stok">
-                          <StockCell row={r} byWeight={byWeight} />
-                        </td>
-                      </tr>
-                    );
-                  })}
+                  {rows.map((r) => (
+                    <StockRowView key={r.id} row={r} />
+                  ))}
                 </tbody>
               </table>
             </div>

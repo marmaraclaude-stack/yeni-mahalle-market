@@ -62,10 +62,11 @@
   transition: opacity 0.2s var(--ease), filter 0.2s var(--ease);
 }
 
-/* Pasif banner: onizleme solgun + hafif gri, durum bir bakista belli */
+/* Pasif banner: hafif gri ton, "Pasif" rozeti durumu söyler — metinler
+   OKUNUR kalır (eski %45 opaklık başlık/alt metni görünmez yapıyordu). */
 .card--off .preview {
-  opacity: 0.45;
-  filter: grayscale(0.4);
+  opacity: 0.8;
+  filter: grayscale(0.55);
 }
 
 .previewCopy {

@@ -367,6 +367,19 @@ export async function createOrder(
     if (deliveryKm > 300) deliveryKm = null;
   }
 
+  // Teslimat bölgesi sınırı: mesafe biliniyorsa ve sınırı aşıyorsa sipariş
+  // alınmaz (45-60 dk motor mesafesi dışına teslimat yapılmıyor).
+  if (
+    settings.delivery_max_km > 0 &&
+    deliveryKm !== null &&
+    deliveryKm > settings.delivery_max_km
+  ) {
+    return {
+      ok: false,
+      error: `Üzgünüz, teslimat bölgemizin dışındasınız (markete ~${deliveryKm} km; en fazla ${settings.delivery_max_km} km'ye teslimat yapabiliyoruz).`,
+    };
+  }
+
   const deliveryFee = calcDeliveryFee(settings, subtotal, deliveryKm);
   const total = Math.max(0, round2(subtotal + deliveryFee - discountTotal));
 

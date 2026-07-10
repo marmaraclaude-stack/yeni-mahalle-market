@@ -17,6 +17,7 @@ const DEFAULT_SETTINGS: ShopSettings = {
   free_delivery_over: 0,
   delivery_per_km: 0,
   delivery_km_included: 0,
+  delivery_max_km: 0,
   min_order_total: 0,
   cod_cash_enabled: true,
   cod_card_enabled: true,
@@ -39,6 +40,7 @@ async function saveSettingsAction(formData: FormData) {
     free_delivery_over: num("free_delivery_over"),
     delivery_per_km: num("delivery_per_km"),
     delivery_km_included: num("delivery_km_included"),
+    delivery_max_km: num("delivery_max_km"),
     min_order_total: num("min_order_total"),
     cod_cash_enabled: bool("cod_cash_enabled"),
     cod_card_enabled: bool("cod_card_enabled"),
@@ -160,6 +162,22 @@ export default async function AdminSettingsPage({
                     />
                     <p className={styles.fieldHint}>
                       Bu mesafeye kadar yalnız taban ücret alınır (örn. 3 km).
+                    </p>
+                  </div>
+                  <div className={styles.field}>
+                    <label className={styles.label} htmlFor="delivery_max_km">
+                      En uzak teslimat mesafesi (km)
+                    </label>
+                    <input
+                      id="delivery_max_km"
+                      name="delivery_max_km"
+                      inputMode="decimal"
+                      defaultValue={String(settings.delivery_max_km)}
+                      className={styles.input}
+                    />
+                    <p className={styles.fieldHint}>
+                      Teslimat bölgesi sınırı (kuş uçuşu). Aşan siparişler
+                      reddedilir; örn. motorla 45-60 dk ≈ 25-30 km. 0 = sınırsız.
                     </p>
                   </div>
                   <div className={styles.field}>

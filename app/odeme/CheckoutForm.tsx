@@ -36,6 +36,7 @@ import {
 import {
   ACCOMMODATIONS,
   accommodationLabel,
+  coordsForAccommodationLabel,
 } from "@/lib/shop/accommodations";
 import { BUSINESS } from "@/lib/business";
 import styles from "./odeme.module.css";
@@ -55,6 +56,8 @@ interface CheckoutFormProps {
   /** Mesafe bazlı ücret: dahil km sonrası km başı ek ücret (0 = kapalı). */
   deliveryPerKm?: number;
   deliveryKmIncluded?: number;
+  /** Teslimat bölgesi sınırı (km); 0 = sınırsız. */
+  deliveryMaxKm?: number;
   minOrderTotal: number;
   orderingOpen: boolean;
   closedMessage: string;
@@ -85,6 +88,7 @@ export default function CheckoutForm({
   freeDeliveryOver,
   deliveryPerKm = 0,
   deliveryKmIncluded = 0,
+  deliveryMaxKm = 0,
   minOrderTotal,
   orderingOpen,
   closedMessage,
@@ -132,7 +136,15 @@ export default function CheckoutForm({
     );
   }
 
-  const distanceKm = coords ? haversineKm(BUSINESS.geo, coords) : null;
+  // Mesafe: müşteri konumu öncelikli; yoksa seçilen tesisin BÖLGE merkezi
+  // (konaklamada konum paylaşmadan da ücret/bölge kontrolü çalışsın).
+  const stayCoords =
+    stay && stayName.trim() ? coordsForAccommodationLabel(stayName) : null;
+  const effCoords = coords ?? stayCoords;
+  const distanceKm = effCoords ? haversineKm(BUSINESS.geo, effCoords) : null;
+  // Teslimat bölgesi dışı mı? (sunucu da aynı kontrolü yapar)
+  const outOfZone =
+    deliveryMaxKm > 0 && distanceKm !== null && distanceKm > deliveryMaxKm;
 
   // Kupon: input + uygulanan kupon + hata durumu. Sunucu createOrder'da
   // kuponu YENİDEN doğrular; buradaki indirim yalnız gösterim içindir.
@@ -235,6 +247,12 @@ export default function CheckoutForm({
       setError(`Minimum sipariş tutarı ${formatTL(minOrderTotal)}.`);
       return;
     }
+    if (outOfZone) {
+      setError(
+        `Üzgünüz, teslimat bölgemizin dışındasınız (~${distanceKm} km; en fazla ${deliveryMaxKm} km).`,
+      );
+      return;
+    }
 
     const form = new FormData(event.currentTarget);
     // Konaklamada adres tesisten kurulur; ek tarif varsa sonuna eklenir.
@@ -259,8 +277,8 @@ export default function CheckoutForm({
       paymentMethod: method,
       lines: lines.map((l) => ({ productId: l.productId, qty: l.qty })),
       couponCode: coupon?.code,
-      customerLat: coords?.lat,
-      customerLng: coords?.lng,
+      customerLat: effCoords?.lat,
+      customerLng: effCoords?.lng,
     };
 
     startTransition(async () => {
@@ -422,6 +440,13 @@ export default function CheckoutForm({
                       paylaşmazsanız taban ücret uygulanır.
                     </p>
                   </div>
+                )}
+                {outOfZone && (
+                  <p className={styles.error} role="alert">
+                    Üzgünüz, bu konum teslimat bölgemizin dışında (~{distanceKm}{" "}
+                    km; en fazla {deliveryMaxKm} km&apos;ye teslimat
+                    yapabiliyoruz). Bizi arayarak teyit edebilirsiniz.
+                  </p>
                 )}
                 <div className={styles.field}>
                   <label htmlFor="addressNote">Adres Notu</label>
