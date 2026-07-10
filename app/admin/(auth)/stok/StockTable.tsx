@@ -1,23 +1,44 @@
 "use client";
 
-// Stok tablosu — satır içi stok düzenleme (kaydet yalnız değişince aktif),
-// hızlı filtre çipleri (GET linki) ve ürün adı araması.
+// Stok tablosu — Ürünler sayfasıyla aynı yapı: araç çubuğu (filtre slotu),
+// sayılı hızlı filtre çipleri (GET linki), üst/alt sayfa kontrolü, thumb'lı
+// tablo. Satır içi stok düzenleme (Kaydet yalnız değişince aktif).
 
 import { useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { AlertTriangle, PackageX, Search, Scale } from "lucide-react";
-import { setProductStock, type StockRow } from "@/lib/shop/admin-actions";
+import { AlertTriangle, PackageX, Scale } from "lucide-react";
+import {
+  setProductStock,
+  type StockFilter,
+  type StockRow,
+} from "@/lib/shop/admin-actions";
 import { categoryBySlug, CATEGORY_TINTS } from "@/lib/shop/categories";
 import { formatGrams } from "@/lib/shop/types";
 import styles from "../../admin.module.css";
+import pstyles from "../urunler/products.module.css";
 
-function hrefFor(q: string, filtre?: string): string {
-  const p = new URLSearchParams();
-  if (q) p.set("q", q);
-  if (filtre) p.set("filtre", filtre);
-  const s = p.toString();
-  return s ? `/admin/stok?${s}` : "/admin/stok";
+export type StockPageItem =
+  | { type: "page"; number: number; href: string; current: boolean }
+  | { type: "gap" };
+
+export interface StockPagination {
+  page: number;
+  totalPages: number;
+  total: number;
+  rangeStart: number;
+  rangeEnd: number;
+  prevHref: string | null;
+  nextHref: string | null;
+  items: StockPageItem[];
+}
+
+export interface StockChip {
+  key: StockFilter;
+  label: string;
+  count: number;
+  href: string;
+  active: boolean;
 }
 
 /** Satır durumu: tükendi / düşük / stokta / takipsiz. */
@@ -82,140 +103,211 @@ function StockCell({ row }: { row: StockRow }) {
   );
 }
 
+/** Önceki / sayfa numaraları / Sonraki — Ürünler ile aynı görünüm. */
+function Pager({ pagination }: { pagination: StockPagination }) {
+  if (pagination.totalPages <= 1) return null;
+  return (
+    <nav className={pstyles.pager} aria-label="Sayfalar">
+      {pagination.prevHref ? (
+        <Link href={pagination.prevHref} className={pstyles.pageBtn}>
+          Önceki
+        </Link>
+      ) : (
+        <span className={pstyles.pageBtnOff} aria-disabled="true">
+          Önceki
+        </span>
+      )}
+      <span className={pstyles.pageNums}>
+        {pagination.items.map((item, i) =>
+          item.type === "gap" ? (
+            <span key={`gap-${i}`} className={pstyles.pageGap} aria-hidden>
+              …
+            </span>
+          ) : item.current ? (
+            <span
+              key={item.number}
+              className={pstyles.pageNumCurrent}
+              aria-current="page"
+            >
+              {item.number}
+            </span>
+          ) : (
+            <Link
+              key={item.number}
+              href={item.href}
+              className={pstyles.pageNum}
+              aria-label={`Sayfa ${item.number}`}
+            >
+              {item.number}
+            </Link>
+          ),
+        )}
+      </span>
+      {pagination.nextHref ? (
+        <Link href={pagination.nextHref} className={pstyles.pageBtn}>
+          Sonraki
+        </Link>
+      ) : (
+        <span className={pstyles.pageBtnOff} aria-disabled="true">
+          Sonraki
+        </span>
+      )}
+    </nav>
+  );
+}
+
 export default function StockTable({
   rows,
-  q,
-  filtre,
+  chips,
+  pagination,
+  filterSlot,
 }: {
   rows: StockRow[];
-  q: string;
-  filtre?: string;
+  chips: StockChip[];
+  pagination: StockPagination;
+  filterSlot?: React.ReactNode;
 }) {
-  const chips: { key?: string; label: string }[] = [
-    { key: undefined, label: "Tümü" },
-    { key: "dusuk", label: "Düşük stok" },
-    { key: "tukendi", label: "Tükendi" },
-    { key: "takipsiz", label: "Takipsiz" },
-  ];
-
   return (
     <>
-      <div className={styles.toolbar}>
-        {/* Arama — GET formu (sunucu filtreler) */}
-        <form action="/admin/stok" className={styles.stockSearch}>
-          {filtre && <input type="hidden" name="filtre" value={filtre} />}
-          <Search size={15} aria-hidden />
-          <input
-            type="search"
-            name="q"
-            defaultValue={q}
-            placeholder="Ürün ara…"
-            className={styles.input}
-            aria-label="Ürün ara"
-          />
-        </form>
+      {/* Araç çubuğu: arama + kategori + Filtrele (Ürünler ile aynı) */}
+      <div className={styles.toolbar}>{filterSlot}</div>
+
+      {/* Hızlı filtre çipleri — sayılı, GET linki */}
+      <div className={styles.quickBar}>
         <div className={styles.quickChips}>
           {chips.map((c) => (
             <Link
-              key={c.label}
-              href={hrefFor(q, c.key)}
-              className={`${styles.chip} ${
-                (filtre ?? undefined) === c.key ? styles["chip--active"] : ""
-              }`}
+              key={c.key}
+              href={c.href}
+              className={`${styles.chip} ${c.active ? styles["chip--active"] : ""}`}
+              aria-current={c.active ? "true" : undefined}
             >
+              {c.key === "dusuk" && <AlertTriangle size={14} aria-hidden />}
+              {c.key === "tukendi" && <PackageX size={14} aria-hidden />}
+              {c.key === "takipsiz" && <Scale size={14} aria-hidden />}
               {c.label}
+              <span className={styles.chipCount}>{c.count}</span>
             </Link>
           ))}
         </div>
       </div>
 
+      {/* Liste üstü: aralık bilgisi + sayfa kontrolü */}
+      <div className={pstyles.pagerBar}>
+        <span className={pstyles.rangeInfo}>
+          {pagination.total === 0
+            ? "Sonuç yok"
+            : `${pagination.rangeStart}-${pagination.rangeEnd} arası, toplam ${pagination.total} ürün`}
+        </span>
+        <Pager pagination={pagination} />
+      </div>
+
       {rows.length === 0 ? (
-        <div className={styles.empty}>
-          Bu filtreyle eşleşen ürün yok.
-        </div>
+        <div className={styles.empty}>Bu filtreyle eşleşen ürün yok.</div>
       ) : (
-        <div className={styles.tableCard}>
-          <div className={styles.tableScroll}>
-            <table className={styles.table}>
-              <thead>
-                <tr>
-                  <th>Ürün</th>
-                  <th>Kategori</th>
-                  <th>Durum</th>
-                  <th>Stok</th>
-                </tr>
-              </thead>
-              <tbody>
-                {rows.map((r) => {
-                  const cat = categoryBySlug(r.category_slug);
-                  const [bg, fg] = CATEGORY_TINTS[cat?.tint ?? 0];
-                  const st = stateOf(r);
-                  return (
-                    <tr key={r.id} className={st === "tukendi" ? styles.rowInactive : ""}>
-                      <td data-label="Ürün">
-                        <div className={styles.prodText}>
-                          <div className={styles.prodName}>
-                            {r.name}
-                            {r.sold_by_weight && (
-                              <Scale
-                                size={13}
-                                aria-label="gram bazlı"
-                                style={{ marginLeft: 6, verticalAlign: "-2px", opacity: 0.55 }}
+        <>
+          <div className={styles.tableCard}>
+            <div className={pstyles.tableFlow}>
+              <table
+                className={`${styles.table} ${styles.productTable} ${pstyles.compactTable}`}
+              >
+                <thead>
+                  <tr>
+                    <th>Ürün</th>
+                    <th>Kategori</th>
+                    <th>Durum</th>
+                    <th>Stok</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {rows.map((r) => {
+                    const cat = categoryBySlug(r.category_slug);
+                    const [bg, fg] = CATEGORY_TINTS[cat?.tint ?? 0];
+                    const st = stateOf(r);
+                    return (
+                      <tr
+                        key={r.id}
+                        className={st === "tukendi" ? styles.rowInactive : ""}
+                      >
+                        <td data-label="Ürün">
+                          <div className={styles.prodCell}>
+                            {r.image_url ? (
+                              <img
+                                src={r.image_url}
+                                alt=""
+                                width={44}
+                                height={44}
+                                loading="lazy"
+                                className={styles.thumb}
                               />
+                            ) : (
+                              <span
+                                className={styles.thumbEmpty}
+                                style={{ background: bg, color: fg }}
+                                aria-hidden
+                              >
+                                {r.name.charAt(0).toLocaleUpperCase("tr-TR")}
+                              </span>
                             )}
+                            <div className={styles.prodText}>
+                              <div className={styles.prodName}>{r.name}</div>
+                              <div className={styles.prodMeta}>
+                                {[r.brand, r.size_text]
+                                  .filter(Boolean)
+                                  .join(" · ") || "·"}
+                                {r.sold_by_weight && " · gram bazlı"}
+                              </div>
+                            </div>
                           </div>
-                          <div className={styles.prodMeta}>
-                            {[r.brand, r.size_text].filter(Boolean).join(" · ") || "·"}
-                          </div>
-                        </div>
-                      </td>
-                      <td data-label="Kategori">
-                        <span
-                          className={styles.catBadge}
-                          style={{ background: bg, color: fg }}
-                        >
-                          {cat?.name ?? r.category_slug}
-                        </span>
-                      </td>
-                      <td data-label="Durum">
-                        {st === "tukendi" && (
-                          <span className={`${styles.pill} ${styles["pill--err"]}`}>
-                            <PackageX size={13} aria-hidden /> Tükendi
+                        </td>
+                        <td data-label="Kategori">
+                          <span
+                            className={styles.catBadge}
+                            style={{ background: bg, color: fg }}
+                          >
+                            {cat?.name ?? r.category_slug}
                           </span>
-                        )}
-                        {st === "dusuk" && (
-                          <span className={`${styles.pill} ${styles["pill--warn"]}`}>
-                            <AlertTriangle size={13} aria-hidden /> Düşük
-                            {r.stock_qty !== null &&
-                              ` · ${r.sold_by_weight ? formatGrams(r.stock_qty) : r.stock_qty}`}
-                          </span>
-                        )}
-                        {st === "ok" && (
-                          <span className={`${styles.pill} ${styles["pill--ok"]}`}>
-                            Stokta
-                            {r.stock_qty !== null &&
-                              ` · ${r.sold_by_weight ? formatGrams(r.stock_qty) : r.stock_qty}`}
-                          </span>
-                        )}
-                        {st === "takipsiz" && (
-                          <span className={styles.pill}>Takipsiz</span>
-                        )}
-                      </td>
-                      <td data-label="Stok">
-                        <StockCell row={r} />
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+                        </td>
+                        <td data-label="Durum">
+                          {st === "tukendi" && (
+                            <span className={`${styles.pill} ${styles["pill--err"]}`}>
+                              Tükendi
+                            </span>
+                          )}
+                          {st === "dusuk" && (
+                            <span className={`${styles.pill} ${styles["pill--warn"]}`}>
+                              Düşük
+                              {r.stock_qty !== null &&
+                                ` · ${r.sold_by_weight ? formatGrams(r.stock_qty) : r.stock_qty}`}
+                            </span>
+                          )}
+                          {st === "ok" && (
+                            <span className={`${styles.pill} ${styles["pill--ok"]}`}>
+                              Stokta
+                              {r.stock_qty !== null &&
+                                ` · ${r.sold_by_weight ? formatGrams(r.stock_qty) : r.stock_qty}`}
+                            </span>
+                          )}
+                          {st === "takipsiz" && (
+                            <span className={styles.pill}>Takipsiz</span>
+                          )}
+                        </td>
+                        <td data-label="Stok">
+                          <StockCell row={r} />
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
           </div>
-        </div>
+
+          <div className={pstyles.pagerBottom}>
+            <Pager pagination={pagination} />
+          </div>
+        </>
       )}
-      <p className={styles.subtitle} style={{ marginTop: 12, fontSize: 12.5 }}>
-        Gram bazlı ürünlerde stok <b>gram</b> cinsindendir (ör. 5000 = 5 kg).
-        En fazla 300 satır gösterilir; arama ile daraltın.
-      </p>
     </>
   );
 }

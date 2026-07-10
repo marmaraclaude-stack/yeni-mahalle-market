@@ -486,3 +486,73 @@
   text-underline-offset: 2px;
   white-space: nowrap;
 }
+
+/* Konaklama (otel/apart/bungalov) seçimi */
+.stayToggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--fs-small);
+  font-weight: 600;
+  color: var(--ink);
+  cursor: pointer;
+}
+.stayToggle input {
+  accent-color: var(--accent);
+  width: 16px;
+  height: 16px;
+}
+.stayToggle svg { color: var(--accent-deep); flex-shrink: 0; }
+
+/* Konum satırı (mesafe bazlı ücret) */
+.locRow {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.locBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 40px;
+  padding: 0 16px;
+  border-radius: var(--r-pill);
+  border: 1px solid var(--gray-300);
+  background: var(--gray-100);
+  color: var(--ink);
+  font-size: var(--fs-small);
+  font-weight: 600;
+  font-family: var(--font-sans);
+  cursor: pointer;
+  transition: background 150ms var(--ease), border-color 150ms var(--ease);
+}
+.locBtn:hover:not(:disabled) {
+  background: var(--gray-200);
+  border-color: var(--gray-400);
+}
+.locBtn:disabled { opacity: 0.6; cursor: wait; }
+.locOk {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: var(--fs-small);
+  font-weight: 700;
+  color: #159b57;
+  font-variant-numeric: tabular-nums;
+}
+.locErr {
+  font-size: var(--fs-small);
+  font-weight: 600;
+  color: #c0392b;
+}
+.locHint {
+  margin: 6px 0 0;
+  font-size: var(--fs-micro);
+  color: var(--gray-500);
+}
+.feeKm {
+  font-size: var(--fs-micro);
+  color: var(--gray-500);
+  font-variant-numeric: tabular-nums;
+}

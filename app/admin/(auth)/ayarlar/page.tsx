@@ -15,6 +15,8 @@ const DEFAULT_SETTINGS: ShopSettings = {
   id: 1,
   delivery_fee: 0,
   free_delivery_over: 0,
+  delivery_per_km: 0,
+  delivery_km_included: 0,
   min_order_total: 0,
   cod_cash_enabled: true,
   cod_card_enabled: true,
@@ -35,6 +37,8 @@ async function saveSettingsAction(formData: FormData) {
   await updateSettings({
     delivery_fee: num("delivery_fee"),
     free_delivery_over: num("free_delivery_over"),
+    delivery_per_km: num("delivery_per_km"),
+    delivery_km_included: num("delivery_km_included"),
     min_order_total: num("min_order_total"),
     cod_cash_enabled: bool("cod_cash_enabled"),
     cod_card_enabled: bool("cod_card_enabled"),
@@ -125,6 +129,37 @@ export default async function AdminSettingsPage({
                     />
                     <p className={styles.fieldHint}>
                       Bu tutarın üzeri ücretsiz. 0 = tüm siparişler ücretsiz.
+                    </p>
+                  </div>
+                  <div className={styles.field}>
+                    <label className={styles.label} htmlFor="delivery_per_km">
+                      Km başı ek ücret (TL)
+                    </label>
+                    <input
+                      id="delivery_per_km"
+                      name="delivery_per_km"
+                      inputMode="decimal"
+                      defaultValue={String(settings.delivery_per_km)}
+                      className={styles.input}
+                    />
+                    <p className={styles.fieldHint}>
+                      Dahil mesafe sonrası her km için eklenir (marketten kuş
+                      uçuşu). 0 = mesafe ücretlendirmesi kapalı.
+                    </p>
+                  </div>
+                  <div className={styles.field}>
+                    <label className={styles.label} htmlFor="delivery_km_included">
+                      Ücrete dahil mesafe (km)
+                    </label>
+                    <input
+                      id="delivery_km_included"
+                      name="delivery_km_included"
+                      inputMode="decimal"
+                      defaultValue={String(settings.delivery_km_included)}
+                      className={styles.input}
+                    />
+                    <p className={styles.fieldHint}>
+                      Bu mesafeye kadar yalnız taban ücret alınır (örn. 3 km).
                     </p>
                   </div>
                   <div className={styles.field}>

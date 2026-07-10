@@ -101,6 +101,8 @@ export interface Order {
   courier_lat: number | null;
   courier_lng: number | null;
   courier_location_at: string | null;
+  /** Sipariş anında hesaplanan kuş uçuşu mesafe (km); konum yoksa null. */
+  delivery_km: number | null;
   iyzico_token: string | null;
   iyzico_payment_id: string | null;
   created_at: string;
@@ -166,6 +168,10 @@ export interface ShopSettings {
   id: 1;
   delivery_fee: number;
   free_delivery_over: number;
+  /** Dahil km sonrası km başına ek ücret (0 = mesafe ücretlendirmesi kapalı). */
+  delivery_per_km: number;
+  /** Taban ücrete dahil mesafe (km) — bunun üstü km başı ücretlendirilir. */
+  delivery_km_included: number;
   min_order_total: number;
   cod_cash_enabled: boolean;
   cod_card_enabled: boolean;
@@ -241,6 +247,49 @@ export const PAYMENT_STATUS_LABELS: Record<PaymentStatus, string> = {
   failed: "Başarısız",
   refunded: "İade Edildi",
 };
+
+/**
+ * Teslimat ücretini hesapla (saf — client/sunucu ortak).
+ * free_delivery_over aşıldıysa 0; değilse taban + dahil km sonrası km başı ücret.
+ */
+export function calcDeliveryFee(
+  settings: Pick<
+    ShopSettings,
+    "delivery_fee" | "free_delivery_over" | "delivery_per_km" | "delivery_km_included"
+  >,
+  subtotal: number,
+  /** Markete kuş uçuşu mesafe (km); bilinmiyorsa null → yalnız taban ücret. */
+  distanceKm?: number | null,
+): number {
+  if (settings.free_delivery_over > 0 && subtotal >= settings.free_delivery_over) {
+    return 0;
+  }
+  let fee = settings.delivery_fee;
+  if (
+    settings.delivery_per_km > 0 &&
+    typeof distanceKm === "number" &&
+    Number.isFinite(distanceKm) &&
+    distanceKm > settings.delivery_km_included
+  ) {
+    fee += (distanceKm - settings.delivery_km_included) * settings.delivery_per_km;
+  }
+  return Math.round(fee * 100) / 100;
+}
+
+/** İki koordinat arası kuş uçuşu mesafe (km) — Haversine. */
+export function haversineKm(
+  a: { lat: number; lng: number },
+  b: { lat: number; lng: number },
+): number {
+  const R = 6371;
+  const toRad = (d: number) => (d * Math.PI) / 180;
+  const dLat = toRad(b.lat - a.lat);
+  const dLng = toRad(b.lng - a.lng);
+  const s =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(toRad(a.lat)) * Math.cos(toRad(b.lat)) * Math.sin(dLng / 2) ** 2;
+  return Math.round(R * 2 * Math.asin(Math.sqrt(s)) * 100) / 100;
+}
 
 /** Fiyatı "₺123,50" biçiminde yaz. */
 export function formatTL(value: number): string {

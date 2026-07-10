@@ -10,7 +10,10 @@ import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import {
   Banknote,
+  BedDouble,
+  Check,
   CreditCard,
+  LocateFixed,
   Lock,
   ShieldCheck,
   ShoppingBasket,
@@ -22,12 +25,19 @@ import { linkifyPhone } from "@/components/shop/linkifyPhone";
 import { validateCoupon } from "@/lib/shop/coupons";
 import { createOrder } from "@/lib/shop/order-actions";
 import {
+  calcDeliveryFee,
   computeLineTotal,
   formatGrams,
   formatTL,
+  haversineKm,
   PAYMENT_METHOD_LABELS,
   type PaymentMethod,
 } from "@/lib/shop/types";
+import {
+  ACCOMMODATIONS,
+  accommodationLabel,
+} from "@/lib/shop/accommodations";
+import { BUSINESS } from "@/lib/business";
 import styles from "./odeme.module.css";
 
 export interface CheckoutDefaults {
@@ -42,6 +52,9 @@ interface CheckoutFormProps {
   methods: PaymentMethod[];
   deliveryFee: number;
   freeDeliveryOver: number;
+  /** Mesafe bazlı ücret: dahil km sonrası km başı ek ücret (0 = kapalı). */
+  deliveryPerKm?: number;
+  deliveryKmIncluded?: number;
   minOrderTotal: number;
   orderingOpen: boolean;
   closedMessage: string;
@@ -70,6 +83,8 @@ export default function CheckoutForm({
   methods,
   deliveryFee,
   freeDeliveryOver,
+  deliveryPerKm = 0,
+  deliveryKmIncluded = 0,
   minOrderTotal,
   orderingOpen,
   closedMessage,
@@ -80,6 +95,45 @@ export default function CheckoutForm({
   const [error, setError] = useState<string | null>(null);
   const [method, setMethod] = useState<PaymentMethod | null>(methods[0] ?? null);
 
+  // Konaklama: otel/apart/bungalov seçimi — adres tesisten oluşturulur.
+  const [stay, setStay] = useState(false);
+  const [stayName, setStayName] = useState("");
+  const [stayRoom, setStayRoom] = useState("");
+
+  // Konum (mesafe bazlı ücret): "Konumumu kullan" ile alınır, opsiyonel.
+  const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
+  const [locState, setLocState] = useState<"idle" | "loading" | "ok" | "error">(
+    "idle",
+  );
+  const [locError, setLocError] = useState("");
+
+  function useMyLocation() {
+    if (!("geolocation" in navigator)) {
+      setLocState("error");
+      setLocError("Bu cihaz konum desteklemiyor.");
+      return;
+    }
+    setLocState("loading");
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setCoords({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+        setLocState("ok");
+        setLocError("");
+      },
+      (err) => {
+        setLocState("error");
+        setLocError(
+          err.code === err.PERMISSION_DENIED
+            ? "Konum izni verilmedi."
+            : "Konum alınamadı.",
+        );
+      },
+      { enableHighAccuracy: true, timeout: 12000, maximumAge: 30000 },
+    );
+  }
+
+  const distanceKm = coords ? haversineKm(BUSINESS.geo, coords) : null;
+
   // Kupon: input + uygulanan kupon + hata durumu. Sunucu createOrder'da
   // kuponu YENİDEN doğrular; buradaki indirim yalnız gösterim içindir.
   const [couponInput, setCouponInput] = useState("");
@@ -87,9 +141,17 @@ export default function CheckoutForm({
   const [couponError, setCouponError] = useState<string | null>(null);
   const [couponPending, startCouponTransition] = useTransition();
 
-  // 0 = ücretsiz teslimat eşiği yok — settings.calcDeliveryFee ile aynı kural
-  const fee =
-    freeDeliveryOver > 0 && subtotal >= freeDeliveryOver ? 0 : deliveryFee;
+  // Teslimat ücreti — sunucuyla aynı saf hesap (mesafe dahil).
+  const fee = calcDeliveryFee(
+    {
+      delivery_fee: deliveryFee,
+      free_delivery_over: freeDeliveryOver,
+      delivery_per_km: deliveryPerKm,
+      delivery_km_included: deliveryKmIncluded,
+    },
+    subtotal,
+    distanceKm,
+  );
   const discount = coupon ? Math.min(coupon.discount, subtotal) : 0;
   const total = Math.max(
     0,
@@ -175,15 +237,30 @@ export default function CheckoutForm({
     }
 
     const form = new FormData(event.currentTarget);
+    // Konaklamada adres tesisten kurulur; ek tarif varsa sonuna eklenir.
+    const rawAddress = String(form.get("addressLine") ?? "").trim();
+    const addressLine =
+      stay && stayName.trim()
+        ? [
+            stayName.trim(),
+            stayRoom.trim() ? `Oda/Bungalov: ${stayRoom.trim()}` : "",
+            rawAddress,
+          ]
+            .filter(Boolean)
+            .join(" · ")
+        : rawAddress;
+
     const payload = {
       customerName: String(form.get("customerName") ?? ""),
       phone: String(form.get("phone") ?? ""),
-      addressLine: String(form.get("addressLine") ?? ""),
+      addressLine,
       addressNote: String(form.get("addressNote") ?? ""),
       note: String(form.get("note") ?? ""),
       paymentMethod: method,
       lines: lines.map((l) => ({ productId: l.productId, qty: l.qty })),
       couponCode: coupon?.code,
+      customerLat: coords?.lat,
+      customerLng: coords?.lng,
     };
 
     startTransition(async () => {
@@ -252,19 +329,100 @@ export default function CheckoutForm({
                     placeholder="05XX XXX XX XX"
                   />
                 </div>
+                {/* Konaklama: otel/apart/bungalov — tesis seçilir, adres ondan kurulur */}
                 <div className={styles.field}>
-                  <label htmlFor="addressLine">Teslimat Adresi *</label>
+                  <label className={styles.stayToggle}>
+                    <input
+                      type="checkbox"
+                      checked={stay}
+                      onChange={(e) => setStay(e.target.checked)}
+                    />
+                    <BedDouble size={16} aria-hidden="true" />
+                    Bir otel / apart / bungalovda konaklıyorum
+                  </label>
+                </div>
+                {stay && (
+                  <>
+                    <div className={styles.field}>
+                      <label htmlFor="stayName">Tesis adı *</label>
+                      <input
+                        id="stayName"
+                        list="stay-list"
+                        value={stayName}
+                        onChange={(e) => setStayName(e.target.value)}
+                        placeholder="Yazmaya başlayın, listeden seçin"
+                        required={stay}
+                      />
+                      <datalist id="stay-list">
+                        {ACCOMMODATIONS.map((a) => (
+                          <option
+                            key={accommodationLabel(a)}
+                            value={accommodationLabel(a)}
+                          />
+                        ))}
+                      </datalist>
+                    </div>
+                    <div className={styles.field}>
+                      <label htmlFor="stayRoom">Oda / Bungalov no</label>
+                      <input
+                        id="stayRoom"
+                        value={stayRoom}
+                        onChange={(e) => setStayRoom(e.target.value)}
+                        placeholder="Örn: 12 / Göl 3 (isteğe bağlı)"
+                      />
+                    </div>
+                  </>
+                )}
+                <div className={styles.field}>
+                  <label htmlFor="addressLine">
+                    {stay ? "Ek tarif (isteğe bağlı)" : "Teslimat Adresi *"}
+                  </label>
                   <textarea
                     id="addressLine"
                     name="addressLine"
-                    required
-                    minLength={10}
+                    required={!stay}
+                    minLength={stay ? undefined : 10}
                     rows={3}
                     autoComplete="street-address"
                     defaultValue={defaults.address}
-                    placeholder="Mahalle, cadde/sokak, bina ve daire no · Sapanca"
+                    placeholder={
+                      stay
+                        ? "Resepsiyona bırakılabilir, giriş kapısı vb."
+                        : "Mahalle, cadde/sokak, bina ve daire no · Sapanca"
+                    }
                   />
                 </div>
+                {/* Mesafe bazlı ücret açıkken: konumla net ücret hesabı */}
+                {deliveryPerKm > 0 && (
+                  <div className={styles.field}>
+                    <div className={styles.locRow}>
+                      <button
+                        type="button"
+                        onClick={useMyLocation}
+                        className={styles.locBtn}
+                        disabled={locState === "loading"}
+                      >
+                        <LocateFixed size={15} aria-hidden="true" />
+                        {locState === "loading"
+                          ? "Konum alınıyor…"
+                          : "Konumumu kullan"}
+                      </button>
+                      {locState === "ok" && distanceKm !== null && (
+                        <span className={styles.locOk}>
+                          <Check size={14} aria-hidden="true" /> Markete ~
+                          {distanceKm} km
+                        </span>
+                      )}
+                      {locState === "error" && (
+                        <span className={styles.locErr}>{locError}</span>
+                      )}
+                    </div>
+                    <p className={styles.locHint}>
+                      Teslimat ücreti mesafeye göre hesaplanır; konum
+                      paylaşmazsanız taban ücret uygulanır.
+                    </p>
+                  </div>
+                )}
                 <div className={styles.field}>
                   <label htmlFor="addressNote">Adres Notu</label>
                   <input
@@ -431,7 +589,12 @@ export default function CheckoutForm({
                 <dd>{formatTL(subtotal)}</dd>
               </div>
               <div className={styles.totalRow}>
-                <dt>Teslimat Ücreti</dt>
+                <dt>
+                  Teslimat Ücreti
+                  {distanceKm !== null && fee > 0 && (
+                    <span className={styles.feeKm}> (~{distanceKm} km)</span>
+                  )}
+                </dt>
                 <dd>{fee === 0 ? "Ücretsiz" : formatTL(fee)}</dd>
               </div>
               {coupon && discount > 0 && (

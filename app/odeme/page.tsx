@@ -81,6 +81,8 @@ export default async function OdemePage() {
         methods={methods}
         deliveryFee={settings.delivery_fee}
         freeDeliveryOver={settings.free_delivery_over}
+        deliveryPerKm={settings.delivery_per_km}
+        deliveryKmIncluded={settings.delivery_km_included}
         minOrderTotal={settings.min_order_total}
         orderingOpen={settings.ordering_open}
         closedMessage={settings.closed_message}

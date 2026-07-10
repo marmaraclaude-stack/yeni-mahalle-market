@@ -1309,45 +1309,126 @@ export interface StockRow {
   sold_by_weight: boolean;
   stock_qty: number | null;
   in_stock: boolean;
+  image_url: string | null;
 }
 
-/** Stok sayfası için ürünleri getir (arama + filtre; en çok 300 satır). */
+export type StockFilter = "dusuk" | "tukendi" | "takipsiz";
+
+export interface StockPageData {
+  rows: StockRow[];
+  total: number;
+  counts: Record<StockFilter, number>;
+}
+
+const STOCK_COLS =
+  "id, name, brand, size_text, category_slug, unit, sold_by_weight, stock_qty, in_stock, image_url";
+const STOCK_PAGE_SIZE = 50;
+
+/** "Düşük" eşiği: adetlide ≤5, gram bazlıda ≤2000 g. */
+function isLowStock(r: Pick<StockRow, "stock_qty" | "sold_by_weight">): boolean {
+  return (
+    r.stock_qty !== null &&
+    r.stock_qty > 0 &&
+    r.stock_qty <= (r.sold_by_weight ? 2000 : 5)
+  );
+}
+
+/**
+ * Stok sayfası: sunucu taraflı sayfalama (50/sayfa) + kategori/arama/filtre.
+ * counts: aktif k/q kapsamında çip sayıları.
+ */
 export async function listStock(opts: {
   q?: string;
-  filter?: "dusuk" | "tukendi" | "takipsiz";
-}): Promise<StockRow[]> {
+  category?: string;
+  filter?: StockFilter;
+  page?: number;
+}): Promise<StockPageData> {
   await requireAdmin();
   const supabase = createAdminClient();
-  let query = supabase
-    .from("products")
-    .select(
-      "id, name, brand, size_text, category_slug, unit, sold_by_weight, stock_qty, in_stock",
-    )
-    .eq("is_active", true);
-
   const q = opts.q?.trim();
-  if (q) query = query.ilike("name", `%${q}%`);
-  if (opts.filter === "tukendi") query = query.eq("in_stock", false);
-  if (opts.filter === "takipsiz") query = query.is("stock_qty", null);
-  if (opts.filter === "dusuk")
-    query = query.not("stock_qty", "is", null).gt("stock_qty", 0);
+  const page = Math.max(1, opts.page ?? 1);
 
-  const { data, error } = await query
+  // Temel kapsam (kategori + arama) — çipler ve liste aynı kapsamı kullanır.
+  const base = () => {
+    let query = supabase.from("products").select(STOCK_COLS).eq("is_active", true);
+    if (opts.category) query = query.eq("category_slug", opts.category);
+    if (q) query = query.ilike("name", `%${q}%`);
+    return query;
+  };
+  const baseCount = () => {
+    let query = supabase
+      .from("products")
+      .select("id", { count: "exact", head: true })
+      .eq("is_active", true);
+    if (opts.category) query = query.eq("category_slug", opts.category);
+    if (q) query = query.ilike("name", `%${q}%`);
+    return query;
+  };
+
+  // Çip sayıları: tükendi/takipsiz DB'den; düşük için adaylar bellekte süzülür.
+  const [tukendiRes, takipsizRes, dusukCandRes] = await Promise.all([
+    baseCount().eq("in_stock", false),
+    baseCount().is("stock_qty", null),
+    supabase
+      .from("products")
+      .select("id, stock_qty, sold_by_weight")
+      .eq("is_active", true)
+      .not("stock_qty", "is", null)
+      .gt("stock_qty", 0)
+      .lte("stock_qty", 2000)
+      .limit(2000)
+      .then((r) => r),
+  ]);
+  let dusukCands = ((dusukCandRes.data ?? []) as StockRow[]).filter(isLowStock);
+  // Kategori/arama kapsamı düşük adaylarına da uygulanmalı — id bazlı ikinci
+  // filtre yerine kapsamlı sorgu (aday sayısı küçük olduğundan bellekte).
+  if (opts.category || q) {
+    const { data } = await base()
+      .not("stock_qty", "is", null)
+      .gt("stock_qty", 0)
+      .lte("stock_qty", 2000)
+      .limit(2000);
+    dusukCands = ((data ?? []) as StockRow[]).filter(isLowStock);
+  }
+  const counts: Record<StockFilter, number> = {
+    dusuk: dusukCands.length,
+    tukendi: tukendiRes.count ?? 0,
+    takipsiz: takipsizRes.count ?? 0,
+  };
+
+  // Liste: "düşük" bellekte sayfalanır; diğerleri DB range ile.
+  if (opts.filter === "dusuk") {
+    const sorted = [...dusukCands].sort(
+      (a, b) => (a.stock_qty ?? 0) - (b.stock_qty ?? 0),
+    );
+    const from = (page - 1) * STOCK_PAGE_SIZE;
+    return {
+      rows: sorted.slice(from, from + STOCK_PAGE_SIZE),
+      total: sorted.length,
+      counts,
+    };
+  }
+
+  let listQuery = base();
+  let countQuery = baseCount();
+  if (opts.filter === "tukendi") {
+    listQuery = listQuery.eq("in_stock", false);
+    countQuery = countQuery.eq("in_stock", false);
+  } else if (opts.filter === "takipsiz") {
+    listQuery = listQuery.is("stock_qty", null);
+    countQuery = countQuery.is("stock_qty", null);
+  }
+
+  const { count } = await countQuery;
+  const total = count ?? 0;
+  const from = (page - 1) * STOCK_PAGE_SIZE;
+  const { data, error } = await listQuery
     .order("stock_qty", { ascending: true, nullsFirst: false })
     .order("name", { ascending: true })
-    .limit(300);
-  if (error || !data) return [];
-  let rows = data as StockRow[];
-  // "Düşük": adetlide ≤5, gram bazlıda ≤2000 g (sunucuda tek eşik zor; bellekte süz).
-  if (opts.filter === "dusuk") {
-    rows = rows.filter(
-      (r) =>
-        r.stock_qty !== null &&
-        r.stock_qty > 0 &&
-        r.stock_qty <= (r.sold_by_weight ? 2000 : 5),
-    );
-  }
-  return rows;
+    .order("id", { ascending: true })
+    .range(from, from + STOCK_PAGE_SIZE - 1);
+  if (error || !data) return { rows: [], total, counts };
+  return { rows: data as StockRow[], total, counts };
 }
 
 /** Stok adedini elle ayarla. null = takibi kapat (yalnız bayrakla yönetilir). */

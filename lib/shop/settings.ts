@@ -8,6 +8,8 @@ export const DEFAULT_SHOP_SETTINGS: ShopSettings = {
   id: 1,
   delivery_fee: 0,
   free_delivery_over: 0,
+  delivery_per_km: 0,
+  delivery_km_included: 0,
   min_order_total: 0,
   cod_cash_enabled: true,
   cod_card_enabled: true,
@@ -34,6 +36,8 @@ export async function getShopSettings(): Promise<ShopSettings> {
       id: 1,
       delivery_fee: Number(row.delivery_fee ?? 0),
       free_delivery_over: Number(row.free_delivery_over ?? 0),
+      delivery_per_km: Number(row.delivery_per_km ?? 0),
+      delivery_km_included: Number(row.delivery_km_included ?? 0),
       min_order_total: Number(row.min_order_total ?? 0),
       cod_cash_enabled: row.cod_cash_enabled ?? true,
       cod_card_enabled: row.cod_card_enabled ?? true,
@@ -52,12 +56,6 @@ export async function getShopSettings(): Promise<ShopSettings> {
  * free_delivery_over > 0 ise ve ara toplam eşiği geçtiyse ücretsiz.
  * 0 = ücretsiz teslimat eşiği YOK (delivery_fee her siparişe uygulanır).
  */
-export function calcDeliveryFee(
-  settings: Pick<ShopSettings, "delivery_fee" | "free_delivery_over">,
-  subtotal: number,
-): number {
-  if (settings.free_delivery_over > 0 && subtotal >= settings.free_delivery_over) {
-    return 0;
-  }
-  return settings.delivery_fee;
-}
+// Saf hesaplar client'ta da kullanılır — types.ts'te tanımlı, buradan
+// geriye dönük uyum için re-export edilir.
+export { calcDeliveryFee, haversineKm } from "@/lib/shop/types";

@@ -16,7 +16,8 @@ import {
   isIyzicoConfigured,
   type IyzicoBasketItemInput,
 } from "@/lib/shop/iyzico";
-import { calcDeliveryFee, getShopSettings } from "@/lib/shop/settings";
+import { calcDeliveryFee, getShopSettings, haversineKm } from "@/lib/shop/settings";
+import { BUSINESS } from "@/lib/business";
 import {
   computeLineTotal,
   formatGrams,
@@ -48,6 +49,9 @@ export interface CreateOrderPayload {
   lines: CreateOrderLine[];
   /** Opsiyonel kupon kodu — sunucuda YENİDEN doğrulanır. */
   couponCode?: string;
+  /** Müşteri konumu (mesafe bazlı teslimat ücreti; opsiyonel). */
+  customerLat?: number;
+  customerLng?: number;
 }
 
 export type CreateOrderResult =
@@ -332,7 +336,25 @@ export async function createOrder(
     discountTotal = coupon.discount;
   }
 
-  const deliveryFee = calcDeliveryFee(settings, subtotal);
+  // Mesafe: müşteri konumu geldiyse sunucuda Haversine ile hesaplanır
+  // (client km'sine güvenilmez). Koordinat yoksa yalnız taban ücret.
+  let deliveryKm: number | null = null;
+  const cLat = Number(payload.customerLat);
+  const cLng = Number(payload.customerLng);
+  if (
+    Number.isFinite(cLat) &&
+    Number.isFinite(cLng) &&
+    cLat >= -90 &&
+    cLat <= 90 &&
+    cLng >= -180 &&
+    cLng <= 180
+  ) {
+    deliveryKm = haversineKm(BUSINESS.geo, { lat: cLat, lng: cLng });
+    // Makul olmayan mesafe (300+ km) — konum hatalı say, mesafe ücreti alma.
+    if (deliveryKm > 300) deliveryKm = null;
+  }
+
+  const deliveryFee = calcDeliveryFee(settings, subtotal, deliveryKm);
   const total = Math.max(0, round2(subtotal + deliveryFee - discountTotal));
 
   // --- 3.5) Kupon kullanımını atomik rezerve et: eşzamanlı siparişler
@@ -360,6 +382,7 @@ export async function createOrder(
         address_note: addressNote,
         items_subtotal: subtotal,
         delivery_fee: deliveryFee,
+        delivery_km: deliveryKm,
         coupon_code: couponCode,
         discount_total: discountTotal,
         total,
