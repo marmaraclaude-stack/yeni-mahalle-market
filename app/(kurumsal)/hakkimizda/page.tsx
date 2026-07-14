@@ -25,7 +25,7 @@ import styles from "./hakkimizda.module.css";
 export const metadata: Metadata = {
   title: "Hakkımızda",
   description:
-    "Yeni Mahalle Market: Sapanca Yeni Mahalle'nin bakkalı. Taze meyve sebze, şarküteri ve tüm market ihtiyaçları, kendi kuryemizle adrese teslim. Bizi tanıyın.",
+    "Yeni Mahalle Market: Sapanca'nın mahalle marketi. Taze meyve sebze, şarküteri ve tüm market ihtiyaçları, kendi kuryemizle adrese teslim. Bizi tanıyın.",
   alternates: { canonical: "/hakkimizda" },
 };
 
@@ -43,12 +43,9 @@ export default function HakkimizdaPage() {
       <div className="container">
         {/* ===== Editorial başlık ===== */}
         <header className={styles.head}>
-          <div>
-            <span className={styles.eyebrow}>Hakkımızda</span>
-            <h1 className={styles.title}>
-              Sapanca&apos;nın bakkalı, kapınızın komşusu.
-            </h1>
-          </div>
+          <h1 className={styles.title}>
+            Sapanca&apos;nın mahalle marketi.
+          </h1>
           <p className={styles.lead}>
             {BUSINESS.name}, Yeni Mahalle&apos;de hizmet veren bir mahalle
             marketidir. Tezgâhtan özenle toplar, kendi kuryemizle kapınıza
@@ -67,17 +64,21 @@ export default function HakkimizdaPage() {
               height={1086}
             />
             <span className={styles.photoTag}>
-              <Leaf size={14} aria-hidden="true" /> Her gün taze manav
+              <Leaf size={14} aria-hidden="true" /> Taze meyve &amp; sebze
             </span>
           </div>
 
-          <div className={styles.tile}>
-            <span className={styles.tileIcon} aria-hidden="true">
-              <ShoppingBasket size={20} strokeWidth={2} />
-            </span>
-            <span className={styles.tileNum}>2.500+</span>
-            <span className={styles.tileSub}>
-              Rafta ve sitede ürün çeşidi
+          {/* Fotoğraf: bisküvi/atıştırmalık duvarı */}
+          <div className={`${styles.tile} ${styles.tilePhoto}`}>
+            <img
+              src="/carousel/carousel-6.png"
+              alt="Atıştırmalık ve bisküvi rafları"
+              width={1448}
+              height={1086}
+              loading="lazy"
+            />
+            <span className={styles.photoTag}>
+              <ShoppingBasket size={14} aria-hidden="true" /> 2.500+ ürün çeşidi
             </span>
           </div>
 
@@ -145,9 +146,9 @@ export default function HakkimizdaPage() {
             <span className={styles.tileIcon} aria-hidden="true">
               <ShieldCheck size={20} strokeWidth={2} />
             </span>
-            <span className={styles.tileLabel}>Koşulsuz değişim</span>
+            <span className={styles.tileLabel}>Güvenli ödeme</span>
             <span className={styles.tileSub}>
-              Beğenmediğiniz ürünü sormadan değiştiririz
+              Kapıda veya online, iyzico ve 3D Secure korumalı
             </span>
           </div>
         </section>
@@ -165,7 +166,7 @@ export default function HakkimizdaPage() {
           </div>
           <div className={styles.storyBody}>
             <h2 id="hikaye-baslik">
-              Bir bakkal samimiyetiyle çalışıyoruz.
+              Mahalle esnafı samimiyetiyle çalışıyoruz.
             </h2>
             <p>
               <strong>{BUSINESS.name}</strong>, Sapanca&apos;nın Yeni

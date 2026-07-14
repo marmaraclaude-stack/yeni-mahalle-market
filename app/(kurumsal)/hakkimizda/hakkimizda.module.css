@@ -14,23 +14,14 @@
 .head {
   display: grid;
   grid-template-columns: 1fr;
-  gap: clamp(16px, 2.5vw, 40px);
-  align-items: end;
-  padding: clamp(36px, 5vw, 64px) 0 clamp(28px, 4vw, 44px);
+  gap: clamp(12px, 2vw, 32px);
+  align-items: center;
+  padding: clamp(32px, 4.5vw, 52px) 0 clamp(22px, 3vw, 34px);
 }
 @media (min-width: 900px) {
   .head {
-    grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.75fr);
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
   }
-}
-.eyebrow {
-  display: block;
-  font-size: var(--fs-micro);
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--gray-500);
-  margin-bottom: 14px;
 }
 .title {
   font-family: var(--font-display);
@@ -48,11 +39,6 @@
   color: var(--gray-500);
   text-wrap: pretty;
   margin: 0;
-}
-@media (min-width: 900px) {
-  .lead {
-    padding-bottom: 6px;
-  }
 }
 
 /* --- Bento grid: 4 kolon, sabit satır yüksekliği, eşit boşluk --- */
@@ -78,7 +64,7 @@
   padding: clamp(18px, 1.8vw, 26px);
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
+  justify-content: center;
   gap: 6px;
   min-width: 0;
   box-shadow:
@@ -104,7 +90,7 @@
   border-radius: 13px;
   background: var(--accent-soft);
   color: var(--accent);
-  margin-bottom: auto;
+  margin-bottom: 8px;
 }
 .tileNum {
   font-family: var(--font-display);
@@ -180,17 +166,22 @@
   flex-shrink: 0;
 }
 
-/* --- Hikaye: fotoğraf + metin --- */
+/* --- Hikaye: fotoğraf + metin. Fotoğraf kolonu bento'nun büyük
+   karosuyla aynı genişlikte (yarı genişlik, aynı 16px boşluk). --- */
 .story {
   display: grid;
   grid-template-columns: 1fr;
-  gap: clamp(24px, 3.5vw, 56px);
+  gap: clamp(24px, 3vw, 48px);
   align-items: center;
-  padding: clamp(40px, 6vw, 80px) 0;
+  padding: clamp(32px, 4.5vw, 60px) 0;
 }
 @media (min-width: 900px) {
   .story {
-    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .storyBody {
+    padding-left: clamp(16px, 3vw, 48px);
   }
 }
 .storyPhoto {
@@ -198,7 +189,7 @@
   border-radius: var(--r-xl);
   overflow: hidden;
   border: 1px solid var(--gray-200);
-  aspect-ratio: 4 / 3.4;
+  aspect-ratio: 4 / 3;
   box-shadow:
     0 1px 0 rgba(255, 255, 255, 0.9) inset,
     0 24px 48px -28px rgba(16, 16, 16, 0.18);
