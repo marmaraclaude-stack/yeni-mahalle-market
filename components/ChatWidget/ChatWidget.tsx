@@ -210,10 +210,10 @@ export default function ChatWidget() {
     const el = panelRef.current;
     if (!el) return;
     const apply = () => {
-      // Yüksekliği görünür alana kıs; klavye kapanınca vv.height büyür ve
-      // CSS'teki taban değer (tam ekran 100dvh) yine kazanır.
-      const maxH = Math.max(160, Math.round(vv.height));
-      el.style.height = `min(100dvh, ${maxH}px)`;
+      // Yüzen kart: yüksekliği görünür alana sığdır (klavye üstünde kalsın);
+      // klavye kapanınca vv.height büyür ve CSS taban değeri yine kazanır.
+      const cap = Math.max(220, Math.round(vv.height - 96));
+      el.style.height = `min(72dvh, 600px, ${cap}px)`;
       // iOS: fixed dibi ile görsel viewport dibi arasındaki fark kadar kaldır.
       const gap = Math.round(
         window.innerHeight - (vv.offsetTop + vv.height),

@@ -173,13 +173,23 @@ export default function SubcatTabs({
     return () => io.disconnect();
   }, [sectioned, slugsKey, resizeTick]);
 
-  // Aktif sekme şerit içinde görünür alana kaysın.
+  // Aktif sekme şeritte görünür değilse YALNIZ yatay kaydırılır.
+  // (scrollIntoView sayfayı dikey de kaydırıp scroll-spy ile geri besleme
+  // döngüsü yaratıyordu — artık yalnız container'ın scrollLeft'i değişir.)
   useEffect(() => {
     if (!sectioned) return;
-    const el = scrollRef.current?.querySelector<HTMLElement>(
-      `[data-slug="${active}"]`,
-    );
-    el?.scrollIntoView({ inline: "nearest", block: "nearest" });
+    const el = scrollRef.current;
+    const chip = el?.querySelector<HTMLElement>(`[data-slug="${active}"]`);
+    if (!el || !chip) return;
+    const chipLeft = chip.offsetLeft;
+    const chipRight = chipLeft + chip.offsetWidth;
+    const viewLeft = el.scrollLeft;
+    const viewRight = viewLeft + el.clientWidth;
+    if (chipLeft < viewLeft) {
+      el.scrollTo({ left: Math.max(0, chipLeft - 12), behavior: "smooth" });
+    } else if (chipRight > viewRight) {
+      el.scrollTo({ left: chipRight - el.clientWidth + 12, behavior: "smooth" });
+    }
   }, [active, sectioned]);
 
   /** Sekme tıklaması (bölümlenmiş mod): anchor scroll + URL güncelle. */
