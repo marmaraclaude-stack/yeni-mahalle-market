@@ -173,6 +173,26 @@
   color: var(--ink);
 }
 
+/* --- Ödeme logo bandı ve buton satırı (hakkımızda) --- */
+.payBand {
+  margin: 6px 0 14px;
+}
+.payBand img {
+  display: block;
+  max-width: min(429px, 100%);
+  height: auto;
+}
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 20px;
+}
+/* .body a altı çizgisi butonlara taşmasın */
+.actions a {
+  text-decoration: none;
+}
+
 /* --- Bilgi kutusu (satıcı bilgileri, önemli notlar) --- */
 .infoBox {
   background: var(--gray-50);
