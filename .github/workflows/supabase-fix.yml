@@ -1,0 +1,27 @@
+# TEK SEFERLİK köprü: etiket verisi doldurma (seed v6). Sonra KALDIRILIR.
+name: supabase-fix
+on:
+  workflow_dispatch:
+    inputs:
+      sbp:
+        description: "Supabase access token"
+        required: true
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply product label data
+        env:
+          SBP: ${{ inputs.sbp }}
+        run: |
+          set -euo pipefail
+          jq -Rs '{query: .}' supabase/seeds/20260714_etiket_verisi_v6.sql > /tmp/q.json
+          curl -sS -f -X POST \
+            "https://api.supabase.com/v1/projects/vkaknwulaatzgucclvzn/database/query" \
+            -H "Authorization: Bearer $SBP" \
+            -H "Content-Type: application/json" \
+            -d @/tmp/q.json | tee /tmp/out.json
+          echo
+          grep -q "detayli" /tmp/out.json || { echo "VERIFY FAILED"; exit 1; }
