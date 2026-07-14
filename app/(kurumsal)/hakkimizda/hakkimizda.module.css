@@ -157,6 +157,22 @@
   color: var(--accent);
   flex-shrink: 0;
 }
+/* Mobil: rozetler karo içine sığacak şekilde küçülür */
+@media (max-width: 640px) {
+  .photoTag {
+    margin: 0 12px 12px 12px;
+    padding: 6px 10px;
+    gap: 5px;
+    font-size: var(--fs-micro);
+    max-width: calc(100% - 24px);
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .photoTag svg {
+    width: 12px;
+    height: 12px;
+  }
+}
 
 /* --- Hikaye: fotoğraf + metin. Fotoğraf kolonu bento'nun büyük
    karosuyla aynı genişlikte (yarı genişlik, aynı 16px boşluk). --- */
@@ -238,10 +254,13 @@
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 0.75fr);
   }
 }
+/* Sol grup (başlık + açıklama + butonlar + logolar) sağ kolonlarla
+   dikeyde ortalanır */
 .panelIntro {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+  justify-content: center;
   gap: 12px;
 }
 .panelIntro h2 {
@@ -268,6 +287,16 @@
 }
 .panelBand {
   padding-top: 14px;
+}
+/* Mobil: butonlar ana sayfadaki gibi tam genişlik */
+@media (max-width: 640px) {
+  .panelCtas {
+    width: 100%;
+    flex-direction: column;
+  }
+  .panelCtas a {
+    width: 100%;
+  }
 }
 .panelBand img {
   display: block;

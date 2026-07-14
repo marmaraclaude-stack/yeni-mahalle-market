@@ -167,7 +167,7 @@ export default function HakkimizdaPage() {
           </div>
           <div className={styles.storyBody}>
             <h2 id="hikaye-baslik">
-              Mahalle esnafı samimiyetiyle çalışıyoruz.
+              Mahalle esnafı samimiyetiyle çalışıyoruz
             </h2>
             <p>
               <strong>{BUSINESS.name}</strong>, Sapanca&apos;nın Yeni
@@ -193,7 +193,7 @@ export default function HakkimizdaPage() {
         {/* ===== Koyu işletme paneli ===== */}
         <section className={styles.panel} aria-labelledby="isletme-baslik">
           <div className={styles.panelIntro}>
-            <h2 id="isletme-baslik">Şeffaf bir işletmeyiz.</h2>
+            <h2 id="isletme-baslik">Şeffaf bir işletmeyiz</h2>
             <p>
               Resmi bilgilerimiz ve alışveriş koşullarımız her zaman açık.
               Online ödemeler iyzico altyapısıyla, SSL ve 3D Secure
