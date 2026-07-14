@@ -28,7 +28,6 @@
   color: var(--gray-500);
   font-size: var(--fs-lead);
   line-height: 1.55;
-  max-width: var(--measure);
 }
 .updated {
   display: inline-block;
