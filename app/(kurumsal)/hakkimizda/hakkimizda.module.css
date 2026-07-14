@@ -1,150 +1,369 @@
 /* ============================================================
-   Hakkımızda (/hakkimizda): ana sayfanın tasarım dili üzerine
-   kurulu tanıtım sayfası. Global hero / section / features /
-   stat-card / btn sınıfları kullanılır; burada yalnız sayfaya
-   özgü panel içerikleri tanımlıdır. Token'lar globals.css'ten.
+   Hakkımızda (/hakkimizda): bento grid tanıtım sayfası.
+   Editorial başlık + eşit satır yükseklikli bento kutuları
+   (fotoğraf + bilgi karoları) + hikaye + koyu işletme paneli.
+   Tipografi/butonlar global token ve .btn sınıflarından gelir.
    ============================================================ */
 
-/* Hero metni ortalı akar (ana sayfadaki split yerine tek kolon) */
-.heroInner {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  gap: clamp(16px, 2vw, 24px);
-}
-.heroInner > p {
-  max-width: 56ch;
+.page {
+  padding-bottom: clamp(56px, 8vw, 96px);
+  background: var(--white);
 }
 
-/* --- Features görsel panelleri: kart içi liste --- */
-.panelWrap {
-  width: 100%;
-  padding: clamp(22px, 3vw, 36px);
+/* --- Editorial başlık: solda başlık, sağda kısa tanım --- */
+.head {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: clamp(16px, 2.5vw, 40px);
+  align-items: end;
+  padding: clamp(36px, 5vw, 64px) 0 clamp(28px, 4vw, 44px);
+}
+@media (min-width: 900px) {
+  .head {
+    grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.75fr);
+  }
+}
+.eyebrow {
+  display: block;
+  font-size: var(--fs-micro);
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--gray-500);
+  margin-bottom: 14px;
+}
+.title {
+  font-family: var(--font-display);
+  font-size: var(--fs-display);
+  font-weight: 700;
+  letter-spacing: -0.035em;
+  line-height: 1;
+  color: var(--ink);
+  text-wrap: balance;
+  margin: 0;
+}
+.lead {
+  font-size: var(--fs-lead);
+  line-height: 1.55;
+  color: var(--gray-500);
+  text-wrap: pretty;
+  margin: 0;
+}
+@media (min-width: 900px) {
+  .lead {
+    padding-bottom: 6px;
+  }
+}
+
+/* --- Bento grid: 4 kolon, sabit satır yüksekliği, eşit boşluk --- */
+.bento {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-auto-rows: 190px;
+  gap: 14px;
+}
+@media (min-width: 880px) {
+  .bento {
+    grid-template-columns: repeat(4, 1fr);
+    grid-auto-rows: 215px;
+    gap: 16px;
+  }
+}
+.tile {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--r-xl);
+  border: 1px solid var(--gray-200);
+  background: var(--white);
+  padding: clamp(18px, 1.8vw, 26px);
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  justify-content: flex-end;
+  gap: 6px;
+  min-width: 0;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.9) inset,
+    0 1px 2px rgba(16, 16, 16, 0.04),
+    0 16px 32px -24px rgba(16, 16, 16, 0.12);
 }
-.panelTitle {
-  font-family: var(--font-display);
-  font-size: var(--fs-h4);
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  color: var(--ink);
-  margin-bottom: 10px;
+.tileWide {
+  grid-column: span 2;
+  justify-content: center;
 }
-.panelRow {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 10px 12px;
-  border-radius: var(--r-md, 12px);
-  transition: background 180ms var(--ease);
+.tileTall {
+  grid-column: span 2;
+  grid-row: span 2;
 }
-.panelRow:hover {
-  background: var(--gray-50);
-}
-.panelIcon {
+
+/* Karo içeriği */
+.tileIcon {
   display: grid;
   place-items: center;
-  flex-shrink: 0;
   width: 42px;
   height: 42px;
   border-radius: 13px;
   background: var(--accent-soft);
   color: var(--accent);
+  margin-bottom: auto;
 }
-.panelText {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 0;
-}
-.panelLabel {
-  font-weight: 600;
-  font-size: var(--fs-body);
-  letter-spacing: -0.01em;
+.tileNum {
+  font-family: var(--font-display);
+  font-size: clamp(30px, 3vw, 42px);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1;
   color: var(--ink);
-  line-height: 1.35;
+  font-variant-numeric: tabular-nums;
 }
-.panelSub {
-  font-size: var(--fs-small);
-  color: var(--gray-500);
-  line-height: 1.45;
-}
-/* Ödeme panelinin altındaki logo bandı */
-.panelBand {
-  margin-top: 14px;
-  padding-top: 16px;
-  border-top: 1px dashed var(--gray-200);
-}
-.panelBand img {
-  display: block;
-  max-width: min(380px, 100%);
-  height: auto;
-}
-
-/* --- İşletme bilgileri + yasal sayfalar ızgarası --- */
-.infoGrid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 20px;
-  align-items: stretch;
-}
-@media (min-width: 900px) {
-  .infoGrid {
-    grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
-  }
-}
-/* SellerInfoBox kartı ızgara yüksekliğine otursun */
-.infoGrid > div:first-child :global(dl) {
-  height: 100%;
-}
-.legalCard {
-  background: var(--gray-50);
-  border: 1px solid var(--gray-200);
-  border-radius: var(--r-lg);
-  padding: 20px 22px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-.legalCardTitle {
+.tileLabel {
   font-family: var(--font-display);
   font-size: var(--fs-h4);
   font-weight: 700;
   letter-spacing: -0.02em;
+  line-height: 1.15;
   color: var(--ink);
-  margin-bottom: 8px;
 }
-.legalLink {
+.tileSub {
+  font-size: var(--fs-small);
+  line-height: 1.45;
+  color: var(--gray-500);
+}
+/* Geniş metin karolarında alt ikon dizisi */
+.tileIcons {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+.tileIcons span {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: var(--gray-50);
+  border: 1px solid var(--gray-200);
+  color: var(--gray-700);
+}
+
+/* Fotoğraf karoları */
+.tilePhoto {
+  padding: 0;
+  justify-content: flex-end;
+}
+.tilePhoto img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.photoTag {
+  position: relative;
+  z-index: 1;
+  align-self: flex-start;
+  margin: 0 0 16px 16px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(16, 16, 16, 0.08);
+  font-size: var(--fs-small);
+  font-weight: 600;
+  color: var(--ink);
+  white-space: nowrap;
+}
+.photoTag svg {
+  color: var(--accent);
+  flex-shrink: 0;
+}
+
+/* --- Hikaye: fotoğraf + metin --- */
+.story {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: clamp(24px, 3.5vw, 56px);
+  align-items: center;
+  padding: clamp(40px, 6vw, 80px) 0;
+}
+@media (min-width: 900px) {
+  .story {
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  }
+}
+.storyPhoto {
+  position: relative;
+  border-radius: var(--r-xl);
+  overflow: hidden;
+  border: 1px solid var(--gray-200);
+  aspect-ratio: 4 / 3.4;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.9) inset,
+    0 24px 48px -28px rgba(16, 16, 16, 0.18);
+}
+.storyPhoto img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.storyBody {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.storyBody h2 {
+  font-family: var(--font-display);
+  font-size: var(--fs-h2);
+  font-weight: 700;
+  letter-spacing: -0.035em;
+  line-height: 1.05;
+  color: var(--ink);
+  text-wrap: balance;
+  margin: 0;
+}
+.storyBody p {
+  font-size: var(--fs-body);
+  line-height: 1.6;
+  color: var(--gray-500);
+  text-wrap: pretty;
+  margin: 0;
+}
+.storyBody p strong {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+/* --- Koyu işletme paneli --- */
+.panel {
+  background: var(--ink);
+  border-radius: var(--r-xl);
+  padding: clamp(28px, 4vw, 52px);
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: clamp(28px, 3.5vw, 56px);
+  color: var(--gray-300);
+}
+@media (min-width: 960px) {
+  .panel {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 0.75fr);
+  }
+}
+.panelIntro {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 14px;
+}
+.panelIntro h2 {
+  font-family: var(--font-display);
+  font-size: var(--fs-h2);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+  color: var(--white);
+  text-wrap: balance;
+  margin: 0;
+}
+.panelIntro p {
+  font-size: var(--fs-body);
+  line-height: 1.6;
+  color: var(--gray-400);
+  margin: 0;
+}
+.panelCtas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 6px;
+}
+/* Koyu panelde ikincil buton: yarı saydam beyaz zemin */
+.panelGhostBtn {
+  background: rgba(255, 255, 255, 0.12);
+  color: var(--white);
+}
+.panelGhostBtn:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+.panelBand {
+  margin-top: auto;
+  padding-top: 22px;
+}
+.panelBand img {
+  display: block;
+  max-width: min(340px, 100%);
+  height: auto;
+  opacity: 0.95;
+}
+
+.panelColTitle {
+  display: block;
+  font-size: var(--fs-micro);
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--gray-500);
+  margin-bottom: 16px;
+}
+.panelInfo dl {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+}
+.panelInfo dt {
+  font-size: var(--fs-micro);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--gray-500);
+  margin-bottom: 2px;
+}
+.panelInfo dd {
+  margin: 0;
+  font-size: var(--fs-small);
+  line-height: 1.45;
+  color: var(--white);
+  overflow-wrap: anywhere;
+}
+.panelInfo a {
+  color: var(--white);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-color: rgba(255, 255, 255, 0.35);
+}
+.panelInfo a:hover {
+  text-decoration-color: var(--white);
+}
+
+.panelLinks {
+  display: flex;
+  flex-direction: column;
+}
+.panelLink {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 10px 12px;
-  margin: 0 -12px;
-  border-radius: 10px;
+  padding: 11px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   font-size: var(--fs-small);
-  font-weight: 600;
-  color: var(--gray-700);
-  transition: background 160ms var(--ease), color 160ms var(--ease);
+  font-weight: 500;
+  color: var(--gray-300);
+  transition: color 160ms var(--ease), padding-left 160ms var(--ease);
 }
-.legalLink:hover {
-  background: var(--white);
-  color: var(--ink);
+.panelLink:last-child {
+  border-bottom: none;
 }
-.legalLink svg:first-child {
+.panelLink:hover {
+  color: var(--white);
+  padding-left: 4px;
+}
+.panelLink svg {
   flex-shrink: 0;
   color: var(--gray-500);
 }
-.legalLink svg:last-child {
-  margin-left: auto;
-  flex-shrink: 0;
-  color: var(--gray-400);
-  transition: transform 160ms var(--ease);
-}
-.legalLink:hover svg:last-child {
-  transform: translateX(3px);
+.panelLink:hover svg {
+  color: var(--accent);
 }
