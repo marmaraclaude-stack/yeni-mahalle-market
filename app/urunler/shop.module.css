@@ -769,19 +769,70 @@
    altında ince gray-200 taban çizgisi. Mobil: catRail gibi tam genişliğe
    taşar, yatay kaydırılabilir. Masaüstünde de aynı tek satır sekme dili
    (wrap yok, gerekirse kaydırma). --- */
+/* Bar: solda/sağda ok butonları + ortada kaydırılan çip şeridi.
+   Çipler scroll-snap ile TAM hizalanır (yarım çip başta kalmaz); taşan
+   kenar fade maskesiyle yumuşatılır, oklar taşma yönüne göre aktifleşir. */
 .subBar {
   display: flex;
+  align-items: center;
   gap: 8px;
   margin-bottom: 16px;
-  overflow-x: auto;
   padding: 10px var(--gutter);
   margin-inline: calc(-1 * var(--gutter));
   border-bottom: 1px solid var(--gray-100);
-  scroll-padding-inline: var(--gutter);
+}
+.subScroll {
+  display: flex;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
 }
-.subBar::-webkit-scrollbar { display: none; }
+.subScroll::-webkit-scrollbar { display: none; }
+.subScroll > * { scroll-snap-align: start; }
+/* Kenar yumuşatma: yalnız o yönde taşma varken uygulanır */
+.subScrollFadeL {
+  mask-image: linear-gradient(to right, transparent 0, black 28px);
+}
+.subScrollFadeR {
+  mask-image: linear-gradient(to left, transparent 0, black 28px);
+}
+.subScrollFadeL.subScrollFadeR {
+  mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    black 28px,
+    black calc(100% - 28px),
+    transparent 100%
+  );
+}
+/* Ok butonları */
+.subNavBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  border: 1px solid var(--gray-200);
+  background: var(--white);
+  color: var(--ink);
+  cursor: pointer;
+  transition: background 160ms var(--ease), border-color 160ms var(--ease),
+    opacity 160ms var(--ease);
+}
+.subNavBtn:hover:not(:disabled) {
+  background: var(--gray-50);
+  border-color: var(--gray-300);
+}
+.subNavBtn:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
 /* Masaüstü: içerik kolonunun üstünde tam genişlik, kenar taşması yok. */
 @media (min-width: 1024px) {
   .subBar {

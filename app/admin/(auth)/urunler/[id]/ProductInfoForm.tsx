@@ -238,20 +238,25 @@ export default function ProductInfoForm({
           </div>
         )}
 
-        <div className={`${styles.field} ${styles.fieldFull}`}>
-          <label className={styles.checkLabel}>
-            <input
-              type="checkbox"
-              name="sold_by_weight"
-              checked={byWeight}
-              onChange={(e) => setByWeight(e.target.checked)}
-            />
-            Gram bazlı sat (kilogram fiyatı) — müşteri kaç gram istediğini seçer,
-            fiyat kg üzerinden hesaplanır. Not: Meyve &amp; Sebze kategorisindeki
-            birimi &quot;kg&quot; olan ürünler zaten otomatik gram bazlıdır; bu kutu
-            diğer kategoriler (ör. şarküteri) için.
-          </label>
-        </div>
+        {/* Gram bazlı satış seçeneği yalnız Meyve & Sebze akışında (veya ürün
+            hâlihazırda gram bazlıysa) gösterilir; şarküteri vb. paketli
+            ürünlerin formu sadeleşir. */}
+        {(category === "meyve-sebze" || byWeight) && (
+          <div className={`${styles.field} ${styles.fieldFull}`}>
+            <label className={styles.checkLabel}>
+              <input
+                type="checkbox"
+                name="sold_by_weight"
+                checked={byWeight}
+                onChange={(e) => setByWeight(e.target.checked)}
+              />
+              Gram bazlı sat (kilogram fiyatı): müşteri kaç gram istediğini
+              seçer, fiyat kg üzerinden hesaplanır. Not: Meyve &amp; Sebze
+              kategorisindeki birimi &quot;kg&quot; olan ürünler zaten otomatik
+              gram bazlıdır.
+            </label>
+          </div>
+        )}
 
         {/* Gram satış ölçeği — yalnız gram bazlı ürünlerde. Karpuz/kavun gibi
             iri ürünlerde en az 5 kg, 1 kg adım gibi seçim sağlar. */}
@@ -291,43 +296,6 @@ export default function ProductInfoForm({
               <b>5</b> / adım <b>1</b> → 5, 6, 7, 8 kg · ahududu için <b>0.125</b> /{" "}
               <b>0.125</b> → 125, 250, 375, 500 g · normal meyve-sebze <b>0.25</b> /{" "}
               <b>0.25</b>.
-            </p>
-          </div>
-        )}
-
-        {/* Adet paket fiyatları — toplu alım indirimi (yalnız adet ürünlerde). */}
-        {unit === "adet" && !effectiveWeight && (
-          <div className={`${styles.fieldFull} ${styles.editFormGrid}`}>
-            <div className={`${styles.fieldFull}`}>
-              <label className={styles.label}>Paket fiyatları (opsiyonel)</label>
-            </div>
-            {[2, 3, 4].map((n) => (
-              <div className={styles.field} key={n}>
-                <label className={styles.label} htmlFor={`p-pack${n}`}>
-                  {n}&apos;li paket (₺)
-                </label>
-                <input
-                  id={`p-pack${n}`}
-                  name={`pack${n}`}
-                  inputMode="decimal"
-                  placeholder={`Boş = ${n} × birim`}
-                  defaultValue={
-                    product.pack_prices?.[String(n)] != null
-                      ? String(product.pack_prices[String(n)])
-                      : ""
-                  }
-                  className={styles.input}
-                />
-              </div>
-            ))}
-            <p
-              className={styles.fieldFull}
-              style={{ margin: 0, fontSize: 12.5, color: "var(--gray-600,#555)" }}
-            >
-              Müşteri detayda 1/2/3/4 adet seçer. Paket fiyatı girersen o adet o
-              fiyattan satılır (toplu indirim); boş bırakırsan adet × birim
-              fiyat. Ör. birim ₺100 iken 3&apos;lü paket <b>₺270</b> yaz →
-              müşteri 3 adedi ₺270&apos;e alır.
             </p>
           </div>
         )}
@@ -437,7 +405,8 @@ export default function ProductInfoForm({
             </div>
             <div className={styles.fieldFull}>
               <label className={styles.label}>
-                Besin değerleri (100 g/ml) — boş bırakılan satır gösterilmez
+                Besin değerleri (100 g/ml için; boş bırakılan satır müşteriye
+                gösterilmez)
               </label>
             </div>
             {(

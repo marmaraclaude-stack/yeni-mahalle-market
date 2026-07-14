@@ -13,7 +13,8 @@
 // değişkenine yazılır; catbar kendi yüksekliğini --catbar-h olarak yazar.
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import styles from "@/app/urunler/shop.module.css";
 
 export interface SubTab {
@@ -44,6 +45,39 @@ export default function SubcatTabs({
 }) {
   const sectioned = !activeAlt;
   const barRef = useRef<HTMLElement>(null);
+  // Yatay kaydırılan çip şeridi + ok butonları durumu.
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [canLeft, setCanLeft] = useState(false);
+  const [canRight, setCanRight] = useState(false);
+
+  /** Ok görünürlüğü: şerit başta/sonda mı, taşma var mı? */
+  const updateArrows = useCallback(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const max = el.scrollWidth - el.clientWidth;
+    setCanLeft(el.scrollLeft > 4);
+    setCanRight(el.scrollLeft < max - 4);
+  }, []);
+
+  useEffect(() => {
+    updateArrows();
+    const el = scrollRef.current;
+    if (!el) return;
+    el.addEventListener("scroll", updateArrows, { passive: true });
+    const ro = new ResizeObserver(updateArrows);
+    ro.observe(el);
+    return () => {
+      el.removeEventListener("scroll", updateArrows);
+      ro.disconnect();
+    };
+  }, [updateArrows, tabs]);
+
+  /** Ok tıklaması: bir "sayfa" kaydır; scroll-snap çipleri tam hizalar. */
+  const nudge = (dir: -1 | 1) => {
+    const el = scrollRef.current;
+    if (!el) return;
+    el.scrollBy({ left: dir * Math.max(160, el.clientWidth * 0.75), behavior: "smooth" });
+  };
   // Sekmeye tıklanınca programatik kaydırma bitene dek observer'ın aktif
   // sekmeyi ezmesini engelleyen kilit (scrollend + emniyet zamanlayıcısı).
   const lockRef = useRef(false);
@@ -118,10 +152,10 @@ export default function SubcatTabs({
     return () => io.disconnect();
   }, [sectioned, slugsKey, resizeTick]);
 
-  // Aktif sekme bar içinde görünür alana kaysın.
+  // Aktif sekme şerit içinde görünür alana kaysın.
   useEffect(() => {
     if (!sectioned) return;
-    const el = barRef.current?.querySelector<HTMLElement>(
+    const el = scrollRef.current?.querySelector<HTMLElement>(
       `[data-slug="${active}"]`,
     );
     el?.scrollIntoView({ inline: "nearest", block: "nearest" });
@@ -147,51 +181,78 @@ export default function SubcatTabs({
     window.history.replaceState(window.history.state, "", url.toString());
   };
 
+  const chips = sectioned ? (
+    tabs.map((t) => {
+      const on = t.slug === active;
+      return (
+        <button
+          key={t.slug}
+          type="button"
+          data-slug={t.slug}
+          onClick={() => go(t.slug)}
+          className={`${styles.subChip}${on ? ` ${styles.subChipActive}` : ""}`}
+          aria-current={on ? "location" : undefined}
+        >
+          {t.name}
+          <span className={styles.subCount}>{t.count}</span>
+        </button>
+      );
+    })
+  ) : (
+    <>
+      <Link href={hrefFor(catSlug)} className={styles.subChip}>
+        Tümü
+        <span className={styles.subCount}>{totalCount}</span>
+      </Link>
+      {tabs.map((t) => {
+        const on = t.slug === activeAlt;
+        return (
+          <Link
+            key={t.slug}
+            href={hrefFor(catSlug, t.slug)}
+            className={`${styles.subChip}${on ? ` ${styles.subChipActive}` : ""}`}
+            aria-current={on ? "page" : undefined}
+          >
+            {t.name}
+            <span className={styles.subCount}>{t.count}</span>
+          </Link>
+        );
+      })}
+    </>
+  );
+
   return (
     <nav
       ref={barRef}
       className={`${styles.subBar} ${styles.subBarSticky}`}
       aria-label="Alt kategoriler"
     >
-      {sectioned ? (
-        tabs.map((t) => {
-          const on = t.slug === active;
-          return (
-            <button
-              key={t.slug}
-              type="button"
-              data-slug={t.slug}
-              onClick={() => go(t.slug)}
-              className={`${styles.subChip}${on ? ` ${styles.subChipActive}` : ""}`}
-              aria-current={on ? "location" : undefined}
-            >
-              {t.name}
-              <span className={styles.subCount}>{t.count}</span>
-            </button>
-          );
-        })
-      ) : (
-        <>
-          <Link href={hrefFor(catSlug)} className={styles.subChip}>
-            Tümü
-            <span className={styles.subCount}>{totalCount}</span>
-          </Link>
-          {tabs.map((t) => {
-            const on = t.slug === activeAlt;
-            return (
-              <Link
-                key={t.slug}
-                href={hrefFor(catSlug, t.slug)}
-                className={`${styles.subChip}${on ? ` ${styles.subChipActive}` : ""}`}
-                aria-current={on ? "page" : undefined}
-              >
-                {t.name}
-                <span className={styles.subCount}>{t.count}</span>
-              </Link>
-            );
-          })}
-        </>
-      )}
+      <button
+        type="button"
+        className={styles.subNavBtn}
+        onClick={() => nudge(-1)}
+        disabled={!canLeft}
+        aria-label="Alt kategorileri sola kaydır"
+      >
+        <ChevronLeft size={17} strokeWidth={2.2} aria-hidden="true" />
+      </button>
+      <div
+        ref={scrollRef}
+        className={`${styles.subScroll}${canLeft ? ` ${styles.subScrollFadeL}` : ""}${
+          canRight ? ` ${styles.subScrollFadeR}` : ""
+        }`}
+      >
+        {chips}
+      </div>
+      <button
+        type="button"
+        className={styles.subNavBtn}
+        onClick={() => nudge(1)}
+        disabled={!canRight}
+        aria-label="Alt kategorileri sağa kaydır"
+      >
+        <ChevronRight size={17} strokeWidth={2.2} aria-hidden="true" />
+      </button>
     </nav>
   );
 }
