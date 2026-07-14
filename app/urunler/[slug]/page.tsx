@@ -29,6 +29,7 @@ import { iconFor } from "@/components/shop/ProductCard";
 import SiteNav from "@/components/SiteNav";
 import SiteFooter from "@/components/SiteFooter";
 import DetailActions from "./DetailActions";
+import ProductInfoTabs from "./ProductInfoTabs";
 import SimilarRail from "./SimilarRail";
 import styles from "./urun.module.css";
 
@@ -447,26 +448,14 @@ export default async function UrunDetayPage({ params }: { params: Params }) {
             </div>
           </section>
 
-          {/* Ürün Hakkında — açıklama + künye satırları (ayrı beyaz kart) */}
-          {(product.description || specs.length > 0) && (
-            <section className={styles.descCard} aria-labelledby="urun-hakkinda">
-              <h2 id="urun-hakkinda" className={styles.descHead}>
-                Ürün Hakkında
-              </h2>
-              {product.description && (
-                <p className={styles.descText}>{product.description}</p>
-              )}
-              {specs.length > 0 && (
-                <dl className={styles.specs}>
-                  {specs.map((spec) => (
-                    <div key={spec.label} className={styles.specRow}>
-                      <dt className={styles.specLabel}>{spec.label}</dt>
-                      <dd className={styles.specValue}>{spec.value}</dd>
-                    </div>
-                  ))}
-                </dl>
-              )}
-            </section>
+          {/* Ürün Bilgileri — Migros yapısında sekmeli kart (etiket bilgileri
+              + besin değerleri); detay yoksa açıklama + künye tek sekmede */}
+          {(product.description || product.details || specs.length > 0) && (
+            <ProductInfoTabs
+              description={product.description}
+              details={product.details ?? null}
+              specs={specs}
+            />
           )}
 
           {/* Benzer ürünler — yatay kaydırılabilir rail */}

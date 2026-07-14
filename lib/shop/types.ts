@@ -10,6 +10,30 @@ export interface ShopCategory {
   is_orderable: boolean;
 }
 
+/** Etiket bilgileri — 100 g/ml başına besin değerleri (null = bilinmiyor). */
+export interface ProductNutrition {
+  enerji_kcal?: number | null;
+  enerji_kj?: number | null;
+  yag_g?: number | null;
+  doymus_yag_g?: number | null;
+  karbonhidrat_g?: number | null;
+  seker_g?: number | null;
+  protein_g?: number | null;
+  tuz_g?: number | null;
+}
+
+/** Ürün etiket/detay bilgileri (products.details jsonb) — şarküteri vb.
+ *  paketli ürünlerde Migros tarzı "Ürün Bilgileri / Besin Değerleri"
+ *  sekmelerini besler. Tümü opsiyonel; null alan gösterilmez. */
+export interface ProductDetails {
+  icindekiler?: string | null;
+  net_miktar?: string | null;
+  saklama?: string | null;
+  mensei?: string | null;
+  uretici?: string | null;
+  besin100?: ProductNutrition | null;
+}
+
 export interface Product {
   id: string;
   category_slug: string;
@@ -32,6 +56,8 @@ export interface Product {
   pack_prices: PackPrices | null;
   /** Stok adedi (adetli üründe adet, gram bazlıda GRAM). null = takip yok. */
   stock_qty: number | null;
+  /** Etiket/detay bilgileri (jsonb); null = girilmemiş. */
+  details: ProductDetails | null;
   image_url: string | null;
   is_active: boolean;
   in_stock: boolean;

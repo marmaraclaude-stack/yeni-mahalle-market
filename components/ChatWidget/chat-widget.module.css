@@ -70,42 +70,36 @@
   to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
-/* Mobil sheet'in üstündeki dekoratif sürükleme çubuğu; masaüstünde gizli. */
-.grabber {
-  display: none;
-}
-
 @media (max-width: 560px) {
-  /* Tam ekran yerine alttan açılan bottom sheet: arkada sayfa görünür kalır. */
+  /* TAM EKRAN sohbet: arka plan dikkat dağıtmaz, mesaj alanı büyür,
+     klavye açılınca visualViewport düzeltmesi yüksekliği kısar. */
   .panel {
     right: 0;
     left: 0;
     bottom: 0;
     top: auto;
     width: 100%;
-    height: min(78dvh, 640px);
-    border-radius: 20px 20px 0 0;
+    height: 100dvh;
+    border-radius: 0;
     border: none;
+    animation: panelInMobile 0.24s cubic-bezier(0.2, 0.8, 0.2, 1);
   }
-  .grabber {
-    display: flex;
-    justify-content: center;
-    padding: 8px 0 0;
-    background: var(--black, #0a0a0a); /* header ile bütünleşsin */
-    flex-shrink: 0;
-  }
-  .grabberBar {
-    width: 36px;
-    height: 4px;
-    border-radius: 999px;
-    background: rgba(255, 255, 255, 0.35);
+  /* Çentik/saat çubuğunun altında kalmasın */
+  .header {
+    padding-top: calc(14px + env(safe-area-inset-top));
   }
   /* iOS: 16px altı input odaklanınca sayfayı zoom'lar; engelle */
   .composerInput { font-size: 16px; }
   /* Home bar'ın altında kalmasın (safe area) */
-  .composer { padding-bottom: calc(12px + env(safe-area-inset-bottom)); }
-  /* Not: header'daki safe-area üst padding'i tam ekran içindi; sheet
-     ekranın üstüne dayanmadığı için gerekmiyor. */
+  .footer { padding-bottom: calc(10px + env(safe-area-inset-bottom)); }
+  /* Dokunma hedefleri büyüsün */
+  .sendBtn { width: 48px; height: 48px; }
+  .closeBtn { width: 38px; height: 38px; }
+}
+
+@keyframes panelInMobile {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .header {
@@ -177,6 +171,13 @@
 
 .headerDot--off {
   background: rgba(255, 255, 255, 0.4);
+}
+
+.headerBtns {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
 }
 
 .closeBtn {
@@ -364,6 +365,36 @@
   color: var(--gray-500, #7a7872);
   font-size: var(--fs-micro);
   letter-spacing: 0.02em;
+}
+
+/* Hızlı sorular — ilk mesajdan önce tek dokunuşla gönderilebilen çipler */
+.quickRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 10px 14px;
+  background: var(--cream, #faf8f4);
+  border-top: 1px solid rgba(10, 10, 10, 0.05);
+}
+.quickChip {
+  font: inherit;
+  font-size: var(--fs-micro);
+  font-weight: 600;
+  color: var(--black, #0a0a0a);
+  background: var(--white, #fff);
+  border: 1px solid rgba(10, 10, 10, 0.14);
+  border-radius: 999px;
+  padding: 8px 13px;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+.quickChip:hover:not(:disabled) {
+  border-color: var(--orange, #ff5a1f);
+  color: var(--orange, #ff5a1f);
+}
+.quickChip:disabled {
+  opacity: 0.5;
+  cursor: default;
 }
 
 .composer {

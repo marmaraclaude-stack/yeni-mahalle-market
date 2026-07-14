@@ -23,11 +23,19 @@ export const CATEGORY_SUBS: Record<string, SubCategory[]> = {
     { slug: "meyve", name: "Meyve", match: /muz|elma|karpuz|[çc]ilek|[şs]eftali|portakal|mandalina|limon|[üu]z[üu]m|kivi|\bnar\b|hicaznar|avokado|armut|ayva|greyfurt|kavun|nektarin|kay[ıi]s[ıi]|incir|hurma|ananas|mango|erik|kiraz|vi[şs]ne|b[öo][ğg][üu]rtlen|yaban mersini|ahududu|ejder|[çc]a[ğg]la|kestane|yeni d[üu]nya|\bdut\b|karadut|pasiflora|[çc]ark[ıi]felek/ },
     { slug: "sebze", name: "Sebze", match: /./ },
   ],
+  // Migros sanal market yapısı: Sucuk / Salam / Sosis / Jambon / Pastırma /
+  // Füme Et / Kavurma + mağazadaki taze et grupları; kalan "Diğer Et Şarküteri".
   "sarkuteri-et": [
-    { slug: "sucuk-pastirma", name: "Sucuk & Pastırma", match: /sucuk|past[ıi]rma|kavurma|bacon/ },
-    { slug: "salam-sosis", name: "Salam, Sosis & Jambon", match: /salam|sosis|jambon|f[üu]me|[şs]ark[üu]teri|sarkuteri/ },
+    { slug: "sucuk", name: "Sucuk", match: /sucuk/ },
+    { slug: "salam", name: "Salam", match: /salam/ },
+    { slug: "sosis", name: "Sosis", match: /sosis/ },
+    { slug: "jambon", name: "Jambon", match: /jambon/ },
+    { slug: "pastirma", name: "Pastırma", match: /past[ıi]rma/ },
+    { slug: "fume-et", name: "Füme Et", match: /f[üu]me|fume|bacon/ },
+    { slug: "kavurma", name: "Kavurma", match: /kavurma/ },
     { slug: "tavuk-hindi", name: "Tavuk & Hindi", match: /tavuk|pili[çc]|hindi|baget|kanat|g[öo][ğg][üu]s|gogus|nugget|[şs]nitzel|sinitzel|\bbut\b/ },
-    { slug: "kirmizi-et", name: "Kırmızı Et", match: /./ },
+    { slug: "kirmizi-et", name: "Kırmızı Et", match: /k[ıi]yma|ku[şs]ba[şs][ıi]|kusbasi|bonfile|biftek|antrikot|k[öo]fte|kofte|dana|kuzu|\bet\b/ },
+    { slug: "diger-et-sarkuteri", name: "Diğer Et Şarküteri", match: /./ },
   ],
   "ekmek-firin": [
     { slug: "un-pastacilik", name: "Un & Pastacılık", match: /\bun\b|unu\b|maya|kabartma|vanilya|kar[ıi][şs][ıi]m|karisim|hamuru|kaday[ıi]f|eri[şs]te|eriste|krep|ni[şs]asta/ },

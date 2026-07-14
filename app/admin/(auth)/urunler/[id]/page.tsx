@@ -111,6 +111,49 @@ export default async function AdminProductEditPage({
     const packPricesValue =
       Object.keys(packPrices).length > 0 ? packPrices : null;
 
+    // Etiket bilgileri (details jsonb) — form bölümü yalnız meyve-sebze DIŞI
+    // kategorilerde bulunur; bölüm yoksa alan hiç güncellenmez.
+    let detailsPatch: { details?: import("@/lib/shop/types").ProductDetails | null } = {};
+    if (formData.get("details_present") === "1") {
+      const str = (k: string) => {
+        const v = String(formData.get(k) ?? "").trim();
+        return v || null;
+      };
+      const numOrNull = (k: string) => {
+        const raw = String(formData.get(k) ?? "").trim();
+        if (!raw) return null;
+        const n = Number.parseFloat(raw.replace(",", "."));
+        return Number.isFinite(n) ? n : null;
+      };
+      const besin = {
+        enerji_kcal: numOrNull("det_kcal"),
+        enerji_kj: numOrNull("det_kj"),
+        yag_g: numOrNull("det_yag"),
+        doymus_yag_g: numOrNull("det_doymus"),
+        karbonhidrat_g: numOrNull("det_karb"),
+        seker_g: numOrNull("det_seker"),
+        protein_g: numOrNull("det_protein"),
+        tuz_g: numOrNull("det_tuz"),
+      };
+      const hasBesin = Object.values(besin).some((v) => v !== null);
+      const details = {
+        icindekiler: str("det_icindekiler"),
+        net_miktar: str("det_net_miktar"),
+        saklama: str("det_saklama"),
+        mensei: str("det_mensei"),
+        uretici: str("det_uretici"),
+        besin100: hasBesin ? besin : null,
+      };
+      const hasAny =
+        hasBesin ||
+        details.icindekiler !== null ||
+        details.net_miktar !== null ||
+        details.saklama !== null ||
+        details.mensei !== null ||
+        details.uretici !== null;
+      detailsPatch = { details: hasAny ? details : null };
+    }
+
     let errorMessage: string | null = null;
     try {
       await updateProduct(id, {
@@ -127,6 +170,7 @@ export default async function AdminProductEditPage({
         compare_at_price: compareAt,
         sold_by_weight: soldByWeight,
         pack_prices: packPricesValue,
+        ...detailsPatch,
         ...weightScale,
         is_featured: formData.get("is_featured") === "on",
         in_stock: formData.get("in_stock") === "on",

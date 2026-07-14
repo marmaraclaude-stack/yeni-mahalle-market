@@ -31,9 +31,6 @@ import { categoryBySlug } from "@/lib/shop/categories";
 import { useCart } from "@/components/shop/CartProvider";
 import styles from "./urun.module.css";
 
-// Adet ürünlerde hızlı paket seçenekleri (müşteri 2/3/4'lü paket seçer).
-const ADET_PACKS = [1, 2, 3, 4];
-
 const MAX_QTY = 99;
 
 export default function DetailActions({ product }: { product: Product }) {
@@ -142,51 +139,6 @@ export default function DetailActions({ product }: { product: Product }) {
                 </span>
               </button>
             ))}
-          </div>
-        </div>
-      )}
-
-      {/* Adet ürünlerde hızlı paket seçenekleri (2/3/4/5'li) */}
-      {!byWeight && product.unit === "adet" && (
-        <div className={styles.weightPicker}>
-          <div className={styles.weightHead}>
-            <span className={styles.weightHeadLabel}>Kaç adet?</span>
-            <span className={styles.weightHeadPrice}>
-              {formatTL(product.price)} / adet
-            </span>
-          </div>
-          <div
-            className={styles.weightChips}
-            role="group"
-            aria-label="Adet seçenekleri"
-          >
-            {ADET_PACKS.map((n) => {
-              const packTotal = computeLineTotal(
-                product.price,
-                n,
-                false,
-                product.pack_prices,
-              );
-              const full = Math.round(product.price * n * 100) / 100;
-              const disc = n > 1 && packTotal < full - 0.01;
-              return (
-                <button
-                  key={n}
-                  type="button"
-                  className={`${styles.weightChip}${qty === n ? ` ${styles.weightChipActive}` : ""}`}
-                  onClick={() => setQty(n)}
-                  aria-pressed={qty === n}
-                >
-                  <span className={styles.weightChipAmt}>{n} adet</span>
-                  <span className={styles.weightChipPrice}>
-                    {disc && (
-                      <s className={styles.weightChipOld}>{formatTL(full)}</s>
-                    )}
-                    {formatTL(packTotal)}
-                  </span>
-                </button>
-              );
-            })}
           </div>
         </div>
       )}

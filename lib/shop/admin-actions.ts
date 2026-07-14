@@ -40,6 +40,8 @@ export interface ProductPatch {
   weight_min_grams?: number;
   weight_step_grams?: number;
   pack_prices?: Record<string, number> | null;
+  /** Etiket/detay bilgileri (jsonb) — null: temizle, undefined: dokunma. */
+  details?: import("./types").ProductDetails | null;
   in_stock?: boolean;
   is_active?: boolean;
   is_featured?: boolean;
@@ -366,6 +368,7 @@ export async function updateProduct(
   }
   if (patch.subcategory_slug !== undefined)
     clean.subcategory_slug = patch.subcategory_slug || null;
+  if (patch.details !== undefined) clean.details = patch.details;
   if (patch.price !== undefined) {
     if (!Number.isFinite(patch.price) || patch.price < 0) {
       throw new Error("Geçersiz fiyat.");

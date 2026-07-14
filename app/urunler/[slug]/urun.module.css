@@ -662,7 +662,90 @@
   color: var(--gray-500);
   font-size: var(--fs-body);
   line-height: 1.65;
-  max-width: var(--measure);
+}
+
+/* --- Sekme çubuğu (Ürün Bilgileri / Besin Değerleri) --- */
+.tabBar {
+  display: flex;
+  gap: 4px;
+  border-bottom: 1px solid var(--gray-200);
+  margin-bottom: 18px;
+}
+.tabBtn {
+  appearance: none;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  padding: 10px 14px;
+  font: inherit;
+  font-size: var(--fs-small);
+  font-weight: 600;
+  color: var(--gray-500);
+  cursor: pointer;
+  transition: color 160ms var(--ease), border-color 160ms var(--ease);
+}
+.tabBtn:hover {
+  color: var(--ink);
+}
+.tabBtnActive {
+  color: var(--ink);
+  border-bottom-color: var(--accent);
+}
+
+/* --- Etiket bilgileri (İçindekiler, Saklama...) --- */
+.labelList {
+  margin: 0 0 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.labelRow {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.labelKey {
+  font-size: var(--fs-small);
+  font-weight: 700;
+  color: var(--ink);
+}
+.labelVal {
+  margin: 0;
+  font-size: var(--fs-small);
+  line-height: 1.6;
+  color: var(--gray-700);
+}
+
+/* --- Besin değerleri tablosu --- */
+.nutriTable {
+  width: 100%;
+  max-width: 560px;
+  border-collapse: collapse;
+  font-size: var(--fs-small);
+}
+.nutriTable th {
+  text-align: left;
+  font-weight: 700;
+  color: var(--ink);
+  background: var(--gray-50);
+  padding: 10px 14px;
+  border: 1px solid var(--gray-200);
+}
+.nutriTable td {
+  padding: 10px 14px;
+  border: 1px solid var(--gray-100);
+  color: var(--gray-700);
+  font-variant-numeric: tabular-nums;
+}
+.nutriTable td:last-child {
+  font-weight: 600;
+  color: var(--ink);
+}
+.nutriNote {
+  margin: 12px 0 0;
+  font-size: var(--fs-micro);
+  color: var(--gray-500);
 }
 
 /* Ürün künyesi — marka / miktar / kategori / satış birimi */

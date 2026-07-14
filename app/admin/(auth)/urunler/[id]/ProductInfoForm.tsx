@@ -362,6 +362,112 @@ export default function ProductInfoForm({
           />
         </div>
 
+        {/* Etiket bilgileri — meyve-sebze DIŞINDAKİ kategorilerde (şarküteri
+            vb. paketli ürünler). Ürün detayında "Ürün Bilgileri / Besin
+            Değerleri" sekmelerini besler; boş bırakılan alan gösterilmez. */}
+        {category !== "meyve-sebze" && (
+          <div className={`${styles.fieldFull} ${styles.editFormGrid}`}>
+            <input type="hidden" name="details_present" value="1" />
+            <div className={styles.fieldFull}>
+              <label className={styles.label}>
+                Etiket bilgileri (ürün sayfasında &quot;Ürün Bilgileri&quot;
+                sekmesi)
+              </label>
+            </div>
+            <div className={`${styles.field} ${styles.fieldFull}`}>
+              <label className={styles.label} htmlFor="p-det-icindekiler">
+                İçindekiler
+              </label>
+              <textarea
+                id="p-det-icindekiler"
+                name="det_icindekiler"
+                rows={2}
+                defaultValue={product.details?.icindekiler ?? ""}
+                className={styles.textarea}
+                placeholder="Dana eti ve yağı, baharat karışımı, tuz, sarımsak..."
+              />
+            </div>
+            <div className={styles.field}>
+              <label className={styles.label} htmlFor="p-det-net">
+                Net miktar (g/ml)
+              </label>
+              <input
+                id="p-det-net"
+                name="det_net_miktar"
+                defaultValue={product.details?.net_miktar ?? ""}
+                className={styles.input}
+                placeholder="250 g"
+              />
+            </div>
+            <div className={styles.field}>
+              <label className={styles.label} htmlFor="p-det-saklama">
+                Saklama koşulları
+              </label>
+              <input
+                id="p-det-saklama"
+                name="det_saklama"
+                defaultValue={product.details?.saklama ?? ""}
+                className={styles.input}
+                placeholder="0-4 °C'de muhafaza ediniz"
+              />
+            </div>
+            <div className={styles.field}>
+              <label className={styles.label} htmlFor="p-det-mensei">
+                Menşei
+              </label>
+              <input
+                id="p-det-mensei"
+                name="det_mensei"
+                defaultValue={product.details?.mensei ?? ""}
+                className={styles.input}
+                placeholder="Türkiye"
+              />
+            </div>
+            <div className={styles.field}>
+              <label className={styles.label} htmlFor="p-det-uretici">
+                Üretici / işletmeci
+              </label>
+              <input
+                id="p-det-uretici"
+                name="det_uretici"
+                defaultValue={product.details?.uretici ?? ""}
+                className={styles.input}
+                placeholder="NAMET GIDA SAN. VE TİC. A.Ş."
+              />
+            </div>
+            <div className={styles.fieldFull}>
+              <label className={styles.label}>
+                Besin değerleri (100 g/ml) — boş bırakılan satır gösterilmez
+              </label>
+            </div>
+            {(
+              [
+                ["det_kcal", "Enerji (kcal)", product.details?.besin100?.enerji_kcal],
+                ["det_kj", "Enerji (kJ)", product.details?.besin100?.enerji_kj],
+                ["det_yag", "Yağ (g)", product.details?.besin100?.yag_g],
+                ["det_doymus", "Doymuş yağ (g)", product.details?.besin100?.doymus_yag_g],
+                ["det_karb", "Karbonhidrat (g)", product.details?.besin100?.karbonhidrat_g],
+                ["det_seker", "Şeker (g)", product.details?.besin100?.seker_g],
+                ["det_protein", "Protein (g)", product.details?.besin100?.protein_g],
+                ["det_tuz", "Tuz (g)", product.details?.besin100?.tuz_g],
+              ] as const
+            ).map(([name, label, value]) => (
+              <div className={styles.field} key={name}>
+                <label className={styles.label} htmlFor={`p-${name}`}>
+                  {label}
+                </label>
+                <input
+                  id={`p-${name}`}
+                  name={name}
+                  inputMode="decimal"
+                  defaultValue={value !== null && value !== undefined ? String(value) : ""}
+                  className={styles.input}
+                />
+              </div>
+            ))}
+          </div>
+        )}
+
         <div className={`${styles.fieldFull} ${styles.checksRow}`}>
           <label className={styles.checkLabel}>
             <input

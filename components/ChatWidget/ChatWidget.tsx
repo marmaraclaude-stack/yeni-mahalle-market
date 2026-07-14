@@ -7,7 +7,17 @@ import {
   startChatSession,
 } from "@/lib/shop/chat-actions";
 import type { ChatMessage } from "@/lib/supabase/types";
+import { BUSINESS } from "@/lib/business";
 import styles from "./chat-widget.module.css";
+
+// Hızlı başlangıç soruları — sohbette henüz gerçek mesaj yokken gösterilir;
+// dokununca mesaj olarak gönderilir (mobilde yazmadan tek dokunuş).
+const QUICK_REPLIES = [
+  "Sipariş vermek istiyorum",
+  "Teslimat ücreti ne kadar?",
+  "Siparişim ne durumda?",
+  "Bir ürünün fiyatını soracağım",
+];
 
 // Polling aralıkları: panel açıkken sık, kapalıyken seyrek (unread rozeti için).
 const POLL_OPEN_MS = 4000;
@@ -198,10 +208,10 @@ export default function ChatWidget() {
     const el = panelRef.current;
     if (!el) return;
     const apply = () => {
-      // Yüksekliği görünür alana kıs (12px üst nefes payı); klavye
-      // kapanınca vv.height büyür ve CSS'teki taban değer yine kazanır.
-      const maxH = Math.max(160, Math.round(vv.height - 12));
-      el.style.height = `min(78dvh, 640px, ${maxH}px)`;
+      // Yüksekliği görünür alana kıs; klavye kapanınca vv.height büyür ve
+      // CSS'teki taban değer (tam ekran 100dvh) yine kazanır.
+      const maxH = Math.max(160, Math.round(vv.height));
+      el.style.height = `min(100dvh, ${maxH}px)`;
       // iOS: fixed dibi ile görsel viewport dibi arasındaki fark kadar kaldır.
       const gap = Math.round(
         window.innerHeight - (vv.offsetTop + vv.height),
@@ -415,10 +425,6 @@ export default function ChatWidget() {
           aria-modal="false"
           aria-label="Yeni Mahalle Market sohbet"
         >
-          {/* Mobil sheet'te dekoratif sürükleme çubuğu (CSS masaüstünde gizler) */}
-          <div className={styles.grabber} aria-hidden>
-            <span className={styles.grabberBar} />
-          </div>
           <header className={styles.header}>
             <div className={styles.headerLeft}>
               <span className={styles.avatar} aria-hidden>
@@ -437,17 +443,28 @@ export default function ChatWidget() {
                 </span>
               </div>
             </div>
-            <button
-              type="button"
-              className={styles.closeBtn}
-              onClick={() => setOpen(false)}
-              aria-label="Sohbeti kapat"
-            >
-              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" aria-hidden>
-                <path d="M6 6l12 12" />
-                <path d="M18 6L6 18" />
-              </svg>
-            </button>
+            <div className={styles.headerBtns}>
+              <a
+                href={BUSINESS.phone.href}
+                className={styles.closeBtn}
+                aria-label={`Telefonla ara: ${BUSINESS.phone.display}`}
+              >
+                <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                  <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.13 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.37 1.9.72 2.8a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.9.35 1.84.59 2.8.72A2 2 0 0 1 22 16.92Z" />
+                </svg>
+              </a>
+              <button
+                type="button"
+                className={styles.closeBtn}
+                onClick={() => setOpen(false)}
+                aria-label="Sohbeti kapat"
+              >
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" aria-hidden>
+                  <path d="M6 6l12 12" />
+                  <path d="M18 6L6 18" />
+                </svg>
+              </button>
+            </div>
           </header>
 
           {!session ? (
@@ -527,6 +544,22 @@ export default function ChatWidget() {
                   </div>
                 )}
               </div>
+              {/* Hızlı sorular: henüz gerçek mesaj yazılmadıysa tek dokunuşla gönder */}
+              {messages.every((m) => m.id === "__welcome__") && (
+                <div className={styles.quickRow} aria-label="Hızlı sorular">
+                  {QUICK_REPLIES.map((q) => (
+                    <button
+                      key={q}
+                      type="button"
+                      className={styles.quickChip}
+                      disabled={sending}
+                      onClick={() => void doSend(q)}
+                    >
+                      {q}
+                    </button>
+                  ))}
+                </div>
+              )}
               <form className={styles.composer} onSubmit={sendMessage}>
                 <textarea
                   className={styles.composerInput}
