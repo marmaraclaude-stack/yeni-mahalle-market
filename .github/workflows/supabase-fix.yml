@@ -1,0 +1,27 @@
+# TEK SEFERLİK köprü: marka/ad temizliği. Sonra KALDIRILIR.
+name: supabase-fix
+on:
+  workflow_dispatch:
+    inputs:
+      sbp:
+        description: "Supabase access token"
+        required: true
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply brand/name cleanup
+        env:
+          SBP: ${{ inputs.sbp }}
+        run: |
+          set -euo pipefail
+          jq -Rs '{query: .}' supabase/seeds/20260714_marka_ad_temizligi.sql > /tmp/q.json
+          curl -sS -f -X POST \
+            "https://api.supabase.com/v1/projects/vkaknwulaatzgucclvzn/database/query" \
+            -H "Authorization: Bearer $SBP" \
+            -H "Content-Type: application/json" \
+            -d @/tmp/q.json | tee /tmp/out.json
+          echo
+          grep -q "aktif" /tmp/out.json || { echo "VERIFY FAILED"; exit 1; }

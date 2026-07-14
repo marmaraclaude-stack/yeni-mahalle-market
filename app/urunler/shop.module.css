@@ -1228,8 +1228,9 @@
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  /* 3 satırlık sabit blok: uzun adlar sığar, kartlar eşit kalır */
-  min-height: calc(3 * 1.35em);
+  /* 2 satır ayrılır (kısa adlı kartlar uzamaz), gerekirse 3. satıra taşar;
+     satır içi kartlar grid'de aynı yüksekliğe esner */
+  min-height: calc(2 * 1.35em);
 }
 .size {
   color: var(--gray-500);
