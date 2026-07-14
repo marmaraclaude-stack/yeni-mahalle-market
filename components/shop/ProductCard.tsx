@@ -172,9 +172,10 @@ export default function ProductCard({
                 <span className={styles.unit}>/ {product.unit}</span>
               )}
           </p>
-          {perUnit && <p className={styles.perUnit}>{perUnit}</p>}
+          {/* perUnit her kartta alan ayırır (boşsa da) — kartlar aynı yükseklik */}
+          <p className={styles.perUnit}>{perUnit || " "}</p>
           <h3 className={styles.name}>{product.name}</h3>
-          <p className={styles.size}>{meta}</p>
+          <p className={styles.size}>{meta || " "}</p>
         </div>
       </Link>
 

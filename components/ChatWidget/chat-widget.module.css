@@ -27,6 +27,14 @@
   background: var(--orange, #ff5a1f);
 }
 
+/* Açıkken: kırmızı X (Alpay tarzı) */
+.fabOpen {
+  background: #e5484d;
+}
+.fabOpen:hover {
+  background: #d13b40;
+}
+
 .fabIcon { width: 26px; height: 26px; }
 
 .fabBadge {
@@ -89,12 +97,16 @@
     padding-top: calc(14px + env(safe-area-inset-top));
   }
   /* iOS: 16px altı input odaklanınca sayfayı zoom'lar; engelle */
-  .composerInput { font-size: 16px; }
+  .composerInput,
+  .input,
+  .introTextarea { font-size: 16px; }
   /* Home bar'ın altında kalmasın (safe area) */
   .footer { padding-bottom: calc(10px + env(safe-area-inset-bottom)); }
+  .introBody { padding-bottom: calc(20px + env(safe-area-inset-bottom)); }
   /* Dokunma hedefleri büyüsün */
   .sendBtn { width: 48px; height: 48px; }
-  .closeBtn { width: 38px; height: 38px; }
+  .headerClose,
+  .headerIconBtn { width: 38px; height: 38px; }
 }
 
 @keyframes panelInMobile {
@@ -102,28 +114,31 @@
   to { opacity: 1; transform: translateY(0); }
 }
 
+/* Alpay tarzı: beyaz header, koyu metin, altında ince ayraç */
 .header {
-  background: var(--black, #0a0a0a);
-  color: var(--white, #fff);
-  padding: 16px 18px;
+  background: var(--white, #fff);
+  color: var(--black, #0a0a0a);
+  padding: 15px 16px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
+  border-bottom: 1px solid rgba(10, 10, 10, 0.08);
 }
 
 .headerLeft {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 11px;
   min-width: 0;
 }
 
 .avatar {
-  width: 40px;
-  height: 40px;
+  width: 42px;
+  height: 42px;
   border-radius: 999px;
-  background: var(--white, #fff);
+  background: var(--gray-100, #f2f0ec);
+  border: 1px solid rgba(10, 10, 10, 0.06);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -135,17 +150,17 @@
   width: 100%;
   height: 100%;
   object-fit: contain;
-  padding: 3px;
+  padding: 4px;
   display: block;
 }
 
 .headerTitle {
   font-family: var(--font-sans);
-  font-weight: 600;
+  font-weight: 700;
   font-size: var(--fs-body);
   line-height: 1.15;
   margin: 0;
-  color: var(--white, #fff);
+  color: var(--black, #0a0a0a);
   letter-spacing: -0.01em;
 }
 
@@ -153,8 +168,8 @@
   font-family: var(--font-sans, system-ui), sans-serif;
   font-size: var(--fs-micro);
   letter-spacing: normal;
-  color: rgba(255, 255, 255, 0.72);
-  margin-top: 3px;
+  color: var(--gray-500, #7a7872);
+  margin-top: 2px;
   display: flex;
   align-items: center;
   gap: 6px;
@@ -162,15 +177,52 @@
 }
 
 .headerDot {
-  width: 6px;
-  height: 6px;
+  width: 7px;
+  height: 7px;
   border-radius: 999px;
-  background: var(--orange, #ff5a1f);
+  background: #22b357; /* çevrim içi: yeşil */
   display: inline-block;
 }
 
 .headerDot--off {
-  background: rgba(255, 255, 255, 0.4);
+  background: var(--gray-400, #a8a49c);
+}
+
+/* Telefon ikon butonu — soluk, ikincil */
+.headerIconBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  color: var(--gray-500, #7a7872);
+  border: 1px solid rgba(10, 10, 10, 0.1);
+  background: var(--white, #fff);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.headerIconBtn:hover {
+  background: var(--gray-50, #faf8f4);
+  color: var(--black, #0a0a0a);
+}
+
+/* Kapatma — Alpay'daki gibi kırmızı X */
+.headerClose {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  color: #e5484d;
+  border: 1px solid rgba(229, 72, 77, 0.28);
+  background: rgba(229, 72, 77, 0.06);
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+.headerClose:hover {
+  background: rgba(229, 72, 77, 0.14);
 }
 
 .headerBtns {
@@ -178,25 +230,6 @@
   align-items: center;
   gap: 8px;
   flex-shrink: 0;
-}
-
-.closeBtn {
-  background: transparent;
-  color: var(--white, #fff);
-  border: 1px solid rgba(255, 255, 255, 0.22);
-  width: 34px;
-  height: 34px;
-  border-radius: 10px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: background 0.15s ease, border-color 0.15s ease;
-}
-
-.closeBtn:hover {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: rgba(255, 255, 255, 0.4);
 }
 
 .body {
@@ -211,37 +244,64 @@
   background: var(--cream, #faf8f4);
 }
 
-.intro {
+/* Alpay tarzı intro: beyaz zemin, üstte prompt sorusu, altında form */
+.introBody {
+  flex: 1;
+  overflow-y: auto;
+  background: var(--white, #fff);
+  padding: 18px 18px 20px;
   display: flex;
   flex-direction: column;
-  height: 100%;
-  padding: 6px 4px 0;
   gap: 16px;
 }
 
-.introTitle {
+.introPrompt {
   font-family: var(--font-sans);
-  font-weight: 600;
-  font-size: var(--fs-h3);
-  line-height: 1.1;
+  font-weight: 700;
+  font-size: var(--fs-lead, 17px);
+  line-height: 1.3;
   letter-spacing: -0.02em;
   color: var(--black, #0a0a0a);
   margin: 0;
-}
-
-.introLede {
-  color: var(--gray-700, #3a3835);
-  font-size: var(--fs-small);
-  line-height: 1.55;
-  margin: 0;
+  text-wrap: balance;
 }
 
 .introForm {
   display: flex;
   flex-direction: column;
-  gap: 11px;
-  margin-top: auto;
-  padding-bottom: 8px;
+  gap: 13px;
+}
+
+/* Ad / Telefon iki kolon (Alpay'daki Ad/Soyad gibi) */
+.introRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.introTextarea {
+  font: inherit;
+  padding: 12px 14px;
+  border: 1px solid rgba(10, 10, 10, 0.12);
+  background: var(--white, #fff);
+  border-radius: 10px;
+  font-size: var(--fs-small);
+  color: var(--black, #0a0a0a);
+  width: 100%;
+  resize: none;
+  line-height: 1.45;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.introTextarea:focus {
+  outline: none;
+  border-color: var(--orange, #ff5a1f);
+  box-shadow: 0 0 0 3px rgba(255, 90, 31, 0.15);
+}
+
+.introError {
+  margin: 0;
+  font-size: var(--fs-micro);
+  color: #c0392b;
 }
 
 .label {
@@ -276,24 +336,31 @@
   box-shadow: 0 0 0 3px rgba(255, 90, 31, 0.18);
 }
 
+/* Alpay tarzı: siyah, tam genişlik, hafif yuvarlatılmış dikdörtgen buton */
 .submitBtn {
-  padding: 13px 16px;
+  margin-top: 2px;
+  padding: 15px 16px;
+  width: 100%;
   background: var(--black, #0a0a0a);
   color: var(--white, #fff);
   border: none;
-  border-radius: 999px;
-  font-weight: 600;
+  border-radius: 12px;
+  font-weight: 700;
   font-size: var(--fs-small);
+  letter-spacing: -0.01em;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  transition: background 0.15s ease, transform 0.15s ease;
+  transition: background 0.15s ease, transform 0.1s ease;
 }
 
 .submitBtn:hover:not(:disabled) {
-  background: var(--orange, #ff5a1f);
+  background: #1c1c1c;
+}
+.submitBtn:active:not(:disabled) {
+  transform: scale(0.99);
 }
 
 .submitBtn:disabled {

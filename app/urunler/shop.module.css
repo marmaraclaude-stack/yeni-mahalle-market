@@ -782,12 +782,17 @@
   border-bottom: 1px solid var(--gray-100);
 }
 .subScroll {
+  /* position: relative → çiplerin offsetLeft'i bu kutuya göre (0 tabanlı)
+     hesaplanır; ok butonuyla tek tek kaydırma doğru konumlanır. */
+  position: relative;
   display: flex;
   gap: 8px;
   flex: 1;
   min-width: 0;
   overflow-x: auto;
-  scroll-snap-type: x mandatory;
+  /* proximity: dokunmatik kaydırmada hafif hizalar ama programatik
+     scrollTo (ok tıklaması) ile çakışıp son çipi zıplatmaz */
+  scroll-snap-type: x proximity;
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
 }
@@ -943,10 +948,25 @@
 }
 
 /* --- Ürün gridi --- */
+/* Ürün grid'i — sabit sütun sayısı: mobil 2, tablet 3, geniş 4.
+   (auto-fill yerine açık breakpoint: geniş ekranda 5 değil 4 sütun,
+   kartlar daha geniş ve dengeli.) */
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
+}
+@media (min-width: 600px) {
+  .grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+  }
+}
+@media (min-width: 1024px) {
+  .grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+  }
 }
 
 /* --- "Daha Fazla Yükle" (özel görünümlerde kademeli render) --- */
@@ -1178,15 +1198,16 @@
 .cardBody {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 3px;
   flex: 1;
   padding: 0 2px;
 }
+/* Fiyat satırı — sabit yükseklik (indirimli/indirimsiz fark etmez) */
 .priceRow {
   display: flex;
   align-items: baseline;
   gap: 6px;
-  min-height: 1.4em;
+  height: 1.5em;
   overflow: hidden;
 }
 .price {
@@ -1209,33 +1230,37 @@
   font-weight: 500;
   white-space: nowrap;
 }
-/* Küçük birim fiyat bilgisi (ör. "1.599,92 / kg") — Getir/Migros netliği. */
+/* Küçük birim fiyat bilgisi (ör. "1.599,92 / kg") — her kartta sabit yükseklik
+   (boş olsa da alan ayırır, kartlar birebir hizalı kalır). */
 .perUnit {
   color: var(--gray-500);
   font-size: var(--fs-micro);
+  line-height: 1.3;
+  height: 1.3em;
   font-variant-numeric: tabular-nums;
-  margin-top: 1px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
+/* Ürün adı — TAM 2 satır sabit blok; uzun adlar 2. satırda … ile kesilir.
+   Böylece her kart aynı gövde yüksekliğine ve aynı buton hizasına sahip olur. */
 .name {
   font-size: var(--fs-small);
   font-weight: 400;
   line-height: 1.35;
   letter-spacing: -0.01em;
   display: -webkit-box;
-  -webkit-line-clamp: 3;
+  -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  /* 2 satır ayrılır (kısa adlı kartlar uzamaz), gerekirse 3. satıra taşar;
-     satır içi kartlar grid'de aynı yüksekliğe esner */
-  min-height: calc(2 * 1.35em);
+  height: calc(2 * 1.35em);
+  margin-top: 1px;
 }
 .size {
   color: var(--gray-500);
   font-size: var(--fs-micro);
-  min-height: 1.2em;
+  line-height: 1.25;
+  height: 1.25em;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

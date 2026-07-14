@@ -49,12 +49,15 @@ export default function SubcatTabs({
   const scrollRef = useRef<HTMLDivElement>(null);
   const [canLeft, setCanLeft] = useState(false);
   const [canRight, setCanRight] = useState(false);
+  // Şerit hiç taşmıyorsa (az sayıda çip) okları göstermeyiz.
+  const [overflow, setOverflow] = useState(false);
 
   /** Ok görünürlüğü: şerit başta/sonda mı, taşma var mı? */
   const updateArrows = useCallback(() => {
     const el = scrollRef.current;
     if (!el) return;
     const max = el.scrollWidth - el.clientWidth;
+    setOverflow(max > 4);
     setCanLeft(el.scrollLeft > 4);
     setCanRight(el.scrollLeft < max - 4);
   }, []);
@@ -72,11 +75,29 @@ export default function SubcatTabs({
     };
   }, [updateArrows, tabs]);
 
-  /** Ok tıklaması: bir "sayfa" kaydır; scroll-snap çipleri tam hizalar. */
+  /** Ok tıklaması: TEK bir çip ilerle/geri git; hedefi sol kenara hizala
+     (yarım çip kalmaz, son çip de tam görünür — "son eleman" bug'ı yok). */
   const nudge = (dir: -1 | 1) => {
     const el = scrollRef.current;
     if (!el) return;
-    el.scrollBy({ left: dir * Math.max(160, el.clientWidth * 0.75), behavior: "smooth" });
+    const kids = Array.from(el.children) as HTMLElement[];
+    const pad = 10;
+    const cur = el.scrollLeft;
+    if (dir === 1) {
+      // Mevcut sol kenardan sonraki ilk çipi sola getir (bir çip ileri).
+      const next = kids.find((c) => c.offsetLeft > cur + 2);
+      el.scrollTo({
+        left: next ? next.offsetLeft - pad : el.scrollWidth,
+        behavior: "smooth",
+      });
+    } else {
+      // Sol kenardan önceki son çipi sola getir (bir çip geri).
+      const prev = [...kids].reverse().find((c) => c.offsetLeft < cur - 2);
+      el.scrollTo({
+        left: prev ? Math.max(0, prev.offsetLeft - pad) : 0,
+        behavior: "smooth",
+      });
+    }
   };
   // Sekmeye tıklanınca programatik kaydırma bitene dek observer'ın aktif
   // sekmeyi ezmesini engelleyen kilit (scrollend + emniyet zamanlayıcısı).
@@ -227,15 +248,17 @@ export default function SubcatTabs({
       className={`${styles.subBar} ${styles.subBarSticky}`}
       aria-label="Alt kategoriler"
     >
-      <button
-        type="button"
-        className={styles.subNavBtn}
-        onClick={() => nudge(-1)}
-        disabled={!canLeft}
-        aria-label="Alt kategorileri sola kaydır"
-      >
-        <ChevronLeft size={17} strokeWidth={2.2} aria-hidden="true" />
-      </button>
+      {overflow && (
+        <button
+          type="button"
+          className={styles.subNavBtn}
+          onClick={() => nudge(-1)}
+          disabled={!canLeft}
+          aria-label="Alt kategorileri sola kaydır"
+        >
+          <ChevronLeft size={17} strokeWidth={2.2} aria-hidden="true" />
+        </button>
+      )}
       <div
         ref={scrollRef}
         className={`${styles.subScroll}${canLeft ? ` ${styles.subScrollFadeL}` : ""}${
@@ -244,15 +267,17 @@ export default function SubcatTabs({
       >
         {chips}
       </div>
-      <button
-        type="button"
-        className={styles.subNavBtn}
-        onClick={() => nudge(1)}
-        disabled={!canRight}
-        aria-label="Alt kategorileri sağa kaydır"
-      >
-        <ChevronRight size={17} strokeWidth={2.2} aria-hidden="true" />
-      </button>
+      {overflow && (
+        <button
+          type="button"
+          className={styles.subNavBtn}
+          onClick={() => nudge(1)}
+          disabled={!canRight}
+          aria-label="Alt kategorileri sağa kaydır"
+        >
+          <ChevronRight size={17} strokeWidth={2.2} aria-hidden="true" />
+        </button>
+      )}
     </nav>
   );
 }

@@ -116,6 +116,8 @@ export default function ChatWidget() {
   const [draft, setDraft] = useState("");
   const [introName, setIntroName] = useState("");
   const [introPhone, setIntroPhone] = useState("");
+  // Alpay tarzı intro: kullanıcı ilk mesajını da burada yazabilir.
+  const [introMessage, setIntroMessage] = useState("");
   const [creating, setCreating] = useState(false);
   const [sending, setSending] = useState(false);
   const [unread, setUnread] = useState(0);
@@ -323,6 +325,21 @@ export default function ChatWidget() {
         setSession(stored);
         setIntroName("");
         setIntroPhone("");
+        // İntroda mesaj yazıldıysa oturum kurulur kurulmaz gönder.
+        const firstMsg = introMessage.trim();
+        if (firstMsg) {
+          setIntroMessage("");
+          try {
+            const sent = await sendVisitorMessage(
+              res.sessionId,
+              res.token,
+              firstMsg,
+            );
+            if (sent.ok && sent.message) applyIncoming([sent.message]);
+          } catch {
+            /* mesaj gönderilemese de oturum açık kalır */
+          }
+        }
       } catch (err) {
         console.error("[chat] start session failed", err);
         setError("Sohbet başlatılamadı. Lütfen tekrar deneyin.");
@@ -330,7 +347,7 @@ export default function ChatWidget() {
         setCreating(false);
       }
     },
-    [introName, introPhone],
+    [introName, introPhone, introMessage, applyIncoming],
   );
 
   /** Gönderim yardımcısı: başarıda true döner
@@ -383,7 +400,7 @@ export default function ChatWidget() {
     <>
       <button
         type="button"
-        className={styles.fab}
+        className={`${styles.fab}${open ? ` ${styles.fabOpen}` : ""}`}
         onClick={() => setOpen((v) => !v)}
         aria-label={open ? "Sohbeti kapat" : "Sohbeti aç"}
         aria-expanded={open}
@@ -431,7 +448,7 @@ export default function ChatWidget() {
                 <img src="/logo.png" alt="" className={styles.avatarImg} />
               </span>
               <div>
-                <p className={styles.headerTitle}>Yeni Mahalle Market</p>
+                <p className={styles.headerTitle}>Canlı Destek</p>
                 <span className={styles.headerSub}>
                   <span
                     className={`${styles.headerDot} ${
@@ -439,27 +456,27 @@ export default function ChatWidget() {
                     }`}
                     aria-hidden
                   />
-                  {businessOpen ? "Çevrimiçi" : "Çevrimdışı"}
+                  {businessOpen ? "Çevrim içi" : "Çevrim dışı"}
                 </span>
               </div>
             </div>
             <div className={styles.headerBtns}>
               <a
                 href={BUSINESS.phone.href}
-                className={styles.closeBtn}
+                className={styles.headerIconBtn}
                 aria-label={`Telefonla ara: ${BUSINESS.phone.display}`}
               >
-                <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
                   <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.13 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.37 1.9.72 2.8a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.9.35 1.84.59 2.8.72A2 2 0 0 1 22 16.92Z" />
                 </svg>
               </a>
               <button
                 type="button"
-                className={styles.closeBtn}
+                className={styles.headerClose}
                 onClick={() => setOpen(false)}
                 aria-label="Sohbeti kapat"
               >
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" aria-hidden>
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden>
                   <path d="M6 6l12 12" />
                   <path d="M18 6L6 18" />
                 </svg>
@@ -468,19 +485,16 @@ export default function ChatWidget() {
           </header>
 
           {!session ? (
-            <div className={styles.body}>
-              <div className={styles.intro}>
-                <div>
-                  <h3 className={styles.introTitle}>Merhaba 👋</h3>
-                  <p className={styles.introLede}>
-                    {businessOpen
-                      ? "Sorularınızı, siparişinizi ya da fiyat sormak istediğiniz ürünü yazın, en kısa sürede dönüyoruz."
-                      : "Şu an çevrimdışıyız. Mesajını bırak, market açılınca dönüş yapalım."}
-                  </p>
-                </div>
-                <form className={styles.introForm} onSubmit={startSession}>
+            <div className={styles.introBody}>
+              <p className={styles.introPrompt}>
+                {businessOpen
+                  ? "Merhaba! Size nasıl yardımcı olabiliriz?"
+                  : "Şu an çevrim dışıyız. Mesajınızı bırakın, market açılınca dönelim."}
+              </p>
+              <form className={styles.introForm} onSubmit={startSession}>
+                <div className={styles.introRow}>
                   <label className={styles.label}>
-                    <span className={styles.labelText}>Adınız</span>
+                    <span className={styles.labelText}>Ad</span>
                     <input
                       className={styles.input}
                       type="text"
@@ -488,35 +502,44 @@ export default function ChatWidget() {
                       maxLength={60}
                       value={introName}
                       onChange={(e) => setIntroName(e.target.value)}
-                      placeholder="Örn. Ayşe"
+                      placeholder="Adınız"
                       autoComplete="given-name"
                     />
                   </label>
                   <label className={styles.label}>
-                    <span className={styles.labelText}>Telefon (opsiyonel)</span>
+                    <span className={styles.labelText}>Telefon</span>
                     <input
                       className={styles.input}
                       type="tel"
                       maxLength={20}
                       value={introPhone}
                       onChange={(e) => setIntroPhone(e.target.value)}
-                      placeholder="0532 ..."
+                      placeholder="05XX ..."
                       autoComplete="tel"
                       inputMode="tel"
                     />
                   </label>
-                  {error && (
-                    <p style={{ color: "#a02020", fontSize: 12.5, margin: 0 }}>{error}</p>
-                  )}
-                  <button
-                    type="submit"
-                    className={styles.submitBtn}
-                    disabled={creating || !introName.trim()}
-                  >
-                    {creating ? "Bağlanıyor..." : "Sohbete başla"}
-                  </button>
-                </form>
-              </div>
+                </div>
+                <label className={styles.label}>
+                  <span className={styles.labelText}>Mesajınız</span>
+                  <textarea
+                    className={styles.introTextarea}
+                    rows={3}
+                    maxLength={1000}
+                    value={introMessage}
+                    onChange={(e) => setIntroMessage(e.target.value)}
+                    placeholder="Sipariş, fiyat ya da sorunuzu yazın (isteğe bağlı)"
+                  />
+                </label>
+                {error && <p className={styles.introError}>{error}</p>}
+                <button
+                  type="submit"
+                  className={styles.submitBtn}
+                  disabled={creating || !introName.trim()}
+                >
+                  {creating ? "Bağlanıyor..." : "Görüşmeyi başlat"}
+                </button>
+              </form>
             </div>
           ) : (
             <>
