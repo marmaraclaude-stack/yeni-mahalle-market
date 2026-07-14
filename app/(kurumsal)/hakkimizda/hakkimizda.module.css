@@ -282,32 +282,42 @@
   height: auto;
 }
 
+/* Kolon başlıkları: site başlık fontuyla, içerikten net ayrışır */
 .panelColTitle {
   display: block;
-  font-size: var(--fs-micro);
+  font-family: var(--font-display);
+  font-size: var(--fs-h4);
   font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--gray-500);
-  margin-bottom: 16px;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  padding-bottom: 12px;
+  margin-bottom: 4px;
+  border-bottom: 2px solid var(--ink);
 }
 .panelInfo dl {
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 13px;
+}
+.panelInfo dl > div {
+  padding: 11px 0;
+  border-bottom: 1px solid var(--gray-100);
+}
+.panelInfo dl > div:last-child {
+  border-bottom: none;
 }
 .panelInfo dt {
-  font-size: var(--fs-micro);
+  font-size: 11px;
   font-weight: 600;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.07em;
   text-transform: uppercase;
-  color: var(--gray-500);
-  margin-bottom: 2px;
+  color: var(--gray-400);
+  margin-bottom: 3px;
 }
 .panelInfo dd {
   margin: 0;
   font-size: var(--fs-small);
+  font-weight: 600;
   line-height: 1.45;
   color: var(--ink);
   overflow-wrap: anywhere;
@@ -330,7 +340,7 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 11px 0;
+  padding: 13px 0;
   border-bottom: 1px solid var(--gray-100);
   font-size: var(--fs-small);
   font-weight: 600;
