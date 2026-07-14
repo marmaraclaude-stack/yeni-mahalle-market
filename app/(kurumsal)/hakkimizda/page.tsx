@@ -11,8 +11,8 @@ import {
   Bike,
   Clock,
   Leaf,
+  Package,
   Phone,
-  Scale,
   ShieldCheck,
   ShoppingBasket,
 } from "lucide-react";
@@ -129,18 +129,17 @@ export default function HakkimizdaPage() {
             </span>
           </div>
 
-          {/* Fotoğraf: gramajlı satış (manav fotoğrafının yakın kadrajı) */}
+          {/* Fotoğraf: plaj/sezonluk reyonu */}
           <div className={`${styles.tile} ${styles.tilePhoto}`}>
             <img
-              src="/carousel/carousel-4.png"
-              alt="Kasalarda porsiyonlanmış taze çilek ve meyveler"
+              src="/carousel/carousel-3.png"
+              alt="Plaj ürünleri, şarj aletleri ve sezonluk ihtiyaç reyonu"
               width={1448}
               height={1086}
               loading="lazy"
-              className={styles.zoomBottom}
             />
             <span className={styles.photoTag}>
-              <Scale size={14} aria-hidden="true" /> Gramajlı satış
+              <Package size={14} aria-hidden="true" /> Tüm ihtiyaçlarınız
             </span>
           </div>
 
@@ -194,7 +193,7 @@ export default function HakkimizdaPage() {
         {/* ===== Koyu işletme paneli ===== */}
         <section className={styles.panel} aria-labelledby="isletme-baslik">
           <div className={styles.panelIntro}>
-            <h2 id="isletme-baslik">Kayıtlı ve şeffaf bir işletmeyiz.</h2>
+            <h2 id="isletme-baslik">Şeffaf bir işletmeyiz.</h2>
             <p>
               Resmi bilgilerimiz ve alışveriş koşullarımız her zaman açık.
               Online ödemeler iyzico altyapısıyla, SSL ve 3D Secure
@@ -254,10 +253,6 @@ export default function HakkimizdaPage() {
                   </dd>
                 </div>
               ) : null}
-              <div>
-                <dt>Web</dt>
-                <dd>{BUSINESS.domain}</dd>
-              </div>
             </dl>
           </div>
 
