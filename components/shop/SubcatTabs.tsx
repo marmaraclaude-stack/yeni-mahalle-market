@@ -1,19 +1,16 @@
 "use client";
 
-// Alt kategori sekme barı (/urunler, kategori görünümü). İKİ MOD:
-//  1) Bölümlenmiş mod (alt seçili değil): sekmeler BUTON; dokununca sayfa
-//     ilgili bölüme (#alt-<slug>) kayar (html scroll-behavior: smooth),
-//     URL ?alt= history.replaceState ile güncellenir (sayfa YENİDEN
-//     YÜKLENMEZ). IntersectionObserver görünür bölümün sekmesini aktifler
-//     ve aktif sekme bar içinde görünür alana kayar.
-//  2) Filtreli mod (?alt= ile doğrudan gelindi): sunucu filtreli tek grid
-//     korunur; sekmeler normal LINK (Tümü + alt kategoriler).
-// Sticky: mobilde catbar'ın hemen altına yapışır, masaüstünde navbar altına
-// (bkz. shop.module.css .subBarSticky). Yükseklik --subbar-h CSS
-// değişkenine yazılır; catbar kendi yüksekliğini --catbar-h olarak yazar.
+// Alt kategori sekme barı (/urunler, kategori görünümü) — SAF FİLTRE MODU.
+// Her sekme normal LINK: "Tümü" + alt kategoriler. Tıklanınca ?alt= ile o alt
+// kategoriye süzülür (sunucu filtreli tek grid). Aktif sekme YALNIZCA URL'den
+// (activeAlt) belirlenir; sayfa dikey kaydırılınca DEĞİŞMEZ. Böylece eski
+// scroll-spy (IntersectionObserver) kaynaklı "yukarı-aşağı kaydırınca pil
+// zıplaması" bug'ı tamamen ortadan kalkar.
+// Şerit yatay taşarsa sol/sağ ok butonları TEK çip ilerletir (yalnız yatay,
+// sayfayı asla dikey kaydırmaz). Sticky: bkz. shop.module.css .subBarSticky.
 
 import Link from "next/link";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import styles from "@/app/urunler/shop.module.css";
 
@@ -38,18 +35,16 @@ export default function SubcatTabs({
 }: {
   catSlug: string;
   tabs: SubTab[];
-  /** Kategorideki toplam ürün sayısı (filtreli modda "Tümü" sayacı). */
+  /** Kategorideki toplam ürün sayısı ("Tümü" sayacı). */
   totalCount: number;
-  /** Dolu ise filtreli mod: sekmeler normal link olarak çalışır. */
+  /** Dolu ise o alt kategori aktif; boşsa "Tümü" aktif. */
   activeAlt?: string;
 }) {
-  const sectioned = !activeAlt;
   const barRef = useRef<HTMLElement>(null);
-  // Yatay kaydırılan çip şeridi + ok butonları durumu.
   const scrollRef = useRef<HTMLDivElement>(null);
   const [canLeft, setCanLeft] = useState(false);
   const [canRight, setCanRight] = useState(false);
-  // Şerit hiç taşmıyorsa (az sayıda çip) okları göstermeyiz.
+  // Şerit hiç taşmıyorsa (az çip) okları göstermeyiz.
   const [overflow, setOverflow] = useState(false);
 
   /** Ok görünürlüğü: şerit başta/sonda mı, taşma var mı? */
@@ -76,7 +71,7 @@ export default function SubcatTabs({
   }, [updateArrows, tabs]);
 
   /** Ok tıklaması: TEK bir çip ilerle/geri git; hedefi sol kenara hizala
-     (yarım çip kalmaz, son çip de tam görünür — "son eleman" bug'ı yok). */
+     (yarım çip kalmaz, son çip de tam görünür). Yalnız yatay kaydırma. */
   const nudge = (dir: -1 | 1) => {
     const el = scrollRef.current;
     if (!el) return;
@@ -84,14 +79,12 @@ export default function SubcatTabs({
     const pad = 10;
     const cur = el.scrollLeft;
     if (dir === 1) {
-      // Mevcut sol kenardan sonraki ilk çipi sola getir (bir çip ileri).
       const next = kids.find((c) => c.offsetLeft > cur + 2);
       el.scrollTo({
         left: next ? next.offsetLeft - pad : el.scrollWidth,
         behavior: "smooth",
       });
     } else {
-      // Sol kenardan önceki son çipi sola getir (bir çip geri).
       const prev = [...kids].reverse().find((c) => c.offsetLeft < cur - 2);
       el.scrollTo({
         left: prev ? Math.max(0, prev.offsetLeft - pad) : 0,
@@ -99,16 +92,8 @@ export default function SubcatTabs({
       });
     }
   };
-  // Sekmeye tıklanınca programatik kaydırma bitene dek observer'ın aktif
-  // sekmeyi ezmesini engelleyen kilit (scrollend + emniyet zamanlayıcısı).
-  const lockRef = useRef(false);
-  const lockTimer = useRef<number | undefined>(undefined);
-  const [active, setActive] = useState<string>(tabs[0]?.slug ?? "");
-  const [resizeTick, setResizeTick] = useState(0);
-  const slugsKey = tabs.map((t) => t.slug).join("|");
 
-  // Bar yüksekliği --subbar-h değişkenine yazılır; bölümlerin
-  // scroll-margin-top hesabı ve observer üst sınırı bunu kullanır.
+  // Bar yüksekliği --subbar-h değişkenine yazılır (sticky offset hesapları).
   useEffect(() => {
     const el = barRef.current;
     if (!el) return;
@@ -124,132 +109,19 @@ export default function SubcatTabs({
     };
   }, []);
 
-  // Viewport değişince observer sınırları yeniden hesaplansın.
-  useEffect(() => {
-    if (!sectioned) return;
-    const onResize = () => setResizeTick((t) => t + 1);
-    window.addEventListener("resize", onResize);
-    return () => window.removeEventListener("resize", onResize);
-  }, [sectioned]);
-
-  // Görünür bölümü izle: iki sticky bar'ın hemen altındaki bantta (üst
-  // ofset .. %55 viewport) ilk kesişen bölümün sekmesi aktif olur.
-  useEffect(() => {
-    if (!sectioned) return;
-    const slugs = slugsKey.split("|").filter(Boolean);
-    const els = slugs
-      .map((s) => document.getElementById(`alt-${s}`))
-      .filter((el): el is HTMLElement => el !== null);
-    if (els.length === 0) return;
-
-    const desktop = window.matchMedia("(min-width: 1024px)").matches;
-    const catbarH = desktop
-      ? 0
-      : parseFloat(
-          getComputedStyle(document.documentElement).getPropertyValue(
-            "--catbar-h",
-          ),
-        ) || 0;
-    // Bar hem mobil hem masaüstünde 69px (SiteNav) referansına yapışır;
-    // masaüstü nefes payı barın kendi üst dolgusundadır (offsetHeight'a dahil).
-    const topOffset =
-      69 + catbarH + (barRef.current?.offsetHeight ?? 44);
-
-    const visible = new Set<string>();
-    const io = new IntersectionObserver(
-      (entries) => {
-        for (const e of entries) {
-          const slug = e.target.id.replace(/^alt-/, "");
-          if (e.isIntersecting) visible.add(slug);
-          else visible.delete(slug);
-        }
-        if (lockRef.current) return;
-        const next = slugs.find((s) => visible.has(s));
-        if (next) setActive(next);
-      },
-      { rootMargin: `-${Math.round(topOffset) + 1}px 0px -45% 0px` },
-    );
-    els.forEach((el) => io.observe(el));
-    return () => io.disconnect();
-  }, [sectioned, slugsKey, resizeTick]);
-
-  /** Belirtilen çipi YALNIZ yatay olarak görünür alana getir (sayfayı asla
-     dikey kaydırmaz). Yalnızca kullanıcı tıklamasında çağrılır — sayfa dikey
-     kaydırılırken observer aktif pili değiştirse bile şerit yerinde kalır,
-     böylece pil şeridi kendiliğinden yatay zıplamaz. */
-  const scrollChipIntoView = (slug: string) => {
+  // İlk yüklemede / aktif alt değişince aktif çipi YALNIZ yatay olarak
+  // ORTALA (anında; dikey kaydırma yok). ?alt=x ile gelindiğinde aktif pil
+  // fade/ok altında yarım kalmaz, net şekilde görünür.
+  useLayoutEffect(() => {
     const el = scrollRef.current;
-    const chip = el?.querySelector<HTMLElement>(`[data-slug="${slug}"]`);
-    if (!el || !chip) return;
-    const chipLeft = chip.offsetLeft;
-    const chipRight = chipLeft + chip.offsetWidth;
-    if (chipLeft < el.scrollLeft) {
-      el.scrollTo({ left: Math.max(0, chipLeft - 12), behavior: "smooth" });
-    } else if (chipRight > el.scrollLeft + el.clientWidth) {
-      el.scrollTo({ left: chipRight - el.clientWidth + 12, behavior: "smooth" });
-    }
-  };
-
-  /** Sekme tıklaması (bölümlenmiş mod): anchor scroll + URL güncelle. */
-  const go = (slug: string) => {
-    setActive(slug);
-    scrollChipIntoView(slug);
-    const unlock = () => {
-      lockRef.current = false;
-      window.clearTimeout(lockTimer.current);
-    };
-    lockRef.current = true;
-    window.clearTimeout(lockTimer.current);
-    lockTimer.current = window.setTimeout(unlock, 1200);
-    window.addEventListener("scrollend", unlock, { once: true });
-    // html { scroll-behavior: smooth } + .subSection scroll-margin-top
-    // hedefi iki sticky bar'ın altına hizalar (reduced-motion'da anında).
-    document.getElementById(`alt-${slug}`)?.scrollIntoView({ block: "start" });
-    // URL'i sayfayı yeniden yüklemeden güncelle; Next router state'i korunur.
-    const url = new URL(window.location.href);
-    url.searchParams.set("alt", slug);
-    window.history.replaceState(window.history.state, "", url.toString());
-  };
-
-  const chips = sectioned ? (
-    tabs.map((t) => {
-      const on = t.slug === active;
-      return (
-        <button
-          key={t.slug}
-          type="button"
-          data-slug={t.slug}
-          onClick={() => go(t.slug)}
-          className={`${styles.subChip}${on ? ` ${styles.subChipActive}` : ""}`}
-          aria-current={on ? "location" : undefined}
-        >
-          {t.name}
-          <span className={styles.subCount}>{t.count}</span>
-        </button>
-      );
-    })
-  ) : (
-    <>
-      <Link href={hrefFor(catSlug)} className={styles.subChip}>
-        Tümü
-        <span className={styles.subCount}>{totalCount}</span>
-      </Link>
-      {tabs.map((t) => {
-        const on = t.slug === activeAlt;
-        return (
-          <Link
-            key={t.slug}
-            href={hrefFor(catSlug, t.slug)}
-            className={`${styles.subChip}${on ? ` ${styles.subChipActive}` : ""}`}
-            aria-current={on ? "page" : undefined}
-          >
-            {t.name}
-            <span className={styles.subCount}>{t.count}</span>
-          </Link>
-        );
-      })}
-    </>
-  );
+    if (!el) return;
+    const slug = activeAlt ?? "__all__";
+    const chip = el.querySelector<HTMLElement>(`[data-slug="${slug}"]`);
+    if (!chip) return;
+    const center = chip.offsetLeft + chip.offsetWidth / 2 - el.clientWidth / 2;
+    const max = el.scrollWidth - el.clientWidth;
+    el.scrollLeft = Math.max(0, Math.min(center, max));
+  }, [activeAlt]);
 
   return (
     <nav
@@ -274,7 +146,32 @@ export default function SubcatTabs({
           canRight ? ` ${styles.subScrollFadeR}` : ""
         }`}
       >
-        {chips}
+        <Link
+          href={hrefFor(catSlug)}
+          data-slug="__all__"
+          className={`${styles.subChip}${!activeAlt ? ` ${styles.subChipActive}` : ""}`}
+          aria-current={!activeAlt ? "page" : undefined}
+          scroll={false}
+        >
+          Tümü
+          <span className={styles.subCount}>{totalCount}</span>
+        </Link>
+        {tabs.map((t) => {
+          const on = t.slug === activeAlt;
+          return (
+            <Link
+              key={t.slug}
+              href={hrefFor(catSlug, t.slug)}
+              data-slug={t.slug}
+              className={`${styles.subChip}${on ? ` ${styles.subChipActive}` : ""}`}
+              aria-current={on ? "page" : undefined}
+              scroll={false}
+            >
+              {t.name}
+              <span className={styles.subCount}>{t.count}</span>
+            </Link>
+          );
+        })}
       </div>
       {overflow && (
         <button

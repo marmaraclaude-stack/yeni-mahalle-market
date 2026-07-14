@@ -322,17 +322,6 @@ export default async function UrunlerPage({
                     .map((s) => ({ ...s, count: countOf(s.slug) }))
                     .filter((s) => s.count > 0 || s.slug === altSlug);
 
-                  // Bölümlenmiş görünüm: tanım sırası + en sonda "Diğer",
-                  // yalnız ürünü olan alt kategoriler.
-                  const subSections = altSlug
-                    ? []
-                    : [
-                        ...subs.map((s) => ({ slug: s.slug, name: s.name })),
-                        { slug: OTHER_SUB_SLUG, name: OTHER_SUB_NAME },
-                      ]
-                        .map((s) => ({ ...s, items: bySub.get(s.slug) ?? [] }))
-                        .filter((s) => s.items.length > 0);
-
                   return (
                     <section className={styles.section}>
                       <div className={styles.sectionHead}>
@@ -352,9 +341,9 @@ export default async function UrunlerPage({
                       </div>
 
                       {subs.length > 0 && tabItems.length > 0 && (
-                        /* Çift katmanlı sticky sekme barı. Bölümlenmiş
-                           görünümde anchor scroll (reload yok), ?alt= ile
-                           gelindiğinde normal link sekmeleri. */
+                        /* Sticky alt kategori sekme barı — saf filtre modu:
+                           her sekme ?alt= linki, aktif yalnız URL'den gelir
+                           (dikey kaydırmadan etkilenmez). */
                         <SubcatTabs
                           catSlug={category.slug}
                           tabs={tabItems}
@@ -363,39 +352,14 @@ export default async function UrunlerPage({
                         />
                       )}
 
-                      {altSlug || subSections.length === 0 ? (
-                        <ProductGrid
-                          products={shown}
-                          emptyText={
-                            altSlug
-                              ? "Bu alt kategoride henüz ürün yok."
-                              : "Bu kategoride henüz ürün yok."
-                          }
-                        />
-                      ) : (
-                        subSections.map((s) => (
-                          <section
-                            key={s.slug}
-                            id={`alt-${s.slug}`}
-                            className={styles.subSection}
-                            aria-label={s.name}
-                          >
-                            <div className={styles.sectionHead}>
-                              <h3 className={styles.subSectionTitle}>
-                                {s.name}
-                              </h3>
-                              <span className={styles.sectionCount}>
-                                {s.items.length} ürün
-                              </span>
-                            </div>
-                            <div className={styles.grid}>
-                              {s.items.map((p) => (
-                                <ProductCard key={p.id} product={p} />
-                              ))}
-                            </div>
-                          </section>
-                        ))
-                      )}
+                      <ProductGrid
+                        products={shown}
+                        emptyText={
+                          altSlug
+                            ? "Bu alt kategoride henüz ürün yok."
+                            : "Bu kategoride henüz ürün yok."
+                        }
+                      />
                     </section>
                   );
                 })()

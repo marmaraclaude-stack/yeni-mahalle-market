@@ -593,7 +593,8 @@
    İkon üstte, başlık + alt metin altında; kompakt (dar mobil sütuna sığar). */
 .trust {
   display: flex;
-  gap: 10px;
+  flex-wrap: nowrap;
+  gap: 12px;
   margin-top: 20px;
   padding-top: 18px;
   border-top: 1px solid var(--gray-100);
@@ -604,35 +605,55 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 7px;
+  gap: 8px;
 }
 .trustIcon {
   display: grid;
   place-items: center;
   flex-shrink: 0;
-  width: 30px;
-  height: 30px;
-  border-radius: 9px;
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
   background: var(--accent-soft);
   color: var(--accent);
 }
-.trustIcon svg { width: 16px; height: 16px; }
+.trustIcon svg { width: 17px; height: 17px; }
 .trustText {
   display: flex;
   flex-direction: column;
-  gap: 1px;
+  gap: 2px;
   min-width: 0;
 }
 .trustTitle {
-  font-size: 11.5px;
+  font-size: 12.5px;
   font-weight: 700;
   color: var(--ink);
-  line-height: 1.18;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
 }
 .trustSub {
-  font-size: 10.5px;
+  font-size: 11px;
   color: var(--gray-500);
-  line-height: 1.25;
+  line-height: 1.28;
+  text-wrap: balance;
+}
+/* Mobil/dar: 4 öğe yine TEK sıra; kompakt ölçüler, metin 2 satıra sarabilir
+   ama sütunlar hizalı kalır (nowrap). */
+@media (max-width: 560px) {
+  .trust {
+    gap: 8px;
+    margin-top: 16px;
+    padding-top: 14px;
+  }
+  .trustItem { gap: 6px; }
+  .trustIcon {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+  }
+  .trustIcon svg { width: 15px; height: 15px; }
+  .trustTitle { font-size: 11px; }
+  .trustSub { font-size: 9.5px; line-height: 1.25; }
 }
 
 /* Mobil: aksiyon satırı kompakt; Sepete Ekle dev görünmesin, adet
@@ -847,8 +868,10 @@
 @media (max-width: 640px) {
   .railItem { flex-basis: calc((100% - 12px) / 2); }
 }
-/* Ok butonları — beyaz daire, kenar gutter'ında, thumbnail'a dikey ortalı.
-   translateY(-50%) ile buton MERKEZİ %30 hizasına (görsel ortası) oturur. */
+/* Ok butonları — TÜM cihazlarda görünür (mobil dahil). Yarı saydam beyaz
+   daire, thumbnail'a dikey ortalı; masaüstünde kenar gutter'ında, mobilde
+   kartın kenarına biner (arka plan hafif seçilir). translateY(-50%) ile buton
+   MERKEZİ %30 hizasına (görsel ortası) oturur. */
 .railBtn {
   position: absolute;
   top: 30%;
@@ -872,9 +895,19 @@
 .railBtn:active { transform: translateY(-50%) scale(0.94); }
 .railBtn--prev { left: 0; }
 .railBtn--next { right: 0; }
-/* Mobilde oklar GİZLİ (dokunmatik kaydırma) — base'ten SONRA, ki ezilmesin */
+/* Mobil: biraz küçült + yarı saydam zemin (kartın üstüne biner, ürün seçilir).
+   Kenara hafif taşır ki thumbnail'ı tam kapatmasın. */
 @media (max-width: 640px) {
-  .railBtn { display: none; }
+  .railBtn {
+    width: 32px;
+    height: 32px;
+    background: rgba(255, 255, 255, 0.9);
+    -webkit-backdrop-filter: blur(3px);
+    backdrop-filter: blur(3px);
+    box-shadow: 0 4px 14px -4px rgba(16, 16, 16, 0.35);
+  }
+  .railBtn--prev { left: -4px; }
+  .railBtn--next { right: -4px; }
 }
 
 /* Paket çipinde indirim öncesi (üstü çizili) fiyat */
