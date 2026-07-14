@@ -793,19 +793,28 @@
 }
 .subScroll::-webkit-scrollbar { display: none; }
 .subScroll > * { scroll-snap-align: start; }
-/* Kenar yumuşatma: yalnız o yönde taşma varken uygulanır */
+/* Kenar yumuşatma: yalnız o yönde taşma varken uygulanır (webkit dahil) */
 .subScrollFadeL {
-  mask-image: linear-gradient(to right, transparent 0, black 28px);
+  -webkit-mask-image: linear-gradient(to right, transparent 0, black 40px);
+  mask-image: linear-gradient(to right, transparent 0, black 40px);
 }
 .subScrollFadeR {
-  mask-image: linear-gradient(to left, transparent 0, black 28px);
+  -webkit-mask-image: linear-gradient(to left, transparent 0, black 40px);
+  mask-image: linear-gradient(to left, transparent 0, black 40px);
 }
 .subScrollFadeL.subScrollFadeR {
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    black 40px,
+    black calc(100% - 40px),
+    transparent 100%
+  );
   mask-image: linear-gradient(
     to right,
     transparent 0,
-    black 28px,
-    black calc(100% - 28px),
+    black 40px,
+    black calc(100% - 40px),
     transparent 100%
   );
 }
@@ -1216,10 +1225,11 @@
   line-height: 1.35;
   letter-spacing: -0.01em;
   display: -webkit-box;
-  -webkit-line-clamp: 2;
+  -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  min-height: calc(2 * 1.35em); /* kart yükseklikleri tutarlı kalır */
+  /* 3 satırlık sabit blok: uzun adlar sığar, kartlar eşit kalır */
+  min-height: calc(3 * 1.35em);
 }
 .size {
   color: var(--gray-500);
