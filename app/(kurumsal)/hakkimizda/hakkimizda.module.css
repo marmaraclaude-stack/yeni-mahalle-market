@@ -1,0 +1,150 @@
+/* ============================================================
+   Hakkımızda (/hakkimizda): ana sayfanın tasarım dili üzerine
+   kurulu tanıtım sayfası. Global hero / section / features /
+   stat-card / btn sınıfları kullanılır; burada yalnız sayfaya
+   özgü panel içerikleri tanımlıdır. Token'lar globals.css'ten.
+   ============================================================ */
+
+/* Hero metni ortalı akar (ana sayfadaki split yerine tek kolon) */
+.heroInner {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: clamp(16px, 2vw, 24px);
+}
+.heroInner > p {
+  max-width: 56ch;
+}
+
+/* --- Features görsel panelleri: kart içi liste --- */
+.panelWrap {
+  width: 100%;
+  padding: clamp(22px, 3vw, 36px);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.panelTitle {
+  font-family: var(--font-display);
+  font-size: var(--fs-h4);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  margin-bottom: 10px;
+}
+.panelRow {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 12px;
+  border-radius: var(--r-md, 12px);
+  transition: background 180ms var(--ease);
+}
+.panelRow:hover {
+  background: var(--gray-50);
+}
+.panelIcon {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 42px;
+  height: 42px;
+  border-radius: 13px;
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+.panelText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.panelLabel {
+  font-weight: 600;
+  font-size: var(--fs-body);
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  line-height: 1.35;
+}
+.panelSub {
+  font-size: var(--fs-small);
+  color: var(--gray-500);
+  line-height: 1.45;
+}
+/* Ödeme panelinin altındaki logo bandı */
+.panelBand {
+  margin-top: 14px;
+  padding-top: 16px;
+  border-top: 1px dashed var(--gray-200);
+}
+.panelBand img {
+  display: block;
+  max-width: min(380px, 100%);
+  height: auto;
+}
+
+/* --- İşletme bilgileri + yasal sayfalar ızgarası --- */
+.infoGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+  align-items: stretch;
+}
+@media (min-width: 900px) {
+  .infoGrid {
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+  }
+}
+/* SellerInfoBox kartı ızgara yüksekliğine otursun */
+.infoGrid > div:first-child :global(dl) {
+  height: 100%;
+}
+.legalCard {
+  background: var(--gray-50);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--r-lg);
+  padding: 20px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.legalCardTitle {
+  font-family: var(--font-display);
+  font-size: var(--fs-h4);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  margin-bottom: 8px;
+}
+.legalLink {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  margin: 0 -12px;
+  border-radius: 10px;
+  font-size: var(--fs-small);
+  font-weight: 600;
+  color: var(--gray-700);
+  transition: background 160ms var(--ease), color 160ms var(--ease);
+}
+.legalLink:hover {
+  background: var(--white);
+  color: var(--ink);
+}
+.legalLink svg:first-child {
+  flex-shrink: 0;
+  color: var(--gray-500);
+}
+.legalLink svg:last-child {
+  margin-left: auto;
+  flex-shrink: 0;
+  color: var(--gray-400);
+  transition: transform 160ms var(--ease);
+}
+.legalLink:hover svg:last-child {
+  transform: translateX(3px);
+}
