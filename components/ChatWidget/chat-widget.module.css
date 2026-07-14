@@ -73,6 +73,30 @@
   overflow: hidden;
 }
 
+/* /destek sayfası kartı — akışta, tam yükseklik. */
+.pageCard {
+  position: relative;
+  width: 100%;
+  height: min(76dvh, 720px);
+  min-height: 460px;
+  background: var(--white, #fff);
+  border: 1px solid rgba(10, 10, 10, 0.1);
+  border-radius: 18px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 50px -24px rgba(10, 10, 10, 0.22);
+  font-family: var(--font-sans, system-ui), sans-serif;
+  overflow: hidden;
+}
+@media (max-width: 560px) {
+  .pageCard {
+    height: auto;
+    /* SiteNav (69px) altındaki alanı doldur, footer aşağıda kalsın */
+    min-height: calc(100dvh - 69px - 56px);
+    border-radius: 16px;
+  }
+}
+
 @keyframes panelIn {
   from { opacity: 0; transform: translateY(10px) scale(0.98); }
   to { opacity: 1; transform: translateY(0) scale(1); }
@@ -430,36 +454,6 @@
   color: var(--gray-500, #7a7872);
   font-size: var(--fs-micro);
   letter-spacing: 0.02em;
-}
-
-/* Hızlı sorular — ilk mesajdan önce tek dokunuşla gönderilebilen çipler */
-.quickRow {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  padding: 10px 14px;
-  background: var(--cream, #faf8f4);
-  border-top: 1px solid rgba(10, 10, 10, 0.05);
-}
-.quickChip {
-  font: inherit;
-  font-size: var(--fs-micro);
-  font-weight: 600;
-  color: var(--black, #0a0a0a);
-  background: var(--white, #fff);
-  border: 1px solid rgba(10, 10, 10, 0.14);
-  border-radius: 999px;
-  padding: 8px 13px;
-  cursor: pointer;
-  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
-}
-.quickChip:hover:not(:disabled) {
-  border-color: var(--orange, #ff5a1f);
-  color: var(--orange, #ff5a1f);
-}
-.quickChip:disabled {
-  opacity: 0.5;
-  cursor: default;
 }
 
 .composer {

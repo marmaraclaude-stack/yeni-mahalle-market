@@ -173,28 +173,27 @@ export default function SubcatTabs({
     return () => io.disconnect();
   }, [sectioned, slugsKey, resizeTick]);
 
-  // Aktif sekme şeritte görünür değilse YALNIZ yatay kaydırılır.
-  // (scrollIntoView sayfayı dikey de kaydırıp scroll-spy ile geri besleme
-  // döngüsü yaratıyordu — artık yalnız container'ın scrollLeft'i değişir.)
-  useEffect(() => {
-    if (!sectioned) return;
+  /** Belirtilen çipi YALNIZ yatay olarak görünür alana getir (sayfayı asla
+     dikey kaydırmaz). Yalnızca kullanıcı tıklamasında çağrılır — sayfa dikey
+     kaydırılırken observer aktif pili değiştirse bile şerit yerinde kalır,
+     böylece pil şeridi kendiliğinden yatay zıplamaz. */
+  const scrollChipIntoView = (slug: string) => {
     const el = scrollRef.current;
-    const chip = el?.querySelector<HTMLElement>(`[data-slug="${active}"]`);
+    const chip = el?.querySelector<HTMLElement>(`[data-slug="${slug}"]`);
     if (!el || !chip) return;
     const chipLeft = chip.offsetLeft;
     const chipRight = chipLeft + chip.offsetWidth;
-    const viewLeft = el.scrollLeft;
-    const viewRight = viewLeft + el.clientWidth;
-    if (chipLeft < viewLeft) {
+    if (chipLeft < el.scrollLeft) {
       el.scrollTo({ left: Math.max(0, chipLeft - 12), behavior: "smooth" });
-    } else if (chipRight > viewRight) {
+    } else if (chipRight > el.scrollLeft + el.clientWidth) {
       el.scrollTo({ left: chipRight - el.clientWidth + 12, behavior: "smooth" });
     }
-  }, [active, sectioned]);
+  };
 
   /** Sekme tıklaması (bölümlenmiş mod): anchor scroll + URL güncelle. */
   const go = (slug: string) => {
     setActive(slug);
+    scrollChipIntoView(slug);
     const unlock = () => {
       lockRef.current = false;
       window.clearTimeout(lockTimer.current);

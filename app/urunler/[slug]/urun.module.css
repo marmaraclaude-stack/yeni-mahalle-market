@@ -589,43 +589,34 @@
    2 sütun kompakt; ince ayraç çizgisiyle aksiyonlardan ayrılır. */
 /* Güven satırı: kutu/zemin YOK. 4 öğe her ekranda tek satırda hizalı;
    üstte ince ayraç, her öğe ikon + başlık + sessiz alt metin. */
-/* Güven rozetleri — ikon (soft daire) solda, metin sağda; mobil 2 sütun,
-   geniş 4 sütun. Yatay yerleşim metnin dar sütunda kötü sarmasını önler. */
+/* Güven rozetleri — TÜM cihazlarda tek sıra, 4 eşit sütun, sola hizalı.
+   İkon üstte, başlık + alt metin altında; kompakt (dar mobil sütuna sığar). */
 .trust {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px;
+  display: flex;
+  gap: 10px;
   margin-top: 20px;
   padding-top: 18px;
   border-top: 1px solid var(--gray-100);
 }
-@media (min-width: 560px) {
-  .trust {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
-}
 .trustItem {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 12px;
-  background: var(--gray-50);
-  border: 1px solid var(--gray-100);
-  border-radius: var(--r-md, 12px);
+  flex: 1 1 0;
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 7px;
 }
 .trustIcon {
   display: grid;
   place-items: center;
   flex-shrink: 0;
-  width: 34px;
-  height: 34px;
-  border-radius: 10px;
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
   background: var(--accent-soft);
   color: var(--accent);
 }
-.trustIcon svg { width: 17px; height: 17px; }
+.trustIcon svg { width: 16px; height: 16px; }
 .trustText {
   display: flex;
   flex-direction: column;
@@ -633,15 +624,15 @@
   min-width: 0;
 }
 .trustTitle {
-  font-size: var(--fs-micro);
+  font-size: 11.5px;
   font-weight: 700;
   color: var(--ink);
-  line-height: 1.2;
+  line-height: 1.18;
 }
 .trustSub {
-  font-size: 11px;
+  font-size: 10.5px;
   color: var(--gray-500);
-  line-height: 1.3;
+  line-height: 1.25;
 }
 
 /* Mobil: aksiyon satırı kompakt; Sepete Ekle dev görünmesin, adet
@@ -818,8 +809,8 @@
   /* Masaüstünde ok butonlarına yer aç: kartlar okların ALTINDA kalmaz,
      oklar bu boşlukta durur (iç içe geçme biter). Mobilde padding yok. */
 }
-/* Mobilde oklar için de küçük gutter (kartların ortasını kapatmasın) */
-.railWrap { padding-inline: 34px; }
+.railWrap { position: relative; }
+/* Masaüstünde ok butonlarına gutter aç; mobilde ok yok (dokunmatik kaydırma) */
 @media (min-width: 641px) {
   .railWrap { padding-inline: 48px; }
 }
@@ -852,10 +843,9 @@
 @media (max-width: 860px) {
   .railItem { flex-basis: calc((100% - 2 * 12px) / 3); }
 }
-/* Mobil: 2 kart tam görünür (yarım kart yok); oklar küçülür ama kalır */
+/* Mobil: 2 kart tam görünür (yarım kart yok) */
 @media (max-width: 640px) {
   .railItem { flex-basis: calc((100% - 12px) / 2); }
-  .railBtn { width: 32px; height: 32px; }
 }
 /* Ok butonları — beyaz daire, kenar gutter'ında, thumbnail'a dikey ortalı.
    translateY(-50%) ile buton MERKEZİ %30 hizasına (görsel ortası) oturur. */
@@ -882,6 +872,10 @@
 .railBtn:active { transform: translateY(-50%) scale(0.94); }
 .railBtn--prev { left: 0; }
 .railBtn--next { right: 0; }
+/* Mobilde oklar GİZLİ (dokunmatik kaydırma) — base'ten SONRA, ki ezilmesin */
+@media (max-width: 640px) {
+  .railBtn { display: none; }
+}
 
 /* Paket çipinde indirim öncesi (üstü çizili) fiyat */
 .weightChipOld {

@@ -11,6 +11,7 @@ const ChatWidget = dynamic(() => import("./ChatWidget"), {
 
 export default function ChatWidgetMount() {
   const pathname = usePathname();
-  if (pathname?.startsWith("/admin")) return null;
+  // Admin panelinde ve zaten sohbet sayfasında (/destek) FAB gösterilmez.
+  if (pathname?.startsWith("/admin") || pathname === "/destek") return null;
   return <ChatWidget />;
 }

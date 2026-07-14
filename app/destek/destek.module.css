@@ -1,0 +1,10 @@
+/* Canlı Destek sayfası — ortalanmış, ürün detayı gibi kart içinde sohbet. */
+.page {
+  padding: clamp(16px, 3vw, 32px) 0 clamp(40px, 6vw, 72px);
+  background: var(--white);
+  min-height: calc(100dvh - 69px);
+}
+.wrap {
+  max-width: 620px;
+  margin: 0 auto;
+}

@@ -36,9 +36,9 @@ import styles from "./urun.module.css";
 // Sağ kolon güven/teslimat rozetleri — kalıcı, kompakt grid (boşluğu doldurur,
 // sade durur). Sapanca içi teslimat + ödeme seçenekleri + güven vurgusu.
 const TRUST_BADGES = [
-  { icon: Truck, title: "Hızlı teslimat", sub: "Sapanca içinde adrese" },
-  { icon: Wallet, title: "Kapıda ödeme", sub: "Nakit veya kart" },
-  { icon: ShieldCheck, title: "Güvenli ödeme", sub: "Online kart ile" },
+  { icon: Truck, title: "Hızlı teslimat", sub: "Sapanca içine" },
+  { icon: Wallet, title: "Kapıda ödeme", sub: "Nakit / kart" },
+  { icon: ShieldCheck, title: "Güvenli ödeme", sub: "iyzico ile" },
   { icon: Sparkles, title: "Özenli seçim", sub: "Tazesi tek tek" },
 ] as const;
 
