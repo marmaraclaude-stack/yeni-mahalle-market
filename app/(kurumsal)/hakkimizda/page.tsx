@@ -1,4 +1,4 @@
-// Hakkımızda (/hakkimizda) — iyzico satıcı kriteri + marka sayfası.
+// Hakkımızda (/hakkimizda): iyzico satıcı kriteri + marka sayfası.
 // Fotoğraflı hero (vitrin), istatistik şeridi, hikaye (iç mekan fotoğrafı),
 // değer kartları, ödeme/güvence + resmi işletme bilgileri ve kapanış CTA'sı.
 // İçerik lib/business.ts'ten; işletme bilgileri SellerInfoBox ile ortak.
@@ -20,14 +20,14 @@ import styles from "./hakkimizda.module.css";
 export const metadata: Metadata = {
   title: "Hakkımızda",
   description:
-    "Yeni Mahalle Market — Sapanca Yeni Mahalle'nin bakkalı. Taze meyve sebze, şarküteri ve tüm market ihtiyaçları; kendi kuryemizle adrese teslim. Bizi tanıyın.",
+    "Yeni Mahalle Market: Sapanca Yeni Mahalle'nin bakkalı. Taze meyve sebze, şarküteri ve tüm market ihtiyaçları; kendi kuryemizle adrese teslim. Bizi tanıyın.",
   alternates: { canonical: "/hakkimizda" },
 };
 
 const STATS = [
   { value: "7", accent: " gün", label: "Haftanın her günü, bayramlar dahil açığız" },
-  { value: "07:30", accent: "–02:00", label: "Gün boyu kesintisiz hizmet saatleri" },
-  { value: "30", accent: "–60 dk", label: "Kendi kuryemizle ortalama teslimat süresi" },
+  { value: "07:30", accent: "-02:00", label: "Gün boyu kesintisiz hizmet saatleri" },
+  { value: "30", accent: "-60 dk", label: "Kendi kuryemizle ortalama teslimat süresi" },
   { value: "2.500", accent: "+", label: "Market rafında ve sitede ürün çeşidi" },
 ];
 
@@ -65,7 +65,7 @@ export default function HakkimizdaPage() {
           <div className={styles.heroVisual}>
             <img
               src="/Hero.png"
-              alt={`${BUSINESS.name} vitrini — Sapanca Yeni Mahalle`}
+              alt={`${BUSINESS.name} vitrini: Sapanca Yeni Mahalle`}
               width={1448}
               height={1086}
               className={styles.heroPhoto}
@@ -77,7 +77,7 @@ export default function HakkimizdaPage() {
               <span className={styles.heroBadgeText}>
                 <span className={styles.heroBadgeTitle}>Kendi kuryemizle</span>
                 <span className={styles.heroBadgeSub}>
-                  Genellikle 30–60 dakikada kapınızda
+                  Genellikle 30-60 dakikada kapınızda
                 </span>
               </span>
             </div>
@@ -153,7 +153,7 @@ export default function HakkimizdaPage() {
             <span className={styles.valueTitle}>Kendi kuryemizle teslim</span>
             <p>
               Siparişler kargoya verilmez; kendi kuryemizle aynı gün, çoğu
-              zaman 30–60 dakikada teslim edilir. Otel ve bungalovlara da
+              zaman 30-60 dakikada teslim edilir. Otel ve bungalovlara da
               gideriz.
             </p>
           </div>
@@ -203,7 +203,7 @@ export default function HakkimizdaPage() {
         <section className={styles.cta} aria-label="Sipariş çağrısı">
           <h2>Sapanca&apos;daysanız, siparişiniz bizden sorulur.</h2>
           <p>
-            İster mahalleli olun ister misafir — sepetinizi doldurun,
+            İster mahalleli olun ister misafir: sepetinizi doldurun,
             gerisini kuryemize bırakın. Sorularınız için haftanın 7 günü
             telefonun ucundayız.
           </p>

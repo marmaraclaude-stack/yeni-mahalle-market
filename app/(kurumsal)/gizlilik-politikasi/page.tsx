@@ -1,4 +1,4 @@
-// Gizlilik Politikası + KVKK Aydınlatma Metni (/gizlilik-politikasi) —
+// Gizlilik Politikası + KVKK Aydınlatma Metni (/gizlilik-politikasi):
 // iyzico satıcı kriteri. 6698 sayılı KVKK md. 10 (aydınlatma yükümlülüğü)
 // yapısına göre: veri sorumlusu, işlenen veriler, amaçlar, hukuki sebep,
 // aktarım, saklama, md. 11 hakları ve çerezler.
@@ -32,8 +32,7 @@ export default function GizlilikPage() {
   const legal = BUSINESS.legal;
   return (
     <LegalShell
-      title="Gizlilik Politikası ve"
-      accent="KVKK Aydınlatma Metni"
+      title="Gizlilik Politikası ve KVKK Aydınlatma Metni"
       sub="Kişisel verileriniz, 6698 sayılı Kişisel Verilerin Korunması Kanunu'na (KVKK) uygun olarak aşağıda açıklanan kapsamda işlenir ve korunur."
       updated="10 Temmuz 2026"
       current="/gizlilik-politikasi"
@@ -100,20 +99,20 @@ export default function GizlilikPage() {
       <h2 id="aktarim">5. Verilerin aktarılması</h2>
       <ul>
         <li>
-          <strong>iyzico Ödeme Hizmetleri A.Ş.</strong> — online ödemenin
+          <strong>iyzico Ödeme Hizmetleri A.Ş.</strong>: online ödemenin
           gerçekleştirilmesi amacıyla,
         </li>
         <li>
-          <strong>Teslimat personelimiz (kurye)</strong> — siparişin
+          <strong>Teslimat personelimiz (kurye)</strong>: siparişin
           adresinize ulaştırılması için ad, adres ve telefon bilgisi,
         </li>
         <li>
-          <strong>Barındırma ve altyapı hizmet sağlayıcıları</strong> — web
+          <strong>Barındırma ve altyapı hizmet sağlayıcıları</strong>: web
           sitemizin ve veri tabanımızın çalıştığı sunucu hizmetleri (sunucular
           yurt dışında bulunabilir),
         </li>
         <li>
-          <strong>Yetkili kamu kurum ve kuruluşları</strong> — yasal
+          <strong>Yetkili kamu kurum ve kuruluşları</strong>: yasal
           zorunluluk halinde.
         </li>
       </ul>

@@ -1,4 +1,4 @@
-// Satıcı / veri sorumlusu bilgi kutusu — yasal sayfalarda ortak.
+// Satıcı / veri sorumlusu bilgi kutusu: yasal sayfalarda ortak.
 // lib/business.ts LEGAL_INFO'daki boş alanlar otomatik gizlenir.
 
 import { BUSINESS } from "@/lib/business";

@@ -1,4 +1,4 @@
-// Kurumsal / yasal sayfalar route grubu — hepsi aynı nav + footer kabuğunu
+// Kurumsal / yasal sayfalar route grubu: hepsi aynı nav + footer kabuğunu
 // paylaşır (URL'ler grupsuz kalır: /hakkimizda, /gizlilik-politikasi vb.).
 
 import SiteNav from "@/components/SiteNav";

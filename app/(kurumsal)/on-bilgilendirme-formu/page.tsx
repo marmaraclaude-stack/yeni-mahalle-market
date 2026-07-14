@@ -1,4 +1,4 @@
-// Ön Bilgilendirme Formu (/on-bilgilendirme-formu) — Mesafeli Sözleşmeler
+// Ön Bilgilendirme Formu (/on-bilgilendirme-formu): Mesafeli Sözleşmeler
 // Yönetmeliği md. 5 uyarınca sipariş öncesi tüketiciye sunulması zorunlu
 // bilgiler. Ödeme sayfasındaki onay kutusu bu forma ve sözleşmeye bağlanır.
 
@@ -29,8 +29,7 @@ export default function OnBilgilendirmePage() {
   const legal = BUSINESS.legal;
   return (
     <LegalShell
-      title="Ön Bilgilendirme"
-      accent="Formu"
+      title="Ön Bilgilendirme Formu"
       sub="6502 sayılı Tüketicinin Korunması Hakkında Kanun ve Mesafeli Sözleşmeler Yönetmeliği md. 5 uyarınca, siparişinizi vermeden önce aşağıdaki hususlarda bilgilendirilirsiniz."
       updated="10 Temmuz 2026"
       current="/on-bilgilendirme-formu"
@@ -64,7 +63,7 @@ export default function OnBilgilendirmePage() {
         bildirdiğiniz adrese teslim edilir. Teslimat yalnızca ilan edilen
         hizmet bölgesinde (Sapanca ve yakın çevresi) ve çalışma saatleri
         ({BUSINESS.hours.display}) içinde yapılır; siparişler genellikle
-        30–60 dakika içinde teslim edilir. Teslimat ücreti ödeme sayfasında
+        30-60 dakika içinde teslim edilir. Teslimat ücreti ödeme sayfasında
         gösterilir. Ayrıntılar için{" "}
         <Link href="/teslimat-ve-iade">Teslimat ve İade Şartları</Link>.
       </p>

@@ -1,4 +1,4 @@
-// Mesafeli Satış Sözleşmesi (/mesafeli-satis-sozlesmesi) — iyzico satıcı
+// Mesafeli Satış Sözleşmesi (/mesafeli-satis-sozlesmesi): iyzico satıcı
 // kriteri. 6502 sayılı TKHK md. 48 + Mesafeli Sözleşmeler Yönetmeliği
 // (RG 27.11.2014/29188) yapısına göre; sipariş bazlı alanlar (ürün, fiyat,
 // alıcı) ödeme sayfasındaki sipariş özetinden gelir.
@@ -17,29 +17,28 @@ export const metadata: Metadata = {
 };
 
 const TOC = [
-  { id: "taraflar", label: "Madde 1 — Taraflar" },
-  { id: "konu", label: "Madde 2 — Konu" },
-  { id: "urun", label: "Madde 3 — Ürün, fiyat, ödeme" },
-  { id: "teslimat", label: "Madde 4 — Teslimat" },
-  { id: "hukumler", label: "Madde 5 — Genel hükümler" },
-  { id: "cayma", label: "Madde 6 — Cayma hakkı" },
-  { id: "istisna", label: "Madde 7 — Cayma istisnaları" },
-  { id: "uyusmazlik", label: "Madde 8 — Uyuşmazlıklar" },
-  { id: "yururluk", label: "Madde 9 — Yürürlük" },
+  { id: "taraflar", label: "Madde 1: Taraflar" },
+  { id: "konu", label: "Madde 2: Konu" },
+  { id: "urun", label: "Madde 3: Ürün, fiyat, ödeme" },
+  { id: "teslimat", label: "Madde 4: Teslimat" },
+  { id: "hukumler", label: "Madde 5: Genel hükümler" },
+  { id: "cayma", label: "Madde 6: Cayma hakkı" },
+  { id: "istisna", label: "Madde 7: Cayma istisnaları" },
+  { id: "uyusmazlik", label: "Madde 8: Uyuşmazlıklar" },
+  { id: "yururluk", label: "Madde 9: Yürürlük" },
 ];
 
 export default function MesafeliSatisPage() {
   const legal = BUSINESS.legal;
   return (
     <LegalShell
-      title="Mesafeli Satış"
-      accent="Sözleşmesi"
+      title="Mesafeli Satış Sözleşmesi"
       sub="Bu sözleşme, sipariş verirken elektronik ortamda onayınıza sunulur ve onayınızla birlikte kurulmuş sayılır."
       updated="10 Temmuz 2026"
       current="/mesafeli-satis-sozlesmesi"
       toc={TOC}
     >
-      <h2 id="taraflar">Madde 1 — Taraflar</h2>
+      <h2 id="taraflar">Madde 1: Taraflar</h2>
       <h3>1.1. Satıcı</h3>
       <SellerInfoBox />
       <h3>1.2. Alıcı</h3>
@@ -50,7 +49,7 @@ export default function MesafeliSatisPage() {
         sözleşmenin ayrılmaz parçasıdır.
       </p>
 
-      <h2 id="konu">Madde 2 — Konu</h2>
+      <h2 id="konu">Madde 2: Konu</h2>
       <p>
         İşbu sözleşmenin konusu; Alıcının, Satıcıya ait{" "}
         <strong>{BUSINESS.domain}</strong> internet sitesinden elektronik
@@ -61,7 +60,7 @@ export default function MesafeliSatisPage() {
         belirlenmesidir.
       </p>
 
-      <h2 id="urun">Madde 3 — Sözleşme konusu ürün, fiyat ve ödeme bilgileri</h2>
+      <h2 id="urun">Madde 3: Sözleşme konusu ürün, fiyat ve ödeme bilgileri</h2>
       <p>
         Ürünlerin cinsi, türü, miktarı (adet/gram), tüm vergiler dahil satış
         fiyatı, teslimat ücreti, varsa indirim/kupon tutarı ve seçilen ödeme
@@ -84,13 +83,13 @@ export default function MesafeliSatisPage() {
         </li>
       </ul>
 
-      <h2 id="teslimat">Madde 4 — Teslimat</h2>
+      <h2 id="teslimat">Madde 4: Teslimat</h2>
       <p>
         Ürünler, Satıcının kendi kuryesi ile Alıcının sipariş formunda
         bildirdiği adrese teslim edilir. Teslimat yalnızca Satıcının ilan
         ettiği hizmet bölgesi (Sapanca ve yakın çevresi) içinde yapılır.
         Siparişler, çalışma saatleri içinde ve stok/yoğunluk durumuna göre
-        genellikle 30–60 dakika içinde, her hâlde Yönetmelikte öngörülen azami
+        genellikle 30-60 dakika içinde, her hâlde Yönetmelikte öngörülen azami
         süre olan 30 gün içinde teslim edilir. Detaylar{" "}
         <Link href="/teslimat-ve-iade">Teslimat ve İade Şartları</Link>{" "}
         sayfasında yer alır.
@@ -102,7 +101,7 @@ export default function MesafeliSatisPage() {
         ürünlerinin sorumluluğu Alıcıya aittir.
       </p>
 
-      <h2 id="hukumler">Madde 5 — Genel hükümler</h2>
+      <h2 id="hukumler">Madde 5: Genel hükümler</h2>
       <ul>
         <li>
           Alıcı, sipariş vermeden önce{" "}
@@ -130,7 +129,7 @@ export default function MesafeliSatisPage() {
         </li>
       </ul>
 
-      <h2 id="cayma">Madde 6 — Cayma hakkı</h2>
+      <h2 id="cayma">Madde 6: Cayma hakkı</h2>
       <p>
         Alıcı, cayma hakkının kullanılabildiği ürünlerde, ürünü teslim aldığı
         tarihten itibaren <strong>14 (on dört) gün</strong> içinde hiçbir
@@ -144,7 +143,7 @@ export default function MesafeliSatisPage() {
         iade masrafı ödemez.
       </p>
 
-      <h2 id="istisna">Madde 7 — Cayma hakkının kullanılamayacağı hâller</h2>
+      <h2 id="istisna">Madde 7: Cayma hakkının kullanılamayacağı hâller</h2>
       <p>
         Mesafeli Sözleşmeler Yönetmeliği&apos;nin 15. maddesi uyarınca
         aşağıdaki sözleşmelerde cayma hakkı kullanılamaz:
@@ -152,7 +151,7 @@ export default function MesafeliSatisPage() {
       <ul>
         <li>
           <strong>&quot;Çabuk bozulabilen veya son kullanma tarihi geçebilecek
-          malların teslimine ilişkin sözleşmeler&quot;</strong> (md. 15/1-c) —
+          malların teslimine ilişkin sözleşmeler&quot;</strong> (md. 15/1-c):
           taze meyve ve sebze, et ve şarküteri ürünleri, süt ürünleri, ekmek
           ve fırın ürünleri, dondurulmuş gıda vb.
         </li>
@@ -160,7 +159,7 @@ export default function MesafeliSatisPage() {
           <strong>&quot;Tesliminden sonra ambalaj, bant, mühür, paket gibi
           koruyucu unsurları açılmış olan mallardan; iadesi sağlık ve hijyen
           açısından uygun olmayanların teslimine ilişkin
-          sözleşmeler&quot;</strong> (md. 15/1-d) — ambalajı açılmış gıda,
+          sözleşmeler&quot;</strong> (md. 15/1-ç): ambalajı açılmış gıda,
           kişisel bakım ve hijyen ürünleri vb.
         </li>
       </ul>
@@ -171,7 +170,7 @@ export default function MesafeliSatisPage() {
         (değişim, bedel iadesi vb.) saklıdır.
       </p>
 
-      <h2 id="uyusmazlik">Madde 8 — Uyuşmazlıkların çözümü</h2>
+      <h2 id="uyusmazlik">Madde 8: Uyuşmazlıkların çözümü</h2>
       <p>
         İşbu sözleşmeden doğan uyuşmazlıklarda, Ticaret Bakanlığınca her yıl
         belirlenen parasal sınırlar dahilinde Alıcının yerleşim yerinin
@@ -181,12 +180,13 @@ export default function MesafeliSatisPage() {
         yetkilidir.
       </p>
 
-      <h2 id="yururluk">Madde 9 — Yürürlük</h2>
+      <h2 id="yururluk">Madde 9: Yürürlük</h2>
       <p>
         Alıcı, sipariş verirken işbu sözleşmenin tüm koşullarını kabul etmiş
         sayılır. Sözleşme, siparişin elektronik ortamda onaylanmasıyla kurulur
-        ve ürünlerin teslimiyle ifa edilir. Satıcı, sözleşme ve sipariş
-        kayıtlarını 3 yıl süreyle saklar.
+        ve ürünlerin teslimiyle ifa edilir. Sözleşmenin dili Türkçedir.
+        Satıcı, sözleşme ve sipariş kayıtlarını 3 yıl süreyle saklar; Alıcı bu
+        süre içinde kayıtlara erişim talep edebilir.
       </p>
     </LegalShell>
   );

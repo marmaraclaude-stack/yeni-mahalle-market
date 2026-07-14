@@ -1,4 +1,4 @@
-// Yasal sayfa kabuğu — başlık şeridi + solda yapışkan "Bu sayfada" gezinmesi,
+// Yasal sayfa kabuğu: başlık şeridi + solda yapışkan "Bu sayfada" gezinmesi,
 // sağda tam genişlik içerik. Dört sözleşme/politika sayfası bunu paylaşır;
 // bölüm id'leri TOC linkleriyle eşleşmelidir (h2 id="...").
 
@@ -11,7 +11,7 @@ export interface TocItem {
   label: string;
 }
 
-/** Sayfalar arası çapraz linkler — aktif sayfa listeden gizlenir. */
+/** Sayfalar arası çapraz linkler: aktif sayfa listeden gizlenir. */
 const LEGAL_LINKS = [
   { href: "/teslimat-ve-iade", label: "Teslimat ve İade Şartları" },
   { href: "/gizlilik-politikasi", label: "Gizlilik ve KVKK" },
@@ -21,20 +21,16 @@ const LEGAL_LINKS = [
 
 export default function LegalShell({
   title,
-  accent,
   sub,
   updated,
   current,
   toc,
   children,
 }: {
-  /** Başlığın düz kısmı. */
   title: string;
-  /** Başlığın vurgulu (renkli) kısmı. */
-  accent: string;
   sub: string;
   updated: string;
-  /** Aktif sayfanın yolu — çapraz linklerden çıkarılır. */
+  /** Aktif sayfanın yolu: çapraz linklerden çıkarılır. */
   current: string;
   toc: TocItem[];
   children: React.ReactNode;
@@ -43,9 +39,7 @@ export default function LegalShell({
     <main className={styles.page}>
       <div className="container">
         <header className={styles.head}>
-          <h1 className={styles.title}>
-            {title} <span className={styles.titleAccent}>{accent}</span>
-          </h1>
+          <h1 className={styles.title}>{title}</h1>
           <p className={styles.sub}>{sub}</p>
           <span className={styles.updated}>Son güncelleme: {updated}</span>
         </header>

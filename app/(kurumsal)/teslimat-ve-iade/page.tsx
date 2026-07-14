@@ -1,4 +1,4 @@
-// Teslimat ve İade Şartları (/teslimat-ve-iade) — iyzico satıcı kriteri.
+// Teslimat ve İade Şartları (/teslimat-ve-iade): iyzico satıcı kriteri.
 // Kendi kuryeyle yerel teslimata (kargo yok) ve gıda ürünlerinin cayma hakkı
 // istisnasına göre yazılmıştır. İşletme bilgileri lib/business.ts'ten.
 
@@ -30,8 +30,7 @@ export default function TeslimatVeIadePage() {
   const legal = BUSINESS.legal;
   return (
     <LegalShell
-      title="Teslimat ve"
-      accent="İade Şartları"
+      title="Teslimat ve İade Şartları"
       sub="Siparişleriniz kargoya verilmez; kendi kuryemizle aynı gün adresinize teslim edilir. Aşağıda teslimat ve iade koşullarımızı bulabilirsiniz."
       updated="10 Temmuz 2026"
       current="/teslimat-ve-iade"
@@ -52,12 +51,12 @@ export default function TeslimatVeIadePage() {
       <h2 id="sure">2. Teslimat süresi ve saatleri</h2>
       <ul>
         <li>
-          Siparişler <strong>haftanın 7 günü 07:30 – 02:00</strong> saatleri
+          Siparişler <strong>haftanın 7 günü 07:30 - 02:00</strong> saatleri
           arasında alınır ve teslim edilir.
         </li>
         <li>
           Siparişiniz kendi kuryemizle, stok ve yoğunluk durumuna göre
-          genellikle <strong>30–60 dakika içinde</strong>, her durumda aynı
+          genellikle <strong>30-60 dakika içinde</strong>, her durumda aynı
           gün teslim edilir.
         </li>
         <li>
@@ -102,12 +101,12 @@ export default function TeslimatVeIadePage() {
         <li>
           <strong>Çabuk bozulabilen veya son kullanma tarihi geçebilecek
           ürünler</strong> (taze meyve ve sebze, şarküteri, süt ürünleri,
-          ekmek ve fırın ürünleri, dondurulmuş gıda vb.) — md. 15/1-c,
+          ekmek ve fırın ürünleri, dondurulmuş gıda vb.): md. 15/1-c,
         </li>
         <li>
           Teslimden sonra <strong>ambalajı açılmış</strong>, sağlık ve hijyen
-          açısından iadeye uygun olmayan ürünler (gıda, kişisel bakım vb.) —
-          md. 15/1-d.
+          açısından iadeye uygun olmayan ürünler (gıda, kişisel bakım vb.):
+          md. 15/1-ç.
         </li>
       </ul>
       <p>
@@ -143,7 +142,7 @@ export default function TeslimatVeIadePage() {
           iyzico aracılığıyla ödeme yaptığınız karta yapılır. İade, Mesafeli
           Sözleşmeler Yönetmeliği md. 12 uyarınca cayma/iade bildiriminizden
           itibaren <strong>en geç 14 gün içinde</strong> gerçekleştirilir;
-          tutarın kartınıza yansıması bankanıza bağlı olarak 2–10 iş günü
+          tutarın kartınıza yansıması bankanıza bağlı olarak 2-10 iş günü
           sürebilir.
         </li>
         <li>
