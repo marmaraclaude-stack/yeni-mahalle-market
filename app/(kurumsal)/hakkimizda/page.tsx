@@ -9,15 +9,12 @@ import {
   ArrowUpRight,
   BedDouble,
   Bike,
-  Building2,
   Clock,
-  Home,
   Leaf,
   Phone,
   Scale,
   ShieldCheck,
   ShoppingBasket,
-  Tent,
 } from "lucide-react";
 import { BUSINESS } from "@/lib/business";
 import styles from "./hakkimizda.module.css";
@@ -44,7 +41,7 @@ export default function HakkimizdaPage() {
         {/* ===== Editorial başlık ===== */}
         <header className={styles.head}>
           <h1 className={styles.title}>
-            Sapanca&apos;nın mahalle marketi.
+            Sapanca&apos;nın mahalle marketi
           </h1>
           <p className={styles.lead}>
             {BUSINESS.name}, Yeni Mahalle&apos;de hizmet veren bir mahalle
@@ -78,13 +75,13 @@ export default function HakkimizdaPage() {
               loading="lazy"
             />
             <span className={styles.photoTag}>
-              <ShoppingBasket size={14} aria-hidden="true" /> 2.500+ ürün çeşidi
+              <ShoppingBasket size={14} aria-hidden="true" /> Geniş ürün çeşidi
             </span>
           </div>
 
-          <div className={styles.tile}>
-            <span className={styles.tileIcon} aria-hidden="true">
-              <Bike size={20} strokeWidth={2} />
+          <div className={styles.tile} style={{ "--glyph": "#2f6fed" } as React.CSSProperties}>
+            <span className={styles.tileGlyph} aria-hidden="true">
+              <Bike />
             </span>
             <span className={styles.tileNum}>30-60 dk</span>
             <span className={styles.tileSub}>
@@ -92,9 +89,9 @@ export default function HakkimizdaPage() {
             </span>
           </div>
 
-          <div className={styles.tile}>
-            <span className={styles.tileIcon} aria-hidden="true">
-              <Clock size={20} strokeWidth={2} />
+          <div className={styles.tile} style={{ "--glyph": "#0e93a8" } as React.CSSProperties}>
+            <span className={styles.tileGlyph} aria-hidden="true">
+              <Clock />
             </span>
             <span className={styles.tileNum}>07:30-02:00</span>
             <span className={styles.tileSub}>
@@ -116,7 +113,13 @@ export default function HakkimizdaPage() {
             </span>
           </div>
 
-          <div className={`${styles.tile} ${styles.tileWide}`}>
+          <div
+            className={`${styles.tile} ${styles.tileWide}`}
+            style={{ "--glyph": "#159b57" } as React.CSSProperties}
+          >
+            <span className={styles.tileGlyph} aria-hidden="true">
+              <BedDouble />
+            </span>
             <span className={styles.tileLabel}>
               Otel, bungalov ve sitelere teslimat
             </span>
@@ -124,27 +127,26 @@ export default function HakkimizdaPage() {
               Tatildeyseniz tesisinizi listeden seçin. Kuryemiz kapınıza ya da
               resepsiyona kadar gelir.
             </span>
-            <div className={styles.tileIcons} aria-hidden="true">
-              <span><BedDouble size={17} strokeWidth={2} /></span>
-              <span><Tent size={17} strokeWidth={2} /></span>
-              <span><Building2 size={17} strokeWidth={2} /></span>
-              <span><Home size={17} strokeWidth={2} /></span>
-            </div>
           </div>
 
-          <div className={styles.tile}>
-            <span className={styles.tileIcon} aria-hidden="true">
-              <Scale size={20} strokeWidth={2} />
-            </span>
-            <span className={styles.tileLabel}>Gramajlı satış</span>
-            <span className={styles.tileSub}>
-              Meyve sebzede 250 gramdan dilediğiniz miktara
+          {/* Fotoğraf: gramajlı satış (manav fotoğrafının yakın kadrajı) */}
+          <div className={`${styles.tile} ${styles.tilePhoto}`}>
+            <img
+              src="/carousel/carousel-4.png"
+              alt="Kasalarda porsiyonlanmış taze çilek ve meyveler"
+              width={1448}
+              height={1086}
+              loading="lazy"
+              className={styles.zoomBottom}
+            />
+            <span className={styles.photoTag}>
+              <Scale size={14} aria-hidden="true" /> Gramajlı satış
             </span>
           </div>
 
-          <div className={styles.tile}>
-            <span className={styles.tileIcon} aria-hidden="true">
-              <ShieldCheck size={20} strokeWidth={2} />
+          <div className={styles.tile} style={{ "--glyph": "#cf8910" } as React.CSSProperties}>
+            <span className={styles.tileGlyph} aria-hidden="true">
+              <ShieldCheck />
             </span>
             <span className={styles.tileLabel}>Güvenli ödeme</span>
             <span className={styles.tileSub}>
@@ -202,17 +204,14 @@ export default function HakkimizdaPage() {
               <Link href="/urunler" className="btn btn--accent btn--lg">
                 Alışverişe Başla
               </Link>
-              <a
-                href={BUSINESS.phone.href}
-                className={`btn btn--lg ${styles.panelGhostBtn}`}
-              >
+              <a href={BUSINESS.phone.href} className="btn btn--ghost btn--lg">
                 <Phone size={16} strokeWidth={2} aria-hidden="true" />
                 {BUSINESS.phone.display}
               </a>
             </div>
             <div className={styles.panelBand}>
               <img
-                src="/odeme/logo-band-white.svg"
+                src="/odeme/logo-band-colored.svg"
                 alt="iyzico ile Öde · Mastercard · Visa · American Express · Troy"
                 width={429}
                 height={32}
