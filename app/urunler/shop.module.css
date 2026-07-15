@@ -835,24 +835,18 @@
    :root üzerindeki --catbar-h / --subbar-h değişkenlerine yazılır
    (CategoryRail ve SubcatTabs). Masaüstünde catbar yok; bar navbar altına
    yapışır. z-index catbar'ın (50) altında kalır. */
+/* GARANTİ ÇÖZÜM — Safari'ye özgü sticky titremesi/kayması.
+   Alt-kategori pil barı ARTIK STICKY DEĞİL (position: static). Sayfa dikey
+   kaydırılırken bar normal akışta kalır; Safari'de "sticky öğeyi her scroll
+   frame'inde kendi compositing katmanında yeniden çizme" kaynaklı titreme/
+   kayma FİZİKSEL OLARAK imkânsız olur — çünkü artık yapışan bir öğe yok.
+   Chromium'da görünüm birebir aynı; tek fark: sayfa kaydırınca bar da içerikle
+   birlikte kayar. (Denenen sticky varyantları — IntersectionObserver/scroll-snap/
+   mask-image kaldırma, backface-visibility / translateZ layer promotion — Safari
+   titremesini çözmedi; layer promotion bazen tetikledi. Non-sticky = garanti.) */
 .subBarSticky {
-  position: sticky;
-  top: calc(69px + var(--catbar-h, 0px));
-  z-index: 40;
+  position: static;
   background: var(--white);
-  /* Safari: sticky bar'ı kendi compositing katmanına al — kaydırmada
-     titreme/gecikme azalır (backface-visibility layer promotion). */
-  -webkit-backface-visibility: hidden;
-  backface-visibility: hidden;
-}
-/* Masaüstü: barı header'a (69px) yaslayıp beyaz üst dolgusuyla --shop-sticky-top
-   nefes payını ver; böylece header ile sekmeler arasındaki boşluktan kayan
-   içerik SIZMAZ (bar "havada" durmaz), sekmeler yine header'ın hemen altında. */
-@media (min-width: 1024px) {
-  .subBarSticky {
-    top: 69px;
-    padding-top: calc(var(--shop-sticky-top) - 69px);
-  }
 }
 /* Alt kategori sekmeleri — pill (hap) çipleri: sayaç rozet içinde, aktif accent. */
 .subChip {
