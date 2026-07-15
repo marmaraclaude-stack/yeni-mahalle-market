@@ -27,7 +27,9 @@ export default function CartFab() {
     return () => clearTimeout(t);
   }, [count]);
 
-  if (pathname?.startsWith("/admin")) return null;
+  // Admin panelinde ve canlı destek sayfasında (/destek) gösterilmez —
+  // /destek'te sohbet composer'ının gönder butonuyla çakışmasın.
+  if (pathname?.startsWith("/admin") || pathname === "/destek") return null;
   if (count === 0) return null;
 
   return (

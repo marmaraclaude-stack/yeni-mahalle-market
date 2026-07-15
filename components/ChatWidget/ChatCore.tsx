@@ -264,7 +264,23 @@ export default function ChatCore({
       setSending(true);
       setError(null);
       try {
-        const res = await sendVisitorMessage(session.id, session.token, content);
+        let res = await sendVisitorMessage(session.id, session.token, content);
+        // Oturum DB'de yoksa (eski/silinmiş localStorage oturumu → gönderim
+        // başarısız) sessizce yeni oturum aç ve bir kez daha dene. Böylece
+        // "Mesaj gönderilemedi" hatası kullanıcıyı takılı bırakmaz.
+        if (!res.ok) {
+          const fresh = await startChatSession(session.name, "");
+          if (fresh.ok && fresh.sessionId && fresh.token) {
+            const renewed: StoredSession = {
+              id: fresh.sessionId,
+              name: session.name,
+              token: fresh.token,
+            };
+            storeSession(renewed);
+            setSession(renewed);
+            res = await sendVisitorMessage(renewed.id, renewed.token, content);
+          }
+        }
         if (!res.ok || !res.message) {
           setError(res.error ?? "Mesaj gönderilemedi.");
           return;
