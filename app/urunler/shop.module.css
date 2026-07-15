@@ -790,39 +790,15 @@
   flex: 1;
   min-width: 0;
   overflow-x: auto;
-  /* proximity: dokunmatik kaydırmada hafif hizalar ama programatik
-     scrollTo (ok tıklaması) ile çakışıp son çipi zıplatmaz */
-  scroll-snap-type: x proximity;
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
+  /* NOT: scroll-snap ve mask-image BİLEREK yok. Safari'de sticky bir barın
+     içindeki yatay scroll-snap konteyneri, sayfa DİKEY kaydırılırken yeniden
+     "snap" hesaplayıp pilleri kaydırıyordu; mask-image de sticky repaint'te
+     titriyordu. İkisi de kozmetikti; gezinme oklarla yapılıyor. */
 }
 .subScroll::-webkit-scrollbar { display: none; }
-.subScroll > * { scroll-snap-align: start; }
-/* Kenar yumuşatma: yalnız o yönde taşma varken uygulanır (webkit dahil) */
-.subScrollFadeL {
-  -webkit-mask-image: linear-gradient(to right, transparent 0, black 40px);
-  mask-image: linear-gradient(to right, transparent 0, black 40px);
-}
-.subScrollFadeR {
-  -webkit-mask-image: linear-gradient(to left, transparent 0, black 40px);
-  mask-image: linear-gradient(to left, transparent 0, black 40px);
-}
-.subScrollFadeL.subScrollFadeR {
-  -webkit-mask-image: linear-gradient(
-    to right,
-    transparent 0,
-    black 40px,
-    black calc(100% - 40px),
-    transparent 100%
-  );
-  mask-image: linear-gradient(
-    to right,
-    transparent 0,
-    black 40px,
-    black calc(100% - 40px),
-    transparent 100%
-  );
-}
+/* Fade sınıfları artık no-op (geriye dönük uyum için dururlar). */
 /* Ok butonları */
 .subNavBtn {
   display: inline-flex;
