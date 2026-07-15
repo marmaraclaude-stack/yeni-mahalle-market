@@ -840,6 +840,10 @@
   top: calc(69px + var(--catbar-h, 0px));
   z-index: 40;
   background: var(--white);
+  /* Safari: sticky bar'ı kendi compositing katmanına al — kaydırmada
+     titreme/gecikme azalır (backface-visibility layer promotion). */
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
 }
 /* Masaüstü: barı header'a (69px) yaslayıp beyaz üst dolgusuyla --shop-sticky-top
    nefes payını ver; böylece header ile sekmeler arasındaki boşluktan kayan

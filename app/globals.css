@@ -109,7 +109,10 @@
 * { box-sizing: border-box; }
 html, body { margin: 0; padding: 0; }
 html {
-  scroll-behavior: smooth;
+  /* NOT: scroll-behavior: smooth KALDIRILDI. Safari'de bu, position: sticky
+     bar'ların sayfa dikey kaydırılırken geride kalıp titremesine (jitter)
+     yol açıyordu — alt kategori pillerinin "buglanma" sebebi. Yumuşak kaydırma
+     gereken az sayıda yerde JS ile ({behavior:"smooth"}) yapılır. */
   /* Kaydırma çubuğu olan/olmayan sayfalar arasında içerik genişliği
      değişmesin (navbar kayması). Overlay scrollbar'lı platformlarda etkisiz. */
   scrollbar-gutter: stable;
