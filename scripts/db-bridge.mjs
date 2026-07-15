@@ -46,7 +46,7 @@ function emptySize(p) {
 async function audit() {
   const products = await getAll(
     "products",
-    "id,name,brand,category_slug,subcategory_slug,size_text,unit,sold_by_weight,is_active,price,image_url",
+    "id,name,brand,category_slug,subcategory_slug,size_text,unit,sold_by_weight,weight_min_grams,is_active,price,image_url,details",
   );
   const active = products.filter((p) => p.is_active);
   const byCat = {};
@@ -116,6 +116,41 @@ async function audit() {
     chat.testInsert = `exception: ${e.message}`;
   }
 
+  // Şarküteri-et tam örnek satırlar (gramaj/details teşhisi).
+  const detailKeys = ["icindekiler", "besin_degerleri", "uretici", "net_miktar", "gramaj", "saklama", "mensei"];
+  const sarkSample = active
+    .filter((p) => p.category_slug === "sarkuteri-et")
+    .map((p) => {
+      const det = p.details || {};
+      const filled = {};
+      for (const k of Object.keys(det)) {
+        const v = det[k];
+        filled[k] = v == null || (typeof v === "string" && !v.trim()) ? "EMPTY" : "ok";
+      }
+      return {
+        name: p.name, brand: p.brand, size_text: p.size_text,
+        sold_by_weight: p.sold_by_weight, weight_min_grams: p.weight_min_grams,
+        detailKeys: Object.keys(det), detailFilled: filled,
+      };
+    });
+  // details tamamlanma sayacı (şarküteri).
+  const detStats = {};
+  for (const p of active.filter((p) => p.category_slug === "sarkuteri-et")) {
+    const det = p.details || {};
+    for (const k of new Set([...detailKeys, ...Object.keys(det)])) {
+      const v = det[k];
+      const ok = v != null && !(typeof v === "string" && !v.trim());
+      const s = (detStats[k] ??= { ok: 0, empty: 0, absent: 0 });
+      if (!(k in det)) s.absent++;
+      else if (ok) s.ok++;
+      else s.empty++;
+    }
+  }
+  // size_text değer histogramı (en sık 30).
+  const sizeHist = {};
+  for (const p of active) sizeHist[p.size_text ?? "(null)"] = (sizeHist[p.size_text ?? "(null)"] ?? 0) + 1;
+  const topSizes = Object.entries(sizeHist).sort((a, b) => b[1] - a[1]).slice(0, 30);
+
   const summary = {
     productsTotal: products.length,
     activeTotal: active.length,
@@ -123,11 +158,13 @@ async function audit() {
     missingSizeCount: missingSize.length,
     placeholderCount: placeholders.length,
     sarkBrands,
+    sarkDetailStats: detStats,
+    topSizes,
     chat,
   };
   await writeFile(
     "scripts/db-out.json",
-    JSON.stringify({ summary, missingSize, placeholders }, null, 2),
+    JSON.stringify({ summary, missingSize, placeholders, sarkSample: sarkSample.slice(0, 60) }, null, 2),
   );
   console.log("=== AUDIT SUMMARY ===");
   console.log(JSON.stringify(summary, null, 2));
