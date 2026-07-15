@@ -162,9 +162,28 @@ async function audit() {
     topSizes,
     chat,
   };
+  // TÜM aktif şarküteri ürünleri — gramaj/detay doldurma için tam liste.
+  const sarkAll = active
+    .filter((p) => p.category_slug === "sarkuteri-et")
+    .map((p) => {
+      const det = p.details || {};
+      const val = (k) => {
+        const v = det[k];
+        return v == null || (typeof v === "string" && !v.trim()) ? null : v;
+      };
+      return {
+        id: p.id, name: p.name, brand: p.brand, size_text: p.size_text,
+        sold_by_weight: p.sold_by_weight,
+        net_miktar: val("net_miktar"),
+        besin100: val("besin100") ? "ok" : null,
+        icindekiler: val("icindekiler") ? "ok" : null,
+        uretici: val("uretici") ? "ok" : null,
+        hasDetails: Object.keys(det).length > 0,
+      };
+    });
   await writeFile(
     "scripts/db-out.json",
-    JSON.stringify({ summary, missingSize, placeholders, sarkSample: sarkSample.slice(0, 60) }, null, 2),
+    JSON.stringify({ summary, sarkAll }, null, 2),
   );
   console.log("=== AUDIT SUMMARY ===");
   console.log(JSON.stringify(summary, null, 2));
