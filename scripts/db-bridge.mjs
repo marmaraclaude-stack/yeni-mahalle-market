@@ -220,5 +220,28 @@ async function patch() {
   console.log(JSON.stringify(report, null, 2));
 }
 
+// Belirli markaların TÜM ürünlerini kalıcı olarak sil (admin listesinden de kalkar).
+async function deleteBrands() {
+  const brands = ["Apikoğlu", "Cumhuriyet", "Uzman Kasap"];
+  // Bu markaların ürünlerini çek (aktif/pasif hepsi).
+  const all = await getAll("products", "id,name,brand");
+  const targets = all.filter((p) => brands.includes((p.brand ?? "").trim()));
+  let ok = 0, fail = 0;
+  const errors = [];
+  for (const p of targets) {
+    const res = await fetch(`${REST}/products?id=eq.${p.id}`, {
+      method: "DELETE",
+      headers: { ...H, Prefer: "return=minimal" },
+    });
+    if (res.ok) ok++;
+    else { fail++; if (errors.length < 20) errors.push(`${p.name}: ${res.status} ${await res.text()}`); }
+  }
+  const report = { matched: targets.length, deleted: ok, failed: fail, errors };
+  await writeFile("scripts/db-out.json", JSON.stringify(report, null, 2));
+  console.log("=== DELETE REPORT ===");
+  console.log(JSON.stringify(report, null, 2));
+}
+
 if (MODE === "patch") await patch();
+else if (MODE === "delete-brands") await deleteBrands();
 else await audit();
