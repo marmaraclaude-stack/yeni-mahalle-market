@@ -430,11 +430,12 @@
     inset 0 1px 0 rgba(255, 255, 255, 0.3);
 }
 .addBtn:active:not(:disabled) { transform: scale(0.985); }
-/* Ana etiket (ikon + metin) daima ortalı */
+/* Ana etiket (ikon + metin) daima ortalı — metin tek satırda kalır (sarmaz) */
 .addBtnMain {
   display: inline-flex;
   align-items: center;
   gap: 9px;
+  white-space: nowrap;
 }
 .addBtnMain svg { flex-shrink: 0; }
 /* Buton içinde canlı toplam (adet x fiyat) — etiketin YANINDA, ince ayraçlı.
@@ -637,11 +638,11 @@
   line-height: 1.28;
   text-wrap: balance;
 }
-/* Mobil/dar: 4 öğe yine TEK sıra; kompakt ölçüler, metin 2 satıra sarabilir
-   ama sütunlar hizalı kalır (nowrap). */
+/* Mobil/dar: 4 öğe yine TEK sıra; kompakt ölçüler. Başlık tek satır, alt metin
+   en çok 2 satır; sütunlar üstten hizalı ve eşit genişlikte kalır. */
 @media (max-width: 560px) {
   .trust {
-    gap: 8px;
+    gap: 7px;
     margin-top: 16px;
     padding-top: 14px;
   }
@@ -652,26 +653,48 @@
     border-radius: 8px;
   }
   .trustIcon svg { width: 15px; height: 15px; }
-  .trustTitle { font-size: 11px; }
-  .trustSub { font-size: 9.5px; line-height: 1.25; }
+  .trustTitle {
+    font-size: 10.5px;
+    line-height: 1.15;
+    /* iki kelimelik başlıklar tek/çift satır olsun; hepsi aynı yükseklikte */
+    min-height: calc(2 * 1.15em);
+  }
+  .trustSub {
+    font-size: 9px;
+    line-height: 1.22;
+  }
 }
 
 /* Mobil: aksiyon satırı kompakt; Sepete Ekle dev görünmesin, adet
    seçiciyle AYNI satırda dursun */
 @media (max-width: 640px) {
-  .buyRow { flex-wrap: nowrap; gap: 10px; }
-  .qty { height: 48px; }
+  /* Alım kontrolleri dikey yığılır: adet/gram seçici üstte tam genişlik,
+     "Sepete Ekle" altında tam genişlik. Buton metni asla sıkışmaz/kırpılmaz;
+     tam genişlik olduğu için canlı toplam (adet x fiyat) da yanında sığar. */
+  .buyRow {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+  .qty {
+    height: 50px;
+    width: 100%;
+  }
+  .qtyValue { flex: 1; }
+  .qtyInput {
+    flex: 1;
+    width: auto;
+    min-width: 0;
+  }
   .addBtn {
-    height: 48px;
+    height: 52px;
+    width: 100%;
     min-width: 0;
     max-width: none;
-    flex: 1 1 auto;
-    padding: 0 16px;
-    font-size: var(--fs-body);
+    flex: none;
+    padding: 0 18px;
+    font-size: var(--fs-lead);
   }
-  /* Dar butonda fiyat gizli: yalnız "Sepete Ekle" (canlı toplam adet
-     seçici + üstteki fiyat blokunda zaten görünüyor). Çakışma biter. */
-  .addBtnPrice { display: none; }
 }
 
 /* --- "Ürün Hakkında" kartı --- */
@@ -892,11 +915,17 @@
   background: var(--gray-50);
   border-color: var(--gray-300);
 }
-.railBtn:active { transform: translateY(-50%) scale(0.94); }
+.railBtn:active:not(:disabled) { transform: translateY(-50%) scale(0.94); }
 .railBtn--prev { left: 0; }
 .railBtn--next { right: 0; }
+/* Kaydırılamayan yön: masaüstünde soluk görünür (simetri korunur). */
+.railBtn:disabled {
+  opacity: 0.38;
+  cursor: default;
+  box-shadow: 0 4px 12px -8px rgba(16, 16, 16, 0.22);
+}
 /* Mobil: biraz küçült + yarı saydam zemin (kartın üstüne biner, ürün seçilir).
-   Kenara hafif taşır ki thumbnail'ı tam kapatmasın. */
+   Kenara hafif taşır ki thumbnail'ı tam kapatmasın. Kullanılamayan ok gizli. */
 @media (max-width: 640px) {
   .railBtn {
     width: 32px;
@@ -908,6 +937,7 @@
   }
   .railBtn--prev { left: -4px; }
   .railBtn--next { right: -4px; }
+  .railBtn:disabled { display: none; }
 }
 
 /* Paket çipinde indirim öncesi (üstü çizili) fiyat */

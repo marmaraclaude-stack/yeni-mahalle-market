@@ -53,26 +53,27 @@ export default function SimilarRail({ products }: { products: Product[] }) {
           </div>
         ))}
       </div>
-      {canLeft && (
-        <button
-          type="button"
-          className={`${styles.railBtn} ${styles["railBtn--prev"]}`}
-          onClick={() => scroll(-1)}
-          aria-label="Önceki ürünler"
-        >
-          <ChevronLeft size={18} strokeWidth={2.2} aria-hidden="true" />
-        </button>
-      )}
-      {canRight && (
-        <button
-          type="button"
-          className={`${styles.railBtn} ${styles["railBtn--next"]}`}
-          onClick={() => scroll(1)}
-          aria-label="Sonraki ürünler"
-        >
-          <ChevronRight size={18} strokeWidth={2.2} aria-hidden="true" />
-        </button>
-      )}
+      {/* Her iki ok da render edilir; kaydırılamayan yön "disabled". Masaüstünde
+         ikisi de görünür (biri soluk) — simetrik carousel navigasyonu. Mobilde
+         disabled ok CSS ile gizlenir (sadece kullanılabilir ok, kart kenarında). */}
+      <button
+        type="button"
+        className={`${styles.railBtn} ${styles["railBtn--prev"]}`}
+        onClick={() => scroll(-1)}
+        disabled={!canLeft}
+        aria-label="Önceki ürünler"
+      >
+        <ChevronLeft size={18} strokeWidth={2.2} aria-hidden="true" />
+      </button>
+      <button
+        type="button"
+        className={`${styles.railBtn} ${styles["railBtn--next"]}`}
+        onClick={() => scroll(1)}
+        disabled={!canRight}
+        aria-label="Sonraki ürünler"
+      >
+        <ChevronRight size={18} strokeWidth={2.2} aria-hidden="true" />
+      </button>
     </div>
   );
 }

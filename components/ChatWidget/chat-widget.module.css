@@ -72,6 +72,13 @@
   font-family: var(--font-sans, system-ui), sans-serif;
   overflow: hidden;
 }
+/* İntro (oturum yok) durumunda panel içeriğe göre kısalır — hazır sorular
+   kaldırıldığında oluşan büyük boş alt boşluk biter. Sohbet başlayınca
+   yükseklik yeniden sabitlenir (mesaj alanı kaydırılır). */
+.panel[data-intro="true"] {
+  height: auto;
+  max-height: min(580px, calc(100vh - 140px));
+}
 
 /* /destek sayfası kartı — akışta, SABİT yükseklik. svh kullanılır: mobil
    tarayıcıda URL çubuğu gizlenip görününce boyut DEĞİŞMEZ (dvh gibi zıplamaz).
@@ -97,6 +104,13 @@
     height: calc(100svh - 69px - 28px);
     min-height: 400px;
     border-radius: 16px;
+  }
+}
+/* Masaüstü /destek: intro durumunda kart içeriğe göre kısalır (boş alan yok). */
+@media (min-width: 561px) {
+  .pageCard[data-intro="true"] {
+    height: auto;
+    min-height: 0;
   }
 }
 

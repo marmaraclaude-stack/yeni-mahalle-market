@@ -307,6 +307,7 @@ export default function ChatCore({
     <section
       ref={cardRef}
       className={isPage ? styles.pageCard : styles.panel}
+      data-intro={!session ? "true" : undefined}
       role={isPage ? undefined : "dialog"}
       aria-modal={isPage ? undefined : "false"}
       aria-label="Yeni Mahalle Market sohbet"
