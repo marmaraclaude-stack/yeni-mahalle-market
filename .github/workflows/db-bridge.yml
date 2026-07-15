@@ -1,0 +1,47 @@
+name: db-bridge
+
+# Tek seferlik köprü: sandbox Supabase'e erişemiyor. Runner PostgREST ile
+# katalog denetler / günceller ve sonucu bridge-out dalına yazar.
+# Secret anahtar maskeli dispatch input'u; asla repoda tutulmaz.
+on:
+  workflow_dispatch:
+    inputs:
+      url:
+        description: "Supabase URL"
+        required: true
+      secret:
+        description: "Supabase secret key (sb_secret_...)"
+        required: true
+      mode:
+        description: "audit | patch"
+        required: true
+        default: "audit"
+
+permissions:
+  contents: write
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Run bridge
+        env:
+          SUPABASE_URL: ${{ inputs.url }}
+          SUPABASE_SECRET: ${{ inputs.secret }}
+        run: |
+          echo "::add-mask::$SUPABASE_SECRET"
+          node scripts/db-bridge.mjs "${{ inputs.mode }}"
+      - name: Publish result to bridge-out branch
+        run: |
+          git config user.name "db-bridge"
+          git config user.email "bridge@local"
+          mkdir -p out && cp scripts/db-out.json out/db-out.json
+          git checkout --orphan bridge-out
+          git reset
+          git add -f out/db-out.json
+          git commit -m "bridge ${{ inputs.mode }} result"
+          git push -f origin bridge-out
