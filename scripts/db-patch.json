@@ -1,386 +1,128 @@
 [
  {
-  "id": "d77acd15-c8e1-4596-b86d-158a18e0aef7",
-  "mergeDetails": {
-   "uretici": "Polonez",
-   "saklama": "Buzdolabında 4°C ve altında saklayınız.",
-   "mensei": "Türkiye"
+  "id": "9916a287-801f-457c-a955-5ba9a6086770",
+  "patch": {
+   "is_active": false
   }
  },
  {
-  "id": "e4fc5e91-1279-4131-a0a7-bc621c364efc",
-  "mergeDetails": {
-   "uretici": "Namet",
-   "saklama": "Buzdolabında 4°C ve altında saklayınız.",
-   "mensei": "Türkiye"
+  "id": "2e3b0f3c-3959-45c2-835a-ae860e2bcd88",
+  "patch": {
+   "is_active": false
   }
  },
  {
-  "id": "d8bbc0c3-287e-4193-937f-0722c58ea914",
-  "mergeDetails": {
-   "uretici": "Pınar",
-   "saklama": "Buzdolabında 4°C ve altında saklayınız.",
-   "mensei": "Türkiye"
+  "id": "35be764d-2470-484e-8126-dc642f15dab5",
+  "patch": {
+   "is_active": false
   }
  },
  {
-  "id": "1f5eb12c-b34d-49d3-aac2-da739fede1fe",
-  "mergeDetails": {
-   "uretici": "Banvit",
-   "saklama": "Buzdolabında 4°C ve altında saklayınız.",
-   "mensei": "Türkiye"
+  "id": "3f902bc4-a3f8-4bf2-b94d-97f172191d54",
+  "patch": {
+   "is_active": false
   }
  },
  {
-  "id": "ca6fda05-df70-4e90-9646-63b5b5a164b6",
-  "mergeDetails": {
-   "uretici": "Banvit",
-   "saklama": "Buzdolabında 4°C ve altında saklayınız.",
-   "mensei": "Türkiye"
+  "id": "7e519523-c501-4d37-b85a-5eceeae056d8",
+  "patch": {
+   "is_active": false
   }
  },
  {
-  "id": "d68a4f73-d282-41ad-8dac-caab2be807c4",
-  "mergeDetails": {
-   "uretici": "Polonez",
-   "saklama": "Buzdolabında 4°C ve altında saklayınız.",
-   "mensei": "Türkiye"
+  "id": "8576ef2a-c7f4-43e4-8377-54c769f09cd5",
+  "patch": {
+   "is_active": false
   }
  },
  {
-  "id": "5eac9161-5067-4af4-a367-1ef9c4ac8896",
-  "mergeDetails": {
-   "uretici": "Namet",
-   "saklama": "Buzdolabında 4°C ve altında saklayınız.",
-   "mensei": "Türkiye"
+  "id": "0b87d966-c63a-4353-91db-8e46d6f0f0f3",
+  "patch": {
+   "is_active": false
   }
  },
  {
-  "id": "9d071076-948e-4ef0-87fc-e388cfb3108d",
-  "mergeDetails": {
-   "uretici": "Pınar",
-   "saklama": "Buzdolabında 4°C ve altında saklayınız.",
-   "mensei": "Türkiye"
+  "id": "1a8e9c6f-8ea2-48d1-af70-acc96e6d8c0c",
+  "patch": {
+   "is_active": false
   }
  },
  {
-  "id": "a2acff84-6603-4190-8715-76639119da20",
-  "mergeDetails": {
-   "uretici": "Aytaç",
-   "saklama": "Buzdolabında 4°C ve altında saklayınız.",
-   "mensei": "Türkiye"
+  "id": "219054a7-6bf8-4e4e-9ff6-a2921f6373e7",
+  "patch": {
+   "is_active": false
   }
  },
  {
-  "id": "a458ff62-a98b-4998-9a5b-24a25c6b7f19",
-  "mergeDetails": {
-   "uretici": "Namet",
-   "saklama": "Buzdolabında 4°C ve altında saklayınız.",
-   "mensei": "Türkiye"
+  "id": "750f9820-37dc-4a75-9d4f-62376c4db699",
+  "patch": {
+   "is_active": false
   }
  },
  {
-  "id": "31d53667-132c-4ae1-9b68-d4f09c520dbd",
-  "mergeDetails": {
-   "uretici": "Namet",
-   "saklama": "Buzdolabında 4°C ve altında saklayınız.",
-   "mensei": "Türkiye"
+  "id": "17048861-e86a-4cca-84cc-0276229a2d0e",
+  "patch": {
+   "is_active": false
   }
  },
  {
-  "id": "af6790e6-e052-4768-94e9-a31c6f8af7cc",
-  "mergeDetails": {
-   "uretici": "Maret",
-   "saklama": "Buzdolabında 4°C ve altında saklayınız.",
-   "mensei": "Türkiye"
+  "id": "1e650752-39e2-4a26-ad35-bd86fbb7bd03",
+  "patch": {
+   "is_active": false
   }
  },
  {
-  "id": "c551edf4-1990-4a66-8f69-07f0e67970a5",
-  "mergeDetails": {
-   "uretici": "Pınar",
-   "saklama": "Buzdolabında 4°C ve altında saklayınız.",
-   "mensei": "Türkiye"
+  "id": "12eb1042-f97e-460d-841c-3bc1c9351036",
+  "patch": {
+   "is_active": false
   }
  },
  {
-  "id": "12aab3ee-bd1d-424e-b7c1-6984a5b0fd9d",
-  "mergeDetails": {
-   "uretici": "Namet",
-   "saklama": "Buzdolabında 4°C ve altında saklayınız.",
-   "mensei": "Türkiye"
+  "id": "93267fc8-d21e-491d-81ce-c5a7991534aa",
+  "patch": {
+   "is_active": false
   }
  },
  {
-  "id": "c084f320-040d-49a7-a4b4-216c88f0531d",
-  "mergeDetails": {
-   "uretici": "Pınar",
-   "saklama": "Buzdolabında 4°C ve altında saklayınız.",
-   "mensei": "Türkiye"
+  "id": "042e704e-3c35-4599-a8b3-2a9fc7fac599",
+  "patch": {
+   "is_active": false
   }
  },
  {
-  "id": "3d0e2ec8-bbfa-4790-a2f6-65d96d425786",
-  "mergeDetails": {
-   "uretici": "Banvit",
-   "saklama": "Buzdolabında 4°C ve altında saklayınız.",
-   "mensei": "Türkiye"
+  "id": "d94a9edc-47d5-4a49-b87b-903d84615fc3",
+  "patch": {
+   "is_active": false
   }
  },
  {
-  "id": "af77d909-27d7-4850-b664-3f5a2fe54ed6",
-  "mergeDetails": {
-   "uretici": "Namet",
-   "saklama": "Buzdolabında 4°C ve altında saklayınız.",
-   "mensei": "Türkiye"
+  "id": "7a961e4d-37ff-44a7-a92d-f8a5e09dda56",
+  "patch": {
+   "is_active": false
   }
  },
  {
-  "id": "c95b0e57-6d8d-406e-b724-4d493f76a3c0",
-  "mergeDetails": {
-   "uretici": "Pınar",
-   "saklama": "Buzdolabında 4°C ve altında saklayınız.",
-   "mensei": "Türkiye"
+  "id": "f4b7c975-8e8c-42ec-8fcf-d1c66f1e8c13",
+  "patch": {
+   "is_active": false
   }
  },
  {
-  "id": "50234d5d-b6ef-4acc-95e0-abd36cdfaf10",
-  "mergeDetails": {
-   "uretici": "Namet",
-   "saklama": "Buzdolabında 4°C ve altında saklayınız.",
-   "mensei": "Türkiye"
+  "id": "f2226624-e561-4a72-83ad-59d093b05449",
+  "patch": {
+   "is_active": false
   }
  },
  {
-  "id": "e0cbcfef-1ba4-444e-8afa-a7759bbf360a",
-  "mergeDetails": {
-   "uretici": "Banvit",
-   "saklama": "Buzdolabında 4°C ve altında saklayınız.",
-   "mensei": "Türkiye"
-  }
- },
- {
-  "id": "bca93cee-b242-4ce5-96bd-0fd34a0260f5",
-  "mergeDetails": {
-   "uretici": "Banvit",
-   "saklama": "Buzdolabında 4°C ve altında saklayınız.",
-   "mensei": "Türkiye"
-  }
- },
- {
-  "id": "af06f919-c974-4177-adc6-fe14408f411e",
-  "mergeDetails": {
-   "uretici": "Banvit",
-   "saklama": "Buzdolabında 4°C ve altında saklayınız.",
-   "mensei": "Türkiye"
-  }
- },
- {
-  "id": "fb18ed51-c355-4148-95ee-9cc41c32e46c",
-  "mergeDetails": {
-   "uretici": "Pınar",
-   "saklama": "Buzdolabında 4°C ve altında saklayınız.",
-   "mensei": "Türkiye"
-  }
- },
- {
-  "id": "e59a6ee4-89b1-4e17-a3f9-60546fd32276",
-  "mergeDetails": {
-   "uretici": "Maret",
-   "saklama": "Buzdolabında 4°C ve altında saklayınız.",
-   "mensei": "Türkiye"
-  }
- },
- {
-  "id": "8e7a96f5-6e80-4833-bbb3-0dc44e96c36d",
-  "mergeDetails": {
-   "uretici": "Maret",
-   "saklama": "Buzdolabında 4°C ve altında saklayınız.",
-   "mensei": "Türkiye"
-  }
- },
- {
-  "id": "eb9133d8-b793-47c8-8aaa-c98f97a6083e",
-  "mergeDetails": {
-   "uretici": "Maret",
-   "saklama": "Buzdolabında 4°C ve altında saklayınız.",
-   "mensei": "Türkiye"
-  }
- },
- {
-  "id": "0b51a343-b6e8-4b0b-8b17-35c6aa11bdc5",
-  "mergeDetails": {
-   "uretici": "Banvit",
-   "saklama": "Buzdolabında 4°C ve altında saklayınız.",
-   "mensei": "Türkiye"
-  }
- },
- {
-  "id": "96b742d4-29da-4ec8-bf69-f54e628b0650",
-  "mergeDetails": {
-   "uretici": "Namet",
-   "saklama": "Buzdolabında 4°C ve altında saklayınız.",
-   "mensei": "Türkiye"
-  }
- },
- {
-  "id": "caca8542-c887-46fa-8a7a-57b4c3f80bf1",
-  "mergeDetails": {
-   "uretici": "Banvit",
-   "saklama": "Buzdolabında 4°C ve altında saklayınız.",
-   "mensei": "Türkiye"
-  }
- },
- {
-  "id": "b2844833-9b16-446d-9f72-3f511b0de71f",
-  "mergeDetails": {
-   "uretici": "Namet",
-   "saklama": "Buzdolabında 4°C ve altında saklayınız.",
-   "mensei": "Türkiye"
-  }
- },
- {
-  "id": "37d6d9e0-f9f9-4ef4-b326-7b15fc26d8f3",
-  "mergeDetails": {
-   "uretici": "Banvit",
-   "saklama": "Buzdolabında 4°C ve altında saklayınız.",
-   "mensei": "Türkiye"
-  }
- },
- {
-  "id": "435daed3-8377-44d8-a7ee-29d522856e6f",
-  "mergeDetails": {
-   "uretici": "Namet",
-   "saklama": "Buzdolabında 4°C ve altında saklayınız.",
-   "mensei": "Türkiye"
-  }
- },
- {
-  "id": "f670071c-9d61-4b35-85d2-9a5e4560f943",
-  "mergeDetails": {
-   "uretici": "Maret",
-   "saklama": "Buzdolabında 4°C ve altında saklayınız.",
-   "mensei": "Türkiye"
-  }
- },
- {
-  "id": "4601ef9d-06fc-4f39-8610-d2d8a36b8af7",
-  "mergeDetails": {
-   "uretici": "Maret",
-   "saklama": "Buzdolabında 4°C ve altında saklayınız.",
-   "mensei": "Türkiye"
-  }
- },
- {
-  "id": "0a41662e-c389-4b84-83b6-527c576e0bad",
-  "mergeDetails": {
-   "uretici": "Banvit",
-   "saklama": "Buzdolabında 4°C ve altında saklayınız.",
-   "mensei": "Türkiye"
-  }
- },
- {
-  "id": "e3ea668a-1915-4d5a-8f5b-e7f514689411",
-  "mergeDetails": {
-   "uretici": "Banvit",
-   "saklama": "Buzdolabında 4°C ve altında saklayınız.",
-   "mensei": "Türkiye"
-  }
- },
- {
-  "id": "12a34083-a0f2-4b36-b1af-0aab657fc95c",
-  "mergeDetails": {
-   "uretici": "Namet",
-   "saklama": "Buzdolabında 4°C ve altında saklayınız.",
-   "mensei": "Türkiye"
-  }
- },
- {
-  "id": "13064d89-d78a-497b-8195-e2cd9630b211",
-  "mergeDetails": {
-   "uretici": "Pınar",
-   "saklama": "Buzdolabında 4°C ve altında saklayınız.",
-   "mensei": "Türkiye"
-  }
- },
- {
-  "id": "baec518e-4c34-46b2-bf7e-58c1ffd040ad",
-  "mergeDetails": {
-   "uretici": "Pınar",
-   "saklama": "Buzdolabında 4°C ve altında saklayınız.",
-   "mensei": "Türkiye"
-  }
- },
- {
-  "id": "8add2a6f-a1f2-4fc3-ba67-79a8efb86b75",
-  "mergeDetails": {
-   "uretici": "Namet",
-   "saklama": "Buzdolabında 4°C ve altında saklayınız.",
-   "mensei": "Türkiye"
-  }
- },
- {
-  "id": "cb6e099e-88bf-4955-9a00-5fab9ab37b4e",
-  "mergeDetails": {
-   "uretici": "Maret",
-   "saklama": "Buzdolabında 4°C ve altında saklayınız.",
-   "mensei": "Türkiye"
-  }
- },
- {
-  "id": "0d786ccb-c289-4b7d-baf2-c4f3a7d2dc69",
-  "mergeDetails": {
-   "uretici": "Pınar",
-   "saklama": "Buzdolabında 4°C ve altında saklayınız.",
-   "mensei": "Türkiye"
-  }
- },
- {
-  "id": "d39b4276-8971-4aaa-b430-7b9ddda02c78",
-  "mergeDetails": {
-   "uretici": "Aytaç",
-   "saklama": "Buzdolabında 4°C ve altında saklayınız.",
-   "mensei": "Türkiye"
-  }
- },
- {
-  "id": "7cca394b-2014-474b-aa40-138abc8318f3",
-  "mergeDetails": {
-   "uretici": "Polonez",
-   "saklama": "Buzdolabında 4°C ve altında saklayınız.",
-   "mensei": "Türkiye"
+  "id": "9a91ddb3-3efe-48ed-af0e-c0f4fce4c262",
+  "patch": {
+   "is_active": false
   }
  },
  {
   "id": "340dd76c-dd45-47fc-9cdb-97968322ac35",
-  "mergeDetails": {
-   "uretici": "Apikoğlu",
-   "saklama": "Buzdolabında 4°C ve altında saklayınız.",
-   "mensei": "Türkiye"
-  }
- },
- {
-  "id": "47b43a1b-4f97-454a-bc7f-d13f8caa75c9",
-  "mergeDetails": {
-   "uretici": "Gedik",
-   "saklama": "Buzdolabında 4°C ve altında saklayınız.",
-   "mensei": "Türkiye"
-  }
- },
- {
-  "id": "d7d7c7a3-f6cf-423f-8c4c-54c47c629459",
-  "mergeDetails": {
-   "uretici": "Namet",
-   "saklama": "Buzdolabında 4°C ve altında saklayınız.",
-   "mensei": "Türkiye"
-  }
- },
- {
-  "id": "c61b75a3-536f-417f-a06f-84b922af5502",
-  "mergeDetails": {
-   "uretici": "Maret",
-   "saklama": "Buzdolabında 4°C ve altında saklayınız.",
-   "mensei": "Türkiye"
+  "patch": {
+   "is_active": false
   }
  }
 ]
