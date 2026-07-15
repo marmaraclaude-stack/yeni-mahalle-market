@@ -194,10 +194,22 @@ async function patch() {
   let ok = 0, fail = 0;
   const errors = [];
   for (const op of ops) {
+    let body = op.patch;
+    // mergeDetails: mevcut details JSON'ını çek, verilen anahtarları ekle/üzerine
+    // yaz (diğer alanlar korunur), tam objeyi geri yaz.
+    if (op.mergeDetails) {
+      const cur = await fetch(`${REST}/products?id=eq.${op.id}&select=details`, { headers: H });
+      const row = cur.ok ? (await cur.json())[0] : null;
+      const merged = { ...(row?.details || {}) };
+      for (const [k, v] of Object.entries(op.mergeDetails)) {
+        if (v !== null && v !== undefined && !(typeof v === "string" && !v.trim())) merged[k] = v;
+      }
+      body = { details: merged };
+    }
     const res = await fetch(`${REST}/products?id=eq.${op.id}`, {
       method: "PATCH",
       headers: { ...H, Prefer: "return=minimal" },
-      body: JSON.stringify(op.patch),
+      body: JSON.stringify(body),
     });
     if (res.ok) ok++;
     else { fail++; if (errors.length < 20) errors.push(`${op.id}: ${res.status} ${await res.text()}`); }
