@@ -70,8 +70,10 @@ export default function SortSelect({
     return qs ? `/urunler?${qs}` : "/urunler";
   };
 
-  const currentName =
-    SORT_OPTIONS.find((o) => o.key === current)?.name ?? "Önerilen";
+  const currentOpt = SORT_OPTIONS.find((o) => o.key === current);
+  const currentName = currentOpt?.name ?? "Önerilen";
+  // Tetikte kompakt etiket (dar hapta taşmaz); menüde tam ad gösterilir.
+  const currentShort = currentOpt?.short ?? "Önerilen";
   const isDefault = current === "onerilen";
 
   return (
@@ -89,7 +91,7 @@ export default function SortSelect({
         </span>
         <span className={styles.selText}>
           <span className={styles.selCaption}>Sıralama</span>
-          <span className={styles.selCurrent}>{currentName}</span>
+          <span className={styles.selCurrent}>{currentShort}</span>
         </span>
         <ChevronDown
           size={17}

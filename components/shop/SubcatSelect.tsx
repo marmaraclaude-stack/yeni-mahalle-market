@@ -86,9 +86,11 @@ export default function SubcatSelect({
         </span>
         <span className={styles.selText}>
           <span className={styles.selCaption}>Alt Kategori</span>
-          <span className={styles.selCurrent}>{currentName}</span>
+          <span className={styles.selValueRow}>
+            <span className={styles.selCurrent}>{currentName}</span>
+            <span className={styles.selCount}>{currentCount}</span>
+          </span>
         </span>
-        <span className={styles.selCount}>{currentCount}</span>
         <ChevronDown
           size={17}
           strokeWidth={2.2}

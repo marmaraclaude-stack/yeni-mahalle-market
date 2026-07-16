@@ -5,11 +5,13 @@ import type { Product } from "@/lib/shop/types";
 
 export type SortKey = "onerilen" | "fiyat-artan" | "fiyat-azalan" | "cok-satan";
 
-export const SORT_OPTIONS: { key: SortKey; name: string }[] = [
-  { key: "onerilen", name: "Önerilen" },
-  { key: "cok-satan", name: "Çok Satanlar" },
-  { key: "fiyat-artan", name: "Fiyat: Düşükten Yükseğe" },
-  { key: "fiyat-azalan", name: "Fiyat: Yüksekten Düşüğe" },
+/** name: menüdeki tam etiket · short: tetik butonundaki kompakt etiket
+    (dar/mobil hapta taşmaz). */
+export const SORT_OPTIONS: { key: SortKey; name: string; short: string }[] = [
+  { key: "onerilen", name: "Önerilen", short: "Önerilen" },
+  { key: "cok-satan", name: "Çok Satanlar", short: "Çok Satanlar" },
+  { key: "fiyat-artan", name: "Fiyat: Düşükten Yükseğe", short: "Fiyat: Artan" },
+  { key: "fiyat-azalan", name: "Fiyat: Yüksekten Düşüğe", short: "Fiyat: Azalan" },
 ];
 
 /** Geçersiz/boş parametreyi "onerilen"e indirger. */
