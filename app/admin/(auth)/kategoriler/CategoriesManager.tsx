@@ -1,11 +1,12 @@
 "use client";
 
-// Kategori/alt kategori görünürlük anahtarları — istemci bileşeni.
+// Kategori/alt kategori görünürlük yönetimi — istemci bileşeni.
+// Vitrin tasarım dili: tint ikon karoları, accent switch'ler, hap çipler.
 // Her anahtar iyimser (optimistic) güncellenir; sunucu aksiyonu başarısız
 // olursa eski duruma döner ve uyarı gösterilir.
 
 import { useState, useTransition } from "react";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, LayoutGrid } from "lucide-react";
 import {
   toggleCategoryActive,
   toggleSubcategoryHidden,
@@ -89,14 +90,41 @@ export default function CategoriesManager({
     });
   }
 
+  const totalSubs = categories.reduce((n, c) => n + c.subs.length, 0);
+
   return (
     <>
       {error && <p className={styles.formError}>{error}</p>}
+
+      {/* Özet şeridi — canlı sayılar (anahtarlar değiştikçe güncellenir) */}
+      <div className={kstyles.summary}>
+        <span className={kstyles.summaryChip}>
+          <LayoutGrid size={14} aria-hidden />
+          {categories.length} kategori
+        </span>
+        <span
+          className={`${kstyles.summaryChip}${inactive.size > 0 ? ` ${kstyles.summaryChipWarn}` : ""}`}
+        >
+          <EyeOff size={14} aria-hidden />
+          {inactive.size} pasif kategori
+        </span>
+        <span
+          className={`${kstyles.summaryChip}${hidden.size > 0 ? ` ${kstyles.summaryChipWarn}` : ""}`}
+        >
+          <EyeOff size={14} aria-hidden />
+          {hidden.size} gizli alt kategori
+          <span className={kstyles.summaryMuted}>/ {totalSubs}</span>
+        </span>
+      </div>
+
       <div className={kstyles.grid}>
         {categories.map((c) => {
           const [bg, fg] = CATEGORY_TINTS[c.tint] ?? CATEGORY_TINTS[0];
           const Icon = iconFor(c.icon);
           const catOff = inactive.has(c.slug);
+          const hiddenCount = c.subs.filter((s) =>
+            hidden.has(`${c.slug}/${s.slug}`),
+          ).length;
           return (
             <section
               key={c.slug}
@@ -108,29 +136,30 @@ export default function CategoriesManager({
                   style={{ background: bg, color: fg }}
                   aria-hidden="true"
                 >
-                  <Icon size={18} strokeWidth={1.9} />
+                  <Icon size={20} strokeWidth={1.9} />
                 </span>
                 <div className={kstyles.headText}>
                   <span className={kstyles.name}>{c.name}</span>
-                  <span className={kstyles.state}>
-                    {catOff ? "Vitrinde gizli" : "Vitrinde görünür"}
+                  <span
+                    className={`${kstyles.state}${catOff ? ` ${kstyles.stateOff}` : ""}`}
+                  >
+                    {catOff
+                      ? "Vitrinde gizli"
+                      : hiddenCount > 0
+                        ? `Görünür · ${hiddenCount} alt kategori gizli`
+                        : "Vitrinde görünür"}
                   </span>
                 </div>
+                {/* Accent switch — açık: vitrinde görünür */}
                 <button
                   type="button"
+                  role="switch"
+                  aria-checked={!catOff}
                   onClick={() => flipCategory(c.slug)}
-                  className={`${styles.statusPill} ${
-                    catOff ? styles["statusPill--muted"] : styles["statusPill--ok"]
-                  }`}
-                  aria-pressed={!catOff}
+                  className={`${kstyles.switch}${!catOff ? ` ${kstyles.switchOn}` : ""}`}
                   aria-label={`${c.name} kategorisini ${catOff ? "aktifleştir" : "pasifleştir"}`}
                 >
-                  {catOff ? (
-                    <EyeOff size={14} aria-hidden />
-                  ) : (
-                    <Eye size={14} aria-hidden />
-                  )}
-                  {catOff ? "Pasif" : "Aktif"}
+                  <span className={kstyles.knob} aria-hidden="true" />
                 </button>
               </header>
 

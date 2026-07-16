@@ -30,6 +30,7 @@ import {
   toggleProductActive,
   updateProduct,
   updateProductSortBulk,
+  updateSubcatSortBulk,
 } from "@/lib/shop/admin-actions";
 import { SHOP_CATEGORIES, CATEGORY_TINTS, categoryBySlug } from "@/lib/shop/categories";
 import {
@@ -522,6 +523,7 @@ export default function ProductsTable({
   filterSlot,
   openForm = false,
   reorderable = false,
+  reorderCategorySlug,
 }: {
   products: Product[];
   chips: ChipData[];
@@ -535,6 +537,8 @@ export default function ProductsTable({
   openForm?: boolean;
   /** Tek kategori görünümünde sürükle-bırak sıralama açık mı? */
   reorderable?: boolean;
+  /** Sıralama kaydında hedef kategori (alt küme birleştirmesi için şart). */
+  reorderCategorySlug?: string;
 }) {
   const router = useRouter();
   const [showForm, setShowForm] = useState(openForm);
@@ -589,14 +593,24 @@ export default function ProductsTable({
     setOverId(null);
   };
 
-  /** Yeni sırayı kalıcılaştır: sort = pozisyon x 10 (araya elle ekleme payı). */
+  /** Yeni sırayı kalıcılaştır. Kategori slug'ı varsa alt-küme-farkındalıklı
+     kayıt kullanılır: liste ister kategori tamamı ister alt kategori olsun,
+     üyeler kategori içindeki kendi slotlarına yerleşir ve kategori geneli
+     yeniden numaralanır — alt küme dışındaki ürünlerin sırası bozulmaz. */
   function saveOrder() {
     setSavingOrder(true);
     startTransition(async () => {
       try {
-        await updateProductSortBulk(
-          items.map((p, i) => ({ id: p.id, sort: (i + 1) * 10 })),
-        );
+        if (reorderCategorySlug) {
+          await updateSubcatSortBulk(
+            reorderCategorySlug,
+            items.map((p) => p.id),
+          );
+        } else {
+          await updateProductSortBulk(
+            items.map((p, i) => ({ id: p.id, sort: (i + 1) * 10 })),
+          );
+        }
         router.refresh();
       } catch (e) {
         window.alert(
@@ -606,6 +620,17 @@ export default function ProductsTable({
         setSavingOrder(false);
       }
     });
+  }
+
+  /** Tek tık otomatik sıralama: çok satan işaretliler öne (kararlı sıralama —
+     kendi aralarındaki ve kalanların bağıl sırası korunur). Kaydetmek için
+     yine "Sırayı Kaydet" kullanılır. */
+  function autoSortBestSellers() {
+    setItems((prev) =>
+      [...prev].sort(
+        (a, b) => Number(b.is_best_seller) - Number(a.is_best_seller),
+      ),
+    );
   }
 
   function handleCreate(e: React.FormEvent<HTMLFormElement>) {
@@ -836,26 +861,38 @@ export default function ProductsTable({
               ? "Sıra değişti — kaydetmeyi unutmayın. Vitrindeki gösterim bu sıraya göre güncellenecek."
               : "Satırları sürükleyerek ya da Sıra kutusuna pozisyon yazarak vitrindeki gösterim sırasını düzenleyin."}
           </span>
-          {orderChanged && (
-            <span className={pstyles.orderBarBtns}>
-              <button
-                type="button"
-                onClick={() => setItems(products)}
-                disabled={savingOrder}
-                className={styles.btnRow}
-              >
-                Vazgeç
-              </button>
-              <button
-                type="button"
-                onClick={saveOrder}
-                disabled={savingOrder}
-                className={`${styles.btnRow} ${styles["btnRow--primary"]}`}
-              >
-                {savingOrder ? "Kaydediliyor…" : "Sırayı Kaydet"}
-              </button>
-            </span>
-          )}
+          <span className={pstyles.orderBarBtns}>
+            <button
+              type="button"
+              onClick={autoSortBestSellers}
+              disabled={savingOrder}
+              className={styles.btnRow}
+              title="Çok satan işaretli ürünleri listenin başına al (kaydetmek için Sırayı Kaydet)"
+            >
+              <Star size={13} aria-hidden />
+              Çok Satanları Öne Al
+            </button>
+            {orderChanged && (
+              <>
+                <button
+                  type="button"
+                  onClick={() => setItems(products)}
+                  disabled={savingOrder}
+                  className={styles.btnRow}
+                >
+                  Vazgeç
+                </button>
+                <button
+                  type="button"
+                  onClick={saveOrder}
+                  disabled={savingOrder}
+                  className={`${styles.btnRow} ${styles["btnRow--primary"]}`}
+                >
+                  {savingOrder ? "Kaydediliyor…" : "Sırayı Kaydet"}
+                </button>
+              </>
+            )}
+          </span>
         </div>
       )}
 

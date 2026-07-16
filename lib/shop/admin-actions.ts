@@ -2294,3 +2294,60 @@ export async function duplicateProduct(
   }
   throw new Error(`Ürün çoğaltılamadı: ${lastError}`);
 }
+
+/** ALT KÜME sıralamasını kaydet: verilen kategori içinde, orderedIds'teki
+ *  ürünler kategori listesindeki KENDİ pozisyon slotlarına yeni sırayla
+ *  yerleştirilir ve tüm kategori 10,20,30... olarak yeniden numaralanır.
+ *  Böylece alt kategori içi sıra değişir ama alt küme dışındaki ürünlerin
+ *  kategorideki bağıl konumu bozulmaz. Tam listede (subset = kategori tamamı)
+ *  updateProductSortBulk ile eşdeğer sonuç verir. */
+export async function updateSubcatSortBulk(
+  categorySlug: string,
+  orderedIds: string[],
+): Promise<void> {
+  await requireAdmin();
+  if (!categorySlug) throw new Error("Kategori belirtilmedi.");
+  if (orderedIds.length === 0) return;
+  if (orderedIds.length > 1200) {
+    throw new Error("Tek seferde en çok 1200 ürün sıralanabilir.");
+  }
+
+  const supabase = createAdminClient();
+  const { data, error } = await supabase
+    .from("products")
+    .select("id")
+    .eq("category_slug", categorySlug)
+    .order("sort")
+    .order("name")
+    .order("id")
+    .range(0, 999);
+  if (error) throw new Error(`Kategori listesi okunamadı: ${error.message}`);
+
+  const all = (data ?? []) as { id: string }[];
+  const subset = new Set(orderedIds);
+  let k = 0;
+  const finalIds = all.map((row) => (subset.has(row.id) ? orderedIds[k++] : row.id));
+  if (k !== orderedIds.length) {
+    throw new Error(
+      "Sıralanan liste kategoriyle eşleşmedi (liste güncel olmayabilir). Sayfayı yenileyip tekrar deneyin.",
+    );
+  }
+
+  const CHUNK = 20;
+  for (let i = 0; i < finalIds.length; i += CHUNK) {
+    const chunk = finalIds.slice(i, i + CHUNK);
+    const results = await Promise.all(
+      chunk.map((id, j) =>
+        supabase
+          .from("products")
+          .update({ sort: (i + j + 1) * 10 })
+          .eq("id", id),
+      ),
+    );
+    const failed = results.find((r) => r.error);
+    if (failed?.error) {
+      throw new Error(`Sıralama kaydedilemedi: ${failed.error.message}`);
+    }
+  }
+  revalidateProductPages();
+}

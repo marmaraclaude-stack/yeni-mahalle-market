@@ -133,6 +133,12 @@ export default async function AdminProductsPage({
   const parsedPage = Number.parseInt(sayfa ?? "1", 10);
   const requestedPage = Number.isFinite(parsedPage) && parsedPage >= 1 ? parsedPage : 1;
 
+  // SIRALAMA MODU: tek kategori (alt kategori seçili olabilir) + varsayılan
+  // sıra, arama/hızlı filtre yok. Alt kümede sıralama, kategori genelini
+  // bozmadan kaydedilir (updateSubcatSortBulk). Pozisyonların listeyi tam
+  // kapsaması için bu modda sayfalama kapatılır.
+  const reorderMode = Boolean(category) && !search && !filtre && !sirala;
+
   let products: Product[] = [];
   let loadError: string | null = null;
   let page = 1;
@@ -146,12 +152,6 @@ export default async function AdminProductsPage({
 
   try {
     const supabase = createAdminClient();
-
-    // SIRALAMA MODU: tek kategori + varsayılan sıra (arama/alt/filtre yok).
-    // Sürükle-bırak pozisyonlarının kategorinin TAMAMINI kapsaması için tüm
-    // satırlar TEK sayfada gösterilir (sayfalama kapatılır); aksi hâlde yalnız
-    // görünen sayfa numaralanır ve diğer sayfadaki ürünler öne fırlardı.
-    const reorderMode = Boolean(category) && !altk && !search && !filtre && !sirala;
 
     if (altk || reorderMode) {
       // ALT KATEGORI / SIRALAMA YOLU: kategorinin tum urunleri tek sorguyla
@@ -463,10 +463,10 @@ export default async function AdminProductsPage({
           pagination={pagination}
           filterSlot={filterSlot}
           openForm={yeni === "1"}
-          /* Sürükle-bırak sıralama: yalnız TEK kategori görünümünde ve
-             varsayılan sırada (arama/alt/hızlı filtre/sıralama yokken) —
-             pozisyonlar ancak o zaman vitrindeki gerçek sırayla eşleşir. */
-          reorderable={Boolean(category) && !altk && !search && !filtre && !sirala}
+          /* Sürükle-bırak sıralama: tek kategori (alt kategori dahil) +
+             varsayılan sıra. Alt küme kaydı kategori genelini bozmaz. */
+          reorderable={reorderMode}
+          reorderCategorySlug={reorderMode ? category : undefined}
         />
       )}
     </>
