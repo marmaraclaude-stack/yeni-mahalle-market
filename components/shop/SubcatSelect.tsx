@@ -85,7 +85,9 @@ export default function SubcatSelect({
           <ListFilter size={16} strokeWidth={2.1} />
         </span>
         <span className={styles.selText}>
-          <span className={styles.selCaption}>Alt Kategori</span>
+          {/* Literal büyük harf: CSS text-transform Türkçe İ'yi bozuyordu
+             ("KATEGORI"); metin doğrudan doğru yazımla verilir. */}
+          <span className={styles.selCaption}>ALT KATEGORİ</span>
           <span className={styles.selValueRow}>
             <span className={styles.selCurrent}>{currentName}</span>
             <span className={styles.selCount}>{currentCount}</span>

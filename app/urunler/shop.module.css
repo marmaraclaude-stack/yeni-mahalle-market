@@ -80,6 +80,14 @@
   color: var(--ink);
 }
 .searchInput::placeholder { color: var(--gray-400); }
+/* Tarayıcının yerleşik arama temizleme (x) butonu gizlenir: bizim kendi
+   temizle linkimiz var, iki çarpı yan yana görünüyordu. */
+.searchInput::-webkit-search-cancel-button,
+.searchInput::-webkit-search-decoration {
+  -webkit-appearance: none;
+  appearance: none;
+  display: none;
+}
 .searchBtn {
   flex-shrink: 0;
   height: 36px;
@@ -1352,16 +1360,17 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 4px; /* başlık ile değer arası nefes payı */
+  gap: 6px; /* başlık ile değer arası nefes payı */
   text-align: left;
 }
+/* Başlık metni JSX'te doğru Türkçe büyük harfle yazılır (text-transform
+   Türkçe noktalı İ'yi bozduğu için kullanılmaz). */
 .selCaption {
   max-width: 100%;
   font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.07em;
-  text-transform: uppercase;
-  color: var(--gray-400);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--gray-500);
   line-height: 1;
   white-space: nowrap;
   overflow: hidden;
@@ -1387,8 +1396,9 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
+/* Aktif seçimde değer metni SİYAH kalır (turuncu metin kalabalığı yerine
+   sakin görünüm); aktiflik yalnız ikon rozetinin dolmasıyla anlatılır. */
 .selBtnActive .selCurrent {
-  color: var(--accent-deep);
   font-weight: 700;
 }
 /* Sayaç — değer satırının yanında sessiz, nokta ayraçlı gri rakam

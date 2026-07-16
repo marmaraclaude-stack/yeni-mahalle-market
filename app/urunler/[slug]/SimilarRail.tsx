@@ -44,8 +44,15 @@ export default function SimilarRail({ products }: { products: Product[] }) {
   const scroll = (dir: 1 | -1) => {
     const el = ref.current;
     if (!el) return;
-    // Bir "sayfa" kaydır; snap kartları hizalar (yarım kart kalmaz).
-    el.scrollBy({ left: dir * el.clientWidth, behavior: "smooth" });
+    // Mobilde kartlar TEK TEK kayar (bir kart genişliği + boşluk);
+    // masaüstünde oklar bir "sayfa" ilerletir. Snap karta hizalar.
+    const mobile =
+      typeof window !== "undefined" &&
+      window.matchMedia("(max-width: 640px)").matches;
+    const card = el.querySelector<HTMLElement>(":scope > *");
+    const step =
+      mobile && card ? card.getBoundingClientRect().width + 12 : el.clientWidth;
+    el.scrollBy({ left: dir * step, behavior: "smooth" });
   };
 
   return (

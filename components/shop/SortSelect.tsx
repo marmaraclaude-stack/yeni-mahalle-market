@@ -89,7 +89,7 @@ export default function SortSelect({
           <ArrowDownUp size={16} strokeWidth={2.1} />
         </span>
         <span className={styles.selText}>
-          <span className={styles.selCaption}>Sıralama</span>
+          <span className={styles.selCaption}>SIRALAMA</span>
           <span className={styles.selCurrent}>{currentShort}</span>
         </span>
         <ChevronDown

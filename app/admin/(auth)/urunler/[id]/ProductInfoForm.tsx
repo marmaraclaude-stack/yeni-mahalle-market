@@ -9,6 +9,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { formatGrams, isWeightBased, type Product } from "@/lib/shop/types";
 import { subcatsFor } from "@/lib/shop/subcategories";
+import { producerForBrand } from "@/lib/shop/brands";
 import styles from "../../../admin.module.css";
 
 interface Props {
@@ -31,6 +32,10 @@ export default function ProductInfoForm({
   units,
 }: Props) {
   const [byWeight, setByWeight] = useState(product.sold_by_weight);
+  // Üretici/işletmeci: bilinen marka yazılınca otomatik dolar (brands.ts),
+  // elle düzenlenirse otomatik doldurma o üründe devre dışı kalır.
+  const [uretici, setUretici] = useState(product.details?.uretici ?? "");
+  const [ureticiAuto, setUreticiAuto] = useState(false);
   const [category, setCategory] = useState(product.category_slug);
   const [subcategory, setSubcategory] = useState(
     product.subcategory_slug ?? "",
@@ -108,6 +113,16 @@ export default function ProductInfoForm({
             name="brand"
             defaultValue={product.brand}
             className={styles.input}
+            /* Bilinen marka yazılınca üretici alanı otomatik dolar; alan boşsa
+               ya da önceki değer de otomatik dolmuşsa üzerine yazılır. Elle
+               girilmiş üretici asla ezilmez. */
+            onChange={(e) => {
+              const p = producerForBrand(e.target.value);
+              if (p && (uretici.trim() === "" || ureticiAuto)) {
+                setUretici(p);
+                setUreticiAuto(true);
+              }
+            }}
           />
         </div>
 
@@ -398,9 +413,13 @@ export default function ProductInfoForm({
               <input
                 id="p-det-uretici"
                 name="det_uretici"
-                defaultValue={product.details?.uretici ?? ""}
+                value={uretici}
+                onChange={(e) => {
+                  setUretici(e.target.value);
+                  setUreticiAuto(false); // elle düzenlendi; artık otomatik ezilmez
+                }}
                 className={styles.input}
-                placeholder="NAMET GIDA SAN. VE TİC. A.Ş."
+                placeholder="Marka yazınca otomatik dolar; elle de düzenlenebilir"
               />
             </div>
             <div className={styles.fieldFull}>

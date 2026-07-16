@@ -981,9 +981,11 @@
 @media (max-width: 860px) {
   .railItem { flex-basis: calc((100% - 3 * 12px) / 3.4); }
 }
-/* Mobil: 2 tam kart + üçüncünün kenarı (peek) */
+/* Mobil: 2 TAM kart (yarım kart yok); zorunlu snap ile kaydırma her zaman
+   kart sınırında biter, kartlar tek tek akar. */
 @media (max-width: 640px) {
-  .railItem { flex-basis: calc((100% - 2 * 12px) / 2.35); }
+  .rail { scroll-snap-type: x mandatory; }
+  .railItem { flex-basis: calc((100% - 12px) / 2); }
 }
 
 /* (İlerleme çubuğu kaldırıldı; gezinme yalnız başlıktaki oklarla ve
