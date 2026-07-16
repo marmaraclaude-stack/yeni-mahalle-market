@@ -8,7 +8,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { Check, ChevronDown, ListFilter } from "lucide-react";
+import { ChevronDown, ListFilter } from "lucide-react";
 import styles from "@/app/urunler/shop.module.css";
 
 export interface SubTab {
@@ -116,14 +116,6 @@ export default function SubcatSelect({
               >
                 <span className={styles.selItemName}>{it.name}</span>
                 <span className={styles.selItemCount}>{it.count}</span>
-                {on && (
-                  <Check
-                    size={16}
-                    strokeWidth={2.4}
-                    className={styles.selItemCheck}
-                    aria-hidden="true"
-                  />
-                )}
               </Link>
             );
           })}

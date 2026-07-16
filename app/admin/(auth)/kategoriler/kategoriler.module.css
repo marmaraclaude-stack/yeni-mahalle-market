@@ -1,0 +1,84 @@
+/* Kategori görünürlüğü kartları — /admin/kategoriler */
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 14px;
+  margin-top: 18px;
+}
+
+.card {
+  background: var(--white, #fff);
+  border: 1px solid var(--gray-200, #e5e5e5);
+  border-radius: 14px;
+  padding: 14px;
+  transition: opacity 160ms ease, border-color 160ms ease;
+}
+.cardOff {
+  opacity: 0.62;
+  border-style: dashed;
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+}
+.icon {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+}
+.headText {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.name {
+  font-weight: 700;
+  font-size: 14.5px;
+  color: var(--ink, #111);
+  line-height: 1.2;
+}
+.state {
+  font-size: 11.5px;
+  color: var(--gray-500, #737373);
+}
+
+.subList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--gray-100, #f5f5f5);
+}
+.subChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 11px;
+  border-radius: 9px;
+  border: 1px solid var(--gray-200, #e5e5e5);
+  background: var(--white, #fff);
+  color: var(--gray-700, #404040);
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 140ms ease, border-color 140ms ease, color 140ms ease,
+    opacity 140ms ease;
+}
+.subChip:hover {
+  border-color: var(--gray-300, #d4d4d4);
+}
+/* Gizli alt kategori: soluk + üstü çizili */
+.subChipOff {
+  opacity: 0.55;
+  text-decoration: line-through;
+  background: var(--gray-50, #fafafa);
+}

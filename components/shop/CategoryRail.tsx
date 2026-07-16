@@ -35,11 +35,17 @@ export default function CategoryRail({
   active,
   q,
   ozel,
+  hiddenCats,
 }: {
   active?: string;
   q?: string;
   ozel?: string;
+  /** Admin'den pasifleştirilen kategori slug'ları — rail + sheet'te gizlenir. */
+  hiddenCats?: string[];
 }) {
+  const cats = hiddenCats?.length
+    ? SHOP_CATEGORIES.filter((c) => !hiddenCats.includes(c.slug))
+    : SHOP_CATEGORIES;
   const barRef = useRef<HTMLDivElement>(null);
   const railRef = useRef<HTMLElement>(null);
   const [sheet, setSheet] = useState(false);
@@ -143,7 +149,7 @@ export default function CategoryRail({
             );
           })}
 
-          {SHOP_CATEGORIES.map((c) => {
+          {cats.map((c) => {
             const [bg, fg] = CATEGORY_TINTS[c.tint] ?? CATEGORY_TINTS[0];
             const Icon = iconFor(c.icon);
             const isActive = active === c.slug;
@@ -227,7 +233,7 @@ export default function CategoryRail({
             </div>
 
             <div className={styles.sheetGrid}>
-              {SHOP_CATEGORIES.map((c) => {
+              {cats.map((c) => {
                 const [bg, fg] = CATEGORY_TINTS[c.tint] ?? CATEGORY_TINTS[0];
                 const Icon = iconFor(c.icon);
                 const isActive = active === c.slug;

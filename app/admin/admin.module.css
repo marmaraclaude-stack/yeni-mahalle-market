@@ -3020,3 +3020,12 @@
   align-items: center;
   gap: 5px;
 }
+
+/* Başlık satırı: solda başlık/alt başlık, sağda aksiyon (ör. Ürünü Çoğalt) */
+.titleRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+}

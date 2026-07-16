@@ -20,6 +20,7 @@ import type {
   OrderStatus,
   PaymentMethod,
   PaymentStatus,
+  Product,
   ShopSettings,
   Vehicle,
 } from "@/lib/shop/types";
@@ -2105,4 +2106,191 @@ export async function markSessionRead(
   }
   revalidatePath("/admin/sohbetler");
   return { ok: true };
+}
+
+// ------------------------------------------------------------
+// Katalog görünürlüğü (kategori / alt kategori pasifleştirme)
+// ------------------------------------------------------------
+
+/** Vitrin sayfalarının önbelleğini tazele (kategori görünürlüğü değişince). */
+function revalidateCatalogPages(): void {
+  revalidatePath("/");
+  revalidatePath("/urunler");
+  revalidatePath("/admin/kategoriler");
+}
+
+/** Kategoriyi vitrinde aktif/pasif yap. Pasif kategori (ürünleriyle birlikte)
+ *  ana sayfa ızgarası, kategori raili/sidebar'ı, listeler ve aramada gizlenir. */
+export async function toggleCategoryActive(
+  slug: string,
+  active: boolean,
+): Promise<void> {
+  await requireAdmin();
+  const supabase = createAdminClient();
+  const { error } = await supabase
+    .from("shop_categories")
+    .update({ is_active: active })
+    .eq("slug", slug);
+  if (error) throw new Error(`Kategori güncellenemedi: ${error.message}`);
+  revalidateCatalogPages();
+}
+
+/** Alt kategoriyi vitrinde gizle/göster (shop_hidden_subcats tablosu). */
+export async function toggleSubcategoryHidden(
+  categorySlug: string,
+  subcategorySlug: string,
+  hidden: boolean,
+): Promise<void> {
+  await requireAdmin();
+  const supabase = createAdminClient();
+  if (hidden) {
+    const { error } = await supabase
+      .from("shop_hidden_subcats")
+      .upsert(
+        { category_slug: categorySlug, subcategory_slug: subcategorySlug },
+        { onConflict: "category_slug,subcategory_slug" },
+      );
+    if (error) throw new Error(`Alt kategori gizlenemedi: ${error.message}`);
+  } else {
+    const { error } = await supabase
+      .from("shop_hidden_subcats")
+      .delete()
+      .eq("category_slug", categorySlug)
+      .eq("subcategory_slug", subcategorySlug);
+    if (error) throw new Error(`Alt kategori gösterilemedi: ${error.message}`);
+  }
+  revalidateCatalogPages();
+}
+
+// ------------------------------------------------------------
+// Toplu sıra güncelleme (sürükle-bırak sıralama)
+// ------------------------------------------------------------
+
+/** Ürünlerin gösterim sırasını toplu güncelle. Admin tablosundaki
+ *  sürükle-bırak sıralaması kaydedilirken çağrılır; vitrin sort'a göre
+ *  dizdiğinden değişiklik /urunler'e doğrudan yansır. */
+export async function updateProductSortBulk(
+  pairs: { id: string; sort: number }[],
+): Promise<void> {
+  await requireAdmin();
+  if (pairs.length === 0) return;
+  if (pairs.length > 1200) throw new Error("Tek seferde en çok 1200 ürün sıralanabilir.");
+  for (const p of pairs) {
+    if (!p.id || !Number.isFinite(p.sort)) {
+      throw new Error("Geçersiz sıra verisi.");
+    }
+  }
+  const supabase = createAdminClient();
+  // 20'şerlik parçalar halinde paralel güncelle (tek tek ama hızlı).
+  const CHUNK = 20;
+  for (let i = 0; i < pairs.length; i += CHUNK) {
+    const chunk = pairs.slice(i, i + CHUNK);
+    const results = await Promise.all(
+      chunk.map((p) =>
+        supabase
+          .from("products")
+          .update({ sort: Math.round(p.sort) })
+          .eq("id", p.id),
+      ),
+    );
+    const failed = results.find((r) => r.error);
+    if (failed?.error) {
+      throw new Error(`Sıralama kaydedilemedi: ${failed.error.message}`);
+    }
+  }
+  revalidateProductPages();
+}
+
+// ------------------------------------------------------------
+// Ürün çoğaltma
+// ------------------------------------------------------------
+
+/** Ürünü tüm alanlarıyla kopyala: ad "(Kopyası)" son ekiyle, yeni slug,
+ *  PASİF (is_active=false) olarak oluşturulur — düzenleyip aktifleştirilir.
+ *  Görsel varsa storage'da yeni bir dosyaya KOPYALANIR (iki ürün aynı dosyayı
+ *  paylaşmaz; biri silinince diğerinin görseli bozulmaz). */
+export async function duplicateProduct(
+  id: string,
+): Promise<{ id: string; slug: string }> {
+  await requireAdmin();
+  const supabase = createAdminClient();
+
+  const { data: src, error: readError } = await supabase
+    .from("products")
+    .select("*")
+    .eq("id", id)
+    .maybeSingle();
+  if (readError || !src) {
+    throw new Error(`Kaynak ürün okunamadı: ${readError?.message ?? "bulunamadı"}`);
+  }
+  const source = src as Product;
+
+  const copyName = `${source.name} (Kopyası)`;
+  const base =
+    slugify([source.brand ?? "", copyName, source.size_text ?? ""].join(" ")) ||
+    "urun-kopyasi";
+
+  // Görseli storage içinde kopyala (varsa ve bizim bucket'taysa).
+  let copiedImageUrl: string | null = null;
+  const srcPath = storagePathFromPublicUrl(source.image_url);
+  if (srcPath) {
+    try {
+      const ext = srcPath.includes(".") ? srcPath.slice(srcPath.lastIndexOf(".")) : "";
+      const dir = srcPath.includes("/") ? srcPath.slice(0, srcPath.lastIndexOf("/") + 1) : "";
+      const newPath = `${dir}kopya-${Date.now()}-${randomInt(1000, 9999)}${ext}`;
+      const { error: copyError } = await supabase.storage
+        .from(IMAGE_BUCKET)
+        .copy(srcPath, newPath);
+      if (!copyError) {
+        const { data: pub } = supabase.storage
+          .from(IMAGE_BUCKET)
+          .getPublicUrl(newPath);
+        copiedImageUrl = pub?.publicUrl ?? null;
+      }
+    } catch {
+      copiedImageUrl = null; // görsel kopyalanamazsa ürün görselsiz oluşur
+    }
+  }
+
+  // Slug çakışmasında 3 kez rastgele son ekle dene (createProduct deseni).
+  let lastError = "";
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const slug =
+      attempt === 0 ? base : `${base}-${Math.random().toString(36).slice(2, 6)}`;
+    const { data: inserted, error } = await supabase
+      .from("products")
+      .insert({
+        category_slug: source.category_slug,
+        subcategory_slug: source.subcategory_slug,
+        name: copyName,
+        slug,
+        brand: source.brand,
+        size_text: source.size_text,
+        description: source.description,
+        price: source.price,
+        compare_at_price: source.compare_at_price,
+        unit: source.unit,
+        sold_by_weight: source.sold_by_weight,
+        weight_min_grams: source.weight_min_grams,
+        weight_step_grams: source.weight_step_grams,
+        pack_prices: source.pack_prices,
+        stock_qty: source.stock_qty,
+        details: source.details,
+        image_url: copiedImageUrl,
+        in_stock: source.in_stock,
+        is_featured: source.is_featured,
+        is_best_seller: source.is_best_seller,
+        sort: source.sort,
+        is_active: false, // kopya PASİF doğar; düzenleyip aktifleştirin
+      })
+      .select("id, slug")
+      .single();
+    if (!error && inserted) {
+      revalidateProductPages();
+      return inserted as { id: string; slug: string };
+    }
+    lastError = error?.message ?? "bilinmeyen hata";
+    if (error?.code !== "23505") break;
+  }
+  throw new Error(`Ürün çoğaltılamadı: ${lastError}`);
 }

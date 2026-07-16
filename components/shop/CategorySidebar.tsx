@@ -42,13 +42,22 @@ export default function CategorySidebar({
   q,
   ozel,
   alt,
+  hiddenCats,
+  hiddenSubs,
 }: {
   active?: string;
   q?: string;
   ozel?: string;
   /** Aktif alt kategori slug'ı (?alt=...); yalnız aktif kategoride vurgu. */
   alt?: string;
+  /** Admin'den pasifleştirilen kategori slug'ları — listede gizlenir. */
+  hiddenCats?: string[];
+  /** Gizlenen alt kategoriler — "kategori/alt" anahtarları. */
+  hiddenSubs?: string[];
 }) {
+  const cats = hiddenCats?.length
+    ? SHOP_CATEGORIES.filter((c) => !hiddenCats.includes(c.slug))
+    : SHOP_CATEGORIES;
   return (
     <aside className={styles.sidebar} aria-label="Kategoriler">
       {/* Keşfet grubu — tüm ürünler / indirimli / çok satan */}
@@ -94,14 +103,16 @@ export default function CategorySidebar({
           Tümü
         </Link>
 
-        {SHOP_CATEGORIES.map((c) => {
+        {cats.map((c) => {
           const [bg, fg] = CATEGORY_TINTS[c.tint] ?? CATEGORY_TINTS[0];
           const Icon = iconFor(c.icon);
           const isActive = active === c.slug;
           // Accordion: alt kategoriler YALNIZ aktif kategorinin altında açılır
           // (aktif kategori = açık kategori; başka kategori açmak isteyen ona
           // tıklayınca gider ve orada açılır). Arama/özel görünümde alt UI yok.
-          const subs = isActive && !q && !ozel ? subcatsFor(c.slug) : [];
+          const subs = (isActive && !q && !ozel ? subcatsFor(c.slug) : []).filter(
+            (s) => !hiddenSubs?.includes(`${c.slug}/${s.slug}`),
+          );
           return (
             <Fragment key={c.slug}>
               <Link

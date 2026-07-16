@@ -147,11 +147,16 @@ export default async function AdminProductsPage({
   try {
     const supabase = createAdminClient();
 
-    if (altk) {
-      // ALT KATEGORI YOLU: altk DB kolonu degil, kural tabanli. Kategorinin
-      // tum urunleri tek sorguyla cekilir (kategori basina <100 urun; 1000'lik
-      // tek range yeterli), assignSubcategory ile bellekte filtrelenir. Cip
-      // sayilari, hizli filtre ve 50'lik sayfalama bellekte uygulanir.
+    // SIRALAMA MODU: tek kategori + varsayılan sıra (arama/alt/filtre yok).
+    // Sürükle-bırak pozisyonlarının kategorinin TAMAMINI kapsaması için tüm
+    // satırlar TEK sayfada gösterilir (sayfalama kapatılır); aksi hâlde yalnız
+    // görünen sayfa numaralanır ve diğer sayfadaki ürünler öne fırlardı.
+    const reorderMode = Boolean(category) && !altk && !search && !filtre && !sirala;
+
+    if (altk || reorderMode) {
+      // ALT KATEGORI / SIRALAMA YOLU: kategorinin tum urunleri tek sorguyla
+      // cekilir (1000'lik tek range yeterli); altk varsa assignSubcategory ile
+      // bellekte filtrelenir. Cip sayilari ve filtreler bellekte uygulanir.
       let subQuery = supabase
         .from("products")
         .select("*")
@@ -166,11 +171,13 @@ export default async function AdminProductsPage({
       const { data, error } = await subQuery;
       if (error) throw new Error(error.message);
 
-      const inSub = ((data ?? []) as Product[]).filter(
-        (p) =>
-          assignSubcategory(category, p.name, p.brand, p.subcategory_slug) ===
-          altk,
-      );
+      const inSub = altk
+        ? ((data ?? []) as Product[]).filter(
+            (p) =>
+              assignSubcategory(category, p.name, p.brand, p.subcategory_slug) ===
+              altk,
+          )
+        : ((data ?? []) as Product[]); // sıralama modu: kategori tamamı
 
       // Cip sayilari filtrelenmis alt kategori listesinden.
       chipCounts = {
@@ -205,10 +212,17 @@ export default async function AdminProductsPage({
       }
 
       total = filtered.length;
-      totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
-      page = Math.min(requestedPage, totalPages);
-      const from = (page - 1) * PAGE_SIZE;
-      products = filtered.slice(from, from + PAGE_SIZE);
+      if (reorderMode) {
+        // Sıralama modu: sayfalama yok — pozisyonlar tüm kategoriyi kapsar.
+        totalPages = 1;
+        page = 1;
+        products = filtered;
+      } else {
+        totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+        page = Math.min(requestedPage, totalPages);
+        const from = (page - 1) * PAGE_SIZE;
+        products = filtered.slice(from, from + PAGE_SIZE);
+      }
     } else {
       // MEVCUT DB SAYFALAMA YOLU (altk yokken aynen korunur).
       // Ortak k/q kosullu head:true count sorgusu.
@@ -449,6 +463,10 @@ export default async function AdminProductsPage({
           pagination={pagination}
           filterSlot={filterSlot}
           openForm={yeni === "1"}
+          /* Sürükle-bırak sıralama: yalnız TEK kategori görünümünde ve
+             varsayılan sırada (arama/alt/hızlı filtre/sıralama yokken) —
+             pozisyonlar ancak o zaman vitrindeki gerçek sırayla eşleşir. */
+          reorderable={Boolean(category) && !altk && !search && !filtre && !sirala}
         />
       )}
     </>

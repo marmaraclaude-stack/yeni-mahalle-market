@@ -5,6 +5,7 @@
 import { notFound, redirect } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
 import {
+  duplicateProduct,
   removeProductImage,
   updateProduct,
   uploadProductImage,
@@ -182,6 +183,19 @@ export default async function AdminProductEditPage({
     redirect(errorMessage ? `${back}?hata=${encodeURIComponent(errorMessage)}` : `${back}?kayit=ok`);
   }
 
+  async function duplicateAction() {
+    "use server";
+    try {
+      const copy = await duplicateProduct(id);
+      redirect(`/admin/urunler/${copy.id}?kayit=kopya`);
+    } catch (e) {
+      // redirect() bir istisna fırlatarak çalışır — onu yutma, yeniden fırlat.
+      if (e && typeof e === "object" && "digest" in e) throw e;
+      const msg = e instanceof Error ? e.message : "Ürün çoğaltılamadı.";
+      redirect(`/admin/urunler/${id}?hata=${encodeURIComponent(msg)}`);
+    }
+  }
+
   async function uploadImageAction(formData: FormData) {
     "use server";
     const back = `/admin/urunler/${id}`;
@@ -207,12 +221,29 @@ export default async function AdminProductEditPage({
   return (
     <>
       <AdminBack href="/admin/urunler" label="Ürünler" />
-      <h1 className={styles.title}>{product.name}</h1>
-      <p className={styles.subtitle}>
-        {category?.name ?? product.category_slug} · /urunler/{product.slug}
-      </p>
+      <div className={styles.titleRow}>
+        <div>
+          <h1 className={styles.title}>{product.name}</h1>
+          <p className={styles.subtitle}>
+            {category?.name ?? product.category_slug} · /urunler/{product.slug}
+          </p>
+        </div>
+        {/* Ürünü çoğalt: tüm alanların kopyası "(Kopyası)" adıyla, PASİF
+            olarak oluşturulur ve düzenleme sayfası açılır. */}
+        <form action={duplicateAction}>
+          <button type="submit" className={styles.actionBtn}>
+            Ürünü Çoğalt
+          </button>
+        </form>
+      </div>
 
       {kayit === "ok" && <p className={styles.msgOk}>Ürün kaydedildi.</p>}
+      {kayit === "kopya" && (
+        <p className={styles.msgOk}>
+          Ürünün kopyası oluşturuldu — şu an <b>pasif</b>. Bilgileri düzenleyip
+          &quot;Durum&quot;u aktifleştirdiğinizde vitrinde görünür.
+        </p>
+      )}
       {gorsel === "ok" && <p className={styles.msgOk}>Görsel yüklendi.</p>}
       {gorsel === "silindi" && <p className={styles.msgOk}>Görsel kaldırıldı.</p>}
       {hata && <p className={styles.formError} style={{ marginBottom: 18 }}>{hata}</p>}

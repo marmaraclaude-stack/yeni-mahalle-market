@@ -100,7 +100,15 @@ const CATEGORIES: Cat[] = SHOP_CATEGORIES.map((c, i) => ({
   t: c.tint,
 }));
 
-export default function CategoryGrid() {
+export default function CategoryGrid({
+  hiddenSlugs,
+}: {
+  /** Admin'den pasifleştirilen kategori slug'ları — ızgarada gizlenir. */
+  hiddenSlugs?: string[];
+}) {
+  const visible = hiddenSlugs?.length
+    ? CATEGORIES.filter((c) => !hiddenSlugs.includes(c.slug))
+    : CATEGORIES;
   const railRef = useRef<HTMLDivElement>(null);
   const snapTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [canPrev, setCanPrev] = useState(false);
@@ -141,7 +149,7 @@ export default function CategoryGrid() {
   return (
     <div className="cats__wrap">
       <div ref={railRef} className="cats" role="list">
-        {CATEGORIES.map((c) => {
+        {visible.map((c) => {
           const [bg, fg] = TINTS[c.t];
           return (
             <Link

@@ -9,6 +9,7 @@ import { usePathname } from "next/navigation";
 import {
   Bike,
   Boxes,
+  LayoutGrid,
   Car,
   GalleryHorizontal,
   LayoutDashboard,
@@ -33,6 +34,7 @@ interface NavItem {
 const SHOP_PREFIXES = [
   "/admin/siparisler",
   "/admin/urunler",
+  "/admin/kategoriler",
   "/admin/stok",
   "/admin/kuponlar",
   "/admin/bannerlar",
@@ -61,6 +63,12 @@ const ITEMS: NavItem[] = [
     label: "Ürünler",
     icon: Package,
     isActive: (p) => p.startsWith("/admin/urunler"),
+  },
+  {
+    href: "/admin/kategoriler",
+    label: "Kategoriler",
+    icon: LayoutGrid,
+    isActive: (p) => p.startsWith("/admin/kategoriler"),
   },
   {
     href: "/admin/stok",

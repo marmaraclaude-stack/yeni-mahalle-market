@@ -10,7 +10,6 @@ import {
   ArrowDown01,
   ArrowDownUp,
   ArrowUp01,
-  Check,
   ChevronDown,
   Flame,
   Sparkles,
@@ -121,14 +120,6 @@ export default function SortSelect({
                   <Icon size={15} strokeWidth={2.1} />
                 </span>
                 <span className={styles.selItemName}>{o.name}</span>
-                {on && (
-                  <Check
-                    size={16}
-                    strokeWidth={2.4}
-                    className={styles.selItemCheck}
-                    aria-hidden="true"
-                  />
-                )}
               </Link>
             );
           })}

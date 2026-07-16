@@ -25,6 +25,7 @@ import {
 } from "@/lib/shop/types";
 import { CATEGORY_TINTS, categoryBySlug } from "@/lib/shop/categories";
 import { BUSINESS } from "@/lib/business";
+import { getCatalogVisibility, isProductVisible } from "@/lib/shop/visibility";
 import { iconFor } from "@/components/shop/ProductCard";
 import SiteNav from "@/components/SiteNav";
 import SiteFooter from "@/components/SiteFooter";
@@ -196,7 +197,13 @@ export default async function UrunDetayPage({ params }: { params: Params }) {
   const product = await getProduct(slug);
   if (!product) notFound();
 
-  const similar = await getSimilarProducts(product);
+  // Admin'den pasifleştirilen kategori/alt kategori ürünleri detayda da gizli.
+  const visibility = await getCatalogVisibility();
+  if (!isProductVisible(product, visibility)) notFound();
+
+  const similar = (await getSimilarProducts(product)).filter((p) =>
+    isProductVisible(p, visibility),
+  );
 
   const cat = categoryBySlug(product.category_slug);
   const [tintBg, tintFg] = CATEGORY_TINTS[cat?.tint ?? 0] ?? CATEGORY_TINTS[0];

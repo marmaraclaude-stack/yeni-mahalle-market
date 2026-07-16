@@ -9,13 +9,14 @@
 // kontroller GET linkidir, k/altk/q/filtre parametreleri korunur. Kategori
 // rozetinin altinda kural tabanli alt kategori etiketi gosterilir.
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   Check,
   Eye,
   EyeOff,
+  GripVertical,
   PackageX,
   Plus,
   Star,
@@ -28,6 +29,7 @@ import {
   deleteProduct,
   toggleProductActive,
   updateProduct,
+  updateProductSortBulk,
 } from "@/lib/shop/admin-actions";
 import { SHOP_CATEGORIES, CATEGORY_TINTS, categoryBySlug } from "@/lib/shop/categories";
 import {
@@ -97,7 +99,28 @@ const CHIP_ICONS: Record<ChipData["key"], React.ReactNode> = {
   "stokta-yok": <PackageX size={14} aria-hidden />,
 };
 
-function ProductRow({ product }: { product: Product }) {
+/** Sürükle-bırak sıralama modunda satıra geçirilen bağlam. */
+export interface ReorderCtx {
+  /** 1 tabanlı görünen pozisyon (listedeki gerçek sıra). */
+  position: number;
+  onDragStart: (id: string) => void;
+  onDragEnd: () => void;
+  onDragOverRow: (e: React.DragEvent, id: string) => void;
+  onDropOnRow: (id: string) => void;
+  /** Pozisyon kutusuna yazılan numaraya taşı (1 tabanlı). */
+  onMoveTo: (id: string, pos: number) => void;
+  isDragging: boolean;
+  isDropTarget: boolean;
+}
+
+function ProductRow({
+  product,
+  reorder,
+}: {
+  product: Product;
+  /** Dolu ise Sıra hücresi sürükleme kolu + pozisyon kutusuna dönüşür. */
+  reorder?: ReorderCtx;
+}) {
   const router = useRouter();
   const [price, setPrice] = useState(String(product.price));
   const [compare, setCompare] = useState(
@@ -221,8 +244,23 @@ function ProductRow({ product }: { product: Product }) {
         )
       : 0;
 
+  const rowClasses = [
+    product.is_active ? "" : styles.rowInactive,
+    reorder?.isDragging ? pstyles.rowDragging : "",
+    reorder?.isDropTarget ? pstyles.rowDropTarget : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
+
   return (
-    <tr className={product.is_active ? "" : styles.rowInactive}>
+    <tr
+      className={rowClasses}
+      draggable={Boolean(reorder)}
+      onDragStart={reorder ? () => reorder.onDragStart(product.id) : undefined}
+      onDragEnd={reorder ? () => reorder.onDragEnd() : undefined}
+      onDragOver={reorder ? (e) => reorder.onDragOverRow(e, product.id) : undefined}
+      onDrop={reorder ? () => reorder.onDropOnRow(product.id) : undefined}
+    >
       <td data-label="Ürün">
         <div className={styles.prodCell}>
           {product.image_url ? (
@@ -260,15 +298,49 @@ function ProductRow({ product }: { product: Product }) {
         </div>
       </td>
       <td data-label="Sıra">
-        <input
-          type="number"
-          inputMode="numeric"
-          value={sortVal}
-          onChange={(e) => setSortVal(e.target.value)}
-          className={`${styles.inputSm} ${pstyles.sortInput}`}
-          title="Gösterim sırası — küçük numara vitrinde önce gösterilir"
-          aria-label={`${product.name} gösterim sırası`}
-        />
+        {reorder ? (
+          /* Sıralama modu: sürükleme kolu + 1 tabanlı pozisyon kutusu.
+             Kutuya numara yazıp Enter/odak dışı → satır o pozisyona taşınır.
+             key=position: sıra değişince kutu yeni değerle tazelenir. */
+          <span className={pstyles.orderCell}>
+            <span
+              className={pstyles.dragHandle}
+              title="Sürükleyerek sırala"
+              aria-hidden="true"
+            >
+              <GripVertical size={15} strokeWidth={2} />
+            </span>
+            <input
+              key={reorder.position}
+              type="number"
+              inputMode="numeric"
+              min={1}
+              defaultValue={reorder.position}
+              onBlur={(e) => {
+                const v = Math.round(Number(e.target.value));
+                if (Number.isFinite(v) && v !== reorder.position) {
+                  reorder.onMoveTo(product.id, v);
+                }
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") (e.target as HTMLInputElement).blur();
+              }}
+              className={`${styles.inputSm} ${pstyles.sortInput}`}
+              title="Görünen pozisyon — numara yazıp Enter ile taşı, ya da satırı sürükle"
+              aria-label={`${product.name} pozisyonu`}
+            />
+          </span>
+        ) : (
+          <input
+            type="number"
+            inputMode="numeric"
+            value={sortVal}
+            onChange={(e) => setSortVal(e.target.value)}
+            className={`${styles.inputSm} ${pstyles.sortInput}`}
+            title="Gösterim sırası — küçük numara vitrinde önce gösterilir"
+            aria-label={`${product.name} gösterim sırası`}
+          />
+        )}
       </td>
       <td data-label="Fiyat">
         <span className={styles.priceField}>
@@ -449,6 +521,7 @@ export default function ProductsTable({
   pagination,
   filterSlot,
   openForm = false,
+  reorderable = false,
 }: {
   products: Product[];
   chips: ChipData[];
@@ -460,12 +533,80 @@ export default function ProductsTable({
   pagination: PaginationData;
   filterSlot?: React.ReactNode;
   openForm?: boolean;
+  /** Tek kategori görünümünde sürükle-bırak sıralama açık mı? */
+  reorderable?: boolean;
 }) {
   const router = useRouter();
   const [showForm, setShowForm] = useState(openForm);
   const [busy, setBusy] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [, startTransition] = useTransition();
+
+  // --- Sürükle-bırak sıralama (yalnız reorderable modda) ---
+  // items: yerel sıra; products değişince (filtre/refresh) senkronlanır.
+  const [items, setItems] = useState<Product[]>(products);
+  const [dragId, setDragId] = useState<string | null>(null);
+  const [overId, setOverId] = useState<string | null>(null);
+  const [savingOrder, setSavingOrder] = useState(false);
+  useEffect(() => {
+    setItems(products);
+  }, [products]);
+  const orderChanged =
+    reorderable &&
+    (items.length !== products.length ||
+      items.some((p, i) => p.id !== products[i]?.id));
+
+  /** id'li satırı 1 tabanlı hedef pozisyona taşı. */
+  const moveTo = (id: string, pos: number) => {
+    setItems((prev) => {
+      const from = prev.findIndex((p) => p.id === id);
+      if (from === -1) return prev;
+      const to = Math.max(0, Math.min(prev.length - 1, Math.round(pos) - 1));
+      if (to === from) return prev;
+      const next = [...prev];
+      const [row] = next.splice(from, 1);
+      next.splice(to, 0, row);
+      return next;
+    });
+  };
+
+  const dropOn = (targetId: string) => {
+    if (!dragId || dragId === targetId) {
+      setDragId(null);
+      setOverId(null);
+      return;
+    }
+    setItems((prev) => {
+      const from = prev.findIndex((p) => p.id === dragId);
+      const to = prev.findIndex((p) => p.id === targetId);
+      if (from === -1 || to === -1) return prev;
+      const next = [...prev];
+      const [row] = next.splice(from, 1);
+      next.splice(to, 0, row);
+      return next;
+    });
+    setDragId(null);
+    setOverId(null);
+  };
+
+  /** Yeni sırayı kalıcılaştır: sort = pozisyon x 10 (araya elle ekleme payı). */
+  function saveOrder() {
+    setSavingOrder(true);
+    startTransition(async () => {
+      try {
+        await updateProductSortBulk(
+          items.map((p, i) => ({ id: p.id, sort: (i + 1) * 10 })),
+        );
+        router.refresh();
+      } catch (e) {
+        window.alert(
+          e instanceof Error ? e.message : "Sıralama kaydedilemedi.",
+        );
+      } finally {
+        setSavingOrder(false);
+      }
+    });
+  }
 
   function handleCreate(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -685,6 +826,39 @@ export default function ProductsTable({
         </section>
       )}
 
+      {/* Sıralama modu bilgi/kayıt çubuğu */}
+      {reorderable && (
+        <div
+          className={`${pstyles.orderBar}${orderChanged ? ` ${pstyles.orderBarDirty}` : ""}`}
+        >
+          <span className={pstyles.orderBarText}>
+            {orderChanged
+              ? "Sıra değişti — kaydetmeyi unutmayın. Vitrindeki gösterim bu sıraya göre güncellenecek."
+              : "Satırları sürükleyerek ya da Sıra kutusuna pozisyon yazarak vitrindeki gösterim sırasını düzenleyin."}
+          </span>
+          {orderChanged && (
+            <span className={pstyles.orderBarBtns}>
+              <button
+                type="button"
+                onClick={() => setItems(products)}
+                disabled={savingOrder}
+                className={styles.btnRow}
+              >
+                Vazgeç
+              </button>
+              <button
+                type="button"
+                onClick={saveOrder}
+                disabled={savingOrder}
+                className={`${styles.btnRow} ${styles["btnRow--primary"]}`}
+              >
+                {savingOrder ? "Kaydediliyor…" : "Sırayı Kaydet"}
+              </button>
+            </span>
+          )}
+        </div>
+      )}
+
       {/* Liste ustu: aralik bilgisi + sayfa kontrolu */}
       <div className={pstyles.pagerBar}>
         <span className={pstyles.rangeInfo}>
@@ -730,8 +904,32 @@ export default function ProductsTable({
                   </tr>
                 </thead>
                 <tbody>
-                  {products.map((p) => (
-                    <ProductRow key={p.id} product={p} />
+                  {(reorderable ? items : products).map((p, i) => (
+                    <ProductRow
+                      key={p.id}
+                      product={p}
+                      reorder={
+                        reorderable
+                          ? {
+                              position: i + 1,
+                              onDragStart: (id) => setDragId(id),
+                              onDragEnd: () => {
+                                setDragId(null);
+                                setOverId(null);
+                              },
+                              onDragOverRow: (e, id) => {
+                                e.preventDefault(); // drop'a izin ver
+                                if (id !== overId) setOverId(id);
+                              },
+                              onDropOnRow: dropOn,
+                              onMoveTo: moveTo,
+                              isDragging: dragId === p.id,
+                              isDropTarget:
+                                overId === p.id && dragId !== null && dragId !== p.id,
+                            }
+                          : undefined
+                      }
+                    />
                   ))}
                 </tbody>
               </table>

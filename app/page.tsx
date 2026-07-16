@@ -8,6 +8,7 @@ import SiteFooter from "@/components/SiteFooter";
 import PromoBanners from "@/components/shop/PromoBanners";
 import Carousel from "@/components/Carousel";
 import CategoryGrid from "@/components/CategoryGrid";
+import { getCatalogVisibility } from "@/lib/shop/visibility";
 import { Check, Phone, ShoppingBasket, Package, Bike } from "lucide-react";
 
 /* ============================================================
@@ -48,7 +49,10 @@ function CardIcon() {
   );
 }
 
-export default function Home() {
+export default async function Home() {
+  // Pasif kategoriler ana sayfa ızgarasında da gizlenir (admin kontrolü).
+  const visibility = await getCatalogVisibility();
+  const hiddenCats = [...visibility.inactiveCats];
   return (
     <>
       {/* ===== NAV ===== */}
@@ -135,7 +139,7 @@ export default function Home() {
 
             <Carousel />
 
-            <CategoryGrid />
+            <CategoryGrid hiddenSlugs={hiddenCats} />
 
             {/* Online mağaza CTA — tam katalog */}
             <div className="section__more">

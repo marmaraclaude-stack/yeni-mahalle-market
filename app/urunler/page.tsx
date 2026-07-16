@@ -39,6 +39,11 @@ import CategoryRail from "@/components/shop/CategoryRail";
 import SubcatSelect from "@/components/shop/SubcatSelect";
 import SortSelect from "@/components/shop/SortSelect";
 import { normalizeSort, sortProducts } from "@/lib/shop/sorting";
+import {
+  getCatalogVisibility,
+  isProductVisible,
+  subKey,
+} from "@/lib/shop/visibility";
 import CategorySidebar from "@/components/shop/CategorySidebar";
 import CartPanel from "@/components/shop/CartPanel";
 import SearchBox from "@/components/shop/SearchBox";
@@ -91,15 +96,31 @@ export default async function UrunlerPage({
   // Arama (q) özel görünümden önceliklidir; özel görünüm katalog genelinde
   // çalışır, bu yüzden kategori (k) ile birlikteyken kategori yok sayılır.
   const special = !q ? specialByKey(first(sp.ozel)) : undefined;
-  // Geçersiz kategori slug'ı sessizce yok sayılır (tüm ürünler listelenir)
-  const category = special ? undefined : categoryBySlug(first(sp.k) ?? "");
 
-  // Alt kategori (?alt=...) — yalnız kategori görünümünde (q ve ozel yokken)
-  // anlamlı; geçersiz/eşleşmeyen slug sessizce yok sayılır.
   // Sıralama (?sirala=) — geçersiz değer sessizce "onerilen"e döner.
   const sirala = normalizeSort(first(sp.sirala));
 
-  const subs = category && !q ? subcatsFor(category.slug) : [];
+  // Teslimat ayarları + katalog görünürlüğü (admin'den pasifleştirilen
+  // kategori/alt kategoriler) — paralel çekilir; hata durumunda makul default.
+  const [settings, visibility] = await Promise.all([
+    getShopSettings(),
+    getCatalogVisibility(),
+  ]);
+  const hiddenCatList = [...visibility.inactiveCats];
+  const hiddenSubList = [...visibility.hiddenSubs];
+
+  // Geçersiz YA DA pasifleştirilmiş kategori slug'ı sessizce yok sayılır.
+  const rawCategory = special ? undefined : categoryBySlug(first(sp.k) ?? "");
+  const category =
+    rawCategory && !visibility.inactiveCats.has(rawCategory.slug)
+      ? rawCategory
+      : undefined;
+
+  // Alt kategori (?alt=...) — yalnız kategori görünümünde (q ve ozel yokken)
+  // anlamlı; geçersiz/eşleşmeyen YA DA gizlenen slug sessizce yok sayılır.
+  const subs = (category && !q ? subcatsFor(category.slug) : []).filter(
+    (s) => category && !visibility.hiddenSubs.has(subKey(category.slug, s.slug)),
+  );
   const altRaw = (first(sp.alt) ?? "").trim();
   const altDef = subs.find((s) => s.slug === altRaw);
   const altSlug =
@@ -107,10 +128,6 @@ export default async function UrunlerPage({
       ? altRaw
       : undefined;
   const altName = altSlug ? (altDef?.name ?? OTHER_SUB_NAME) : undefined;
-
-  // Teslimat ayarları — CartPanel'deki ücretsiz teslimat ilerlemesi için
-  // (tablo yoksa makul default döner, sayfa patlamaz).
-  const settings = await getShopSettings();
 
   let products: Product[] = [];
   let dbError = false;
@@ -160,6 +177,12 @@ export default async function UrunlerPage({
     } else if (special.key === "cok-satan") {
       products = products.filter((p) => p.is_best_seller);
     }
+  }
+
+  // Görünürlük süzgeci: pasif kategorilerin ve gizlenen alt kategorilerin
+  // ürünleri hiçbir görünümde (Tümü/arama/özel/kategori) listelenmez.
+  if (visibility.inactiveCats.size > 0 || visibility.hiddenSubs.size > 0) {
+    products = products.filter((p) => isProductVisible(p, visibility));
   }
 
   // Kullanıcı sıralaması — tüm görünümlere uygulanır ("Tümü"de bölüm içi sıra).
@@ -212,6 +235,7 @@ export default async function UrunlerPage({
           active={category?.slug}
           q={q || undefined}
           ozel={special?.key}
+          hiddenCats={hiddenCatList}
         />
 
         <div className="container">
@@ -222,6 +246,8 @@ export default async function UrunlerPage({
               q={q || undefined}
               ozel={special?.key}
               alt={altSlug}
+              hiddenCats={hiddenCatList}
+              hiddenSubs={hiddenSubList}
             />
 
             <div className={styles.main}>
