@@ -25,6 +25,7 @@ export const CATEGORY_TINTS: [string, string][] = [
 export const SHOP_CATEGORIES: CategoryDef[] = [
   { slug: "meyve-sebze", name: "Meyve & Sebze", tint: 0, icon: "carrot", orderable: true },
   { slug: "sarkuteri-et", name: "Şarküteri & Et", tint: 1, icon: "beef", orderable: true },
+  { slug: "balik-su-urunleri", name: "Balık & Su Ürünleri", tint: 4, icon: "fish", orderable: true },
   { slug: "ekmek-firin", name: "Ekmek & Fırın", tint: 2, icon: "croissant", orderable: true },
   { slug: "sut-kahvaltilik", name: "Süt & Kahvaltılık", tint: 3, icon: "milk", orderable: true },
   { slug: "icecek-su", name: "İçecek & Su", tint: 4, icon: "cup-soda", orderable: true },

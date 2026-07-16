@@ -9,6 +9,7 @@ import Link from "next/link";
 import {
   Carrot,
   Beef,
+  Fish,
   Croissant,
   Milk,
   CupSoda,
@@ -26,7 +27,7 @@ import {
   ScrollText,
   Baby,
   PawPrint,
-  Cigarette,
+  Lamp,
   Flame,
   FlameKindling,
   BatteryCharging,
@@ -61,6 +62,7 @@ const TINTS: [string, string][] = [
 const ICONS: LucideIcon[] = [
   Carrot,
   Beef,
+  Fish,
   Croissant,
   Milk,
   CupSoda,
@@ -81,7 +83,7 @@ const ICONS: LucideIcon[] = [
   Utensils,
   Baby,
   PawPrint,
-  Cigarette,
+  Lamp,
   Flame,
   FlameKindling,
   BatteryCharging,

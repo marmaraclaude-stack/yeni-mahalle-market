@@ -36,7 +36,7 @@ import SiteNav from "@/components/SiteNav";
 import SiteFooter from "@/components/SiteFooter";
 import PromoBanners from "@/components/shop/PromoBanners";
 import CategoryRail from "@/components/shop/CategoryRail";
-import SubcatTabs from "@/components/shop/SubcatTabs";
+import SubcatSelect from "@/components/shop/SubcatSelect";
 import CategorySidebar from "@/components/shop/CategorySidebar";
 import CartPanel from "@/components/shop/CartPanel";
 import SearchBox from "@/components/shop/SearchBox";
@@ -341,10 +341,10 @@ export default async function UrunlerPage({
                       </div>
 
                       {subs.length > 0 && tabItems.length > 0 && (
-                        /* Sticky alt kategori sekme barı — saf filtre modu:
-                           her sekme ?alt= linki, aktif yalnız URL'den gelir
-                           (dikey kaydırmadan etkilenmez). */
-                        <SubcatTabs
+                        /* Alt kategori AÇILIR MENÜ (dropdown) — saf filtre modu:
+                           her seçenek ?alt= linki, aktif yalnız URL'den gelir.
+                           Yatay kaydırma/ok/sticky yok → Safari'de titremez. */
+                        <SubcatSelect
                           catSlug={category.slug}
                           tabs={tabItems}
                           totalCount={products.length}

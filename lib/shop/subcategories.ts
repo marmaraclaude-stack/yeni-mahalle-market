@@ -37,6 +37,19 @@ export const CATEGORY_SUBS: Record<string, SubCategory[]> = {
     { slug: "kirmizi-et", name: "Kırmızı Et", match: /k[ıi]yma|ku[şs]ba[şs][ıi]|kusbasi|bonfile|biftek|antrikot|k[öo]fte|kofte|dana|kuzu|\bet\b/ },
     { slug: "diger-et-sarkuteri", name: "Diğer Et Şarküteri", match: /./ },
   ],
+  // Migros su ürünleri reyonu: taze balık (somon/levrek/çipura/hamsi...),
+  // karides & deniz mahsulleri, dondurulmuş ve işlenmiş/füme ürünler.
+  // SIRA: işlenmiş & dondurulmuş önce (ör. "Füme Somon" → İşlenmiş, "Somon" değil).
+  "balik-su-urunleri": [
+    { slug: "islenmis-fume", name: "İşlenmiş & Füme", match: /f[üu]me|fume|marin|salamura/ },
+    { slug: "dondurulmus", name: "Dondurulmuş", match: /dondurul|pane\b|kroket/ },
+    { slug: "somon", name: "Somon", match: /somon/ },
+    { slug: "levrek-cipura", name: "Levrek & Çipura", match: /levrek|[çc]ipura|cipura|[çc]upra/ },
+    { slug: "alabalik", name: "Alabalık", match: /alabal[ıi]k|alabalik/ },
+    { slug: "karides-deniz", name: "Karides & Deniz Mahsulleri", match: /karides|midye|kalamar|ahtapot|istiridye|surimi|deniz mahsul/ },
+    { slug: "hamsi-diger", name: "Hamsi & Diğer Balık", match: /hamsi|istavrit|palamut|sardalya|uskumru|mezgit|barbun|tekir|kefal|l[üu]fer|lufer|k[ıi]l[ıi][çc]|kalkan|dil bal|orkinos|sinarit|mercan|tran[çc]a/ },
+    { slug: "diger-su-urunleri", name: "Diğer", match: /./ },
+  ],
   "ekmek-firin": [
     { slug: "un-pastacilik", name: "Un & Pastacılık", match: /\bun\b|unu\b|maya|kabartma|vanilya|kar[ıi][şs][ıi]m|karisim|hamuru|kaday[ıi]f|eri[şs]te|eriste|krep|ni[şs]asta/ },
     { slug: "kek-kurabiye", name: "Kek & Kurabiye", match: /kek|kurabiye|browni|kuru pasta|milf[öo]y|milfoy/ },

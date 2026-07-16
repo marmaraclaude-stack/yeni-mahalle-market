@@ -22,6 +22,7 @@ import AddToCartButton from "@/components/shop/AddToCartButton";
 import {
   Carrot,
   Beef,
+  Fish,
   Croissant,
   Milk,
   CupSoda,
@@ -59,6 +60,7 @@ import styles from "@/app/urunler/shop.module.css";
 const CATEGORY_ICONS: Record<string, LucideIcon> = {
   carrot: Carrot,
   beef: Beef,
+  fish: Fish,
   croissant: Croissant,
   milk: Milk,
   "cup-soda": CupSoda,
