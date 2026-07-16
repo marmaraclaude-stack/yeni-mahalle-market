@@ -37,6 +37,8 @@ import SiteFooter from "@/components/SiteFooter";
 import PromoBanners from "@/components/shop/PromoBanners";
 import CategoryRail from "@/components/shop/CategoryRail";
 import SubcatSelect from "@/components/shop/SubcatSelect";
+import SortSelect from "@/components/shop/SortSelect";
+import { normalizeSort, sortProducts } from "@/lib/shop/sorting";
 import CategorySidebar from "@/components/shop/CategorySidebar";
 import CartPanel from "@/components/shop/CartPanel";
 import SearchBox from "@/components/shop/SearchBox";
@@ -94,6 +96,9 @@ export default async function UrunlerPage({
 
   // Alt kategori (?alt=...) — yalnız kategori görünümünde (q ve ozel yokken)
   // anlamlı; geçersiz/eşleşmeyen slug sessizce yok sayılır.
+  // Sıralama (?sirala=) — geçersiz değer sessizce "onerilen"e döner.
+  const sirala = normalizeSort(first(sp.sirala));
+
   const subs = category && !q ? subcatsFor(category.slug) : [];
   const altRaw = (first(sp.alt) ?? "").trim();
   const altDef = subs.find((s) => s.slug === altRaw);
@@ -156,6 +161,9 @@ export default async function UrunlerPage({
       products = products.filter((p) => p.is_best_seller);
     }
   }
+
+  // Kullanıcı sıralaması — tüm görünümlere uygulanır ("Tümü"de bölüm içi sıra).
+  products = sortProducts(products, sirala);
 
   // "Tümü" görünümü: ürünler sunucuda kategoriye göre gruplanır (tek sorgu)
   const showSections = !dbError && !q && !category && !special;
@@ -260,6 +268,9 @@ export default async function UrunlerPage({
                           {products.length} ürün
                         </span>
                       </div>
+                      <div className={styles.toolbar}>
+                        <SortSelect current={sirala} params={{ ozel: special.key }} />
+                      </div>
                       <LoadMoreGrid products={products} emptyText={emptyText} />
                     </section>
                   );
@@ -274,6 +285,9 @@ export default async function UrunlerPage({
                     <span className={styles.sectionCount}>
                       {products.length} sonuç
                     </span>
+                  </div>
+                  <div className={styles.toolbar}>
+                    <SortSelect current={sirala} params={{ q }} />
                   </div>
                   <ProductGrid
                     products={products}
@@ -340,17 +354,23 @@ export default async function UrunlerPage({
                         </span>
                       </div>
 
-                      {subs.length > 0 && tabItems.length > 0 && (
-                        /* Alt kategori AÇILIR MENÜ (dropdown) — saf filtre modu:
-                           her seçenek ?alt= linki, aktif yalnız URL'den gelir.
-                           Yatay kaydırma/ok/sticky yok → Safari'de titremez. */
-                        <SubcatSelect
-                          catSlug={category.slug}
-                          tabs={tabItems}
-                          totalCount={products.length}
-                          activeAlt={altSlug}
+                      {/* Filtre araç çubuğu: alt kategori + sıralama açılır
+                         menüleri. Yatay kaydırma/ok/sticky yok → titremez. */}
+                      <div className={styles.toolbar}>
+                        {subs.length > 0 && tabItems.length > 0 && (
+                          <SubcatSelect
+                            catSlug={category.slug}
+                            tabs={tabItems}
+                            totalCount={products.length}
+                            activeAlt={altSlug}
+                            sirala={sirala}
+                          />
+                        )}
+                        <SortSelect
+                          current={sirala}
+                          params={{ k: category.slug, alt: altSlug }}
                         />
-                      )}
+                      </div>
 
                       <ProductGrid
                         products={shown}

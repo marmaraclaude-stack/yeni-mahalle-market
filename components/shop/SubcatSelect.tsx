@@ -8,7 +8,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { Check, ChevronDown } from "lucide-react";
+import { Check, ChevronDown, ListFilter } from "lucide-react";
 import styles from "@/app/urunler/shop.module.css";
 
 export interface SubTab {
@@ -18,9 +18,10 @@ export interface SubTab {
 }
 
 /** Kategori (+ opsiyonel alt kategori) görünümü linki. */
-function hrefFor(catSlug: string, subSlug?: string): string {
+function hrefFor(catSlug: string, subSlug?: string, sirala?: string): string {
   const params = new URLSearchParams({ k: catSlug });
   if (subSlug) params.set("alt", subSlug);
+  if (sirala && sirala !== "onerilen") params.set("sirala", sirala);
   return `/urunler?${params.toString()}`;
 }
 
@@ -29,6 +30,7 @@ export default function SubcatSelect({
   tabs,
   totalCount,
   activeAlt,
+  sirala,
 }: {
   catSlug: string;
   tabs: SubTab[];
@@ -36,6 +38,8 @@ export default function SubcatSelect({
   totalCount: number;
   /** Dolu ise o alt kategori aktif; boşsa "Tümü" aktif. */
   activeAlt?: string;
+  /** Mevcut sıralama — alt kategori değişince korunur. */
+  sirala?: string;
 }) {
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
@@ -68,47 +72,53 @@ export default function SubcatSelect({
   const items = [{ slug: "", name: "Tümü", count: totalCount }, ...tabs];
 
   return (
-    <div className={styles.subSelect} ref={rootRef}>
+    <div className={styles.selWrap} ref={rootRef}>
       <button
         type="button"
-        className={styles.subSelectBtn}
+        className={`${styles.selBtn}${activeAlt ? ` ${styles.selBtnActive}` : ""}`}
         aria-haspopup="listbox"
         aria-expanded={open}
         aria-label={`Alt kategori: ${currentName}`}
         onClick={() => setOpen((v) => !v)}
       >
-        <span className={styles.subSelectHint}>Alt kategori</span>
-        <span className={styles.subSelectCurrent}>{currentName}</span>
-        <span className={styles.subSelectCount}>{currentCount}</span>
+        <span className={styles.selIcon} aria-hidden="true">
+          <ListFilter size={16} strokeWidth={2.1} />
+        </span>
+        <span className={styles.selText}>
+          <span className={styles.selCaption}>Alt Kategori</span>
+          <span className={styles.selCurrent}>{currentName}</span>
+        </span>
+        <span className={styles.selCount}>{currentCount}</span>
         <ChevronDown
-          size={18}
+          size={17}
           strokeWidth={2.2}
-          className={`${styles.subSelectChev}${open ? ` ${styles.subSelectChevOpen}` : ""}`}
+          className={`${styles.selChev}${open ? ` ${styles.selChevOpen}` : ""}`}
           aria-hidden="true"
         />
       </button>
 
       {open && (
-        <div className={styles.subSelectMenu} role="listbox" aria-label="Alt kategoriler">
+        <div className={styles.selMenu} role="listbox" aria-label="Alt kategoriler">
+          <p className={styles.selMenuTitle}>Alt kategori seç</p>
           {items.map((it) => {
             const on = (it.slug || undefined) === activeAlt;
             return (
               <Link
                 key={it.slug || "__all__"}
-                href={hrefFor(catSlug, it.slug || undefined)}
-                className={`${styles.subSelectItem}${on ? ` ${styles.subSelectItemActive}` : ""}`}
+                href={hrefFor(catSlug, it.slug || undefined, sirala)}
+                className={`${styles.selItem}${on ? ` ${styles.selItemActive}` : ""}`}
                 role="option"
                 aria-selected={on}
                 scroll={false}
                 onClick={() => setOpen(false)}
               >
-                <span className={styles.subSelectItemName}>{it.name}</span>
-                <span className={styles.subSelectItemCount}>{it.count}</span>
+                <span className={styles.selItemName}>{it.name}</span>
+                <span className={styles.selItemCount}>{it.count}</span>
                 {on && (
                   <Check
                     size={16}
                     strokeWidth={2.4}
-                    className={styles.subSelectItemCheck}
+                    className={styles.selItemCheck}
                     aria-hidden="true"
                   />
                 )}

@@ -1280,59 +1280,106 @@
 }
 
 /* ============================================================
-   Alt kategori seçici — AÇILIR MENÜ (dropdown). Eski yatay pil/sekme
-   barının (subBar/subChip/subBarSticky) yerini alır. Yatay kaydırma / ok /
-   sticky YOK → Safari dahil hiçbir tarayıcıda dikey kaydırmada titremez.
+   Filtre araç çubuğu + açılır menüler (alt kategori & sıralama).
+   Eski yatay pil barının yerine geçen yapı: yatay kaydırma / ok / sticky
+   YOK → Safari dahil hiçbir tarayıcıda dikey kaydırmada titremez.
+   İki menü de aynı görsel dili paylaşır (selWrap/selBtn/selMenu...).
    ============================================================ */
-.subSelect {
-  position: relative;
-  width: fit-content;
-  min-width: 240px;
-  max-width: 100%;
-  margin-bottom: 16px;
+.toolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 18px;
 }
-.subSelectBtn {
+/* Mobil: iki seçici yan yana eşit genişlikte tam satırı doldurur. */
+@media (max-width: 640px) {
+  .toolbar { gap: 8px; }
+  .toolbar > * { flex: 1 1 calc(50% - 4px); min-width: 0; }
+}
+
+.selWrap {
+  position: relative;
+  max-width: 100%;
+}
+/* Tetik butonu: ikon karosu + iki satırlı etiket (başlık/değer) + sayaç + ok */
+.selBtn {
   display: flex;
   align-items: center;
   gap: 10px;
   width: 100%;
-  height: 46px;
-  padding: 0 14px;
+  min-height: 54px;
+  padding: 8px 12px 8px 10px;
   border: 1px solid var(--gray-200);
-  border-radius: var(--r-md);
+  border-radius: 14px;
   background: var(--white);
   color: var(--ink);
   cursor: pointer;
-  transition: border-color 160ms var(--ease), box-shadow 160ms var(--ease);
+  box-shadow: 0 1px 2px rgba(10, 10, 10, 0.04);
+  transition: border-color 160ms var(--ease), box-shadow 160ms var(--ease),
+    background 160ms var(--ease);
 }
-.subSelectBtn:hover {
+.selBtn:hover {
   border-color: var(--gray-300);
+  box-shadow: 0 4px 14px -6px rgba(10, 10, 10, 0.12);
 }
-.subSelectBtn:focus-visible {
+.selBtn:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
-.subSelectHint {
-  flex-shrink: 0;
-  font-size: var(--fs-micro);
-  font-weight: 500;
-  color: var(--gray-500);
+/* Aktif filtre/sıralama: accent vurgulu tetik */
+.selBtnActive {
+  border-color: rgba(255, 90, 31, 0.45);
+  background: linear-gradient(0deg, rgba(255, 90, 31, 0.05), rgba(255, 90, 31, 0.05)),
+    var(--white);
 }
-.subSelectCurrent {
+.selBtnActive .selIcon {
+  background: var(--accent);
+  color: var(--white);
+}
+.selBtnActive .selCurrent { color: var(--accent-deep); }
+.selIcon {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  transition: background 160ms var(--ease), color 160ms var(--ease);
+}
+.selText {
   flex: 1;
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1px;
   text-align: left;
+}
+.selCaption {
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--gray-400);
+  line-height: 1.1;
+}
+.selCurrent {
+  max-width: 100%;
   font-size: var(--fs-small);
   font-weight: 700;
   color: var(--ink);
+  line-height: 1.25;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.subSelectCount {
+.selCount {
   flex-shrink: 0;
-  min-width: 22px;
-  padding: 1px 8px;
+  min-width: 24px;
+  padding: 2px 8px;
   border-radius: var(--r-pill);
   background: var(--gray-100);
   color: var(--gray-600);
@@ -1341,65 +1388,93 @@
   text-align: center;
   font-variant-numeric: tabular-nums;
 }
-.subSelectChev {
+.selBtnActive .selCount {
+  background: rgba(255, 90, 31, 0.14);
+  color: var(--accent-deep);
+}
+.selChev {
   flex-shrink: 0;
-  color: var(--gray-500);
+  color: var(--gray-400);
   transition: transform 180ms var(--ease);
 }
-.subSelectChevOpen {
-  transform: rotate(180deg);
-}
+.selChevOpen { transform: rotate(180deg); }
 
-/* Açılan liste — normal dikey menü (dropdown). Konteynerden taşmaması için
-   min genişlik butonla aynı, uzun listede kendi içinde dikey kaydırılır. */
-.subSelectMenu {
+/* Açılan menü — yumuşak köşeli kart, başlık + satırlar. Uzunsa kendi
+   içinde dikey kaydırılır (sayfa kaydırmasına karışmaz). */
+.selMenu {
   position: absolute;
-  top: calc(100% + 6px);
+  top: calc(100% + 8px);
   left: 0;
-  z-index: 30;
-  min-width: 100%;
+  z-index: 60;
+  min-width: min(300px, calc(100vw - 32px));
   max-width: min(340px, calc(100vw - 32px));
-  max-height: 320px;
+  max-height: 380px;
   overflow-y: auto;
   overscroll-behavior: contain;
-  padding: 6px;
+  padding: 8px;
   background: var(--white);
   border: 1px solid var(--gray-200);
-  border-radius: var(--r-md);
-  box-shadow: 0 16px 40px -16px rgba(10, 10, 10, 0.28),
-    0 4px 12px rgba(10, 10, 10, 0.06);
-  animation: fade-in 160ms var(--ease);
+  border-radius: 16px;
+  box-shadow: 0 24px 56px -20px rgba(10, 10, 10, 0.3),
+    0 6px 16px rgba(10, 10, 10, 0.07);
+  animation: selMenuIn 170ms var(--ease);
   scrollbar-width: thin;
 }
-.subSelectItem {
+.selMenuTitle {
+  margin: 4px 10px 8px;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--gray-400);
+}
+.selItem {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 9px 10px;
-  border-radius: var(--r-sm);
+  gap: 9px;
+  min-height: 42px;
+  padding: 8px 10px;
+  border-radius: 10px;
   color: var(--gray-700);
   font-size: var(--fs-small);
   font-weight: 500;
   transition: background 140ms var(--ease), color 140ms var(--ease);
 }
-.subSelectItem:hover {
+.selItem:hover {
   background: var(--gray-50);
   color: var(--ink);
 }
-.subSelectItemActive,
-.subSelectItemActive:hover {
+.selItemActive,
+.selItemActive:hover {
   background: var(--accent-soft);
   color: var(--accent-deep);
   font-weight: 700;
 }
-.subSelectItemName {
+.selItemIcon {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: var(--gray-100);
+  color: var(--gray-500);
+}
+.selItemActive .selItemIcon {
+  background: rgba(255, 90, 31, 0.16);
+  color: var(--accent);
+}
+.selItemName {
   flex: 1;
   min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
-.subSelectItemCount {
+.selItemCount {
   flex-shrink: 0;
-  min-width: 20px;
-  padding: 0 7px;
+  min-width: 22px;
+  padding: 1px 7px;
   border-radius: var(--r-pill);
   background: var(--gray-100);
   color: var(--gray-600);
@@ -1408,18 +1483,18 @@
   text-align: center;
   font-variant-numeric: tabular-nums;
 }
-.subSelectItemActive .subSelectItemCount {
+.selItemActive .selItemCount {
   background: rgba(255, 90, 31, 0.16);
   color: var(--accent-deep);
 }
-.subSelectItemCheck {
+.selItemCheck {
   flex-shrink: 0;
   color: var(--accent);
 }
-@keyframes fade-in {
-  from { opacity: 0; transform: translateY(-4px); }
-  to { opacity: 1; transform: translateY(0); }
+@keyframes selMenuIn {
+  from { opacity: 0; transform: translateY(-6px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
 }
 @media (prefers-reduced-motion: reduce) {
-  .subSelectMenu { animation: none; }
+  .selMenu { animation: none; }
 }

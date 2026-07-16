@@ -431,22 +431,23 @@ export default async function UrunDetayPage({ params }: { params: Params }) {
               </p>
 
               <DetailActions product={product} />
-
-              <ul className={styles.trust}>
-                {TRUST_BADGES.map((badge) => (
-                  <li key={badge.title} className={styles.trustItem}>
-                    <span className={styles.trustIcon} aria-hidden="true">
-                      <badge.icon size={18} strokeWidth={2} />
-                    </span>
-                    <span className={styles.trustText}>
-                      <span className={styles.trustTitle}>{badge.title}</span>
-                      <span className={styles.trustSub}>{badge.sub}</span>
-                    </span>
-                  </li>
-                ))}
-              </ul>
             </div>
           </section>
+
+          {/* Güven/teslimat kartları — hero kartın altında TAM GENİŞLİK şerit */}
+          <ul className={styles.trust} aria-label="Alışveriş güvenceleri">
+            {TRUST_BADGES.map((badge) => (
+              <li key={badge.title} className={styles.trustItem}>
+                <span className={styles.trustIcon} aria-hidden="true">
+                  <badge.icon size={18} strokeWidth={2} />
+                </span>
+                <span className={styles.trustText}>
+                  <span className={styles.trustTitle}>{badge.title}</span>
+                  <span className={styles.trustSub}>{badge.sub}</span>
+                </span>
+              </li>
+            ))}
+          </ul>
 
           {/* Ürün Bilgileri — Migros yapısında sekmeli kart (etiket bilgileri
               + besin değerleri); detay yoksa açıklama + künye tek sekmede */}
@@ -458,17 +459,9 @@ export default async function UrunDetayPage({ params }: { params: Params }) {
             />
           )}
 
-          {/* Benzer ürünler — yatay kaydırılabilir rail */}
+          {/* Benzer ürünler — başlık + oklar + rail bileşenin içinde */}
           {similar.length > 0 && (
             <section className={styles.similar} aria-labelledby="benzer-urunler">
-              <div className={styles.similarHead}>
-                <h2 id="benzer-urunler" className={styles.similarTitle}>
-                  Benzer Ürünler
-                </h2>
-                <p className={styles.similarSub}>
-                  Aynı kategoriden senin için seçtiklerimiz
-                </p>
-              </div>
               <SimilarRail products={similar} />
             </section>
           )}

@@ -190,3 +190,18 @@
   outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
+
+/* Gösterim sırası girişi — dar sayı alanı; spinner'lar gizli (dokunmatikte
+   yanlış tıklamayı önler), değer vitrindeki sıralamayı belirler. */
+.sortInput {
+  width: 64px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+.sortInput::-webkit-outer-spin-button,
+.sortInput::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}

@@ -586,39 +586,50 @@
   margin-top: 2px;
 }
 
-/* Güven/teslimat rozet grid'i — sağ kolonu görselle dengeler.
-   2 sütun kompakt; ince ayraç çizgisiyle aksiyonlardan ayrılır. */
-/* Güven satırı: kutu/zemin YOK. 4 öğe her ekranda tek satırda hizalı;
-   üstte ince ayraç, her öğe ikon + başlık + sessiz alt metin. */
-/* Güven rozetleri — TÜM cihazlarda tek sıra, 4 eşit sütun, sola hizalı.
-   İkon üstte, başlık + alt metin altında; kompakt (dar mobil sütuna sığar). */
+/* ============================================================
+   Güven/teslimat KARTLARI — hero kartının ALTINDA, konteyner boyunca TAM
+   GENİŞLİK. Her öğe beyaz zeminli kart: solda tint ikon karosu, sağda başlık
+   + alt metin. Masaüstü 4 sütun; mobil 2x2 ızgara. Liste stili sıfırlanır.
+   ============================================================ */
 .trust {
-  display: flex;
-  flex-wrap: nowrap;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 12px;
-  margin-top: 20px;
-  padding-top: 18px;
-  border-top: 1px solid var(--gray-100);
+  width: 100%;
+  margin: 16px 0 0;
+  padding: 0;
+  list-style: none;
 }
 .trustItem {
-  flex: 1 1 0;
-  min-width: 0;
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 8px;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  padding: 14px;
+  background: var(--white);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--r-lg);
+  transition: border-color 180ms var(--ease), box-shadow 180ms var(--ease),
+    transform 180ms var(--ease);
+}
+@media (hover: hover) {
+  .trustItem:hover {
+    border-color: rgba(255, 90, 31, 0.35);
+    box-shadow: 0 10px 24px -14px rgba(10, 10, 10, 0.18);
+    transform: translateY(-1px);
+  }
 }
 .trustIcon {
   display: grid;
   place-items: center;
   flex-shrink: 0;
-  width: 32px;
-  height: 32px;
-  border-radius: 10px;
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
   background: var(--accent-soft);
   color: var(--accent);
 }
-.trustIcon svg { width: 17px; height: 17px; }
+.trustIcon svg { width: 20px; height: 20px; }
 .trustText {
   display: flex;
   flex-direction: column;
@@ -626,43 +637,31 @@
   min-width: 0;
 }
 .trustTitle {
-  font-size: 12.5px;
+  font-size: var(--fs-small);
   font-weight: 700;
   color: var(--ink);
-  line-height: 1.2;
+  line-height: 1.25;
   letter-spacing: -0.01em;
 }
 .trustSub {
-  font-size: 11px;
+  font-size: var(--fs-micro);
   color: var(--gray-500);
-  line-height: 1.28;
-  text-wrap: balance;
+  line-height: 1.35;
 }
-/* Mobil/dar: 4 öğe yine TEK sıra; kompakt ölçüler. Başlık tek satır, alt metin
-   en çok 2 satır; sütunlar üstten hizalı ve eşit genişlikte kalır. */
-@media (max-width: 560px) {
-  .trust {
-    gap: 7px;
-    margin-top: 16px;
-    padding-top: 14px;
+/* Tablet: 2x2 ızgara (kartlar ferah kalır) */
+@media (max-width: 900px) {
+  .trust { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+/* Mobil: 2x2 korunur; dolgu ve ikon hafif küçülür */
+@media (max-width: 640px) {
+  .trust { gap: 10px; margin-top: 12px; }
+  .trustItem {
+    padding: 12px;
+    gap: 10px;
+    border-radius: var(--r-md);
   }
-  .trustItem { gap: 6px; }
-  .trustIcon {
-    width: 28px;
-    height: 28px;
-    border-radius: 8px;
-  }
-  .trustIcon svg { width: 15px; height: 15px; }
-  .trustTitle {
-    font-size: 10.5px;
-    line-height: 1.15;
-    /* iki kelimelik başlıklar tek/çift satır olsun; hepsi aynı yükseklikte */
-    min-height: calc(2 * 1.15em);
-  }
-  .trustSub {
-    font-size: 9px;
-    line-height: 1.22;
-  }
+  .trustIcon { width: 38px; height: 38px; border-radius: 10px; }
+  .trustIcon svg { width: 18px; height: 18px; }
 }
 
 /* Mobil: aksiyon satırı kompakt; Sepete Ekle dev görünmesin, adet
@@ -831,47 +830,88 @@
   text-align: right;
 }
 
-/* --- Benzer ürünler: yatay kaydırılabilir rail --- */
+/* ============================================================
+   Benzer Ürünler — başlıkta gezinme okları (kartların üstüne binen ok YOK),
+   mobilde "peek" düzeni (bir sonraki kartın kenarı görünür → kaydırılabilirlik
+   kendini anlatır), altta ince ilerleme çubuğu. Kartlara scroll-snap hizası.
+   ============================================================ */
 .similar {
   margin-top: clamp(28px, 4vw, 48px);
 }
+/* Başlık satırı: solda başlık + alt metin, sağda ok çifti (dikey ortalı). */
 .similarHead {
-  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+.similarHeadText {
+  min-width: 0;
 }
 .similarTitle {
   font-size: var(--fs-h4);
-  font-weight: 600;
+  font-weight: 700;
+  letter-spacing: -0.015em;
 }
 .similarSub {
   margin-top: 3px;
   color: var(--gray-500);
   font-size: var(--fs-small);
 }
-/* Rail sarmalayıcı: ok butonlarının konum referansı */
-.railWrap {
-  position: relative;
-  /* Masaüstünde ok butonlarına yer aç: kartlar okların ALTINDA kalmaz,
-     oklar bu boşlukta durur (iç içe geçme biter). Mobilde padding yok. */
+.railNav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
 }
-.railWrap { position: relative; }
-/* Masaüstünde ok butonlarına gutter aç; mobilde ok yok (dokunmatik kaydırma) */
-@media (min-width: 641px) {
-  .railWrap { padding-inline: 48px; }
+.railNavBtn {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid var(--gray-200);
+  background: var(--white);
+  color: var(--ink);
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(10, 10, 10, 0.06);
+  transition: background 160ms var(--ease), border-color 160ms var(--ease),
+    color 160ms var(--ease), transform 120ms var(--ease);
 }
+.railNavBtn:hover:not(:disabled) {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--white);
+}
+.railNavBtn:active:not(:disabled) { transform: scale(0.92); }
+.railNavBtn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.railNavBtn:disabled {
+  opacity: 0.35;
+  cursor: default;
+  box-shadow: none;
+}
+@media (max-width: 640px) {
+  .railNavBtn { width: 36px; height: 36px; }
+}
+
 .rail {
   display: flex;
   gap: 12px;
   overflow-x: auto;
   /* Zorunlu snap: kaydırma her zaman tam karta hizalanır, yarım kart kalmaz. */
   scroll-snap-type: x mandatory;
-  padding-bottom: 10px;
-  /* Scrollbar gizli (Getir raili gibi), kaydırma dokunmatik/tekerlekle */
+  padding-bottom: 6px;
+  /* Scrollbar gizli — konumu alttaki ilerleme çubuğu gösterir. */
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
 }
 .rail::-webkit-scrollbar { display: none; }
-/* Kartlar görünür alana TAM sığar: bir sayfada tam sayıda kart, yarım kart yok.
-   Genişlik = (100% - (N-1)*gap) / N. Masaüstünde 5, daralınca 4/3/2. */
+/* Kart genişlikleri: masaüstünde 5 tam kart; daralan ekranlarda KESİRLİ
+   sayıda kart (3.4 / 2.4) → son kartın kenarı görünür ("devamı var" ipucu). */
 .railItem {
   flex: 0 0 calc((100% - 4 * 12px) / 5);
   min-width: 0;
@@ -882,62 +922,31 @@
   width: 100%;
 }
 @media (max-width: 1100px) {
-  .railItem { flex-basis: calc((100% - 3 * 12px) / 4); }
+  .railItem { flex-basis: calc((100% - 4 * 12px) / 4.4); }
 }
 @media (max-width: 860px) {
-  .railItem { flex-basis: calc((100% - 2 * 12px) / 3); }
+  .railItem { flex-basis: calc((100% - 3 * 12px) / 3.4); }
 }
-/* Mobil: 2 kart tam görünür (yarım kart yok) */
+/* Mobil: 2 tam kart + üçüncünün kenarı (peek) */
 @media (max-width: 640px) {
-  .railItem { flex-basis: calc((100% - 12px) / 2); }
+  .railItem { flex-basis: calc((100% - 2 * 12px) / 2.35); }
 }
-/* Ok butonları — TÜM cihazlarda görünür (mobil dahil). Yarı saydam beyaz
-   daire, thumbnail'a dikey ortalı; masaüstünde kenar gutter'ında, mobilde
-   kartın kenarına biner (arka plan hafif seçilir). translateY(-50%) ile buton
-   MERKEZİ %30 hizasına (görsel ortası) oturur. */
-.railBtn {
-  position: absolute;
-  top: 30%;
-  transform: translateY(-50%);
-  z-index: 2;
-  width: 38px;
-  height: 38px;
-  display: grid;
-  place-items: center;
-  border-radius: 50%;
-  border: 1px solid var(--gray-200);
-  background: var(--white);
-  color: var(--ink);
-  box-shadow: 0 8px 20px -10px rgba(16, 16, 16, 0.28);
-  transition: background 160ms var(--ease), border-color 160ms var(--ease);
+
+/* İnce ilerleme çubuğu — kaydırma konumu (dolgu genişliği JS'ten). */
+.railProgress {
+  display: block;
+  height: 3px;
+  margin-top: 8px;
+  border-radius: var(--r-pill);
+  background: var(--gray-100);
+  overflow: hidden;
 }
-.railBtn:hover {
-  background: var(--gray-50);
-  border-color: var(--gray-300);
-}
-.railBtn:active:not(:disabled) { transform: translateY(-50%) scale(0.94); }
-.railBtn--prev { left: 0; }
-.railBtn--next { right: 0; }
-/* Kaydırılamayan yön: masaüstünde soluk görünür (simetri korunur). */
-.railBtn:disabled {
-  opacity: 0.38;
-  cursor: default;
-  box-shadow: 0 4px 12px -8px rgba(16, 16, 16, 0.22);
-}
-/* Mobil: biraz küçült + yarı saydam zemin (kartın üstüne biner, ürün seçilir).
-   Kenara hafif taşır ki thumbnail'ı tam kapatmasın. Kullanılamayan ok gizli. */
-@media (max-width: 640px) {
-  .railBtn {
-    width: 32px;
-    height: 32px;
-    background: rgba(255, 255, 255, 0.9);
-    -webkit-backdrop-filter: blur(3px);
-    backdrop-filter: blur(3px);
-    box-shadow: 0 4px 14px -4px rgba(16, 16, 16, 0.35);
-  }
-  .railBtn--prev { left: -4px; }
-  .railBtn--next { right: -4px; }
-  .railBtn:disabled { display: none; }
+.railProgressFill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--accent);
+  transition: width 160ms var(--ease);
 }
 
 /* Paket çipinde indirim öncesi (üstü çizili) fiyat */

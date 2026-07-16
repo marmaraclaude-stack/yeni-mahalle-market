@@ -104,6 +104,9 @@ function ProductRow({ product }: { product: Product }) {
     product.compare_at_price === null ? "" : String(product.compare_at_price),
   );
   const [inStock, setInStock] = useState(product.in_stock);
+  // Gösterim sırası (products.sort) — vitrinde ürünler bu değere göre
+  // (küçükten büyüğe) dizilir; buradaki değişiklik /urunler'e birebir yansır.
+  const [sortVal, setSortVal] = useState(String(product.sort));
   const [busy, setBusy] = useState(false);
   const [, startTransition] = useTransition();
 
@@ -112,7 +115,8 @@ function ProductRow({ product }: { product: Product }) {
   const dirty =
     parsePrice(price) !== Number(product.price) ||
     compare.trim() !== compareInitial ||
-    inStock !== product.in_stock;
+    inStock !== product.in_stock ||
+    sortVal.trim() !== String(product.sort);
 
   function save() {
     const parsed = parsePrice(price);
@@ -129,6 +133,11 @@ function ProductRow({ product }: { product: Product }) {
       window.alert("Eski fiyat, güncel fiyattan yüksek olmalı (indirim için).");
       return;
     }
+    const parsedSort = Math.round(Number(sortVal.trim()));
+    if (sortVal.trim() === "" || !Number.isFinite(parsedSort)) {
+      window.alert("Geçerli bir sıra numarası girin (tam sayı, küçük olan önce gösterilir).");
+      return;
+    }
     setBusy(true);
     startTransition(async () => {
       try {
@@ -136,6 +145,7 @@ function ProductRow({ product }: { product: Product }) {
           price: parsed,
           in_stock: inStock,
           compare_at_price: parsedCompare,
+          sort: parsedSort,
         });
         router.refresh();
       } finally {
@@ -248,6 +258,17 @@ function ProductRow({ product }: { product: Product }) {
           </span>
           {subs.length > 0 && <span className={pstyles.subTag}>{subName}</span>}
         </div>
+      </td>
+      <td data-label="Sıra">
+        <input
+          type="number"
+          inputMode="numeric"
+          value={sortVal}
+          onChange={(e) => setSortVal(e.target.value)}
+          className={`${styles.inputSm} ${pstyles.sortInput}`}
+          title="Gösterim sırası — küçük numara vitrinde önce gösterilir"
+          aria-label={`${product.name} gösterim sırası`}
+        />
       </td>
       <td data-label="Fiyat">
         <span className={styles.priceField}>
@@ -699,6 +720,7 @@ export default function ProductsTable({
                   <tr>
                     <th>Ürün</th>
                     <th>Kategori</th>
+                    <th title="Gösterim sırası — küçük numara vitrinde önce">Sıra</th>
                     <th>Fiyat</th>
                     <th>Eski Fiyat</th>
                     <th>Stok</th>
