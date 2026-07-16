@@ -1352,7 +1352,7 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 2px;
+  gap: 4px; /* başlık ile değer arası nefes payı */
   text-align: left;
 }
 .selCaption {

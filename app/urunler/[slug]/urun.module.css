@@ -162,9 +162,15 @@
   min-width: 0;
 }
 
+/* Kategori + alt kategori pil satırı */
+.pillRow {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
 /* Kategori pill etiketi (tint renkli link) */
 .catPill {
-  align-self: flex-start;
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -178,6 +184,28 @@
 .catPill:hover { filter: brightness(0.95); }
 .catPill:active { transform: scale(0.97); }
 .catPill svg { flex-shrink: 0; }
+/* Alt kategori pili: beyaz zemin + ince çerçeve (kategori piline eşlik eder);
+   tıklanınca o alt kategori filtreli listeye gider. */
+.subPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: var(--r-pill);
+  border: 1px solid var(--gray-200);
+  background: var(--white);
+  color: var(--gray-600);
+  font-size: var(--fs-micro);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  transition: border-color 160ms var(--ease), color 160ms var(--ease),
+    transform 160ms var(--ease);
+}
+.subPill:hover {
+  border-color: rgba(255, 90, 31, 0.45);
+  color: var(--accent-deep);
+}
+.subPill:active { transform: scale(0.97); }
 
 .title {
   font-family: var(--font-display);
@@ -594,6 +622,8 @@
 .trust {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
+  /* Tüm kartlar EŞİT yükseklikte: satırlar en uzun karta göre eşitlenir */
+  grid-auto-rows: 1fr;
   gap: 12px;
   width: 100%;
   margin: 16px 0 0;
@@ -715,33 +745,56 @@
   line-height: 1.65;
 }
 
-/* --- Sekme çubuğu (Ürün Bilgileri / Besin Değerleri) --- */
+/* --- Sekme çubuğu (Ürün Bilgileri / Besin Değerleri) ---
+   Segmentli kontrol: gri ray içinde iki dilim; aktif dilim beyaz kart gibi
+   yükselir. Masaüstünde içerik kadar, mobilde tam genişlik (eşit iki dilim). */
 .tabBar {
   display: flex;
   gap: 4px;
-  border-bottom: 1px solid var(--gray-200);
-  margin-bottom: 18px;
+  width: fit-content;
+  padding: 4px;
+  border-radius: 12px;
+  background: var(--gray-100);
+  margin-bottom: 20px;
 }
 .tabBtn {
   appearance: none;
   background: none;
   border: none;
-  border-bottom: 2px solid transparent;
-  margin-bottom: -1px;
-  padding: 10px 14px;
+  border-radius: 9px;
+  padding: 10px 20px;
   font: inherit;
   font-size: var(--fs-small);
   font-weight: 600;
   color: var(--gray-500);
   cursor: pointer;
-  transition: color 160ms var(--ease), border-color 160ms var(--ease);
+  white-space: nowrap;
+  transition: color 160ms var(--ease), background 160ms var(--ease),
+    box-shadow 160ms var(--ease);
 }
 .tabBtn:hover {
   color: var(--ink);
 }
-.tabBtnActive {
+.tabBtn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.tabBtnActive,
+.tabBtnActive:hover {
+  background: var(--white);
   color: var(--ink);
-  border-bottom-color: var(--accent);
+  font-weight: 700;
+  box-shadow: 0 1px 4px rgba(17, 17, 17, 0.1);
+}
+@media (max-width: 640px) {
+  .tabBar {
+    width: 100%;
+  }
+  .tabBtn {
+    flex: 1;
+    padding: 10px 8px;
+    text-align: center;
+  }
 }
 
 /* --- Etiket bilgileri (İçindekiler, Saklama...) --- */
@@ -902,10 +955,11 @@
   display: flex;
   gap: 12px;
   overflow-x: auto;
-  /* Zorunlu snap: kaydırma her zaman tam karta hizalanır, yarım kart kalmaz. */
-  scroll-snap-type: x mandatory;
-  padding-bottom: 6px;
-  /* Scrollbar gizli — konumu alttaki ilerleme çubuğu gösterir. */
+  /* Yumuşak snap (proximity): parmak savurması doğal akar, kaydırma karta
+     yakın bitince nazikçe hizalanır. Zorunlu (mandatory) snap mobilde
+     kaydırmayla savaşıp takılma hissi veriyordu. */
+  scroll-snap-type: x proximity;
+  padding-bottom: 4px;
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
 }
@@ -932,22 +986,8 @@
   .railItem { flex-basis: calc((100% - 2 * 12px) / 2.35); }
 }
 
-/* İnce ilerleme çubuğu — kaydırma konumu (dolgu genişliği JS'ten). */
-.railProgress {
-  display: block;
-  height: 3px;
-  margin-top: 8px;
-  border-radius: var(--r-pill);
-  background: var(--gray-100);
-  overflow: hidden;
-}
-.railProgressFill {
-  display: block;
-  height: 100%;
-  border-radius: inherit;
-  background: var(--accent);
-  transition: width 160ms var(--ease);
-}
+/* (İlerleme çubuğu kaldırıldı; gezinme yalnız başlıktaki oklarla ve
+   dokunmatik kaydırmayla yapılır.) */
 
 /* Paket çipinde indirim öncesi (üstü çizili) fiyat */
 .weightChipOld {

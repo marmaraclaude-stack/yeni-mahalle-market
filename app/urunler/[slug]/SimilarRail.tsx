@@ -16,9 +16,7 @@ export default function SimilarRail({ products }: { products: Product[] }) {
   const ref = useRef<HTMLDivElement>(null);
   const [canLeft, setCanLeft] = useState(false);
   const [canRight, setCanRight] = useState(false);
-  // Yatay konum (0..1) — alttaki ilerleme çubuğunun dolgusu.
-  const [progress, setProgress] = useState(0);
-  // Taşma yoksa (az ürün) ok ve çubuk gizlenir.
+  // Taşma yoksa (az ürün) oklar gizlenir.
   const [overflow, setOverflow] = useState(false);
 
   const update = useCallback(() => {
@@ -28,7 +26,6 @@ export default function SimilarRail({ products }: { products: Product[] }) {
     setOverflow(max > 4);
     setCanLeft(el.scrollLeft > 4);
     setCanRight(el.scrollLeft < max - 4);
-    setProgress(max > 0 ? Math.min(1, Math.max(0, el.scrollLeft / max)) : 0);
   }, []);
 
   useEffect(() => {
@@ -93,15 +90,6 @@ export default function SimilarRail({ products }: { products: Product[] }) {
           </div>
         ))}
       </div>
-
-      {overflow && (
-        <div className={styles.railProgress} aria-hidden="true">
-          <span
-            className={styles.railProgressFill}
-            style={{ width: `${Math.max(12, Math.round(progress * 100))}%` }}
-          />
-        </div>
-      )}
     </div>
   );
 }

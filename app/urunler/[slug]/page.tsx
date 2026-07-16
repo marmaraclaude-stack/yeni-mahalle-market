@@ -24,6 +24,12 @@ import {
   weightMinFor,
 } from "@/lib/shop/types";
 import { CATEGORY_TINTS, categoryBySlug } from "@/lib/shop/categories";
+import {
+  OTHER_SUB_NAME,
+  OTHER_SUB_SLUG,
+  assignSubcategory,
+  subcatsFor,
+} from "@/lib/shop/subcategories";
 import { BUSINESS } from "@/lib/business";
 import { getCatalogVisibility, isProductVisible } from "@/lib/shop/visibility";
 import { iconFor } from "@/components/shop/ProductCard";
@@ -208,6 +214,24 @@ export default async function UrunDetayPage({ params }: { params: Params }) {
   const cat = categoryBySlug(product.category_slug);
   const [tintBg, tintFg] = CATEGORY_TINTS[cat?.tint ?? 0] ?? CATEGORY_TINTS[0];
   const Icon = iconFor(cat?.icon ?? "shopping-basket");
+
+  // Alt kategori pili: kategori pilinin yanında, tıklanınca o alt kategori
+  // filtreli listeye gider. Gizli alt kategorideki ürün zaten yukarıda 404.
+  const catSubs = cat ? subcatsFor(cat.slug) : [];
+  const subSlug =
+    catSubs.length > 0
+      ? assignSubcategory(
+          product.category_slug,
+          product.name,
+          product.brand,
+          product.subcategory_slug,
+        )
+      : null;
+  const subName = subSlug
+    ? subSlug === OTHER_SUB_SLUG
+      ? OTHER_SUB_NAME
+      : (catSubs.find((s) => s.slug === subSlug)?.name ?? null)
+    : null;
   const byWeight = isWeightBased(product);
   const weightMin = weightMinFor(product);
   // Yalnız birimi "gram" olan ürünlerde başlık fiyatı EN AZ miktarın fiyatıdır
@@ -376,14 +400,24 @@ export default async function UrunDetayPage({ params }: { params: Params }) {
 
             <div className={styles.info}>
               {cat && (
-                <Link
-                  href={`/urunler?k=${cat.slug}`}
-                  className={styles.catPill}
-                  style={{ background: tintBg, color: tintFg }}
-                >
-                  <Icon size={13} strokeWidth={2} aria-hidden="true" />
-                  {cat.name}
-                </Link>
+                <div className={styles.pillRow}>
+                  <Link
+                    href={`/urunler?k=${cat.slug}`}
+                    className={styles.catPill}
+                    style={{ background: tintBg, color: tintFg }}
+                  >
+                    <Icon size={13} strokeWidth={2} aria-hidden="true" />
+                    {cat.name}
+                  </Link>
+                  {subName && subSlug && (
+                    <Link
+                      href={`/urunler?k=${cat.slug}&alt=${subSlug}`}
+                      className={styles.subPill}
+                    >
+                      {subName}
+                    </Link>
+                  )}
+                </div>
               )}
 
               <h1 className={styles.title}>{product.name}</h1>
