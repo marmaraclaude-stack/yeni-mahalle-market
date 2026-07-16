@@ -36,11 +36,10 @@ export default async function AdminProductEditPage({
   const { kayit, gorsel, hata } = await searchParams;
 
   const supabase = createAdminClient();
-  const { data, error } = await supabase
-    .from("products")
-    .select("*")
-    .eq("id", id)
-    .maybeSingle();
+  const [{ data, error }, brandsRes] = await Promise.all([
+    supabase.from("products").select("*").eq("id", id).maybeSingle(),
+    supabase.from("shop_brands").select("name, producer"),
+  ]);
 
   if (error) {
     return (
@@ -52,6 +51,10 @@ export default async function AdminProductEditPage({
   }
   if (!data) notFound();
   const product = data as Product;
+
+  // Marka listesi (Türkçe alfabetik) — form marka seçicisini besler.
+  const brands = ((brandsRes.data ?? []) as { name: string; producer: string }[])
+    .sort((a, b) => a.name.localeCompare(b.name, "tr"));
 
   const category = categoryBySlug(product.category_slug);
   const [tintBg, tintFg] = CATEGORY_TINTS[category?.tint ?? 0];
@@ -260,6 +263,7 @@ export default async function AdminProductEditPage({
               name: c.name,
             }))}
             units={units}
+            brands={brands}
           />
         </section>
 

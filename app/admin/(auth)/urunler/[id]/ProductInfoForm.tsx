@@ -9,7 +9,6 @@ import Link from "next/link";
 import { useState } from "react";
 import { formatGrams, isWeightBased, type Product } from "@/lib/shop/types";
 import { subcatsFor } from "@/lib/shop/subcategories";
-import { producerForBrand } from "@/lib/shop/brands";
 import styles from "../../../admin.module.css";
 
 interface Props {
@@ -17,6 +16,8 @@ interface Props {
   product: Product;
   categories: { slug: string; name: string }[];
   units: string[];
+  /** Marka listesi (shop_brands) — /admin/markalar sayfasından yönetilir. */
+  brands: { name: string; producer: string }[];
 }
 
 /** Gramı kg metnine çevir (250 → "0.25", 5000 → "5"). */
@@ -30,10 +31,12 @@ export default function ProductInfoForm({
   product,
   categories,
   units,
+  brands,
 }: Props) {
   const [byWeight, setByWeight] = useState(product.sold_by_weight);
-  // Üretici/işletmeci: bilinen marka yazılınca otomatik dolar (brands.ts),
-  // elle düzenlenirse otomatik doldurma o üründe devre dışı kalır.
+  const [brand, setBrand] = useState(product.brand ?? "");
+  // Üretici/işletmeci: marka seçilince shop_brands'teki değerle otomatik
+  // dolar; elle düzenlenirse otomatik doldurma o üründe devre dışı kalır.
   const [uretici, setUretici] = useState(product.details?.uretici ?? "");
   const [ureticiAuto, setUreticiAuto] = useState(false);
   const [category, setCategory] = useState(product.category_slug);
@@ -108,22 +111,39 @@ export default function ProductInfoForm({
           <label className={styles.label} htmlFor="p-brand">
             Marka
           </label>
-          <input
+          <select
             id="p-brand"
             name="brand"
-            defaultValue={product.brand}
-            className={styles.input}
-            /* Bilinen marka yazılınca üretici alanı otomatik dolar; alan boşsa
-               ya da önceki değer de otomatik dolmuşsa üzerine yazılır. Elle
-               girilmiş üretici asla ezilmez. */
+            value={brand}
+            className={styles.select}
+            /* Marka seçilince üretici alanı otomatik dolar; alan boşsa ya da
+               önceki değer de otomatik dolmuşsa üzerine yazılır. Elle girilmiş
+               üretici asla ezilmez. */
             onChange={(e) => {
-              const p = producerForBrand(e.target.value);
+              const v = e.target.value;
+              setBrand(v);
+              const p = brands.find((b) => b.name === v)?.producer ?? "";
               if (p && (uretici.trim() === "" || ureticiAuto)) {
                 setUretici(p);
                 setUreticiAuto(true);
               }
             }}
-          />
+          >
+            <option value="">Markasız</option>
+            {/* Ürünün mevcut markası listede yoksa seçenek olarak korunur */}
+            {brand !== "" && !brands.some((b) => b.name === brand) && (
+              <option value={brand}>{brand}</option>
+            )}
+            {brands.map((b) => (
+              <option key={b.name} value={b.name}>
+                {b.name}
+              </option>
+            ))}
+          </select>
+          <p className={styles.fieldHint}>
+            Marka seçilince üretici alanı otomatik dolar. Yeni marka eklemek
+            için <Link href="/admin/markalar">Markalar</Link> sayfasını kullan.
+          </p>
         </div>
 
         {/* Gram bazlı satışta gramaj anlamsız — gizlenir. */}
@@ -419,7 +439,7 @@ export default function ProductInfoForm({
                   setUreticiAuto(false); // elle düzenlendi; artık otomatik ezilmez
                 }}
                 className={styles.input}
-                placeholder="Marka yazınca otomatik dolar; elle de düzenlenebilir"
+                placeholder="Marka seçilince otomatik dolar; elle de düzenlenebilir"
               />
             </div>
             <div className={styles.fieldFull}>

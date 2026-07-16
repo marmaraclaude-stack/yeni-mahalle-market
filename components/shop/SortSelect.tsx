@@ -8,7 +8,6 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import {
   ArrowDown01,
-  ArrowDownUp,
   ArrowUp01,
   ChevronDown,
   Flame,
@@ -85,9 +84,6 @@ export default function SortSelect({
         aria-label={`Sıralama: ${currentName}`}
         onClick={() => setOpen((v) => !v)}
       >
-        <span className={styles.selIcon} aria-hidden="true">
-          <ArrowDownUp size={16} strokeWidth={2.1} />
-        </span>
         <span className={styles.selText}>
           <span className={styles.selCaption}>SIRALAMA</span>
           <span className={styles.selCurrent}>{currentShort}</span>

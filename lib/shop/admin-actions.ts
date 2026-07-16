@@ -2351,3 +2351,146 @@ export async function updateSubcatSortBulk(
   }
   revalidateProductPages();
 }
+
+/* =========================  Markalar  =========================
+   shop_brands: marka -> üretici/işletmeci kataloğu. Ürün düzenleme
+   formundaki marka listesi buradan gelir; marka seçilince üretici
+   alanı buradaki değerle otomatik dolar. */
+
+/** shop_brands satırı (Markalar sayfası + ürün formu marka listesi). */
+export interface ShopBrand {
+  id: string;
+  name: string;
+  producer: string;
+}
+
+function brandError(prefix: string, error: { code?: string; message: string }): Error {
+  if (error.code === "23505") return new Error("Bu adla kayıtlı bir marka zaten var.");
+  return new Error(`${prefix}: ${error.message}`);
+}
+
+function revalidateBrandPages(): void {
+  revalidatePath("/admin/markalar");
+  revalidatePath("/admin/urunler");
+  revalidatePath("/urunler");
+}
+
+/**
+ * Markanın üreticisini o markadaki ürünlere işler; elle girilmiş değerleri
+ * EZMEZ. Yalnız boş olan, marka adının kendisi yazılmış olan ya da (varsa)
+ * eski otomatik değeri taşıyan ürünler güncellenir.
+ */
+async function applyProducerToProducts(
+  supabase: AdminClient,
+  brandName: string,
+  producer: string,
+  replaceOld: string | null,
+): Promise<void> {
+  if (!producer) return;
+  const { data, error } = await supabase
+    .from("products")
+    .select("id, details")
+    .eq("brand", brandName);
+  if (error) throw new Error(`Ürünler okunamadı: ${error.message}`);
+
+  const rows = (data ?? []) as {
+    id: string;
+    details: Record<string, unknown> | null;
+  }[];
+  const targets = rows.filter((r) => {
+    const current = String((r.details?.uretici as string | undefined) ?? "").trim();
+    return (
+      current === "" ||
+      current === brandName ||
+      (replaceOld !== null && current === replaceOld)
+    );
+  });
+
+  const CHUNK = 20;
+  for (let i = 0; i < targets.length; i += CHUNK) {
+    const chunk = targets.slice(i, i + CHUNK);
+    const results = await Promise.all(
+      chunk.map((r) =>
+        supabase
+          .from("products")
+          .update({ details: { ...(r.details ?? {}), uretici: producer } })
+          .eq("id", r.id),
+      ),
+    );
+    const failed = results.find((res) => res.error);
+    if (failed?.error) {
+      throw new Error(`Üretici ürünlere işlenemedi: ${failed.error.message}`);
+    }
+  }
+}
+
+/** Yeni marka ekler; üretici verildiyse mevcut ürünlerin boş alanlarına işler. */
+export async function createBrand(name: string, producer: string): Promise<void> {
+  await requireAdmin();
+  const n = name.trim();
+  const p = producer.trim();
+  if (!n) throw new Error("Marka adı boş olamaz.");
+
+  const supabase = createAdminClient();
+  const { error } = await supabase
+    .from("shop_brands")
+    .insert({ name: n, producer: p });
+  if (error) throw brandError("Marka eklenemedi", error);
+
+  await applyProducerToProducts(supabase, n, p, null);
+  revalidateBrandPages();
+}
+
+/**
+ * Marka adını/üreticisini günceller. Ad değişirse o markadaki TÜM ürünler
+ * yeni ada taşınır; üretici değişirse boş ya da eski otomatik değeri taşıyan
+ * ürünler yeni üreticiyle güncellenir (elle girilmiş farklı değer korunur).
+ */
+export async function updateBrand(
+  id: string,
+  patch: { name: string; producer: string },
+): Promise<void> {
+  await requireAdmin();
+  const n = patch.name.trim();
+  const p = patch.producer.trim();
+  if (!n) throw new Error("Marka adı boş olamaz.");
+
+  const supabase = createAdminClient();
+  const { data: oldRow, error: readError } = await supabase
+    .from("shop_brands")
+    .select("id, name, producer")
+    .eq("id", id)
+    .maybeSingle();
+  if (readError) throw new Error(`Marka okunamadı: ${readError.message}`);
+  if (!oldRow) throw new Error("Marka bulunamadı.");
+  const old = oldRow as ShopBrand;
+
+  const { error } = await supabase
+    .from("shop_brands")
+    .update({ name: n, producer: p, updated_at: new Date().toISOString() })
+    .eq("id", id);
+  if (error) throw brandError("Marka güncellenemedi", error);
+
+  if (n !== old.name) {
+    const { error: renameError } = await supabase
+      .from("products")
+      .update({ brand: n })
+      .eq("brand", old.name);
+    if (renameError) {
+      throw new Error(`Ürünlerdeki marka adı taşınamadı: ${renameError.message}`);
+    }
+  }
+  if (p && p !== old.producer) {
+    await applyProducerToProducts(supabase, n, p, old.producer || null);
+  }
+  revalidateBrandPages();
+}
+
+/** Markayı listeden siler; ürünlerdeki marka yazısına dokunmaz. */
+export async function deleteBrand(id: string): Promise<void> {
+  await requireAdmin();
+  const supabase = createAdminClient();
+  const { error } = await supabase.from("shop_brands").delete().eq("id", id);
+  if (error) throw new Error(`Marka silinemedi: ${error.message}`);
+  revalidateBrandPages();
+}

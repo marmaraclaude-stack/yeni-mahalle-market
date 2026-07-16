@@ -18,6 +18,7 @@ import {
   Package,
   Settings,
   ShoppingBag,
+  Tags,
   Ticket,
   Users,
   type LucideIcon,
@@ -35,6 +36,7 @@ const SHOP_PREFIXES = [
   "/admin/siparisler",
   "/admin/urunler",
   "/admin/kategoriler",
+  "/admin/markalar",
   "/admin/stok",
   "/admin/kuponlar",
   "/admin/bannerlar",
@@ -69,6 +71,12 @@ const ITEMS: NavItem[] = [
     label: "Kategoriler",
     icon: LayoutGrid,
     isActive: (p) => p.startsWith("/admin/kategoriler"),
+  },
+  {
+    href: "/admin/markalar",
+    label: "Markalar",
+    icon: Tags,
+    isActive: (p) => p.startsWith("/admin/markalar"),
   },
   {
     href: "/admin/stok",

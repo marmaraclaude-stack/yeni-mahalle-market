@@ -8,7 +8,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { ChevronDown, ListFilter } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import styles from "@/app/urunler/shop.module.css";
 
 export interface SubTab {
@@ -81,9 +81,6 @@ export default function SubcatSelect({
         aria-label={`Alt kategori: ${currentName}`}
         onClick={() => setOpen((v) => !v)}
       >
-        <span className={styles.selIcon} aria-hidden="true">
-          <ListFilter size={16} strokeWidth={2.1} />
-        </span>
         <span className={styles.selText}>
           {/* Literal büyük harf: CSS text-transform Türkçe İ'yi bozuyordu
              ("KATEGORI"); metin doğrudan doğru yazımla verilir. */}
