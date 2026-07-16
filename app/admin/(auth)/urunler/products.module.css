@@ -258,3 +258,14 @@
   gap: 8px;
   flex-shrink: 0;
 }
+
+/* Otomatik kayıt tamamlandı: yeşil onay durumu */
+.orderBarSaved {
+  border-style: solid;
+  border-color: rgba(21, 155, 87, 0.45);
+  background: #eafaf0;
+}
+.orderBarSaved .orderBarText {
+  color: #159b57;
+  font-weight: 600;
+}

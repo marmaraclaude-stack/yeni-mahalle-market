@@ -240,7 +240,7 @@ export default async function AdminProductEditPage({
       {kayit === "ok" && <p className={styles.msgOk}>Ürün kaydedildi.</p>}
       {kayit === "kopya" && (
         <p className={styles.msgOk}>
-          Ürünün kopyası oluşturuldu — şu an <b>pasif</b>. Bilgileri düzenleyip
+          Ürünün kopyası oluşturuldu ve şu an <b>pasif</b>. Bilgileri düzenleyip
           &quot;Durum&quot;u aktifleştirdiğinizde vitrinde görünür.
         </p>
       )}

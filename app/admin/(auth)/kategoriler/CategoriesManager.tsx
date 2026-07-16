@@ -176,8 +176,8 @@ export default function CategoriesManager({
                         aria-pressed={!off}
                         title={
                           off
-                            ? "Gizli — vitrinde göstermek için tıkla"
-                            : "Görünür — vitrinden gizlemek için tıkla"
+                            ? "Gizli. Vitrinde göstermek için tıkla"
+                            : "Görünür. Vitrinden gizlemek için tıkla"
                         }
                       >
                         {off ? (

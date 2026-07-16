@@ -9,7 +9,7 @@
 // kontroller GET linkidir, k/altk/q/filtre parametreleri korunur. Kategori
 // rozetinin altinda kural tabanli alt kategori etiketi gosterilir.
 
-import { useEffect, useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -134,13 +134,22 @@ function ProductRow({
   const [busy, setBusy] = useState(false);
   const [, startTransition] = useTransition();
 
+  // Toplu sıralama kaydından sonra router.refresh ile yeni sort değerleri
+  // gelir; yerel durum güncellenmezse satır yanlışlıkla "değişti" görünür ve
+  // Kaydet, bayat değeri geri yazıp sıralamayı bozar. Bu senkron onu önler.
+  useEffect(() => {
+    setSortVal(String(product.sort));
+  }, [product.sort]);
+
   const compareInitial =
     product.compare_at_price === null ? "" : String(product.compare_at_price);
+  // Sıralama modunda sort alanı bu satırdan yönetilmez (pozisyon kutusu ve
+  // otomatik kayıt üstlenir); dirty hesabına ve kayda dahil edilmez.
   const dirty =
     parsePrice(price) !== Number(product.price) ||
     compare.trim() !== compareInitial ||
     inStock !== product.in_stock ||
-    sortVal.trim() !== String(product.sort);
+    (!reorder && sortVal.trim() !== String(product.sort));
 
   function save() {
     const parsed = parsePrice(price);
@@ -157,20 +166,23 @@ function ProductRow({
       window.alert("Eski fiyat, güncel fiyattan yüksek olmalı (indirim için).");
       return;
     }
-    const parsedSort = Math.round(Number(sortVal.trim()));
-    if (sortVal.trim() === "" || !Number.isFinite(parsedSort)) {
-      window.alert("Geçerli bir sıra numarası girin (tam sayı, küçük olan önce gösterilir).");
-      return;
+    const patch: Parameters<typeof updateProduct>[1] = {
+      price: parsed,
+      in_stock: inStock,
+      compare_at_price: parsedCompare,
+    };
+    if (!reorder) {
+      const parsedSort = Math.round(Number(sortVal.trim()));
+      if (sortVal.trim() === "" || !Number.isFinite(parsedSort)) {
+        window.alert("Geçerli bir sıra numarası girin (tam sayı, küçük olan önce gösterilir).");
+        return;
+      }
+      patch.sort = parsedSort;
     }
     setBusy(true);
     startTransition(async () => {
       try {
-        await updateProduct(product.id, {
-          price: parsed,
-          in_stock: inStock,
-          compare_at_price: parsedCompare,
-          sort: parsedSort,
-        });
+        await updateProduct(product.id, patch);
         router.refresh();
       } finally {
         setBusy(false);
@@ -327,7 +339,7 @@ function ProductRow({
                 if (e.key === "Enter") (e.target as HTMLInputElement).blur();
               }}
               className={`${styles.inputSm} ${pstyles.sortInput}`}
-              title="Görünen pozisyon — numara yazıp Enter ile taşı, ya da satırı sürükle"
+              title="Görünen pozisyon: numara yazıp Enter ile taşı, ya da satırı sürükle"
               aria-label={`${product.name} pozisyonu`}
             />
           </span>
@@ -338,7 +350,7 @@ function ProductRow({
             value={sortVal}
             onChange={(e) => setSortVal(e.target.value)}
             className={`${styles.inputSm} ${pstyles.sortInput}`}
-            title="Gösterim sırası — küçük numara vitrinde önce gösterilir"
+            title="Gösterim sırası: küçük numara vitrinde önce gösterilir"
             aria-label={`${product.name} gösterim sırası`}
           />
         )}
@@ -548,89 +560,114 @@ export default function ProductsTable({
 
   // --- Sürükle-bırak sıralama (yalnız reorderable modda) ---
   // items: yerel sıra; products değişince (filtre/refresh) senkronlanır.
+  // Kayıt OTOMATİKTİR: her taşımadan kısa bir bekleme (debounce) sonra sunucuya
+  // yazılır; ayrıca bir "Sırayı Kaydet" düğmesi yoktur.
   const [items, setItems] = useState<Product[]>(products);
   const [dragId, setDragId] = useState<string | null>(null);
   const [overId, setOverId] = useState<string | null>(null);
-  const [savingOrder, setSavingOrder] = useState(false);
+  const [orderStatus, setOrderStatus] = useState<"idle" | "saving" | "saved">(
+    "idle",
+  );
+  const itemsRef = useRef<Product[]>(products);
+  const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const statusTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => {
     setItems(products);
+    itemsRef.current = products;
   }, [products]);
-  const orderChanged =
-    reorderable &&
-    (items.length !== products.length ||
-      items.some((p, i) => p.id !== products[i]?.id));
+  useEffect(() => {
+    itemsRef.current = items;
+  }, [items]);
+  useEffect(() => {
+    return () => {
+      if (saveTimer.current) clearTimeout(saveTimer.current);
+      if (statusTimer.current) clearTimeout(statusTimer.current);
+    };
+  }, []);
 
-  /** id'li satırı 1 tabanlı hedef pozisyona taşı. */
-  const moveTo = (id: string, pos: number) => {
-    setItems((prev) => {
-      const from = prev.findIndex((p) => p.id === id);
-      if (from === -1) return prev;
-      const to = Math.max(0, Math.min(prev.length - 1, Math.round(pos) - 1));
-      if (to === from) return prev;
-      const next = [...prev];
-      const [row] = next.splice(from, 1);
-      next.splice(to, 0, row);
-      return next;
-    });
-  };
-
-  const dropOn = (targetId: string) => {
-    if (!dragId || dragId === targetId) {
-      setDragId(null);
-      setOverId(null);
-      return;
-    }
-    setItems((prev) => {
-      const from = prev.findIndex((p) => p.id === dragId);
-      const to = prev.findIndex((p) => p.id === targetId);
-      if (from === -1 || to === -1) return prev;
-      const next = [...prev];
-      const [row] = next.splice(from, 1);
-      next.splice(to, 0, row);
-      return next;
-    });
-    setDragId(null);
-    setOverId(null);
-  };
-
-  /** Yeni sırayı kalıcılaştır. Kategori slug'ı varsa alt-küme-farkındalıklı
-     kayıt kullanılır: liste ister kategori tamamı ister alt kategori olsun,
-     üyeler kategori içindeki kendi slotlarına yerleşir ve kategori geneli
-     yeniden numaralanır — alt küme dışındaki ürünlerin sırası bozulmaz. */
-  function saveOrder() {
-    setSavingOrder(true);
+  /** Yeni sırayı sunucuya yaz. Kategori slug'ı varsa alt-küme-farkındalıklı
+     kayıt: üyeler kategori listesindeki kendi slotlarına yerleşir, kategori
+     geneli yeniden numaralanır; alt küme dışındakilerin sırası bozulmaz. */
+  const persistOrder = () => {
+    setOrderStatus("saving");
     startTransition(async () => {
       try {
+        const snapshot = itemsRef.current;
         if (reorderCategorySlug) {
           await updateSubcatSortBulk(
             reorderCategorySlug,
-            items.map((p) => p.id),
+            snapshot.map((p) => p.id),
           );
         } else {
           await updateProductSortBulk(
-            items.map((p, i) => ({ id: p.id, sort: (i + 1) * 10 })),
+            snapshot.map((p, i) => ({ id: p.id, sort: (i + 1) * 10 })),
           );
         }
+        setOrderStatus("saved");
+        if (statusTimer.current) clearTimeout(statusTimer.current);
+        statusTimer.current = setTimeout(() => setOrderStatus("idle"), 2500);
         router.refresh();
       } catch (e) {
+        setOrderStatus("idle");
         window.alert(
           e instanceof Error ? e.message : "Sıralama kaydedilemedi.",
         );
-      } finally {
-        setSavingOrder(false);
       }
     });
-  }
+  };
 
-  /** Tek tık otomatik sıralama: çok satan işaretliler öne (kararlı sıralama —
-     kendi aralarındaki ve kalanların bağıl sırası korunur). Kaydetmek için
-     yine "Sırayı Kaydet" kullanılır. */
+  /** Taşımaları grupla: son değişiklikten 700 ms sonra tek seferde kaydet. */
+  const scheduleOrderSave = () => {
+    if (saveTimer.current) clearTimeout(saveTimer.current);
+    saveTimer.current = setTimeout(persistOrder, 700);
+  };
+
+  /** Listeyi yeni dizilime geçir ve otomatik kaydı planla (değişiklik yoksa hiçbir şey yapma). */
+  const applyOrder = (next: Product[]) => {
+    const prev = itemsRef.current;
+    if (next.length === prev.length && next.every((p, i) => p.id === prev[i].id)) {
+      return;
+    }
+    setItems(next);
+    itemsRef.current = next;
+    scheduleOrderSave();
+  };
+
+  /** id'li satırı 1 tabanlı hedef pozisyona taşı. */
+  const moveTo = (id: string, pos: number) => {
+    const prev = itemsRef.current;
+    const from = prev.findIndex((p) => p.id === id);
+    if (from === -1) return;
+    const to = Math.max(0, Math.min(prev.length - 1, Math.round(pos) - 1));
+    if (to === from) return;
+    const next = [...prev];
+    const [row] = next.splice(from, 1);
+    next.splice(to, 0, row);
+    applyOrder(next);
+  };
+
+  const dropOn = (targetId: string) => {
+    const id = dragId;
+    setDragId(null);
+    setOverId(null);
+    if (!id || id === targetId) return;
+    const prev = itemsRef.current;
+    const from = prev.findIndex((p) => p.id === id);
+    const to = prev.findIndex((p) => p.id === targetId);
+    if (from === -1 || to === -1) return;
+    const next = [...prev];
+    const [row] = next.splice(from, 1);
+    next.splice(to, 0, row);
+    applyOrder(next);
+  };
+
+  /** Tek tık otomatik sıralama: çok satan işaretliler öne (kararlı sıralama;
+     kendi aralarındaki ve kalanların bağıl sırası korunur). Otomatik kaydedilir. */
   function autoSortBestSellers() {
-    setItems((prev) =>
-      [...prev].sort(
-        (a, b) => Number(b.is_best_seller) - Number(a.is_best_seller),
-      ),
+    const next = [...itemsRef.current].sort(
+      (a, b) => Number(b.is_best_seller) - Number(a.is_best_seller),
     );
+    applyOrder(next);
   }
 
   function handleCreate(e: React.FormEvent<HTMLFormElement>) {
@@ -851,47 +888,37 @@ export default function ProductsTable({
         </section>
       )}
 
-      {/* Sıralama modu bilgi/kayıt çubuğu */}
+      {/* Sıralama modu bilgi çubuğu: değişiklikler OTOMATİK kaydedilir,
+          durum (kaydediliyor / kaydedildi) burada gösterilir. */}
       {reorderable && (
         <div
-          className={`${pstyles.orderBar}${orderChanged ? ` ${pstyles.orderBarDirty}` : ""}`}
+          className={`${pstyles.orderBar}${
+            orderStatus === "saving"
+              ? ` ${pstyles.orderBarDirty}`
+              : orderStatus === "saved"
+                ? ` ${pstyles.orderBarSaved}`
+                : ""
+          }`}
+          aria-live="polite"
         >
           <span className={pstyles.orderBarText}>
-            {orderChanged
-              ? "Sıra değişti — kaydetmeyi unutmayın. Vitrindeki gösterim bu sıraya göre güncellenecek."
-              : "Satırları sürükleyerek ya da Sıra kutusuna pozisyon yazarak vitrindeki gösterim sırasını düzenleyin."}
+            {orderStatus === "saving"
+              ? "Sıra kaydediliyor..."
+              : orderStatus === "saved"
+                ? "Sıra kaydedildi. Vitrindeki gösterim güncellendi."
+                : "Satırları sürükleyerek ya da Sıra kutusuna pozisyon yazarak sırayı düzenleyin. Değişiklikler otomatik kaydedilir."}
           </span>
           <span className={pstyles.orderBarBtns}>
             <button
               type="button"
               onClick={autoSortBestSellers}
-              disabled={savingOrder}
+              disabled={orderStatus === "saving"}
               className={styles.btnRow}
-              title="Çok satan işaretli ürünleri listenin başına al (kaydetmek için Sırayı Kaydet)"
+              title="Çok satan işaretli ürünleri listenin başına al (otomatik kaydedilir)"
             >
               <Star size={13} aria-hidden />
               Çok Satanları Öne Al
             </button>
-            {orderChanged && (
-              <>
-                <button
-                  type="button"
-                  onClick={() => setItems(products)}
-                  disabled={savingOrder}
-                  className={styles.btnRow}
-                >
-                  Vazgeç
-                </button>
-                <button
-                  type="button"
-                  onClick={saveOrder}
-                  disabled={savingOrder}
-                  className={`${styles.btnRow} ${styles["btnRow--primary"]}`}
-                >
-                  {savingOrder ? "Kaydediliyor…" : "Sırayı Kaydet"}
-                </button>
-              </>
-            )}
           </span>
         </div>
       )}
@@ -931,7 +958,7 @@ export default function ProductsTable({
                   <tr>
                     <th>Ürün</th>
                     <th>Kategori</th>
-                    <th title="Gösterim sırası — küçük numara vitrinde önce">Sıra</th>
+                    <th title="Gösterim sırası: küçük numara vitrinde önce">Sıra</th>
                     <th>Fiyat</th>
                     <th>Eski Fiyat</th>
                     <th>Stok</th>
