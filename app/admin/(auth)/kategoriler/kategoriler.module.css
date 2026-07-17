@@ -209,22 +209,48 @@ details[open] > .editSummary::before { transform: rotate(45deg); }
   line-height: 1.5;
   color: var(--gray-400, #a3a3a3);
 }
+/* Düzenleyici açık kart tam satıra yayılır — kutular ferah durur */
+.cardWide { grid-column: 1 / -1; }
 .editRows {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  margin-top: 10px;
+  margin-top: 12px;
 }
+.editHead,
 .editRow {
   display: grid;
-  grid-template-columns: minmax(90px, 1fr) minmax(120px, 1.5fr) auto;
-  gap: 6px;
+  grid-template-columns: minmax(130px, 240px) minmax(160px, 1fr) 152px;
+  gap: 8px;
   align-items: center;
 }
+.editHead {
+  padding: 0 12px;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--gray-400, #a3a3a3);
+}
+.editRow {
+  padding: 5px 6px;
+  border-radius: 10px;
+  transition: background 140ms ease;
+}
+.editRow:hover { background: var(--gray-50, #fafafa); }
+.editGeneral {
+  justify-self: start;
+  padding: 5px 11px;
+  border-radius: 999px;
+  background: var(--gray-100, #f5f5f5);
+  color: var(--gray-500, #737373);
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
 .editInput {
-  height: 34px;
+  height: 36px;
   min-width: 0;
-  padding: 0 10px;
+  padding: 0 11px;
   border: 1px solid var(--gray-200, #e5e5e5);
   border-radius: 9px;
   background: var(--white, #fff);
@@ -288,9 +314,14 @@ details[open] > .editSummary::before { transform: rotate(45deg); }
 }
 .editAddBtn:hover { background: var(--accent-deep, #c43e0c); }
 .editAddBtn:disabled { opacity: 0.55; cursor: default; }
-@media (max-width: 480px) {
+@media (max-width: 560px) {
+  .editHead { display: none; }
   .editRow {
     grid-template-columns: 1fr;
+    row-gap: 6px;
+    padding: 8px;
+    border: 1px solid var(--gray-100, #f5f5f5);
+    border-radius: 10px;
   }
   .editBtns { justify-content: flex-start; }
 }

@@ -56,6 +56,9 @@ export default function CategoriesManager({
   const [inactive, setInactive] = useState<Set<string>>(
     () => new Set(initialInactive),
   );
+  // Düzenleyicisi açık kartlar tam satır genişliğine yayılır (dar kartta
+  // ad + anahtar kelime kutuları sıkışıyordu).
+  const [openEditors, setOpenEditors] = useState<Set<string>>(() => new Set());
   const [hidden, setHidden] = useState<Set<string>>(() => new Set(initialHidden));
   const [error, setError] = useState<string | null>(null);
   const [, startTransition] = useTransition();
@@ -148,7 +151,7 @@ export default function CategoriesManager({
           return (
             <section
               key={c.slug}
-              className={`${kstyles.card}${catOff ? ` ${kstyles.cardOff}` : ""}`}
+              className={`${kstyles.card}${catOff ? ` ${kstyles.cardOff}` : ""}${openEditors.has(c.slug) ? ` ${kstyles.cardWide}` : ""}`}
             >
               <header className={kstyles.head}>
                 <span
@@ -215,7 +218,18 @@ export default function CategoriesManager({
               {/* Alt kategori DÜZENLEYİCİ: ekle / yeniden adlandır / desen /
                   sırala / sil. Sıra otomatik eşlemede önceliktir (ilk kural
                   kazanır); en alttaki genellikle genel kuraldır. */}
-              <details className={kstyles.editWrap}>
+              <details
+                className={kstyles.editWrap}
+                onToggle={(e) => {
+                  const isOpen = (e.currentTarget as HTMLDetailsElement).open;
+                  setOpenEditors((prev) => {
+                    const next = new Set(prev);
+                    if (isOpen) next.add(c.slug);
+                    else next.delete(c.slug);
+                    return next;
+                  });
+                }}
+              >
                 <summary className={kstyles.editSummary}>
                   Alt kategorileri düzenle
                 </summary>
@@ -270,6 +284,11 @@ function SubcatEditor({
 
   return (
     <div className={kstyles.editRows}>
+      <div className={kstyles.editHead} aria-hidden>
+        <span>Ad</span>
+        <span>Anahtar kelimeler</span>
+        <span />
+      </div>
       {subs.map((s, i) => (
         <SubcatRow
           key={s.slug}
@@ -292,7 +311,7 @@ function SubcatEditor({
           className={kstyles.editInput}
           value={newPattern}
           onChange={(e) => setNewPattern(e.target.value)}
-          placeholder="Anahtar kelimeler (örn. tavuk|piliç)"
+          placeholder="tavuk|piliç gibi kelimeler (boş = yalnız elle atama)"
           aria-label="Yeni alt kategori anahtar kelimeleri"
         />
         <div className={kstyles.editBtns}>
@@ -359,13 +378,20 @@ function SubcatRow({
         onChange={(e) => setName(e.target.value)}
         aria-label={`${sub.name} alt kategori adı`}
       />
-      <input
-        className={kstyles.editInput}
-        value={pattern}
-        onChange={(e) => setPattern(e.target.value)}
-        placeholder="Anahtar kelimeler"
-        aria-label={`${sub.name} anahtar kelimeleri`}
-      />
+      {sub.pattern === "." ? (
+        /* Genel kural: eşleşmeyen her ürün buraya düşer; desen düzenlenmez */
+        <span className={kstyles.editGeneral} title="Üstteki kurallara uymayan tüm ürünler bu alta düşer">
+          Kalanların tümü
+        </span>
+      ) : (
+        <input
+          className={kstyles.editInput}
+          value={pattern}
+          onChange={(e) => setPattern(e.target.value)}
+          placeholder="Anahtar kelimeler"
+          aria-label={`${sub.name} anahtar kelimeleri`}
+        />
+      )}
       <div className={kstyles.editBtns}>
         {dirty && (
           <button
