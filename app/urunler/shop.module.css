@@ -1376,21 +1376,22 @@
 }
 .selBtn:hover .selChev { color: var(--ink); }
 .selChevOpen { transform: rotate(180deg); }
-/* Aktif filtre — siyah zemin, beyaz yazı (admin siyah butonlarıyla aynı dil) */
+/* Aktif filtre — zemin BEYAZ kalır; vurgu yalnız net siyah çerçeve
+   (iç gölgeyle 2px görünür) + koyu metin. */
 .selBtnActive {
-  background: var(--ink);
+  background: var(--white);
   border-color: var(--ink);
+  box-shadow: inset 0 0 0 1px var(--ink);
 }
 .selBtnActive:hover {
   border-color: var(--ink);
-  box-shadow: 0 10px 22px -14px rgba(17, 17, 17, 0.5);
+  box-shadow: inset 0 0 0 1px var(--ink),
+    0 8px 18px -14px rgba(17, 17, 17, 0.28);
 }
-.selBtnActive .selLabel { color: rgba(255, 255, 255, 0.62); }
-.selBtnActive .selCurrent { color: var(--white); }
-.selBtnActive .selCount { color: rgba(255, 255, 255, 0.75); }
-.selBtnActive .selCount::before { color: rgba(255, 255, 255, 0.35); }
+.selBtnActive .selLabel { color: var(--gray-600); }
+.selBtnActive .selCount { color: var(--gray-600); }
 .selBtnActive .selChev,
-.selBtnActive:hover .selChev { color: rgba(255, 255, 255, 0.85); }
+.selBtnActive:hover .selChev { color: var(--ink); }
 /* Dar/mobil: tam genişlik hap; ölçüler hafif sıkılaşır. */
 @media (max-width: 640px) {
   .selBtn { height: 44px; gap: 6px; padding: 0 12px 0 14px; }
