@@ -26,6 +26,16 @@ function gramsToKgText(grams: number): string {
   return String(kg);
 }
 
+/** Üretici karşılaştırması için normalize: tr küçük harf, tek boşluk,
+    sondaki nokta(lar) yok. ("...A.Ş" ile "...A.Ş." aynı sayılır) */
+function normProducer(s: string): string {
+  return s
+    .toLocaleLowerCase("tr-TR")
+    .replace(/\s+/g, " ")
+    .trim()
+    .replace(/\.+$/, "");
+}
+
 export default function ProductInfoForm({
   saveAction,
   product,
@@ -116,15 +126,30 @@ export default function ProductInfoForm({
             name="brand"
             value={brand}
             className={styles.select}
-            /* Marka seçilince üretici alanı otomatik dolar; alan boşsa ya da
-               önceki değer de otomatik dolmuşsa üzerine yazılır. Elle girilmiş
-               üretici asla ezilmez. */
+            /* Marka seçilince üretici alanı otomatik güncellenir. Alan boşsa,
+               bu oturumda otomatik dolduysa YA DA mevcut değer bilinen bir
+               markanın üreticisi/adıysa (yani eski markadan kalan otomatik bir
+               değerse) üzerine yazılır; yeni markanın üreticisi yoksa eski
+               markanın değeri temizlenir. Elle girilmiş ÖZEL değer korunur. */
             onChange={(e) => {
               const v = e.target.value;
               setBrand(v);
-              const p = brands.find((b) => b.name === v)?.producer ?? "";
-              if (p && (uretici.trim() === "" || ureticiAuto)) {
-                setUretici(p);
+              const newProducer = brands.find((b) => b.name === v)?.producer ?? "";
+              const cur = normProducer(uretici);
+              const knownValue =
+                cur !== "" &&
+                brands.some(
+                  (b) =>
+                    (b.producer !== "" && normProducer(b.producer) === cur) ||
+                    normProducer(b.name) === cur,
+                );
+              const replaceable = cur === "" || ureticiAuto || knownValue;
+              if (!replaceable) return;
+              if (newProducer) {
+                setUretici(newProducer);
+                setUreticiAuto(true);
+              } else if (cur !== "") {
+                setUretici(""); // eski markanın üreticisi yeni markada kalmasın
                 setUreticiAuto(true);
               }
             }}
