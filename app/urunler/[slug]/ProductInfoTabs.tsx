@@ -34,10 +34,13 @@ export default function ProductInfoTabs({
   description,
   details,
   specs,
+  per100Label = "100 g / ml",
 }: {
   description: string;
   details: ProductDetails | null;
   specs: Spec[];
+  /** Besin tablosu birim başlığı: içecekte "100 ml", gıdada "100 g". */
+  per100Label?: string;
 }) {
   // Etiket alanları: [başlık, değer] — boşlar atlanır.
   const labelRows: Spec[] = [];
@@ -124,7 +127,7 @@ export default function ProductInfoTabs({
             <thead>
               <tr>
                 <th scope="col">Besin Değeri</th>
-                <th scope="col">100 g / ml</th>
+                <th scope="col">{per100Label}</th>
               </tr>
             </thead>
             <tbody>

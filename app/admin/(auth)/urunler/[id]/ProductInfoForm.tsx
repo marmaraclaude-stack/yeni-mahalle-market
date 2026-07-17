@@ -121,6 +121,17 @@ export default function ProductInfoForm({
   const [unit, setUnit] = useState(product.unit || "adet");
   const subOptions = subcats[category] ?? [];
 
+  // İçecek modu: birim ml/litre ise besin değerleri 100 ml üzerinden ve
+  // sadeleşmiş alanlarla girilir (yağ/doymuş yağ/protein sorulmaz).
+  const isBeverage = !byWeight && (unit === "ml" || unit === "litre");
+  // Besin değerleri opsiyonel: kutu işaretli değilse alanlar gizlenir ve
+  // kayıtta temizlenir. Varsayılan: üründe dolu besin değeri varsa işaretli.
+  const [besinOn, setBesinOn] = useState(() =>
+    Object.values(product.details?.besin100 ?? {}).some(
+      (v) => v !== null && v !== undefined,
+    ),
+  );
+
   // Fiyat + en az miktar birbirine bağlı: kg fiyatı canonical (name="price"),
   // en az miktar fiyatı = kg fiyatı × en az miktar. Yönetici ikisinden birini
   // yazar, diğeri otomatik güncellenir. "125 g fiyatı nedir / kg fiyatı nedir".
@@ -609,23 +620,40 @@ export default function ProductInfoForm({
               />
             </div>
             <div className={styles.fieldFull}>
-              <label className={styles.label}>
-                Besin değerleri (100 g/ml için; boş bırakılan satır müşteriye
-                gösterilmez)
+              {/* Besin değerleri opsiyonel: işaret kaldırılırsa alanlar
+                  gizlenir ve kayıtta besin tablosu temizlenir. */}
+              <label className={styles.checkLabel}>
+                <input
+                  type="checkbox"
+                  checked={besinOn}
+                  onChange={(e) => setBesinOn(e.target.checked)}
+                />
+                Besin değerleri girilsin ({isBeverage ? "100 ml" : "100 g"} için;
+                boş bırakılan satır müşteriye gösterilmez)
               </label>
             </div>
-            {(
-              [
-                ["det_kcal", "Enerji (kcal)", product.details?.besin100?.enerji_kcal],
-                ["det_kj", "Enerji (kJ)", product.details?.besin100?.enerji_kj],
-                ["det_yag", "Yağ (g)", product.details?.besin100?.yag_g],
-                ["det_doymus", "Doymuş yağ (g)", product.details?.besin100?.doymus_yag_g],
-                ["det_karb", "Karbonhidrat (g)", product.details?.besin100?.karbonhidrat_g],
-                ["det_seker", "Şeker (g)", product.details?.besin100?.seker_g],
-                ["det_protein", "Protein (g)", product.details?.besin100?.protein_g],
-                ["det_tuz", "Tuz (g)", product.details?.besin100?.tuz_g],
-              ] as const
-            ).map(([name, label, value]) => (
+            {besinOn &&
+              (
+                [
+                  ["det_kcal", "Enerji (kcal)", product.details?.besin100?.enerji_kcal],
+                  ["det_kj", "Enerji (kJ)", product.details?.besin100?.enerji_kj],
+                  ["det_yag", "Yağ (g)", product.details?.besin100?.yag_g],
+                  ["det_doymus", "Doymuş yağ (g)", product.details?.besin100?.doymus_yag_g],
+                  ["det_karb", "Karbonhidrat (g)", product.details?.besin100?.karbonhidrat_g],
+                  ["det_seker", "Şeker (g)", product.details?.besin100?.seker_g],
+                  ["det_protein", "Protein (g)", product.details?.besin100?.protein_g],
+                  ["det_tuz", "Tuz (g)", product.details?.besin100?.tuz_g],
+                ] as const
+              )
+                // İçecekte sade set: enerji + karbonhidrat + şeker + tuz
+                .filter(
+                  ([name]) =>
+                    !isBeverage ||
+                    ["det_kcal", "det_kj", "det_karb", "det_seker", "det_tuz"].includes(
+                      name,
+                    ),
+                )
+                .map(([name, label, value]) => (
               <div className={styles.field} key={name}>
                 <label className={styles.label} htmlFor={`p-${name}`}>
                   {label}
@@ -638,7 +666,7 @@ export default function ProductInfoForm({
                   className={styles.input}
                 />
               </div>
-            ))}
+                ))}
           </div>
         )}
 

@@ -500,6 +500,11 @@ export default async function UrunDetayPage({ params }: { params: Params }) {
               description={product.description}
               details={product.details ?? null}
               specs={specs}
+              per100Label={
+                product.unit === "ml" || product.unit === "litre"
+                  ? "100 ml"
+                  : "100 g"
+              }
             />
           )}
 

@@ -70,7 +70,7 @@ export default async function AdminProductEditPage({
   // Birim seçenekleri — üründe farklı bir değer varsa listeye eklenir.
   // "gram": sabit gramajlı paket (ör. 125 g ahududu) — gram seçici DEĞİL,
   // pakete göre fiyat + "₺X / kg" bilgisi gösterilir.
-  const units = ["adet", "kg", "gram", "paket"];
+  const units = ["adet", "kg", "gram", "paket", "ml", "litre"];
   if (product.unit && !units.includes(product.unit)) units.push(product.unit);
 
   // ---- Inline server action'lar ----
