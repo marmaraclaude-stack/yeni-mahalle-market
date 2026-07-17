@@ -84,10 +84,8 @@ export default function SortSelect({
         aria-label={`Sıralama: ${currentName}`}
         onClick={() => setOpen((v) => !v)}
       >
-        <span className={styles.selText}>
-          <span className={styles.selCaption}>SIRALAMA</span>
-          <span className={styles.selCurrent}>{currentShort}</span>
-        </span>
+        <span className={styles.selLabel}>Sıralama:</span>
+        <span className={styles.selCurrent}>{currentShort}</span>
         <ChevronDown
           size={17}
           strokeWidth={2.2}
@@ -98,7 +96,6 @@ export default function SortSelect({
 
       {open && (
         <div className={styles.selMenu} role="listbox" aria-label="Sıralama seçenekleri">
-          <p className={styles.selMenuTitle}>Sıralama</p>
           {SORT_OPTIONS.map((o) => {
             const on = o.key === current;
             const Icon = OPTION_ICONS[o.key];

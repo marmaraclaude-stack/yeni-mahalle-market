@@ -81,15 +81,11 @@ export default function SubcatSelect({
         aria-label={`Alt kategori: ${currentName}`}
         onClick={() => setOpen((v) => !v)}
       >
-        <span className={styles.selText}>
-          {/* Literal büyük harf: CSS text-transform Türkçe İ'yi bozuyordu
-             ("KATEGORI"); metin doğrudan doğru yazımla verilir. */}
-          <span className={styles.selCaption}>ALT KATEGORİ</span>
-          <span className={styles.selValueRow}>
-            <span className={styles.selCurrent}>{currentName}</span>
-            <span className={styles.selCount}>{currentCount}</span>
-          </span>
-        </span>
+        {/* Tek satır, büyük harf yok: "Alt kategori: Sosis · 24".
+           (Büyük harfli başlık 10px'te İ'nin noktasını yutuyordu.) */}
+        <span className={styles.selLabel}>Alt kategori:</span>
+        <span className={styles.selCurrent}>{currentName}</span>
+        <span className={styles.selCount}>{currentCount}</span>
         <ChevronDown
           size={17}
           strokeWidth={2.2}
@@ -100,7 +96,6 @@ export default function SubcatSelect({
 
       {open && (
         <div className={styles.selMenu} role="listbox" aria-label="Alt kategoriler">
-          <p className={styles.selMenuTitle}>Alt kategori seç</p>
           {items.map((it) => {
             const on = (it.slug || undefined) === activeAlt;
             return (

@@ -1300,128 +1300,102 @@
   gap: 12px;
   margin-bottom: 22px;
 }
-/* Mobil: iki seçici yan yana eşit genişlikte tam satırı doldurur.
-   (Kompakt ölçüler sel* tanımlarının SONUNDA — kaynak sırası.) */
+/* Mobil: haplar ALT ALTA tam genişlik — 50/50 bölünmede "Tavuk Baget"
+   gibi değerler kırpılıyordu; tam satırda etiket + değer rahat sığar. */
 @media (max-width: 640px) {
-  .toolbar { gap: 10px; }
-  .toolbar > * { flex: 1 1 calc(50% - 5px); min-width: 0; }
+  .toolbar { gap: 8px; }
+  .toolbar > * { flex: 1 1 100%; min-width: 0; }
 }
 
 .selWrap {
   position: relative;
   max-width: 100%;
-  min-width: 210px; /* masaüstünde iki seçici dengeli genişlikte durur */
 }
-/* Tetik — sakin, tipografi öncelikli kart: renkli ikon karosu YOK.
-   Üstte gri küçük başlık, altında koyu değer; sayaç sessiz gri hap.
-   Aktif filtre yalnız ılık çerçeve + turuncu sayaç hapıyla anlatılır. */
+/* Tetik — TEK SATIRLIK hap: "Alt kategori: Sosis · 24". Kategori
+   başlığındaki "N ürün" çipiyle aynı dil. Büyük harfli başlık YOK;
+   küçük harf i'nin noktası her boyutta net, Türkçe İ sorunu kökten
+   biter. Etiket gri, değer koyu; aktif filtre yumuşak turuncu hap. */
 .selBtn {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 7px;
   width: 100%;
-  min-height: 58px;
-  padding: 11px 14px 12px 16px;
+  height: 44px;
+  padding: 0 13px 0 16px;
   border: 1px solid var(--gray-200);
-  border-radius: 14px;
+  border-radius: var(--r-pill);
   background: var(--white);
   color: var(--ink);
   cursor: pointer;
-  transition: border-color 180ms var(--ease), box-shadow 180ms var(--ease);
+  transition: border-color 180ms var(--ease), background 180ms var(--ease),
+    box-shadow 180ms var(--ease);
 }
 .selBtn:hover {
   border-color: var(--gray-300);
-  box-shadow: 0 8px 20px -14px rgba(17, 17, 17, 0.25);
+  box-shadow: 0 8px 18px -14px rgba(17, 17, 17, 0.28);
 }
 .selBtn:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
-.selText {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 7px; /* başlık ile değer arası nefes payı */
-  text-align: left;
-}
-/* Başlık metni JSX'te doğru Türkçe büyük harfle yazılır (text-transform
-   Türkçe noktalı İ'yi bozduğu için kullanılmaz). */
-.selCaption {
-  max-width: 100%;
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.11em;
-  color: var(--gray-400);
-  line-height: 1;
+.selLabel {
+  flex-shrink: 0;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--gray-500);
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-/* Değer satırı: ad + yanında sessiz hap sayaç */
-.selValueRow {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  max-width: 100%;
-  min-width: 0;
 }
 .selCurrent {
   min-width: 0;
-  max-width: 100%;
   font-size: var(--fs-small);
   font-weight: 700;
   letter-spacing: -0.01em;
   color: var(--ink);
-  line-height: 1.2;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
-/* Sayaç — sessiz gri hap; aktif filtrede turuncuya döner */
+/* Sayaç — nokta ayraçlı sessiz rakam */
 .selCount {
   flex-shrink: 0;
-  padding: 2px 8px;
-  border-radius: var(--r-pill);
-  background: var(--gray-100);
-  color: var(--gray-500);
-  font-size: 11px;
-  font-weight: 700;
-  line-height: 1.5;
+  color: var(--gray-400);
+  font-size: 12.5px;
+  font-weight: 600;
   font-variant-numeric: tabular-nums;
-  transition: background 180ms var(--ease), color 180ms var(--ease);
+}
+.selCount::before {
+  content: "·";
+  margin-right: 7px;
+  color: var(--gray-300);
 }
 .selChev {
   flex-shrink: 0;
+  margin-left: auto;
   color: var(--gray-400);
   transition: transform 180ms var(--ease), color 180ms var(--ease);
 }
 .selBtn:hover .selChev { color: var(--ink); }
 .selChevOpen { transform: rotate(180deg); }
-/* Aktif filtre: çerçeve ısınır, sayaç turuncu hapa döner — kutu boyanmaz,
-   iki seçici aynı anda aktifken bile sakin durur. */
-.selBtnActive { border-color: rgba(255, 90, 31, 0.5); }
-.selBtnActive:hover { border-color: var(--accent); }
-.selBtnActive .selCount {
+/* Aktif filtre — yumuşak turuncu hap (admin özet çipleriyle aynı dil) */
+.selBtnActive {
   background: var(--accent-soft);
-  color: var(--accent-deep);
+  border-color: rgba(255, 90, 31, 0.35);
 }
-.selBtnActive .selChev { color: var(--accent); }
-/* Dar/mobil: ölçüler sıkılaşır — "Fiyat: Artan" gibi etiketler 50/50
-   bölünmüş satırda kesilmeden sığar. (Temel kurallardan SONRA gelir ki
-   aynı özgüllükte kaynak sırası bu bloğu kazandırsın.) */
+.selBtnActive:hover { border-color: var(--accent); }
+.selBtnActive .selLabel { color: var(--accent-deep); }
+.selBtnActive .selCurrent { color: var(--accent-deep); }
+.selBtnActive .selCount { color: var(--accent-deep); }
+.selBtnActive .selCount::before { color: rgba(196, 62, 12, 0.4); }
+.selBtnActive .selChev,
+.selBtnActive:hover .selChev { color: var(--accent); }
+/* Dar/mobil: tam genişlik hap; ölçüler hafif sıkılaşır. */
 @media (max-width: 640px) {
-  .selWrap { min-width: 0; }
-  .selBtn {
-    min-height: 54px;
-    gap: 8px;
-    padding: 9px 10px 10px 12px;
-  }
-  .selText { gap: 6px; }
-  .selCaption { font-size: 9.5px; }
-  .selCount { padding: 1px 7px; font-size: 10.5px; }
-  .selChev { width: 15px; }
+  .selBtn { height: 44px; gap: 6px; padding: 0 12px 0 14px; }
+  .selLabel { font-size: 12.5px; }
+  .selCurrent { font-size: 13.5px; }
+  .selCount { font-size: 11.5px; }
+  .selCount::before { margin-right: 5px; }
+  .selChev { width: 16px; }
 }
 
 /* Açılan menü — yumuşak köşeli kart, başlık + satırlar. Uzunsa kendi
@@ -1436,30 +1410,22 @@
   max-height: 400px;
   overflow-y: auto;
   overscroll-behavior: contain;
-  padding: 10px;
+  padding: 8px;
   background: var(--white);
   border: 1px solid var(--gray-200);
-  border-radius: 14px; /* tetikle aynı köşe dili */
+  border-radius: 16px;
   box-shadow: 0 24px 56px -20px rgba(10, 10, 10, 0.3),
     0 6px 16px rgba(10, 10, 10, 0.07);
   animation: selMenuIn 170ms var(--ease);
   scrollbar-width: thin;
 }
-/* text-transform yok: Türkçe İ bozulmasın diye başlık düz yazılır */
-.selMenuTitle {
-  margin: 6px 12px 10px;
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  color: var(--gray-400);
-}
 .selItem {
   display: flex;
   align-items: center;
   gap: 10px;
-  min-height: 46px;
+  min-height: 44px;
   padding: 10px 12px;
-  border-radius: 9px;
+  border-radius: 10px;
   color: var(--gray-700);
   font-size: var(--fs-small);
   font-weight: 500;
@@ -1497,22 +1463,15 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+/* Satır sayacı: sessiz rakam (hap içinde hap kalabalığı yok) */
 .selItemCount {
   flex-shrink: 0;
-  min-width: 22px;
-  padding: 1px 7px;
-  border-radius: var(--r-pill);
-  background: var(--gray-100);
-  color: var(--gray-600);
-  font-size: 11px;
-  font-weight: 700;
-  text-align: center;
+  color: var(--gray-400);
+  font-size: 12px;
+  font-weight: 600;
   font-variant-numeric: tabular-nums;
 }
-.selItemActive .selItemCount {
-  background: rgba(255, 90, 31, 0.16);
-  color: var(--accent-deep);
-}
+.selItemActive .selItemCount { color: var(--accent-deep); }
 .selItemCheck {
   flex-shrink: 0;
   color: var(--accent);
