@@ -507,9 +507,14 @@
 }
 
 /* Sepet durumu yuvası: bar görünmese de yüksekliği ayrılır, üstteki
-   içerik sepete eklemede YUKARI KAYMAZ. */
+   içerik sepete eklemede YUKARI KAYMAZ. Genişlik satın alma satırıyla
+   hizalı: adet kutusu + boşluk + butonun tavan genişliği. */
 .cartSlot {
   min-height: 52px;
+  max-width: 612px;
+}
+@media (max-width: 640px) {
+  .cartSlot { max-width: none; }
 }
 /* Sepette N adet: satın alma satırıyla aynı yükseklik ve köşe dili */
 .inCart {

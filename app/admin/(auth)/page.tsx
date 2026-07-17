@@ -145,7 +145,7 @@ function timeAgo(iso: string): string {
 function countDelta(today: number | null, yesterday: number | null): Delta | null {
   if (today === null || yesterday === null) return null;
   const diff = today - yesterday;
-  if (diff === 0) return { tone: "flat", text: "dünle aynı" };
+  if (diff === 0) return { tone: "flat", text: "Dünle aynı" };
   const sign = diff > 0 ? "+" : "";
   return { tone: diff > 0 ? "up" : "down", text: `${sign}${diff} düne göre` };
 }
@@ -154,7 +154,7 @@ function countDelta(today: number | null, yesterday: number | null): Delta | nul
 function revenueDelta(today: number | null, yesterday: number | null): Delta | null {
   if (today === null || yesterday === null) return null;
   if (yesterday <= 0) {
-    if (today <= 0) return { tone: "flat", text: "dünle aynı" };
+    if (today <= 0) return { tone: "flat", text: "Dünle aynı" };
     return { tone: "up", text: `+${formatTL(today)} düne göre` };
   }
   const pct = Math.round(((today - yesterday) / yesterday) * 100);
@@ -519,8 +519,8 @@ export default async function AdminHome({
     stats.pendingOrders === null
       ? null
       : stats.pendingOrders > 0
-        ? { tone: "warn", text: "işlem bekliyor" }
-        : { tone: "flat", text: "bekleyen yok" };
+        ? { tone: "warn", text: "İşlem bekliyor" }
+        : { tone: "flat", text: "Bekleyen yok" };
   const catalogInfo: Delta | null = catalog
     ? {
         tone: "flat",
