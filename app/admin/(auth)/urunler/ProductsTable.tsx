@@ -36,7 +36,8 @@ import { SHOP_CATEGORIES, CATEGORY_TINTS, categoryBySlug } from "@/lib/shop/cate
 import {
   OTHER_SUB_NAME,
   assignSubcategory,
-  subcatsFor,
+  dtoToSub,
+  type SubcatDTO,
 } from "@/lib/shop/subcategories";
 import type { Product } from "@/lib/shop/types";
 import styles from "../../admin.module.css";
@@ -116,9 +117,12 @@ export interface ReorderCtx {
 
 function ProductRow({
   product,
+  subcats,
   reorder,
 }: {
   product: Product;
+  /** Çözümlenmiş alt kategori tanımları (kategori slug -> liste). */
+  subcats: Record<string, SubcatDTO[]>;
   /** Dolu ise Sıra hücresi sürükleme kolu + pozisyon kutusuna dönüşür. */
   reorder?: ReorderCtx;
 }) {
@@ -241,9 +245,9 @@ function ProductRow({
   // Kural tabanli alt kategori etiketi (DB kolonu yok): yonetici, urunun
   // kategori gorunumunde hangi alta dustugunu gorsun. Tanimsiz slug donerse
   // (pratikte "diger") "Diğer" etiketi gosterilir.
-  const subs = subcatsFor(product.category_slug);
+  const subs = (subcats[product.category_slug] ?? []).map(dtoToSub);
   const subSlug = assignSubcategory(
-    product.category_slug,
+    subs,
     product.name,
     product.brand,
     product.subcategory_slug,
@@ -534,6 +538,7 @@ export default function ProductsTable({
   pagination,
   filterSlot,
   openForm = false,
+  subcats,
   reorderable = false,
   reorderCategorySlug,
 }: {
@@ -547,6 +552,8 @@ export default function ProductsTable({
   pagination: PaginationData;
   filterSlot?: React.ReactNode;
   openForm?: boolean;
+  /** Çözümlenmiş alt kategori tanımları (satır etiketleri için). */
+  subcats: Record<string, SubcatDTO[]>;
   /** Tek kategori görünümünde sürükle-bırak sıralama açık mı? */
   reorderable?: boolean;
   /** Sıralama kaydında hedef kategori (alt küme birleştirmesi için şart). */
@@ -972,6 +979,7 @@ export default function ProductsTable({
                     <ProductRow
                       key={p.id}
                       product={p}
+                      subcats={subcats}
                       reorder={
                         reorderable
                           ? {

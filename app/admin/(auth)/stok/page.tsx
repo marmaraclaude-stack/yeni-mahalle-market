@@ -5,7 +5,7 @@
 import { Search } from "lucide-react";
 import { listStock, type StockFilter } from "@/lib/shop/admin-actions";
 import { SHOP_CATEGORIES } from "@/lib/shop/categories";
-import { subcatsFor } from "@/lib/shop/subcategories";
+import { getSubcatsMap } from "@/lib/shop/subcats-data";
 import StockTable, { type StockPageItem } from "./StockTable";
 import styles from "../../admin.module.css";
 
@@ -76,7 +76,8 @@ export default async function StockPage({
   const q = typeof sp.q === "string" ? sp.q.trim() : "";
   const k = SHOP_CATEGORIES.some((c) => c.slug === sp.k) ? sp.k! : "";
   // Alt kategori: yalnız kategori seçiliyken ve tanımlı slug'lardansa geçerli.
-  const subOptions = k ? subcatsFor(k) : [];
+  const subcatsMap = await getSubcatsMap();
+  const subOptions = k ? (subcatsMap[k] ?? []) : [];
   const altk =
     sp.altk && subOptions.some((s) => s.slug === sp.altk) ? sp.altk : "";
   const filtre = FILTERS.includes(sp.filtre as StockFilter)

@@ -12,7 +12,6 @@ import Link from "next/link";
 import { LayoutGrid, BadgePercent, Flame } from "lucide-react";
 // LayoutGrid: "Tümü" kategori satırının ikonu (Keşfet grubunda "Tüm Ürünler" kaldırıldı).
 import { CATEGORY_TINTS, SHOP_CATEGORIES } from "@/lib/shop/categories";
-import { subcatsFor } from "@/lib/shop/subcategories";
 import { SHOP_SPECIALS } from "@/lib/shop/specials";
 import { iconFor } from "@/components/shop/ProductCard";
 import styles from "@/app/urunler/shop.module.css";
@@ -44,6 +43,7 @@ export default function CategorySidebar({
   alt,
   hiddenCats,
   hiddenSubs,
+  activeSubs,
 }: {
   active?: string;
   q?: string;
@@ -54,6 +54,8 @@ export default function CategorySidebar({
   hiddenCats?: string[];
   /** Gizlenen alt kategoriler — "kategori/alt" anahtarları. */
   hiddenSubs?: string[];
+  /** AKTİF kategorinin çözümlenmiş alt kategorileri (DB + kod varsayılanı). */
+  activeSubs?: { slug: string; name: string }[];
 }) {
   const cats = hiddenCats?.length
     ? SHOP_CATEGORIES.filter((c) => !hiddenCats.includes(c.slug))
@@ -110,7 +112,7 @@ export default function CategorySidebar({
           // Accordion: alt kategoriler YALNIZ aktif kategorinin altında açılır
           // (aktif kategori = açık kategori; başka kategori açmak isteyen ona
           // tıklayınca gider ve orada açılır). Arama/özel görünümde alt UI yok.
-          const subs = (isActive && !q && !ozel ? subcatsFor(c.slug) : []).filter(
+          const subs = (isActive && !q && !ozel ? (activeSubs ?? []) : []).filter(
             (s) => !hiddenSubs?.includes(`${c.slug}/${s.slug}`),
           );
           return (

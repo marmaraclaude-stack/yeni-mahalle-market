@@ -11,7 +11,8 @@
 import { Search } from "lucide-react";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { SHOP_CATEGORIES } from "@/lib/shop/categories";
-import { assignSubcategory, subcatsFor } from "@/lib/shop/subcategories";
+import { assignSubcategory } from "@/lib/shop/subcategories";
+import { getSubcatsMap, subcatsMapToDTO } from "@/lib/shop/subcats-data";
 import type { Product } from "@/lib/shop/types";
 import ProductsTable, {
   type ActiveFilter,
@@ -127,7 +128,8 @@ export default async function AdminProductsPage({
   // Alt kategori: yalniz k seciliyken ve o kategorinin tanimli alt slug'lari
   // arasindaysa gecerli; aksi halde sessizce yok sayilir (kategori degisince
   // formda kalan eski altk boylece temizlenir).
-  const subOptions = category ? subcatsFor(category) : [];
+  const subcatsMap = await getSubcatsMap();
+  const subOptions = category ? (subcatsMap[category] ?? []) : [];
   const altk =
     altkRaw && subOptions.some((s) => s.slug === altkRaw) ? altkRaw : null;
   const parsedPage = Number.parseInt(sayfa ?? "1", 10);
@@ -174,8 +176,12 @@ export default async function AdminProductsPage({
       const inSub = altk
         ? ((data ?? []) as Product[]).filter(
             (p) =>
-              assignSubcategory(category, p.name, p.brand, p.subcategory_slug) ===
-              altk,
+              assignSubcategory(
+                subcatsMap[category] ?? [],
+                p.name,
+                p.brand,
+                p.subcategory_slug,
+              ) === altk,
           )
         : ((data ?? []) as Product[]); // sıralama modu: kategori tamamı
 
@@ -452,6 +458,7 @@ export default async function AdminProductsPage({
       ) : (
         <ProductsTable
           products={products}
+          subcats={subcatsMapToDTO(subcatsMap)}
           chips={chips}
           activeFilters={activeFilters}
           clearFilterHref={

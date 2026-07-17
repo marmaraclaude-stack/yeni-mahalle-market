@@ -28,8 +28,8 @@ import {
   OTHER_SUB_NAME,
   OTHER_SUB_SLUG,
   assignSubcategory,
-  subcatsFor,
 } from "@/lib/shop/subcategories";
+import { getSubcatsMap } from "@/lib/shop/subcats-data";
 import { BUSINESS } from "@/lib/business";
 import { getCatalogVisibility, isProductVisible } from "@/lib/shop/visibility";
 import { iconFor } from "@/components/shop/ProductCard";
@@ -204,11 +204,14 @@ export default async function UrunDetayPage({ params }: { params: Params }) {
   if (!product) notFound();
 
   // Admin'den pasifleştirilen kategori/alt kategori ürünleri detayda da gizli.
-  const visibility = await getCatalogVisibility();
-  if (!isProductVisible(product, visibility)) notFound();
+  const [visibility, subcatsMap] = await Promise.all([
+    getCatalogVisibility(),
+    getSubcatsMap(),
+  ]);
+  if (!isProductVisible(product, visibility, subcatsMap)) notFound();
 
   const similar = (await getSimilarProducts(product)).filter((p) =>
-    isProductVisible(p, visibility),
+    isProductVisible(p, visibility, subcatsMap),
   );
 
   const cat = categoryBySlug(product.category_slug);
@@ -217,11 +220,11 @@ export default async function UrunDetayPage({ params }: { params: Params }) {
 
   // Alt kategori pili: kategori pilinin yanında, tıklanınca o alt kategori
   // filtreli listeye gider. Gizli alt kategorideki ürün zaten yukarıda 404.
-  const catSubs = cat ? subcatsFor(cat.slug) : [];
+  const catSubs = cat ? (subcatsMap[cat.slug] ?? []) : [];
   const subSlug =
     catSubs.length > 0
       ? assignSubcategory(
-          product.category_slug,
+          catSubs,
           product.name,
           product.brand,
           product.subcategory_slug,

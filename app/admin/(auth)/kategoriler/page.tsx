@@ -8,7 +8,7 @@
 import type { Metadata } from "next";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { SHOP_CATEGORIES } from "@/lib/shop/categories";
-import { subcatsFor } from "@/lib/shop/subcategories";
+import { getSubcatsMap } from "@/lib/shop/subcats-data";
 import styles from "../../admin.module.css";
 import CategoriesManager from "./CategoriesManager";
 
@@ -21,6 +21,7 @@ export const dynamic = "force-dynamic";
 
 export default async function KategorilerPage() {
   const supabase = createAdminClient();
+  const subcatsMap = await getSubcatsMap();
 
   // Pasif kategoriler + gizli alt kategoriler (kolon/tablo yoksa boş kabul).
   let inactive: string[] = [];
@@ -45,7 +46,11 @@ export default async function KategorilerPage() {
     name: c.name,
     tint: c.tint,
     icon: c.icon,
-    subs: subcatsFor(c.slug).map((s) => ({ slug: s.slug, name: s.name })),
+    subs: (subcatsMap[c.slug] ?? []).map((s) => ({
+      slug: s.slug,
+      name: s.name,
+      pattern: s.match.source,
+    })),
   }));
 
   return (

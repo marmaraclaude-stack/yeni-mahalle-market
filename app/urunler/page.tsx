@@ -24,11 +24,11 @@ import {
   categoryBySlug,
 } from "@/lib/shop/categories";
 import {
-  subcatsFor,
   assignSubcategory,
   OTHER_SUB_SLUG,
   OTHER_SUB_NAME,
 } from "@/lib/shop/subcategories";
+import { getSubcatsMap } from "@/lib/shop/subcats-data";
 import { specialByKey, type SpecialKey } from "@/lib/shop/specials";
 import { BUSINESS } from "@/lib/business";
 import { getShopSettings } from "@/lib/shop/settings";
@@ -102,9 +102,10 @@ export default async function UrunlerPage({
 
   // Teslimat ayarları + katalog görünürlüğü (admin'den pasifleştirilen
   // kategori/alt kategoriler) — paralel çekilir; hata durumunda makul default.
-  const [settings, visibility] = await Promise.all([
+  const [settings, visibility, subcatsMap] = await Promise.all([
     getShopSettings(),
     getCatalogVisibility(),
+    getSubcatsMap(),
   ]);
   const hiddenCatList = [...visibility.inactiveCats];
   const hiddenSubList = [...visibility.hiddenSubs];
@@ -118,7 +119,7 @@ export default async function UrunlerPage({
 
   // Alt kategori (?alt=...) — yalnız kategori görünümünde (q ve ozel yokken)
   // anlamlı; geçersiz/eşleşmeyen YA DA gizlenen slug sessizce yok sayılır.
-  const subs = (category && !q ? subcatsFor(category.slug) : []).filter(
+  const subs = (category && !q ? (subcatsMap[category.slug] ?? []) : []).filter(
     (s) => category && !visibility.hiddenSubs.has(subKey(category.slug, s.slug)),
   );
   const altRaw = (first(sp.alt) ?? "").trim();
@@ -182,7 +183,7 @@ export default async function UrunlerPage({
   // Görünürlük süzgeci: pasif kategorilerin ve gizlenen alt kategorilerin
   // ürünleri hiçbir görünümde (Tümü/arama/özel/kategori) listelenmez.
   if (visibility.inactiveCats.size > 0 || visibility.hiddenSubs.size > 0) {
-    products = products.filter((p) => isProductVisible(p, visibility));
+    products = products.filter((p) => isProductVisible(p, visibility, subcatsMap));
   }
 
   // Kullanıcı sıralaması — tüm görünümlere uygulanır ("Tümü"de bölüm içi sıra).
@@ -248,6 +249,14 @@ export default async function UrunlerPage({
               alt={altSlug}
               hiddenCats={hiddenCatList}
               hiddenSubs={hiddenSubList}
+              activeSubs={
+                category
+                  ? (subcatsMap[category.slug] ?? []).map((s) => ({
+                      slug: s.slug,
+                      name: s.name,
+                    }))
+                  : []
+              }
             />
 
             <div className={styles.main}>
@@ -337,7 +346,7 @@ export default async function UrunlerPage({
                   if (subs.length > 0) {
                     for (const p of products) {
                       const slug = assignSubcategory(
-                        category.slug,
+                        subcatsMap[category.slug] ?? [],
                         p.name,
                         p.brand,
                         p.subcategory_slug,

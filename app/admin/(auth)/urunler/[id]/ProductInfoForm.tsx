@@ -8,7 +8,6 @@
 import Link from "next/link";
 import { useRef, useState } from "react";
 import { formatGrams, isWeightBased, type Product } from "@/lib/shop/types";
-import { subcatsFor } from "@/lib/shop/subcategories";
 import styles from "../../../admin.module.css";
 
 interface Props {
@@ -18,6 +17,8 @@ interface Props {
   units: string[];
   /** Marka listesi (shop_brands) — /admin/markalar sayfasından yönetilir. */
   brands: { name: string; producer: string }[];
+  /** Çözümlenmiş alt kategoriler (kategori slug -> {slug, name} listesi). */
+  subcats: Record<string, { slug: string; name: string }[]>;
 }
 
 /** Gramı kg metnine çevir (250 → "0.25", 5000 → "5"). */
@@ -47,6 +48,7 @@ export default function ProductInfoForm({
   categories,
   units,
   brands,
+  subcats,
 }: Props) {
   const [byWeight, setByWeight] = useState(product.sold_by_weight);
   const [brand, setBrand] = useState(product.brand ?? "");
@@ -117,7 +119,7 @@ export default function ProductInfoForm({
     product.subcategory_slug ?? "",
   );
   const [unit, setUnit] = useState(product.unit || "adet");
-  const subOptions = subcatsFor(category);
+  const subOptions = subcats[category] ?? [];
 
   // Fiyat + en az miktar birbirine bağlı: kg fiyatı canonical (name="price"),
   // en az miktar fiyatı = kg fiyatı × en az miktar. Yönetici ikisinden birini

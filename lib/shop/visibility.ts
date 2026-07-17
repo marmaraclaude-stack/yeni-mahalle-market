@@ -43,12 +43,17 @@ export async function getCatalogVisibility(): Promise<CatalogVisibility> {
   }
 }
 
-/** Ürün vitrinde görünür mü? (kategorisi aktif VE alt kategorisi gizli değil) */
-export function isProductVisible(p: Product, v: CatalogVisibility): boolean {
+/** Ürün vitrinde görünür mü? (kategorisi aktif VE alt kategorisi gizli değil)
+    subsMap: getSubcatsMap() sonucu (DB + kod varsayılanları çözülmüş). */
+export function isProductVisible(
+  p: Product,
+  v: CatalogVisibility,
+  subsMap: Record<string, import("./subcategories").SubCategory[]>,
+): boolean {
   if (v.inactiveCats.has(p.category_slug)) return false;
   if (v.hiddenSubs.size > 0) {
     const sub = assignSubcategory(
-      p.category_slug,
+      subsMap[p.category_slug] ?? [],
       p.name,
       p.brand,
       p.subcategory_slug,

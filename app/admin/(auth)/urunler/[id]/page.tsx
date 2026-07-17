@@ -13,6 +13,7 @@ import {
 import AdminBack from "../../AdminBack";
 import ProductInfoForm from "./ProductInfoForm";
 import { SHOP_CATEGORIES, CATEGORY_TINTS, categoryBySlug } from "@/lib/shop/categories";
+import { getSubcatsMap } from "@/lib/shop/subcats-data";
 import type { Product } from "@/lib/shop/types";
 import styles from "../../../admin.module.css";
 
@@ -55,6 +56,13 @@ export default async function AdminProductEditPage({
   // Marka listesi (Türkçe alfabetik) — form marka seçicisini besler.
   const brands = ((brandsRes.data ?? []) as { name: string; producer: string }[])
     .sort((a, b) => a.name.localeCompare(b.name, "tr"));
+
+  // Alt kategori seçenekleri (DB + kod varsayılanları çözülmüş).
+  const subcatsMap = await getSubcatsMap();
+  const subcatOptions: Record<string, { slug: string; name: string }[]> = {};
+  for (const [cat, list] of Object.entries(subcatsMap)) {
+    subcatOptions[cat] = list.map((s) => ({ slug: s.slug, name: s.name }));
+  }
 
   const category = categoryBySlug(product.category_slug);
   const [tintBg, tintFg] = CATEGORY_TINTS[category?.tint ?? 0];
@@ -264,6 +272,7 @@ export default async function AdminProductEditPage({
             }))}
             units={units}
             brands={brands}
+            subcats={subcatOptions}
           />
         </section>
 

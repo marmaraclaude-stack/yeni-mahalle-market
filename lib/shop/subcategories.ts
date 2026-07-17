@@ -33,7 +33,9 @@ export const CATEGORY_SUBS: Record<string, SubCategory[]> = {
     { slug: "pastirma", name: "Pastırma", match: /past[ıi]rma/ },
     { slug: "fume-et", name: "Füme Et", match: /f[üu]me|fume|bacon/ },
     { slug: "kavurma", name: "Kavurma", match: /kavurma/ },
-    { slug: "tavuk-hindi", name: "Tavuk & Hindi", match: /tavuk|pili[çc]|hindi|baget|kanat|g[öo][ğg][üu]s|gogus|nugget|[şs]nitzel|sinitzel|\bbut\b/ },
+    // Hindi TAVUKTAN ÖNCE: "hindi" geçen ürün Hindi'ye düşer, kalan kümes Tavuk'a.
+    { slug: "hindi", name: "Hindi", match: /hindi/ },
+    { slug: "tavuk", name: "Tavuk", match: /tavuk|pili[çc]|baget|kanat|g[öo][ğg][üu]s|gogus|nugget|[şs]nitzel|sinitzel|\bbut\b/ },
     { slug: "kirmizi-et", name: "Kırmızı Et", match: /k[ıi]yma|ku[şs]ba[şs][ıi]|kusbasi|bonfile|biftek|antrikot|k[öo]fte|kofte|dana|kuzu|\bet\b/ },
     { slug: "diger-et-sarkuteri", name: "Diğer Et Şarküteri", match: /./ },
   ],
@@ -251,24 +253,46 @@ export const CATEGORY_SUBS: Record<string, SubCategory[]> = {
   ],
 };
 
-/** Kategorinin alt kategori tanımları; yoksa boş dizi. */
-export function subcatsFor(categorySlug: string): SubCategory[] {
+/** KODDAKİ varsayılan alt kategori tanımları; yoksa boş dizi.
+    Vitrin/admin sayfaları DB'yi de hesaba katan getSubcatsMap() kullanır
+    (lib/shop/subcats-data); bu fonksiyon yalnız varsayılanları verir. */
+export function defaultSubcatsFor(categorySlug: string): SubCategory[] {
   return CATEGORY_SUBS[categorySlug] ?? [];
 }
 
+/** İstemciye taşınabilir alt kategori tanımı (RegExp yerine desen metni). */
+export interface SubcatDTO {
+  slug: string;
+  name: string;
+  pattern: string;
+}
+
+export function subToDTO(s: SubCategory): SubcatDTO {
+  return { slug: s.slug, name: s.name, pattern: s.match.source };
+}
+
+export function dtoToSub(d: SubcatDTO): SubCategory {
+  let match: RegExp;
+  try {
+    match = new RegExp(d.pattern);
+  } catch {
+    match = /(?!)/; // geçersiz desen: hiçbir ada eşleşmez (elle atama çalışır)
+  }
+  return { slug: d.slug, name: d.name, match };
+}
+
 /**
- * Ürünü alt kategoriye ata. Yönetici elle bir alt kategori seçmişse (override)
- * ve o kategoriye ait geçerli bir slug ise onu kullanır; yoksa ilk eşleşen
- * kural, o da yoksa "diger".
+ * Ürünü verilen listedeki bir alt kategoriye ata. Yönetici elle bir alt
+ * kategori seçmişse (override) ve listede geçerliyse onu kullanır; yoksa
+ * ilk eşleşen kural, o da yoksa "diger".
  */
 export function assignSubcategory(
-  categorySlug: string,
+  subs: SubCategory[],
   name: string,
   brand: string,
   override?: string | null,
 ): string {
-  const subs = CATEGORY_SUBS[categorySlug];
-  if (!subs || subs.length === 0) return OTHER_SUB_SLUG;
+  if (subs.length === 0) return OTHER_SUB_SLUG;
   if (override && subs.some((s) => s.slug === override)) return override;
   const hay = `${name} ${brand}`.toLocaleLowerCase("tr-TR");
   for (const s of subs) {

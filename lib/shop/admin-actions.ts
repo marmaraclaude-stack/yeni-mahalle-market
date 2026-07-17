@@ -13,7 +13,8 @@ import {
 } from "@/lib/shop/location-ingest";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { categoryBySlug } from "@/lib/shop/categories";
-import { assignSubcategory } from "@/lib/shop/subcategories";
+import { assignSubcategory, defaultSubcatsFor } from "@/lib/shop/subcategories";
+import { getSubcatsMap } from "@/lib/shop/subcats-data";
 import { BANNER_ICONS } from "@/lib/shop/icons";
 import type {
   Courier,
@@ -1369,10 +1370,15 @@ export async function listStock(opts: {
       .range(0, 999);
     if (q) query = query.ilike("name", `%${q}%`);
     const { data } = await query;
+    const subsMap = await getSubcatsMap();
     const inSub = ((data ?? []) as StockRow[]).filter(
       (p) =>
-        assignSubcategory(p.category_slug, p.name, p.brand, p.subcategory_slug) ===
-        opts.subcategory,
+        assignSubcategory(
+          subsMap[p.category_slug] ?? [],
+          p.name,
+          p.brand,
+          p.subcategory_slug,
+        ) === opts.subcategory,
     );
     const counts: Record<StockFilter, number> = {
       dusuk: inSub.filter(isLowStock).length,
@@ -2493,4 +2499,193 @@ export async function deleteBrand(id: string): Promise<void> {
   const { error } = await supabase.from("shop_brands").delete().eq("id", id);
   if (error) throw new Error(`Marka silinemedi: ${error.message}`);
   revalidateBrandPages();
+}
+
+/* ======================  Alt kategoriler (shop_subcats)  ======================
+   Alt kategori tanımları kategori bazında TEMBEL taşınır: bir kategori ilk kez
+   düzenlendiğinde koddaki varsayılanlar DB'ye kopyalanır (materialize), sonra
+   istenen değişiklik uygulanır. DB'de satırı olmayan kategoriler koddaki
+   varsayılanlarla çalışmaya devam eder (lib/shop/subcats-data). */
+
+function revalidateSubcatPages(): void {
+  revalidatePath("/admin/kategoriler");
+  revalidatePath("/admin/urunler");
+  revalidatePath("/urunler");
+  revalidatePath("/");
+}
+
+/** Kategorinin satırları DB'de yoksa kod varsayılanlarını kopyalar. */
+async function ensureSubcatsMaterialized(
+  supabase: AdminClient,
+  categorySlug: string,
+): Promise<void> {
+  const { data, error } = await supabase
+    .from("shop_subcats")
+    .select("id")
+    .eq("category_slug", categorySlug)
+    .limit(1);
+  if (error) throw new Error(`Alt kategoriler okunamadı: ${error.message}`);
+  if ((data ?? []).length > 0) return;
+
+  const defaults = defaultSubcatsFor(categorySlug);
+  if (defaults.length === 0) return;
+  const rows = defaults.map((s, i) => ({
+    category_slug: categorySlug,
+    slug: s.slug,
+    name: s.name,
+    pattern: s.match.source,
+    sort: (i + 1) * 10,
+  }));
+  const { error: insError } = await supabase.from("shop_subcats").insert(rows);
+  if (insError) {
+    throw new Error(`Alt kategoriler taşınamadı: ${insError.message}`);
+  }
+}
+
+/** Sıralı satır listesi (materialize sonrası). */
+async function listSubcatRows(
+  supabase: AdminClient,
+  categorySlug: string,
+): Promise<{ id: string; slug: string; sort: number }[]> {
+  const { data, error } = await supabase
+    .from("shop_subcats")
+    .select("id, slug, sort")
+    .eq("category_slug", categorySlug)
+    .order("sort", { ascending: true });
+  if (error) throw new Error(`Alt kategoriler okunamadı: ${error.message}`);
+  return (data ?? []) as { id: string; slug: string; sort: number }[];
+}
+
+/** Deseni doğrula: boş = hiç eşleşmez (yalnız elle atama); geçersizse hata. */
+function normalizeSubcatPattern(raw: string): string {
+  const p = raw.trim();
+  if (!p) return "(?!)";
+  try {
+    new RegExp(p);
+  } catch {
+    throw new Error(
+      "Anahtar kelime deseni geçersiz. Kelimeleri | ile ayırman yeterli (örn. tavuk|piliç).",
+    );
+  }
+  return p;
+}
+
+/** Yeni alt kategori; listenin SONUNA değil, genel kuralın ÖNÜNE eklenir. */
+export async function createSubcat(
+  categorySlug: string,
+  name: string,
+  pattern: string,
+): Promise<void> {
+  await requireAdmin();
+  const n = name.trim();
+  if (!n) throw new Error("Alt kategori adı boş olamaz.");
+  const p = normalizeSubcatPattern(pattern);
+  if (!categoryBySlug(categorySlug)) throw new Error("Geçersiz kategori.");
+
+  const supabase = createAdminClient();
+  await ensureSubcatsMaterialized(supabase, categorySlug);
+  const rows = await listSubcatRows(supabase, categorySlug);
+
+  const slug = slugify(n);
+  if (!slug) throw new Error("Alt kategori adından geçerli bir slug üretilemedi.");
+  if (rows.some((r) => r.slug === slug)) {
+    throw new Error("Bu adla bir alt kategori zaten var.");
+  }
+  // Son satır çoğunlukla genel (catch-all) kuraldır; yeni satır onun önüne
+  // girer ki otomatik eşleme şansı olsun.
+  const last = rows[rows.length - 1];
+  const sort = last ? last.sort - 5 : 10;
+
+  const { error } = await supabase.from("shop_subcats").insert({
+    category_slug: categorySlug,
+    slug,
+    name: n,
+    pattern: p,
+    sort,
+  });
+  if (error) throw new Error(`Alt kategori eklenemedi: ${error.message}`);
+  revalidateSubcatPages();
+}
+
+/** Ad ve/veya deseni güncelle; slug sabit kalır (linkler kırılmaz). */
+export async function updateSubcat(
+  categorySlug: string,
+  subSlug: string,
+  patch: { name: string; pattern: string },
+): Promise<void> {
+  await requireAdmin();
+  const n = patch.name.trim();
+  if (!n) throw new Error("Alt kategori adı boş olamaz.");
+  const p = normalizeSubcatPattern(patch.pattern);
+
+  const supabase = createAdminClient();
+  await ensureSubcatsMaterialized(supabase, categorySlug);
+  const { error } = await supabase
+    .from("shop_subcats")
+    .update({ name: n, pattern: p, updated_at: new Date().toISOString() })
+    .eq("category_slug", categorySlug)
+    .eq("slug", subSlug);
+  if (error) throw new Error(`Alt kategori güncellenemedi: ${error.message}`);
+  revalidateSubcatPages();
+}
+
+/** Alt kategoriyi sil: elle atanmış ürünler otomatiğe döner, gizleme kaydı silinir. */
+export async function deleteSubcat(
+  categorySlug: string,
+  subSlug: string,
+): Promise<void> {
+  await requireAdmin();
+  const supabase = createAdminClient();
+  await ensureSubcatsMaterialized(supabase, categorySlug);
+
+  const { error } = await supabase
+    .from("shop_subcats")
+    .delete()
+    .eq("category_slug", categorySlug)
+    .eq("slug", subSlug);
+  if (error) throw new Error(`Alt kategori silinemedi: ${error.message}`);
+
+  // Elle bu alta atanmış ürünler otomatik kurala geri döner.
+  await supabase
+    .from("products")
+    .update({ subcategory_slug: null })
+    .eq("category_slug", categorySlug)
+    .eq("subcategory_slug", subSlug);
+  // Gizleme kaydı kalmasın.
+  await supabase
+    .from("shop_hidden_subcats")
+    .delete()
+    .eq("category_slug", categorySlug)
+    .eq("subcategory_slug", subSlug);
+  revalidateSubcatPages();
+}
+
+/** Alt kategoriyi listede bir yukarı/aşağı taşı (sort değerlerini takas eder).
+    Sıra otomatik eşlemede önceliktir: İLK eşleşen kural kazanır. */
+export async function moveSubcat(
+  categorySlug: string,
+  subSlug: string,
+  direction: "up" | "down",
+): Promise<void> {
+  await requireAdmin();
+  const supabase = createAdminClient();
+  await ensureSubcatsMaterialized(supabase, categorySlug);
+  const rows = await listSubcatRows(supabase, categorySlug);
+
+  const idx = rows.findIndex((r) => r.slug === subSlug);
+  if (idx < 0) throw new Error("Alt kategori bulunamadı.");
+  const swap = direction === "up" ? idx - 1 : idx + 1;
+  if (swap < 0 || swap >= rows.length) return; // zaten uçta
+
+  const a = rows[idx];
+  const b = rows[swap];
+  const results = await Promise.all([
+    supabase.from("shop_subcats").update({ sort: b.sort }).eq("id", a.id),
+    supabase.from("shop_subcats").update({ sort: a.sort }).eq("id", b.id),
+  ]);
+  const failed = results.find((r) => r.error);
+  if (failed?.error) {
+    throw new Error(`Sıra güncellenemedi: ${failed.error.message}`);
+  }
+  revalidateSubcatPages();
 }
