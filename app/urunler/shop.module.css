@@ -1311,10 +1311,10 @@
   position: relative;
   max-width: 100%;
 }
-/* Tetik — TEK SATIRLIK hap: "Alt kategori: Sosis · 24". Kategori
-   başlığındaki "N ürün" çipiyle aynı dil. Büyük harfli başlık YOK;
-   küçük harf i'nin noktası her boyutta net, Türkçe İ sorunu kökten
-   biter. Etiket gri, değer koyu; aktif filtre yumuşak turuncu hap. */
+/* Tetik — TEK SATIRLIK, dikdörtgene yakın kutu: "Alt kategori: Sosis · 24".
+   Büyük harfli başlık YOK; küçük harf i'nin noktası her boyutta net,
+   Türkçe İ sorunu kökten biter. Renk dili SİYAH BEYAZ: etiket gri,
+   değer mürekkep; aktif filtre siyah zemin + beyaz yazı. */
 .selBtn {
   display: flex;
   align-items: center;
@@ -1323,7 +1323,7 @@
   height: 44px;
   padding: 0 13px 0 16px;
   border: 1px solid var(--gray-200);
-  border-radius: var(--r-pill);
+  border-radius: 11px;
   background: var(--white);
   color: var(--ink);
   cursor: pointer;
@@ -1335,7 +1335,7 @@
   box-shadow: 0 8px 18px -14px rgba(17, 17, 17, 0.28);
 }
 .selBtn:focus-visible {
-  outline: 2px solid var(--accent);
+  outline: 2px solid var(--ink);
   outline-offset: 2px;
 }
 .selLabel {
@@ -1376,18 +1376,21 @@
 }
 .selBtn:hover .selChev { color: var(--ink); }
 .selChevOpen { transform: rotate(180deg); }
-/* Aktif filtre — yumuşak turuncu hap (admin özet çipleriyle aynı dil) */
+/* Aktif filtre — siyah zemin, beyaz yazı (admin siyah butonlarıyla aynı dil) */
 .selBtnActive {
-  background: var(--accent-soft);
-  border-color: rgba(255, 90, 31, 0.35);
+  background: var(--ink);
+  border-color: var(--ink);
 }
-.selBtnActive:hover { border-color: var(--accent); }
-.selBtnActive .selLabel { color: var(--accent-deep); }
-.selBtnActive .selCurrent { color: var(--accent-deep); }
-.selBtnActive .selCount { color: var(--accent-deep); }
-.selBtnActive .selCount::before { color: rgba(196, 62, 12, 0.4); }
+.selBtnActive:hover {
+  border-color: var(--ink);
+  box-shadow: 0 10px 22px -14px rgba(17, 17, 17, 0.5);
+}
+.selBtnActive .selLabel { color: rgba(255, 255, 255, 0.62); }
+.selBtnActive .selCurrent { color: var(--white); }
+.selBtnActive .selCount { color: rgba(255, 255, 255, 0.75); }
+.selBtnActive .selCount::before { color: rgba(255, 255, 255, 0.35); }
 .selBtnActive .selChev,
-.selBtnActive:hover .selChev { color: var(--accent); }
+.selBtnActive:hover .selChev { color: rgba(255, 255, 255, 0.85); }
 /* Dar/mobil: tam genişlik hap; ölçüler hafif sıkılaşır. */
 @media (max-width: 640px) {
   .selBtn { height: 44px; gap: 6px; padding: 0 12px 0 14px; }
@@ -1413,7 +1416,7 @@
   padding: 8px;
   background: var(--white);
   border: 1px solid var(--gray-200);
-  border-radius: 16px;
+  border-radius: 14px;
   box-shadow: 0 24px 56px -20px rgba(10, 10, 10, 0.3),
     0 6px 16px rgba(10, 10, 10, 0.07);
   animation: selMenuIn 170ms var(--ease);
@@ -1436,10 +1439,11 @@
   background: var(--gray-50);
   color: var(--ink);
 }
+/* Seçili satır da siyah beyaz dilde: gri zemin + mürekkep, kalın */
 .selItemActive,
 .selItemActive:hover {
-  background: var(--accent-soft);
-  color: var(--accent-deep);
+  background: var(--gray-100);
+  color: var(--ink);
   font-weight: 700;
 }
 .selItemIcon {
@@ -1453,8 +1457,8 @@
   color: var(--gray-500);
 }
 .selItemActive .selItemIcon {
-  background: rgba(255, 90, 31, 0.16);
-  color: var(--accent);
+  background: var(--ink);
+  color: var(--white);
 }
 .selItemName {
   flex: 1;
@@ -1471,7 +1475,7 @@
   font-weight: 600;
   font-variant-numeric: tabular-nums;
 }
-.selItemActive .selItemCount { color: var(--accent-deep); }
+.selItemActive .selItemCount { color: var(--ink); }
 .selItemCheck {
   flex-shrink: 0;
   color: var(--accent);
