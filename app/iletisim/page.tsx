@@ -237,14 +237,9 @@ export default function IletisimPage() {
                 Yol Tarifi Al
               </a>
             </div>
-            <iframe
-              className={styles.mapFrame}
-              src={BUSINESS.googleMapsEmbedUrl}
-              title={`${BUSINESS.name} konumu`}
-              loading="lazy"
-              allowFullScreen
-              referrerPolicy="no-referrer-when-downgrade"
-            />
+            {/* Harita embed'i kaldırıldı: iframe boş/geç yükleniyor ve dev
+               beyaz alan bırakıyordu. Yol Tarifi Al düğmesi Google Maps'i
+               doğrudan açar. */}
           </section>
 
 

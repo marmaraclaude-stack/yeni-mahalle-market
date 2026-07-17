@@ -256,14 +256,6 @@ a.channelCard:hover {
 .dirBtn {
   flex-shrink: 0;
 }
-.mapFrame {
-  display: block;
-  width: 100%;
-  height: 100%;
-  min-height: 360px;
-  border: 0;
-  flex: 1;
-}
 
 /* --- Çalışma saatleri şeridi --- */
 .hoursStrip {
