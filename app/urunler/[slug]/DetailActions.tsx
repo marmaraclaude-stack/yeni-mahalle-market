@@ -225,6 +225,8 @@ export default function DetailActions({ product }: { product: Product }) {
         </p>
       )}
 
+      {/* SABİT yükseklikli yuva: bar belirip kaybolunca sayfa zıplamaz */}
+      <div className={styles.cartSlot} aria-live="polite">
       {inCartQty > 0 && (
         <div className={styles.inCart}>
           <span className={styles.inCartLabel}>
@@ -266,6 +268,7 @@ export default function DetailActions({ product }: { product: Product }) {
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 }

@@ -130,7 +130,7 @@ function VehicleRowView({
           value={plate}
           onChange={(e) => setPlate(e.target.value)}
           maxLength={20}
-          placeholder="—"
+          placeholder="-"
           disabled={busy}
           className={styles.inputSm}
           style={{ width: 110 }}

@@ -168,7 +168,7 @@ function StockRowView({ row }: { row: StockRow }) {
             inputMode="decimal"
             value={value}
             onChange={(e) => setValue(e.target.value)}
-            placeholder="—"
+            placeholder="-"
             className={`${styles.inputSm} ${styles.stockInput}`}
             aria-label={`${row.name} stok (${byWeight ? "kg" : "adet"})`}
           />

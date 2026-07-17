@@ -41,12 +41,30 @@ const marketIcon = L.divIcon({
   iconAnchor: [19, 19],
 });
 
+export interface MapOrder {
+  no: string;
+  customer: string;
+  lat: number;
+  lng: number;
+}
+
+const orderIcon = (no: string) =>
+  L.divIcon({
+    className: "",
+    html: `<div style="display:flex;align-items:center;gap:5px;background:#fff;border:2px solid #ff5a1f;border-radius:10px;padding:3px 8px;box-shadow:0 3px 9px rgba(0,0,0,.25);font-family:system-ui,sans-serif;font-size:11px;font-weight:800;color:#c43e0c;white-space:nowrap;">\uD83D\uDCE6 ${no}</div>`,
+    iconSize: [0, 0],
+    iconAnchor: [40, 14],
+  });
+
 export default function CourierMap({
   market,
   couriers,
+  orders = [],
 }: {
   market: { lat: number; lng: number };
   couriers: MapCourier[];
+  /** Kurye konumu bilinen yoldaki siparişler: haritada etiketle gösterilir. */
+  orders?: MapOrder[];
 }) {
   const boxRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<L.Map | null>(null);
@@ -93,12 +111,18 @@ export default function CourierMap({
         .addTo(layer);
       pts.push([c.lat, c.lng]);
     }
+    for (const o of orders) {
+      L.marker([o.lat, o.lng], { icon: orderIcon(o.no), title: o.no })
+        .bindPopup(`<b>${esc(o.no)}</b><br/>${esc(o.customer)}`)
+        .addTo(layer);
+      pts.push([o.lat, o.lng]);
+    }
     if (pts.length > 1) {
       map.fitBounds(L.latLngBounds(pts).pad(0.35), { maxZoom: 16 });
     } else {
       map.setView([market.lat, market.lng], 14);
     }
-  }, [couriers, market.lat, market.lng]);
+  }, [couriers, orders, market.lat, market.lng]);
 
   return <div ref={boxRef} style={{ width: "100%", height: "100%" }} />;
 }

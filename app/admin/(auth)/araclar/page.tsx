@@ -44,7 +44,7 @@ export default async function VehiclesPage() {
       <h1 className={styles.title}>Araçlar</h1>
       <p className={styles.subtitle} style={{ marginBottom: 18 }}>
         GPS cihazı araca takılıdır; hangi kuryenin hangi motoru kullandığını
-        buradan atarsınız. Cihaz, aracın kendi linkine konum gönderir — konum
+        buradan atarsınız. Cihaz, aracın kendi linkine konum gönderir; konum
         atanmış kuryenin yoldaki siparişlerine otomatik işlenir.
       </p>
       {loadError && <p className={styles.formError}>{loadError}</p>}

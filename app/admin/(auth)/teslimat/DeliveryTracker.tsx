@@ -357,7 +357,18 @@ export default function DeliveryTracker({
             )}
           </div>
           <div className={styles.deliveryMapBox}>
-            <CourierMap market={BUSINESS.geo} couriers={mapPins} />
+            <CourierMap
+              market={BUSINESS.geo}
+              couriers={mapPins}
+              orders={list
+                .filter((o) => o.courier_lat != null && o.courier_lng != null)
+                .map((o) => ({
+                  no: o.order_no,
+                  customer: o.customer_name,
+                  lat: o.courier_lat as number,
+                  lng: o.courier_lng as number,
+                }))}
+            />
           </div>
         </div>
 

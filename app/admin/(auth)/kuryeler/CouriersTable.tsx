@@ -402,12 +402,14 @@ export default function CouriersTable({ couriers }: { couriers: Courier[] }) {
         </button>
       </div>
 
-      <p className={styles.subtitle} style={{ marginBottom: 18 }}>
-        Kuryeler <b>sapancayenimahallemarket.com/kurye</b> adresinden{" "}
-        <b>telefon + giriş kodu</b> ile giriş yapar; tek girişle kendilerine
-        atanmış tüm siparişleri görüp konumlarını paylaşır. Kodu &quot;Düzenle
-        &rarr; Üret&quot; ile oluşturup kuryeye iletin.
-      </p>
+      {/* Kurye girişi nasıl çalışır: kısa bilgi kutusu (listenin üstünde) */}
+      <div className={styles.infoBox}>
+        <b>Kurye girişi:</b> kuryeler{" "}
+        <b>sapancayenimahallemarket.com/kurye</b> adresinden telefon numarası
+        ve giriş koduyla girer; tek girişle kendilerine atanmış tüm siparişleri
+        görüp konumlarını paylaşır. Giriş kodunu satırdaki &quot;Düzenle&quot;
+        bölümünden &quot;Üret&quot; ile oluşturup kuryeye iletin.
+      </div>
 
       {/* Yeni kurye formu (collapse) */}
       {showForm && (

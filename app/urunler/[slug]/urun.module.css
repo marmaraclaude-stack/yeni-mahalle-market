@@ -506,13 +506,19 @@
   font-size: var(--fs-small);
 }
 
-/* Sepette N adet — sepette olan miktarın onaylı (accent-tint) satırı */
+/* Sepet durumu yuvası: bar görünmese de yüksekliği ayrılır, üstteki
+   içerik sepete eklemede YUKARI KAYMAZ. */
+.cartSlot {
+  min-height: 52px;
+}
+/* Sepette N adet: satın alma satırıyla aynı yükseklik ve köşe dili */
 .inCart {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding: 8px 8px 8px 16px;
+  height: 52px;
+  padding: 0 6px 0 16px;
   border: 1px solid rgba(255, 90, 31, 0.24);
   border-radius: var(--r-md);
   background: var(--accent-soft);
