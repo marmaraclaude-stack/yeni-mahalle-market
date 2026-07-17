@@ -3029,3 +3029,62 @@
   gap: 14px;
   flex-wrap: wrap;
 }
+
+/* Marka arama kutusu (combobox) — ürün düzenleme. Yazınca liste süzülür,
+   tıklayınca ya da Enter'la seçilir; form gizli input'la SEÇİLİ değeri yollar. */
+.comboWrap {
+  position: relative;
+}
+.comboMenu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  z-index: 40;
+  max-height: 280px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 6px;
+  background: var(--white);
+  border: 1px solid var(--gray-200);
+  border-radius: 12px;
+  box-shadow: 0 18px 40px -18px rgba(10, 10, 10, 0.28),
+    0 4px 12px rgba(10, 10, 10, 0.06);
+  scrollbar-width: thin;
+}
+.comboItem {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  width: 100%;
+  padding: 9px 11px;
+  border: none;
+  background: none;
+  border-radius: 8px;
+  font: inherit;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--ink);
+  text-align: left;
+  cursor: pointer;
+  transition: background 120ms ease;
+}
+.comboItem:hover { background: var(--gray-50); }
+.comboItemActive,
+.comboItemActive:hover { background: var(--gray-100); }
+.comboItemSub {
+  max-width: 100%;
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--gray-500);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.comboEmpty {
+  margin: 0;
+  padding: 12px;
+  font-size: 12.5px;
+  color: var(--gray-500);
+}

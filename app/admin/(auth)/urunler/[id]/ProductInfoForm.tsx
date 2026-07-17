@@ -6,7 +6,7 @@
 // olur. saveAction sunucudan prop olarak gelir; alan adları aynı kalır.
 
 import Link from "next/link";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { formatGrams, isWeightBased, type Product } from "@/lib/shop/types";
 import { subcatsFor } from "@/lib/shop/subcategories";
 import styles from "../../../admin.module.css";
@@ -36,6 +36,11 @@ function normProducer(s: string): string {
     .replace(/\.+$/, "");
 }
 
+/** Türkçe duyarsız karşılaştırma/arama için küçük harf. */
+function trLower(s: string): string {
+  return s.toLocaleLowerCase("tr-TR").trim();
+}
+
 export default function ProductInfoForm({
   saveAction,
   product,
@@ -45,10 +50,68 @@ export default function ProductInfoForm({
 }: Props) {
   const [byWeight, setByWeight] = useState(product.sold_by_weight);
   const [brand, setBrand] = useState(product.brand ?? "");
+  // Marka arama kutusu (combobox): yazarak süz, listeden seç.
+  const [brandQuery, setBrandQuery] = useState(product.brand ?? "");
+  const [brandOpen, setBrandOpen] = useState(false);
+  const [brandIdx, setBrandIdx] = useState(-1);
+  const brandBoxRef = useRef<HTMLDivElement>(null);
+  // Odaklanınca tümünü seç; ilk tıklamanın bu seçimi bozmasını engelle
+  // (yazılan metin eskisinin ÜZERİNE gelsin, yanına eklenmesin).
+  const brandJustFocused = useRef(false);
   // Üretici/işletmeci: marka seçilince shop_brands'teki değerle otomatik
   // dolar; elle düzenlenirse otomatik doldurma o üründe devre dışı kalır.
   const [uretici, setUretici] = useState(product.details?.uretici ?? "");
   const [ureticiAuto, setUreticiAuto] = useState(false);
+
+  // Süzme: kutudaki metin seçili markanın adıyla aynıysa (henüz yazılmadıysa)
+  // TÜM liste gösterilir; yazılmaya başlanınca içeren eşleşmeler süzülür.
+  const brandFilter = trLower(brandQuery) === trLower(brand) ? "" : trLower(brandQuery);
+  const brandMatches = brandFilter
+    ? brands.filter((b) => trLower(b.name).includes(brandFilter))
+    : brands;
+
+  /* Markayı uygula + üretici alanını akıllıca güncelle. Alan boşsa, bu
+     oturumda otomatik dolduysa YA DA mevcut değer bilinen bir markanın
+     üreticisi/adıysa (eski markadan kalan otomatik değer) üzerine yazılır;
+     yeni markanın üreticisi yoksa eski markanın değeri temizlenir. Elle
+     girilmiş ÖZEL değer korunur. */
+  function applyBrand(v: string) {
+    setBrand(v);
+    setBrandQuery(v);
+    setBrandOpen(false);
+    setBrandIdx(-1);
+    const newProducer = brands.find((b) => b.name === v)?.producer ?? "";
+    const cur = normProducer(uretici);
+    const knownValue =
+      cur !== "" &&
+      brands.some(
+        (b) =>
+          (b.producer !== "" && normProducer(b.producer) === cur) ||
+          normProducer(b.name) === cur,
+      );
+    if (!(cur === "" || ureticiAuto || knownValue)) return;
+    if (newProducer) {
+      setUretici(newProducer);
+      setUreticiAuto(true);
+    } else if (cur !== "") {
+      setUretici(""); // eski markanın üreticisi yeni markada kalmasın
+      setUreticiAuto(true);
+    }
+  }
+
+  /* Kutudan çıkarken: metin bir markayla birebir eşleşiyorsa onu seç;
+     boşsa Markasız; eşleşmiyorsa son geçerli seçime geri dön. */
+  function commitBrandQuery() {
+    const q = brandQuery.trim();
+    if (q === "") {
+      if (brand !== "") applyBrand("");
+      else setBrandQuery("");
+      return;
+    }
+    const hit = brands.find((b) => trLower(b.name) === trLower(q));
+    if (hit && hit.name !== brand) applyBrand(hit.name);
+    else setBrandQuery(brand);
+  }
   const [category, setCategory] = useState(product.category_slug);
   const [subcategory, setSubcategory] = useState(
     product.subcategory_slug ?? "",
@@ -121,53 +184,129 @@ export default function ProductInfoForm({
           <label className={styles.label} htmlFor="p-brand">
             Marka
           </label>
-          <select
-            id="p-brand"
-            name="brand"
-            value={brand}
-            className={styles.select}
-            /* Marka seçilince üretici alanı otomatik güncellenir. Alan boşsa,
-               bu oturumda otomatik dolduysa YA DA mevcut değer bilinen bir
-               markanın üreticisi/adıysa (yani eski markadan kalan otomatik bir
-               değerse) üzerine yazılır; yeni markanın üreticisi yoksa eski
-               markanın değeri temizlenir. Elle girilmiş ÖZEL değer korunur. */
-            onChange={(e) => {
-              const v = e.target.value;
-              setBrand(v);
-              const newProducer = brands.find((b) => b.name === v)?.producer ?? "";
-              const cur = normProducer(uretici);
-              const knownValue =
-                cur !== "" &&
-                brands.some(
-                  (b) =>
-                    (b.producer !== "" && normProducer(b.producer) === cur) ||
-                    normProducer(b.name) === cur,
-                );
-              const replaceable = cur === "" || ureticiAuto || knownValue;
-              if (!replaceable) return;
-              if (newProducer) {
-                setUretici(newProducer);
-                setUreticiAuto(true);
-              } else if (cur !== "") {
-                setUretici(""); // eski markanın üreticisi yeni markada kalmasın
-                setUreticiAuto(true);
+          {/* Form her zaman SEÇİLİ markayı gönderir (yazılan metni değil) */}
+          <input type="hidden" name="brand" value={brand} />
+          <div
+            className={styles.comboWrap}
+            ref={brandBoxRef}
+            onBlur={(e) => {
+              // Menü içine tıklamalar mousedown'da engellendiği için buraya
+              // yalnız kutunun tamamen terk edilmesi düşer.
+              if (
+                brandBoxRef.current &&
+                e.relatedTarget &&
+                brandBoxRef.current.contains(e.relatedTarget as Node)
+              ) {
+                return;
               }
+              commitBrandQuery();
+              setBrandOpen(false);
+              setBrandIdx(-1);
             }}
           >
-            <option value="">Markasız</option>
-            {/* Ürünün mevcut markası listede yoksa seçenek olarak korunur */}
-            {brand !== "" && !brands.some((b) => b.name === brand) && (
-              <option value={brand}>{brand}</option>
+            <input
+              id="p-brand"
+              type="text"
+              value={brandQuery}
+              className={styles.input}
+              placeholder="Marka ara (örn. Banvit)"
+              role="combobox"
+              aria-expanded={brandOpen}
+              aria-autocomplete="list"
+              aria-controls="p-brand-list"
+              autoComplete="off"
+              onFocus={(e) => {
+                setBrandOpen(true);
+                brandJustFocused.current = true;
+                e.target.select();
+              }}
+              onMouseUp={(e) => {
+                if (brandJustFocused.current) {
+                  e.preventDefault(); // odak seçimini ilk tıklama bozmasın
+                  brandJustFocused.current = false;
+                }
+              }}
+              onClick={(e) => {
+                setBrandOpen(true);
+                // Alan el değmemiş hâldeyse (metin = seçili marka) tıklama
+                // tümünü seçer; yazılan yeni metin eskisinin yerine geçer.
+                if (brandQuery === brand) {
+                  (e.target as HTMLInputElement).select();
+                }
+              }}
+              onChange={(e) => {
+                setBrandQuery(e.target.value);
+                setBrandOpen(true);
+                setBrandIdx(-1);
+              }}
+              onKeyDown={(e) => {
+                // 0 = Markasız, 1..n = süzülen markalar
+                const total = brandMatches.length + 1;
+                if (e.key === "ArrowDown") {
+                  e.preventDefault();
+                  setBrandOpen(true);
+                  setBrandIdx((i) => (i + 1) % total);
+                } else if (e.key === "ArrowUp") {
+                  e.preventDefault();
+                  setBrandOpen(true);
+                  setBrandIdx((i) => (i - 1 + total) % total);
+                } else if (e.key === "Enter") {
+                  e.preventDefault(); // form gönderimini engelle
+                  if (brandOpen && brandIdx >= 0) {
+                    applyBrand(brandIdx === 0 ? "" : brandMatches[brandIdx - 1].name);
+                  } else if (brandOpen && brandFilter && brandMatches.length === 1) {
+                    applyBrand(brandMatches[0].name); // tek eşleşme: direkt seç
+                  } else {
+                    commitBrandQuery();
+                    setBrandOpen(false);
+                  }
+                } else if (e.key === "Escape") {
+                  setBrandQuery(brand);
+                  setBrandOpen(false);
+                  setBrandIdx(-1);
+                }
+              }}
+            />
+            {brandOpen && (
+              <div className={styles.comboMenu} id="p-brand-list" role="listbox">
+                <button
+                  type="button"
+                  role="option"
+                  aria-selected={brand === ""}
+                  className={`${styles.comboItem}${brandIdx === 0 ? ` ${styles.comboItemActive}` : ""}`}
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={() => applyBrand("")}
+                >
+                  Markasız
+                </button>
+                {brandMatches.map((b, i) => (
+                  <button
+                    key={b.name}
+                    type="button"
+                    role="option"
+                    aria-selected={b.name === brand}
+                    className={`${styles.comboItem}${brandIdx === i + 1 ? ` ${styles.comboItemActive}` : ""}`}
+                    onMouseDown={(e) => e.preventDefault()}
+                    onClick={() => applyBrand(b.name)}
+                  >
+                    <span>{b.name}</span>
+                    {b.producer !== "" && (
+                      <span className={styles.comboItemSub}>{b.producer}</span>
+                    )}
+                  </button>
+                ))}
+                {brandMatches.length === 0 && (
+                  <p className={styles.comboEmpty}>
+                    Eşleşen marka yok. Yeni marka için Markalar sayfasını kullan.
+                  </p>
+                )}
+              </div>
             )}
-            {brands.map((b) => (
-              <option key={b.name} value={b.name}>
-                {b.name}
-              </option>
-            ))}
-          </select>
+          </div>
           <p className={styles.fieldHint}>
-            Marka seçilince üretici alanı otomatik dolar. Yeni marka eklemek
-            için <Link href="/admin/markalar">Markalar</Link> sayfasını kullan.
+            Yazarak ara, listeden seç; üretici alanı otomatik dolar. Yeni marka
+            eklemek için <Link href="/admin/markalar">Markalar</Link> sayfasını
+            kullan.
           </p>
         </div>
 
