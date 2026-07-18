@@ -100,6 +100,50 @@ export default function DeliveryTracker({
 }) {
   const router = useRouter();
   const [list, setList] = useState(orders);
+
+  // Koordinatı olmayan siparişler adres metninden OTOMATİK konumlanır
+  // (Nominatim, tarayıcıdan; arama Sapanca/Sakarya'ya daraltılır; saniyede
+  // en çok 1 istek). Bulunan konum DB'ye yazılır ve haritada iğne olarak
+  // görünür; "Konumumu ata" / "Maps linki" ile elle düzeltilebilir.
+  const geocodedRef = useRef<Set<string>>(new Set());
+  useEffect(() => {
+    const targets = list.filter(
+      (o) => o.delivery_lat == null && !geocodedRef.current.has(o.order_no),
+    );
+    if (targets.length === 0) return;
+    let stop = false;
+    (async () => {
+      for (const o of targets) {
+        if (stop) return;
+        geocodedRef.current.add(o.order_no);
+        try {
+          const q = encodeURIComponent(`${o.address_line}, Sapanca, Sakarya`);
+          const res = await fetch(
+            `https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=tr&q=${q}`,
+          );
+          const hits = (await res.json()) as { lat: string; lon: string }[];
+          if (hits[0]) {
+            const lat = Number(hits[0].lat);
+            const lng = Number(hits[0].lon);
+            await setOrderDeliveryLocation(o.order_no, lat, lng);
+            setList((prev) =>
+              prev.map((x) =>
+                x.order_no === o.order_no
+                  ? { ...x, delivery_lat: lat, delivery_lng: lng }
+                  : x,
+              ),
+            );
+          }
+        } catch {
+          /* sessiz: adres çözülemedi, elle atanabilir */
+        }
+        await new Promise((r) => setTimeout(r, 1100));
+      }
+    })();
+    return () => {
+      stop = true;
+    };
+  }, [list]);
   const [state, setState] = useState<ShareState>("idle");
   const [message, setMessage] = useState("");
   const [lastAt, setLastAt] = useState("");
