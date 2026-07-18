@@ -30,6 +30,7 @@ import {
   assignSubcategory,
 } from "@/lib/shop/subcategories";
 import { getSubcatsMap } from "@/lib/shop/subcats-data";
+import { getAllCategories } from "@/lib/shop/categories-data";
 import { BUSINESS } from "@/lib/business";
 import { getCatalogVisibility, isProductVisible } from "@/lib/shop/visibility";
 import { iconFor } from "@/components/shop/ProductCard";
@@ -204,9 +205,10 @@ export default async function UrunDetayPage({ params }: { params: Params }) {
   if (!product) notFound();
 
   // Admin'den pasifleştirilen kategori/alt kategori ürünleri detayda da gizli.
-  const [visibility, subcatsMap] = await Promise.all([
+  const [visibility, subcatsMap, allCats] = await Promise.all([
     getCatalogVisibility(),
     getSubcatsMap(),
+    getAllCategories(),
   ]);
   if (!isProductVisible(product, visibility, subcatsMap)) notFound();
 
@@ -214,7 +216,7 @@ export default async function UrunDetayPage({ params }: { params: Params }) {
     isProductVisible(p, visibility, subcatsMap),
   );
 
-  const cat = categoryBySlug(product.category_slug);
+  const cat = allCats.find((c) => c.slug === product.category_slug);
   const [tintBg, tintFg] = CATEGORY_TINTS[cat?.tint ?? 0] ?? CATEGORY_TINTS[0];
   const Icon = iconFor(cat?.icon ?? "shopping-basket");
 

@@ -44,6 +44,7 @@ export default function CategorySidebar({
   hiddenCats,
   hiddenSubs,
   activeSubs,
+  cats: catsProp,
 }: {
   active?: string;
   q?: string;
@@ -56,10 +57,13 @@ export default function CategorySidebar({
   hiddenSubs?: string[];
   /** AKTİF kategorinin çözümlenmiş alt kategorileri (DB + kod varsayılanı). */
   activeSubs?: { slug: string; name: string }[];
+  /** Çözümlenmiş kategori listesi (kod + özel); verilmezse kod listesi. */
+  cats?: typeof SHOP_CATEGORIES;
 }) {
+  const base = catsProp ?? SHOP_CATEGORIES;
   const cats = hiddenCats?.length
-    ? SHOP_CATEGORIES.filter((c) => !hiddenCats.includes(c.slug))
-    : SHOP_CATEGORIES;
+    ? base.filter((c) => !hiddenCats.includes(c.slug))
+    : base;
   return (
     <aside className={styles.sidebar} aria-label="Kategoriler">
       {/* Keşfet grubu — tüm ürünler / indirimli / çok satan */}

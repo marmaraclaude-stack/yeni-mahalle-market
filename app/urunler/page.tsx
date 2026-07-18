@@ -29,6 +29,7 @@ import {
   OTHER_SUB_NAME,
 } from "@/lib/shop/subcategories";
 import { getSubcatsMap } from "@/lib/shop/subcats-data";
+import { getAllCategories } from "@/lib/shop/categories-data";
 import { specialByKey, type SpecialKey } from "@/lib/shop/specials";
 import { BUSINESS } from "@/lib/business";
 import { getShopSettings } from "@/lib/shop/settings";
@@ -102,16 +103,18 @@ export default async function UrunlerPage({
 
   // Teslimat ayarları + katalog görünürlüğü (admin'den pasifleştirilen
   // kategori/alt kategoriler) — paralel çekilir; hata durumunda makul default.
-  const [settings, visibility, subcatsMap] = await Promise.all([
+  const [settings, visibility, subcatsMap, allCats] = await Promise.all([
     getShopSettings(),
     getCatalogVisibility(),
     getSubcatsMap(),
+    getAllCategories(),
   ]);
+  const catBySlug = (slug: string) => allCats.find((c) => c.slug === slug);
   const hiddenCatList = [...visibility.inactiveCats];
   const hiddenSubList = [...visibility.hiddenSubs];
 
   // Geçersiz YA DA pasifleştirilmiş kategori slug'ı sessizce yok sayılır.
-  const rawCategory = special ? undefined : categoryBySlug(first(sp.k) ?? "");
+  const rawCategory = special ? undefined : catBySlug(first(sp.k) ?? "");
   const category =
     rawCategory && !visibility.inactiveCats.has(rawCategory.slug)
       ? rawCategory
@@ -233,6 +236,7 @@ export default async function UrunlerPage({
 
         {/* Mobil/tablet: sticky kategori pill barı (masaüstünde gizli) */}
         <CategoryRail
+          cats={allCats}
           active={category?.slug}
           q={q || undefined}
           ozel={special?.key}
@@ -247,6 +251,7 @@ export default async function UrunlerPage({
               q={q || undefined}
               ozel={special?.key}
               alt={altSlug}
+              cats={allCats}
               hiddenCats={hiddenCatList}
               hiddenSubs={hiddenSubList}
               activeSubs={

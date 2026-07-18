@@ -8,6 +8,7 @@
 import type { Metadata } from "next";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { SHOP_CATEGORIES } from "@/lib/shop/categories";
+import { getAllCategories } from "@/lib/shop/categories-data";
 import { getSubcatsMap } from "@/lib/shop/subcats-data";
 import styles from "../../admin.module.css";
 import CategoriesManager from "./CategoriesManager";
@@ -41,7 +42,10 @@ export default async function KategorilerPage() {
     /* boş varsayılanlarla devam */
   }
 
-  const categories = SHOP_CATEGORIES.map((c) => ({
+  const allCats = await getAllCategories();
+  const codeSlugs = new Set(SHOP_CATEGORIES.map((c) => c.slug));
+  const categories = allCats.map((c) => ({
+    isCustom: !codeSlugs.has(c.slug),
     slug: c.slug,
     name: c.name,
     tint: c.tint,

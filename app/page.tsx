@@ -8,6 +8,7 @@ import SiteFooter from "@/components/SiteFooter";
 import PromoBanners from "@/components/shop/PromoBanners";
 import Carousel from "@/components/Carousel";
 import CategoryGrid from "@/components/CategoryGrid";
+import { getCustomCategories } from "@/lib/shop/categories-data";
 import { getCatalogVisibility } from "@/lib/shop/visibility";
 import { Check, Phone, ShoppingBasket, Package, Bike } from "lucide-react";
 
@@ -139,7 +140,7 @@ export default async function Home() {
 
             <Carousel />
 
-            <CategoryGrid hiddenSlugs={hiddenCats} />
+            <CategoryGrid hiddenSlugs={hiddenCats} extra={await getCustomCategories()} />
 
             {/* Online mağaza CTA — tam katalog */}
             <div className="section__more">

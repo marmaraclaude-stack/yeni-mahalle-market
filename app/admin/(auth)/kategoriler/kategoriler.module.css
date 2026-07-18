@@ -329,3 +329,32 @@ details[open] > .editSummary::before { transform: rotate(45deg); }
   }
   .editBtns { justify-content: flex-start; }
 }
+
+
+/* --- Yeni kategori satırı --- */
+.newCat {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 14px;
+  padding: 14px 16px;
+  background: var(--white, #fff);
+  border: 1px solid var(--gray-200, #e5e5e5);
+  border-radius: 14px;
+}
+.newCat input { flex: 1 1 220px; height: 38px; }
+.newCat select { flex: 0 1 150px; height: 38px; }
+.tintRow { display: flex; gap: 5px; }
+.tintDot {
+  width: 26px;
+  height: 26px;
+  border: 2px solid transparent;
+  border-radius: 50%;
+  font-size: 11px;
+  line-height: 1;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+}
+.tintDotOn { border-color: var(--ink, #111); }

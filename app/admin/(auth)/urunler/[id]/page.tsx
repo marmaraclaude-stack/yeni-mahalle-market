@@ -14,6 +14,7 @@ import AdminBack from "../../AdminBack";
 import ProductInfoForm from "./ProductInfoForm";
 import { SHOP_CATEGORIES, CATEGORY_TINTS, categoryBySlug } from "@/lib/shop/categories";
 import { getSubcatsMap } from "@/lib/shop/subcats-data";
+import { getAllCategories } from "@/lib/shop/categories-data";
 import type { Product } from "@/lib/shop/types";
 import styles from "../../../admin.module.css";
 
@@ -268,7 +269,7 @@ export default async function AdminProductEditPage({
           <ProductInfoForm
             saveAction={saveAction}
             product={product}
-            categories={SHOP_CATEGORIES.map((c) => ({
+            categories={(await getAllCategories()).map((c) => ({
               slug: c.slug,
               name: c.name,
             }))}

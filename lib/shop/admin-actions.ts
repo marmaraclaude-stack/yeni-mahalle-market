@@ -27,6 +27,22 @@ import type {
 } from "@/lib/shop/types";
 import type { ChatMessage, ChatSession } from "@/lib/supabase/types";
 
+
+/** Kategori geçerli mi? Koddaki liste YA DA panelden eklenen özel kategori. */
+async function isValidCategorySlug(
+  supabase: AdminClient,
+  slug: string,
+): Promise<boolean> {
+  if (categoryBySlug(slug)) return true;
+  const { data } = await supabase
+    .from("shop_categories")
+    .select("slug")
+    .eq("slug", slug)
+    .eq("custom", true)
+    .maybeSingle();
+  return Boolean(data);
+}
+
 /** updateProduct için düzenlenebilir alanlar — slug BİLİNÇLİ olarak yok (URL kırılmasın). */
 export interface ProductPatch {
   name?: string;
@@ -370,10 +386,7 @@ export async function updateProduct(
   if (patch.description !== undefined) clean.description = patch.description.trim();
   if (patch.unit !== undefined) clean.unit = patch.unit.trim() || "adet";
   if (patch.category_slug !== undefined) {
-    if (!categoryBySlug(patch.category_slug)) {
-      throw new Error("Geçersiz kategori.");
-    }
-    clean.category_slug = patch.category_slug;
+    clean.category_slug = patch.category_slug; // geçerlilik aşağıda DB ile denetlenir
   }
   if (patch.subcategory_slug !== undefined)
     clean.subcategory_slug = patch.subcategory_slug || null;
@@ -431,6 +444,12 @@ export async function updateProduct(
   if (Object.keys(clean).length === 0) return;
 
   const supabase = createAdminClient();
+  if (
+    clean.category_slug !== undefined &&
+    !(await isValidCategorySlug(supabase, clean.category_slug))
+  ) {
+    throw new Error("Geçersiz kategori.");
+  }
   // Kopyadan kalan "kopyasi" içeren slug, ad güncellenirken yeni addan
   // yeniden üretilir (normal ürünlerde slug asla değişmez, URL kırılmaz).
   if (clean.name && clean.slug === undefined) {
@@ -2624,9 +2643,10 @@ export async function createSubcat(
   const n = name.trim();
   if (!n) throw new Error("Alt kategori adı boş olamaz.");
   const p = normalizeSubcatPattern(pattern);
-  if (!categoryBySlug(categorySlug)) throw new Error("Geçersiz kategori.");
-
   const supabase = createAdminClient();
+  if (!(await isValidCategorySlug(supabase, categorySlug))) {
+    throw new Error("Geçersiz kategori.");
+  }
   await ensureSubcatsMaterialized(supabase, categorySlug);
   const rows = await listSubcatRows(supabase, categorySlug);
 
@@ -2752,4 +2772,64 @@ export async function setOrderDeliveryLocation(
     .eq("order_no", orderNo);
   if (error) throw new Error(`Konum kaydedilemedi: ${error.message}`);
   revalidatePath("/admin/teslimat");
+}
+
+
+/** Panelden yeni kategori ekle (özel kategori). */
+export async function createCategory(
+  name: string,
+  icon: string,
+  tint: number,
+): Promise<void> {
+  await requireAdmin();
+  const n = name.trim();
+  if (!n) throw new Error("Kategori adı boş olamaz.");
+  const slug = slugify(n);
+  if (!slug) throw new Error("Kategori adından geçerli bir adres üretilemedi.");
+  if (categoryBySlug(slug)) throw new Error("Bu adla bir kategori zaten var.");
+  const t = Math.min(Math.max(Math.round(tint), 0), 7);
+
+  const supabase = createAdminClient();
+  const { error } = await supabase.from("shop_categories").upsert(
+    {
+      slug,
+      name: n,
+      icon: icon || "shopping-basket",
+      tint: t,
+      sort: 1000 + Date.now() % 100000,
+      custom: true,
+      is_active: true,
+    },
+    { onConflict: "slug" },
+  );
+  if (error) throw new Error(`Kategori eklenemedi: ${error.message}`);
+  revalidateSubcatPages();
+}
+
+/** Özel kategoriyi sil (koddaki sabit kategoriler silinemez, pasifleştirilir).
+    İçinde ürün varsa silinmez; önce ürünleri taşıyın. */
+export async function deleteCategory(slug: string): Promise<void> {
+  await requireAdmin();
+  if (categoryBySlug(slug)) {
+    throw new Error("Sabit kategoriler silinemez; anahtarla pasifleştirin.");
+  }
+  const supabase = createAdminClient();
+  const { count } = await supabase
+    .from("products")
+    .select("id", { count: "exact", head: true })
+    .eq("category_slug", slug);
+  if ((count ?? 0) > 0) {
+    throw new Error(
+      `Bu kategoride ${count} ürün var. Önce ürünleri başka kategoriye taşıyın.`,
+    );
+  }
+  const { error } = await supabase
+    .from("shop_categories")
+    .delete()
+    .eq("slug", slug)
+    .eq("custom", true);
+  if (error) throw new Error(`Kategori silinemedi: ${error.message}`);
+  await supabase.from("shop_subcats").delete().eq("category_slug", slug);
+  await supabase.from("shop_hidden_subcats").delete().eq("category_slug", slug);
+  revalidateSubcatPages();
 }

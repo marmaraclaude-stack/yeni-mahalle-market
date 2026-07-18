@@ -43,6 +43,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { SHOP_CATEGORIES } from "@/lib/shop/categories";
+import { iconFor } from "@/components/shop/ProductCard";
 
 type Cat = { Icon: LucideIcon; label: string; slug: string; t: number };
 
@@ -102,13 +103,23 @@ const CATEGORIES: Cat[] = SHOP_CATEGORIES.map((c, i) => ({
 
 export default function CategoryGrid({
   hiddenSlugs,
+  extra,
 }: {
   /** Admin'den pasifleştirilen kategori slug'ları — ızgarada gizlenir. */
   hiddenSlugs?: string[];
+  /** Panelden eklenen özel kategoriler (ikon adına göre çizilir). */
+  extra?: { slug: string; name: string; tint: number; icon: string }[];
 }) {
+  const extraCats: Cat[] = (extra ?? []).map((c) => ({
+    Icon: iconFor(c.icon),
+    label: c.name,
+    slug: c.slug,
+    t: c.tint,
+  }));
+  const all = extraCats.length ? [...CATEGORIES, ...extraCats] : CATEGORIES;
   const visible = hiddenSlugs?.length
-    ? CATEGORIES.filter((c) => !hiddenSlugs.includes(c.slug))
-    : CATEGORIES;
+    ? all.filter((c) => !hiddenSlugs.includes(c.slug))
+    : all;
   const railRef = useRef<HTMLDivElement>(null);
   const snapTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [canPrev, setCanPrev] = useState(false);

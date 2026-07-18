@@ -36,16 +36,19 @@ export default function CategoryRail({
   q,
   ozel,
   hiddenCats,
+  cats: catsProp,
 }: {
   active?: string;
   q?: string;
   ozel?: string;
   /** Admin'den pasifleştirilen kategori slug'ları — rail + sheet'te gizlenir. */
   hiddenCats?: string[];
+  /** Çözümlenmiş kategori listesi (kod + özel). */
+  cats?: typeof SHOP_CATEGORIES;
 }) {
   const cats = hiddenCats?.length
-    ? SHOP_CATEGORIES.filter((c) => !hiddenCats.includes(c.slug))
-    : SHOP_CATEGORIES;
+    ? (catsProp ?? SHOP_CATEGORIES).filter((c) => !hiddenCats.includes(c.slug))
+    : (catsProp ?? SHOP_CATEGORIES);
   const barRef = useRef<HTMLDivElement>(null);
   const railRef = useRef<HTMLElement>(null);
   const [sheet, setSheet] = useState(false);

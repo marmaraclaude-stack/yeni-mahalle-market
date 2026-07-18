@@ -17,6 +17,8 @@ import {
   Trash2,
 } from "lucide-react";
 import {
+  createCategory,
+  deleteCategory,
   createSubcat,
   deleteSubcat,
   moveSubcat,
@@ -42,7 +44,29 @@ interface CatDef {
   tint: number;
   icon: string;
   subs: SubDef[];
+  /** Panelden eklenen özel kategori mi? (silinebilir) */
+  isCustom?: boolean;
 }
+
+/** Yeni kategori formundaki ikon seçenekleri (iconFor anahtarları). */
+const ICON_OPTIONS: { key: string; label: string }[] = [
+  { key: "shopping-basket", label: "Sepet" },
+  { key: "carrot", label: "Havuç" },
+  { key: "beef", label: "Et" },
+  { key: "fish", label: "Balık" },
+  { key: "croissant", label: "Fırın" },
+  { key: "milk", label: "Süt" },
+  { key: "cup-soda", label: "İçecek" },
+  { key: "wheat", label: "Bakliyat" },
+  { key: "soup", label: "Yemek" },
+  { key: "cookie", label: "Atıştırma" },
+  { key: "candy", label: "Şekerleme" },
+  { key: "coffee", label: "Kahve" },
+  { key: "ice-cream-cone", label: "Dondurma" },
+  { key: "snowflake", label: "Donuk" },
+  { key: "spray-can", label: "Temizlik" },
+  { key: "paw-print", label: "Evcil" },
+];
 
 export default function CategoriesManager({
   categories,
@@ -140,6 +164,10 @@ export default function CategoriesManager({
         </span>
       </div>
 
+      {/* Yeni kategori: ad + ikon + renk. Slug addan üretilir; yeni kategori
+         vitrinde ve ürün formundaki kategori listesinde hemen görünür. */}
+      <NewCategoryForm onError={setError} />
+
       <div className={kstyles.grid}>
         {categories.map((c) => {
           const [bg, fg] = CATEGORY_TINTS[c.tint] ?? CATEGORY_TINTS[0];
@@ -174,6 +202,27 @@ export default function CategoriesManager({
                   </span>
                 </div>
                 {/* Accent switch — açık: vitrinde görünür */}
+                {c.isCustom && (
+                  <button
+                    type="button"
+                    className={kstyles.editIconBtn + " " + kstyles.editDelBtn}
+                    onClick={() => {
+                      if (!window.confirm(`"${c.name}" kategorisi silinsin mi? İçinde ürün varsa silinmez.`)) return;
+                      setError(null);
+                      startTransition(async () => {
+                        try {
+                          await deleteCategory(c.slug);
+                          window.location.reload();
+                        } catch (e) {
+                          setError(e instanceof Error ? e.message : "Kategori silinemedi.");
+                        }
+                      });
+                    }}
+                    aria-label={`${c.name} kategorisini sil`}
+                  >
+                    <Trash2 size={14} aria-hidden />
+                  </button>
+                )}
                 <button
                   type="button"
                   role="switch"
@@ -462,6 +511,91 @@ function SubcatRow({
           <Trash2 size={14} aria-hidden />
         </button>
       </div>
+    </div>
+  );
+}
+
+
+function NewCategoryForm({ onError }: { onError: (m: string | null) => void }) {
+  const router = useRouter();
+  const [name, setName] = useState("");
+  const [icon, setIcon] = useState("shopping-basket");
+  const [tint, setTint] = useState(0);
+  const [pending, startTransition] = useTransition();
+
+  function add() {
+    if (!name.trim() || pending) return;
+    onError(null);
+    startTransition(async () => {
+      try {
+        await createCategory(name.trim(), icon, tint);
+        setName("");
+        router.refresh();
+      } catch (e) {
+        onError(e instanceof Error ? e.message : "Kategori eklenemedi.");
+      }
+    });
+  }
+
+  const Icon = iconFor(icon);
+  const [bg, fg] = CATEGORY_TINTS[tint] ?? CATEGORY_TINTS[0];
+
+  return (
+    <div className={kstyles.newCat}>
+      <span
+        className={kstyles.icon}
+        style={{ background: bg, color: fg }}
+        aria-hidden="true"
+      >
+        <Icon size={20} strokeWidth={1.9} />
+      </span>
+      <input
+        className={kstyles.editInput}
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") add();
+        }}
+        placeholder="Yeni kategori adı (örn. Organik Ürünler)"
+        aria-label="Yeni kategori adı"
+      />
+      <select
+        className={kstyles.editInput}
+        value={icon}
+        onChange={(e) => setIcon(e.target.value)}
+        aria-label="Kategori ikonu"
+      >
+        {ICON_OPTIONS.map((o) => (
+          <option key={o.key} value={o.key}>
+            {o.label}
+          </option>
+        ))}
+      </select>
+      <div className={kstyles.tintRow} role="radiogroup" aria-label="Kategori rengi">
+        {CATEGORY_TINTS.map(([b, f], i) => (
+          <button
+            key={i}
+            type="button"
+            role="radio"
+            aria-checked={tint === i}
+            className={`${kstyles.tintDot}${tint === i ? ` ${kstyles.tintDotOn}` : ""}`}
+            style={{ background: b, color: f }}
+            onClick={() => setTint(i)}
+            aria-label={`Renk ${i + 1}`}
+          >
+            ●
+          </button>
+        ))}
+      </div>
+      <button
+        type="button"
+        className={kstyles.editAddBtn}
+        onClick={add}
+        disabled={pending || !name.trim()}
+      >
+        <Plus size={15} aria-hidden />
+        {pending ? "Ekleniyor" : "Kategori Ekle"}
+      </button>
     </div>
   );
 }
