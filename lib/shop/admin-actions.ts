@@ -2833,3 +2833,27 @@ export async function deleteCategory(slug: string): Promise<void> {
   await supabase.from("shop_hidden_subcats").delete().eq("category_slug", slug);
   revalidateSubcatPages();
 }
+
+
+/** Kategori düzenle (sabit ve özel): ad, ikon, renk. Slug/URL değişmez.
+    Sabit kategoride değişiklik DB'ye override olarak yazılır. */
+export async function updateCategory(
+  slug: string,
+  patch: { name: string; icon: string; tint: number },
+): Promise<void> {
+  await requireAdmin();
+  const n = patch.name.trim();
+  if (!n) throw new Error("Kategori adı boş olamaz.");
+  const t = Math.min(Math.max(Math.round(patch.tint), 0), 7);
+
+  const supabase = createAdminClient();
+  if (!(await isValidCategorySlug(supabase, slug))) {
+    throw new Error("Geçersiz kategori.");
+  }
+  const { error } = await supabase.from("shop_categories").upsert(
+    { slug, name: n, icon: patch.icon || "shopping-basket", tint: t },
+    { onConflict: "slug" },
+  );
+  if (error) throw new Error(`Kategori güncellenemedi: ${error.message}`);
+  revalidateSubcatPages();
+}

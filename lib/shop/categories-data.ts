@@ -12,6 +12,7 @@ interface Row {
   tint: number;
   icon: string;
   sort: number;
+  custom: boolean;
 }
 
 /** Kod + özel kategorilerin birleşik listesi (istek başına önbellekli). */
@@ -20,13 +21,29 @@ export const getAllCategories = cache(async (): Promise<CategoryDef[]> => {
     const supabase = await createClient();
     const { data, error } = await supabase
       .from("shop_categories")
-      .select("slug, name, tint, icon, sort")
-      .eq("custom", true)
+      .select("slug, name, tint, icon, sort, custom")
       .order("sort", { ascending: true });
     if (error || !data) return SHOP_CATEGORIES;
+    const rows = data as Row[];
+    // Kod kategorileri: adı DOLU satır panelden düzenlenmiş demektir; ad,
+    // ikon ve renk DB'deki değerle geçersiz kılınır (slug/URL değişmez).
+    const overrides = new Map(
+      rows.filter((r) => !r.custom && r.name.trim() !== "").map((r) => [r.slug, r]),
+    );
+    const base: CategoryDef[] = SHOP_CATEGORIES.map((c) => {
+      const o = overrides.get(c.slug);
+      return o
+        ? {
+            ...c,
+            name: o.name,
+            tint: Math.min(Math.max(o.tint, 0), 7),
+            icon: o.icon || c.icon,
+          }
+        : c;
+    });
     const known = new Set(SHOP_CATEGORIES.map((c) => c.slug));
-    const extra: CategoryDef[] = (data as Row[])
-      .filter((r) => !known.has(r.slug) && r.name.trim() !== "")
+    const extra: CategoryDef[] = rows
+      .filter((r) => r.custom && !known.has(r.slug) && r.name.trim() !== "")
       .map((r) => ({
         slug: r.slug,
         name: r.name,
@@ -34,7 +51,7 @@ export const getAllCategories = cache(async (): Promise<CategoryDef[]> => {
         icon: r.icon || "shopping-basket",
         orderable: true,
       }));
-    return extra.length ? [...SHOP_CATEGORIES, ...extra] : SHOP_CATEGORIES;
+    return extra.length ? [...base, ...extra] : base;
   } catch {
     return SHOP_CATEGORIES;
   }

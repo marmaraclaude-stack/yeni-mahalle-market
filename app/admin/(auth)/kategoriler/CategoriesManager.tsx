@@ -19,6 +19,7 @@ import {
 import {
   createCategory,
   deleteCategory,
+  updateCategory,
   createSubcat,
   deleteSubcat,
   moveSubcat,
@@ -282,6 +283,8 @@ export default function CategoriesManager({
                 <summary className={kstyles.editSummary}>
                   Alt kategorileri düzenle
                 </summary>
+                {/* Kategorinin kendisi: ad + ikon + renk (slug/URL sabit) */}
+                <CategoryEditRow cat={c} onError={setError} />
                 <p className={kstyles.editHint}>
                   Anahtar kelimeler ürün adıyla eşleşir; kelimeleri | ile ayır
                   (örn. tavuk|piliç). Boş bırakılırsa ürünler bu alta yalnız
@@ -596,6 +599,93 @@ function NewCategoryForm({ onError }: { onError: (m: string | null) => void }) {
         <Plus size={15} aria-hidden />
         {pending ? "Ekleniyor" : "Kategori Ekle"}
       </button>
+    </div>
+  );
+}
+
+
+function CategoryEditRow({
+  cat,
+  onError,
+}: {
+  cat: CatDef;
+  onError: (m: string | null) => void;
+}) {
+  const router = useRouter();
+  const [name, setName] = useState(cat.name);
+  const [icon, setIcon] = useState(cat.icon);
+  const [tint, setTint] = useState(cat.tint);
+  const [pending, startTransition] = useTransition();
+
+  useEffect(() => {
+    setName(cat.name);
+    setIcon(cat.icon);
+    setTint(cat.tint);
+  }, [cat.name, cat.icon, cat.tint]);
+
+  const dirty =
+    name.trim() !== cat.name || icon !== cat.icon || tint !== cat.tint;
+
+  function save() {
+    if (!dirty || pending || !name.trim()) return;
+    onError(null);
+    startTransition(async () => {
+      try {
+        await updateCategory(cat.slug, { name: name.trim(), icon, tint });
+        router.refresh();
+      } catch (e) {
+        onError(e instanceof Error ? e.message : "Kategori güncellenemedi.");
+      }
+    });
+  }
+
+  return (
+    <div className={kstyles.catEditRow}>
+      <input
+        className={kstyles.editInput}
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") save();
+        }}
+        aria-label={`${cat.name} kategori adı`}
+      />
+      <select
+        className={kstyles.editInput}
+        value={ICON_OPTIONS.some((o) => o.key === icon) ? icon : "shopping-basket"}
+        onChange={(e) => setIcon(e.target.value)}
+        aria-label={`${cat.name} ikonu`}
+      >
+        {ICON_OPTIONS.map((o) => (
+          <option key={o.key} value={o.key}>
+            {o.label}
+          </option>
+        ))}
+      </select>
+      <div className={kstyles.tintRow} role="radiogroup" aria-label="Renk">
+        {CATEGORY_TINTS.map(([b], i) => (
+          <button
+            key={i}
+            type="button"
+            role="radio"
+            aria-checked={tint === i}
+            className={`${kstyles.tintDot}${tint === i ? ` ${kstyles.tintDotOn}` : ""}`}
+            style={{ background: b }}
+            onClick={() => setTint(i)}
+            aria-label={`Renk ${i + 1}`}
+          />
+        ))}
+      </div>
+      {dirty && (
+        <button
+          type="button"
+          className={kstyles.editSaveBtn}
+          onClick={save}
+          disabled={pending || !name.trim()}
+        >
+          {pending ? "..." : "Kaydet"}
+        </button>
+      )}
     </div>
   );
 }

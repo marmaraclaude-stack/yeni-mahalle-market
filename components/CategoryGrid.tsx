@@ -104,11 +104,14 @@ const CATEGORIES: Cat[] = SHOP_CATEGORIES.map((c, i) => ({
 export default function CategoryGrid({
   hiddenSlugs,
   extra,
+  cats,
 }: {
   /** Admin'den pasifleştirilen kategori slug'ları — ızgarada gizlenir. */
   hiddenSlugs?: string[];
   /** Panelden eklenen özel kategoriler (ikon adına göre çizilir). */
   extra?: { slug: string; name: string; tint: number; icon: string }[];
+  /** Tam çözümlenmiş liste (kod + override + özel); verilirse esas alınır. */
+  cats?: { slug: string; name: string; tint: number; icon: string }[];
 }) {
   const extraCats: Cat[] = (extra ?? []).map((c) => ({
     Icon: iconFor(c.icon),
@@ -116,7 +119,10 @@ export default function CategoryGrid({
     slug: c.slug,
     t: c.tint,
   }));
-  const all = extraCats.length ? [...CATEGORIES, ...extraCats] : CATEGORIES;
+  const resolved: Cat[] | null = cats
+    ? cats.map((c) => ({ Icon: iconFor(c.icon), label: c.name, slug: c.slug, t: c.tint }))
+    : null;
+  const all = resolved ?? (extraCats.length ? [...CATEGORIES, ...extraCats] : CATEGORIES);
   const visible = hiddenSlugs?.length
     ? all.filter((c) => !hiddenSlugs.includes(c.slug))
     : all;

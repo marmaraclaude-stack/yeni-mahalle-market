@@ -358,3 +358,15 @@ details[open] > .editSummary::before { transform: rotate(45deg); }
   place-items: center;
 }
 .tintDotOn { border-color: var(--ink, #111); }
+
+
+/* Kart içi kategori düzenleme satırı (ad + ikon + renk + kaydet) */
+.catEditRow {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+.catEditRow input { flex: 1 1 200px; }
+.catEditRow select { flex: 0 1 140px; }
