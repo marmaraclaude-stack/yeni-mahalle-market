@@ -55,18 +55,113 @@ const ICON_OPTIONS: { key: string; label: string }[] = [
   { key: "carrot", label: "Havuç" },
   { key: "beef", label: "Et" },
   { key: "fish", label: "Balık" },
-  { key: "croissant", label: "Fırın" },
+  { key: "croissant", label: "Kruvasan" },
   { key: "milk", label: "Süt" },
   { key: "cup-soda", label: "İçecek" },
-  { key: "wheat", label: "Bakliyat" },
-  { key: "soup", label: "Yemek" },
-  { key: "cookie", label: "Atıştırma" },
-  { key: "candy", label: "Şekerleme" },
+  { key: "wheat", label: "Buğday" },
+  { key: "soup", label: "Çorba" },
+  { key: "cookie", label: "Kurabiye" },
+  { key: "candy", label: "Şeker" },
   { key: "coffee", label: "Kahve" },
-  { key: "ice-cream-cone", label: "Dondurma" },
-  { key: "snowflake", label: "Donuk" },
-  { key: "spray-can", label: "Temizlik" },
-  { key: "paw-print", label: "Evcil" },
+  { key: "ice-cream-cone", label: "Dondurma Külah" },
+  { key: "snowflake", label: "Kar Tanesi" },
+  { key: "citrus", label: "Narenciye" },
+  { key: "spray-can", label: "Sprey" },
+  { key: "scroll-text", label: "Kağıt Rulo" },
+  { key: "sparkles", label: "Işıltı" },
+  { key: "pill", label: "İlaç" },
+  { key: "utensils", label: "Çatal Kaşık" },
+  { key: "baby", label: "Bebek" },
+  { key: "paw-print", label: "Pati" },
+  { key: "lamp", label: "Lamba" },
+  { key: "flame", label: "Alev" },
+  { key: "flame-kindling", label: "Mangal" },
+  { key: "battery-charging", label: "Şarj" },
+  { key: "umbrella", label: "Şemsiye" },
+  { key: "sun", label: "Güneş" },
+  { key: "life-buoy", label: "Simit Can" },
+  { key: "bug", label: "Böcek" },
+  { key: "droplets", label: "Damla" },
+  { key: "nut", label: "Kuruyemiş" },
+  { key: "apple", label: "Elma" },
+  { key: "banana", label: "Muz" },
+  { key: "cherry", label: "Kiraz" },
+  { key: "grape", label: "Üzüm" },
+  { key: "salad", label: "Salata" },
+  { key: "sandwich", label: "Sandviç" },
+  { key: "pizza", label: "Pizza" },
+  { key: "cake-slice", label: "Pasta Dilimi" },
+  { key: "donut", label: "Tatlı Çörek" },
+  { key: "egg", label: "Yumurta" },
+  { key: "egg-fried", label: "Sahanda Yumurta" },
+  { key: "ham", label: "Jambon" },
+  { key: "drumstick", label: "Tavuk But" },
+  { key: "popcorn", label: "Patlamış Mısır" },
+  { key: "lollipop", label: "Lolipop" },
+  { key: "ice-cream-bowl", label: "Dondurma Kase" },
+  { key: "glass-water", label: "Su Bardağı" },
+  { key: "wine", label: "Şarap Kadehi" },
+  { key: "beer", label: "Bira" },
+  { key: "martini", label: "Kokteyl" },
+  { key: "utensils-crossed", label: "Restoran" },
+  { key: "chef-hat", label: "Şef" },
+  { key: "cooking-pot", label: "Tencere" },
+  { key: "microwave", label: "Mikrodalga" },
+  { key: "refrigerator", label: "Buzdolabı" },
+  { key: "home", label: "Ev" },
+  { key: "lightbulb", label: "Ampul" },
+  { key: "plug", label: "Priz" },
+  { key: "battery", label: "Pil" },
+  { key: "wrench", label: "İngiliz Anahtarı" },
+  { key: "hammer", label: "Çekiç" },
+  { key: "scissors", label: "Makas" },
+  { key: "paintbrush", label: "Boya Fırçası" },
+  { key: "washing-machine", label: "Çamaşır Makinesi" },
+  { key: "shirt", label: "Giyim" },
+  { key: "bone", label: "Kemik" },
+  { key: "cat", label: "Kedi" },
+  { key: "dog", label: "Köpek" },
+  { key: "bird", label: "Kuş" },
+  { key: "rabbit", label: "Tavşan" },
+  { key: "squirrel", label: "Sincap" },
+  { key: "flower-2", label: "Çiçek" },
+  { key: "leaf", label: "Yaprak" },
+  { key: "sprout", label: "Fide" },
+  { key: "tree-pine", label: "Çam" },
+  { key: "tent", label: "Kamp" },
+  { key: "gift", label: "Hediye" },
+  { key: "heart", label: "Kalp" },
+  { key: "star", label: "Yıldız" },
+  { key: "package", label: "Paket" },
+  { key: "shopping-bag", label: "Alışveriş Çantası" },
+  { key: "shopping-cart", label: "Market Arabası" },
+  { key: "store", label: "Mağaza" },
+  { key: "truck", label: "Kamyon" },
+  { key: "bike", label: "Bisiklet" },
+  { key: "car", label: "Araba" },
+  { key: "fuel", label: "Yakıt" },
+  { key: "stethoscope", label: "Sağlık" },
+  { key: "bandage", label: "Yara Bandı" },
+  { key: "thermometer", label: "Termometre" },
+  { key: "waves", label: "Deniz" },
+  { key: "sailboat", label: "Tekne" },
+  { key: "gamepad-2", label: "Oyun" },
+  { key: "music", label: "Müzik" },
+  { key: "book-open", label: "Kitap" },
+  { key: "newspaper", label: "Gazete" },
+  { key: "pencil", label: "Kalem" },
+  { key: "brush", label: "Fırça" },
+  { key: "smartphone", label: "Telefon" },
+  { key: "tv", label: "Televizyon" },
+  { key: "headphones", label: "Kulaklık" },
+  { key: "camera", label: "Kamera" },
+  { key: "watch", label: "Saat" },
+  { key: "key", label: "Anahtar" },
+  { key: "lock", label: "Kilit" },
+  { key: "map-pin", label: "Konum" },
+  { key: "globe", label: "Dünya" },
+  { key: "recycle", label: "Geri Dönüşüm" },
+  { key: "cigarette", label: "Sigara" },
 ];
 
 export default function CategoriesManager({
@@ -305,6 +400,109 @@ export default function CategoriesManager({
 }
 
 
+
+
+/* Anahtar kelime <-> desen çevirisi. Kelimeler | ile birleşir; Türkçe
+   harfler her iki yazımı da yakalayan sınıfa açılır (ş -> [şs]). Karmaşık
+   (elle yazılmış) desenler çözülemezse ham desen kutusu gösterilir. */
+const TR_CLASS: Record<string, string> = {
+  "ç": "[çc]", "ğ": "[ğg]", "ı": "[ıi]", "ö": "[öo]", "ş": "[şs]", "ü": "[üu]",
+};
+function encodeKeywords(words: string[]): string {
+  return words
+    .map((w) =>
+      w
+        .trim()
+        .toLocaleLowerCase("tr-TR")
+        .replace(/[.*+?^${}()|[\]\\]/g, "")
+        .replace(/[çğıöşü]/g, (m) => TR_CLASS[m]),
+    )
+    .filter(Boolean)
+    .join("|");
+}
+function decodePattern(pattern: string): string[] | null {
+  if (!pattern || pattern === "." || pattern === "(?!)") return null;
+  const out: string[] = [];
+  for (const part of pattern.split("|")) {
+    if (
+      !/^[a-z0-9çğıöşü\s&'-]*(\[[a-zçğıöşü]{2,3}\][a-z0-9çğıöşü\s&'-]*)*$/.test(
+        part,
+      )
+    ) {
+      return null;
+    }
+    const word = part.replace(/\[(.)[^\]]*\]/g, "$1").trim();
+    if (!word) return null;
+    out.push(word);
+  }
+  return out;
+}
+
+function KeywordsEditor({
+  pattern,
+  onChange,
+  label,
+}: {
+  pattern: string;
+  onChange: (p: string) => void;
+  label: string;
+}) {
+  const words = decodePattern(pattern);
+  const [draft, setDraft] = useState("");
+  if (words === null) {
+    // Çözülemeyen (gelişmiş) desen: ham kutu
+    return (
+      <input
+        className={kstyles.editInput}
+        value={pattern}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder="Anahtar kelimeler"
+        aria-label={label}
+        title="Gelişmiş desen (elle yazılmış)"
+      />
+    );
+  }
+  function commitDraft() {
+    const parts = draft.split(",").map((x) => x.trim()).filter(Boolean);
+    if (parts.length === 0) return;
+    onChange(encodeKeywords([...words!, ...parts]));
+    setDraft("");
+  }
+  return (
+    <div className={kstyles.kwWrap} aria-label={label}>
+      {words.map((w, i) => (
+        <span key={`${w}-${i}`} className={kstyles.kwChip}>
+          {w}
+          <button
+            type="button"
+            className={kstyles.kwX}
+            onClick={() => onChange(encodeKeywords(words.filter((_, j) => j !== i)))}
+            aria-label={`${w} kelimesini kaldır`}
+          >
+            ×
+          </button>
+        </span>
+      ))}
+      <input
+        className={kstyles.kwInput}
+        value={draft}
+        onChange={(e) => setDraft(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === ",") {
+            e.preventDefault();
+            commitDraft();
+          } else if (e.key === "Backspace" && draft === "" && words.length > 0) {
+            onChange(encodeKeywords(words.slice(0, -1)));
+          }
+        }}
+        onBlur={commitDraft}
+        placeholder={words.length === 0 ? "kelime yaz, Enter'a bas" : "+ kelime"}
+        aria-label={`${label} için yeni kelime`}
+      />
+    </div>
+  );
+}
+
 function SubcatEditor({
   categorySlug,
   subs,
@@ -359,12 +557,10 @@ function SubcatEditor({
           placeholder="Yeni alt kategori adı"
           aria-label={`${categorySlug} için yeni alt kategori adı`}
         />
-        <input
-          className={kstyles.editInput}
-          value={newPattern}
-          onChange={(e) => setNewPattern(e.target.value)}
-          placeholder="tavuk|piliç gibi kelimeler (boş = yalnız elle atama)"
-          aria-label="Yeni alt kategori anahtar kelimeleri"
+        <KeywordsEditor
+          pattern={newPattern}
+          onChange={setNewPattern}
+          label="Yeni alt kategori anahtar kelimeleri"
         />
         <div className={kstyles.editBtns}>
           <button
@@ -436,12 +632,10 @@ function SubcatRow({
           Kalanların tümü
         </span>
       ) : (
-        <input
-          className={kstyles.editInput}
-          value={pattern}
-          onChange={(e) => setPattern(e.target.value)}
-          placeholder="Anahtar kelimeler"
-          aria-label={`${sub.name} anahtar kelimeleri`}
+        <KeywordsEditor
+          pattern={pattern}
+          onChange={setPattern}
+          label={`${sub.name} anahtar kelimeleri`}
         />
       )}
       <div className={kstyles.editBtns}>
