@@ -51,7 +51,17 @@ export const getAllCategories = cache(async (): Promise<CategoryDef[]> => {
         icon: r.icon || "shopping-basket",
         orderable: true,
       }));
-    return extra.length ? [...base, ...extra] : base;
+    // Etkin sıra: düzenlenmiş (adı dolu) satır sort'u; yoksa kod sırası.
+    const codeIdx = new Map(SHOP_CATEGORIES.map((c, i) => [c.slug, i * 10]));
+    const sortOf = (slug: string): number => {
+      const o = overrides.get(slug);
+      if (o) return o.sort;
+      const r = rows.find((x) => x.slug === slug && x.custom);
+      if (r) return r.sort;
+      return codeIdx.get(slug) ?? 100000;
+    };
+    const merged = extra.length ? [...base, ...extra] : base;
+    return [...merged].sort((a, b) => sortOf(a.slug) - sortOf(b.slug));
   } catch {
     return SHOP_CATEGORIES;
   }

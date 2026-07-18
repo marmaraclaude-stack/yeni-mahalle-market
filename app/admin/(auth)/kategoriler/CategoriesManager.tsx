@@ -19,6 +19,7 @@ import {
 import {
   createCategory,
   deleteCategory,
+  moveCategory,
   updateCategory,
   createSubcat,
   deleteSubcat,
@@ -298,6 +299,43 @@ export default function CategoriesManager({
                   </span>
                 </div>
                 {/* Accent switch — açık: vitrinde görünür */}
+                {/* Kategori sırası: vitrindeki diziliş */}
+                <button
+                  type="button"
+                  className={kstyles.editIconBtn}
+                  onClick={() => {
+                    setError(null);
+                    startTransition(async () => {
+                      try {
+                        await moveCategory(c.slug, "up");
+                        window.location.reload();
+                      } catch (e) {
+                        setError(e instanceof Error ? e.message : "Sıra güncellenemedi.");
+                      }
+                    });
+                  }}
+                  aria-label={`${c.name} kategorisini yukarı taşı`}
+                >
+                  <ArrowUp size={14} aria-hidden />
+                </button>
+                <button
+                  type="button"
+                  className={kstyles.editIconBtn}
+                  onClick={() => {
+                    setError(null);
+                    startTransition(async () => {
+                      try {
+                        await moveCategory(c.slug, "down");
+                        window.location.reload();
+                      } catch (e) {
+                        setError(e instanceof Error ? e.message : "Sıra güncellenemedi.");
+                      }
+                    });
+                  }}
+                  aria-label={`${c.name} kategorisini aşağı taşı`}
+                >
+                  <ArrowDown size={14} aria-hidden />
+                </button>
                 {c.isCustom && (
                   <button
                     type="button"
@@ -410,20 +448,21 @@ const TR_CLASS: Record<string, string> = {
 };
 function encodeKeywords(words: string[]): string {
   return words
-    .map((w) =>
-      w
-        .trim()
-        .toLocaleLowerCase("tr-TR")
-        .replace(/[.*+?^${}()|[\]\\]/g, "")
-        .replace(/[çğıöşü]/g, (m) => TR_CLASS[m]),
-    )
+    .map((w) => {
+      const plain = w.trim().toLocaleLowerCase("tr-TR").replace(/[.*+?^${}()|[\]\\]/g, "");
+      if (!plain) return "";
+      const cls = plain.replace(/[çğıöşü]/g, (m) => TR_CLASS[m]);
+      // 3 harf ve altı kelimeler kelime sınırıyla eşleşir ("et" market'i yakalamasın)
+      return plain.length <= 3 ? `\\b${cls}\\b` : cls;
+    })
     .filter(Boolean)
     .join("|");
 }
 function decodePattern(pattern: string): string[] | null {
   if (!pattern || pattern === "." || pattern === "(?!)") return null;
   const out: string[] = [];
-  for (const part of pattern.split("|")) {
+  for (const raw of pattern.split("|")) {
+    const part = raw.replace(/\\b/g, ""); // kelime sınırı işaretleri görünmez
     if (
       !/^[a-z0-9çğıöşü\s&'-]*(\[[a-zçğıöşü]{2,3}\][a-z0-9çğıöşü\s&'-]*)*$/.test(
         part,

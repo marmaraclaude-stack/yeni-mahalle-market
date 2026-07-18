@@ -12,7 +12,7 @@ import {
   writeCourierLocation,
 } from "@/lib/shop/location-ingest";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { categoryBySlug } from "@/lib/shop/categories";
+import { SHOP_CATEGORIES, categoryBySlug } from "@/lib/shop/categories";
 import { assignSubcategory, defaultSubcatsFor } from "@/lib/shop/subcategories";
 import { getSubcatsMap } from "@/lib/shop/subcats-data";
 import { BANNER_ICONS } from "@/lib/shop/icons";
@@ -2850,10 +2850,66 @@ export async function updateCategory(
   if (!(await isValidCategorySlug(supabase, slug))) {
     throw new Error("Geçersiz kategori.");
   }
+  // Mevcut satır varsa sıralamasını BOZMA; yoksa kod sırasından başlat.
+  const { data: cur } = await supabase
+    .from("shop_categories")
+    .select("slug, sort")
+    .eq("slug", slug)
+    .maybeSingle();
+  const codeIdx = SHOP_CATEGORIES.findIndex((c) => c.slug === slug);
+  const sort = cur
+    ? (cur as { sort: number }).sort
+    : codeIdx >= 0
+      ? codeIdx * 10
+      : 100000;
   const { error } = await supabase.from("shop_categories").upsert(
-    { slug, name: n, icon: patch.icon || "shopping-basket", tint: t },
+    { slug, name: n, icon: patch.icon || "shopping-basket", tint: t, sort },
     { onConflict: "slug" },
   );
   if (error) throw new Error(`Kategori güncellenemedi: ${error.message}`);
+  revalidateSubcatPages();
+}
+
+/** Kategoriyi vitrindeki sırada bir yukarı/aşağı taşı. İlk taşımada tüm
+    kategoriler DB'ye o anki sırayla yazılır (materialize), sonra takas. */
+export async function moveCategory(
+  slug: string,
+  direction: "up" | "down",
+): Promise<void> {
+  await requireAdmin();
+  const supabase = createAdminClient();
+  const { getAllCategories } = await import("@/lib/shop/categories-data");
+  const ordered = await getAllCategories();
+  const idx = ordered.findIndex((c) => c.slug === slug);
+  if (idx < 0) throw new Error("Kategori bulunamadı.");
+  const swap = direction === "up" ? idx - 1 : idx + 1;
+  if (swap < 0 || swap >= ordered.length) return;
+
+  // Materialize: her kategori satırı ad + sıra ile DB'de olsun.
+  const { data: rowsData } = await supabase
+    .from("shop_categories")
+    .select("slug, custom");
+  const existing = new Map(
+    ((rowsData ?? []) as { slug: string; custom: boolean }[]).map((r) => [
+      r.slug,
+      r.custom,
+    ]),
+  );
+  const upserts = ordered.map((c, i) => ({
+    slug: c.slug,
+    name: c.name,
+    icon: c.icon,
+    tint: c.tint,
+    sort: i * 10,
+    custom: existing.get(c.slug) ?? !categoryBySlug(c.slug),
+  }));
+  // Takas: hedef ile komşusunun sırası değişir
+  const tmp = upserts[idx].sort;
+  upserts[idx].sort = upserts[swap].sort;
+  upserts[swap].sort = tmp;
+  const { error } = await supabase
+    .from("shop_categories")
+    .upsert(upserts, { onConflict: "slug" });
+  if (error) throw new Error(`Sıra kaydedilemedi: ${error.message}`);
   revalidateSubcatPages();
 }
