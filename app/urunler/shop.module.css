@@ -472,6 +472,8 @@
   font-weight: 500;
   line-height: 1.3;
   transition: background 160ms var(--ease), color 160ms var(--ease);
+  line-height: 1.5;
+  letter-spacing: 0.015em;
 }
 .sideSubLink:hover {
   background: var(--gray-50);
