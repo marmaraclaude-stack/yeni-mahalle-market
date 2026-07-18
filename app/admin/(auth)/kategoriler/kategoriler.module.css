@@ -34,10 +34,13 @@
 }
 
 /* --- Kart ızgarası --- */
+/* TEK SÜTUN satır kartları: yan yana ızgarada kart boyları eşitlenmiyor,
+   kısa kartlarda büyük boşluklar kalıyordu. Satır düzeninde her kart kendi
+   doğal yüksekliğinde; boşluk sorunu kökten biter (Markalar ile aynı dil). */
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
-  gap: 14px;
+  grid-template-columns: 1fr;
+  gap: 10px;
   margin-top: 14px;
 }
 
@@ -48,8 +51,8 @@
   flex-direction: column;
   background: var(--white, #fff);
   border: 1px solid var(--gray-200, #e5e5e5);
-  border-radius: 16px;
-  padding: 16px;
+  border-radius: 14px;
+  padding: 14px 16px;
   transition: border-color 180ms ease, box-shadow 180ms ease;
 }
 .card:hover {
