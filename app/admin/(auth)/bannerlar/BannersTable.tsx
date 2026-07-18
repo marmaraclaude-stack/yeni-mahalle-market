@@ -12,6 +12,7 @@ import { useRouter } from "next/navigation";
 import { Plus, X } from "lucide-react";
 import {
   createBanner,
+  moveBanner,
   deleteBanner,
   toggleBanner,
   updateBanner,
@@ -73,7 +74,15 @@ function TintDot({ tint }: { tint: number }) {
   );
 }
 
-function BannerCard({ banner }: { banner: Banner }) {
+function BannerCard({
+  banner,
+  isFirst,
+  isLast,
+}: {
+  banner: Banner;
+  isFirst: boolean;
+  isLast: boolean;
+}) {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [sortValue, setSortValue] = useState(String(banner.sort));
@@ -157,6 +166,21 @@ function BannerCard({ banner }: { banner: Banner }) {
         const result = await updateBanner(banner.id, { sort });
         if (!result.ok) {
           window.alert(result.error ?? "Sıra kaydedilemedi.");
+        }
+        router.refresh();
+      } finally {
+        setBusy(false);
+      }
+    });
+  }
+
+  function move(direction: "up" | "down") {
+    setBusy(true);
+    startTransition(async () => {
+      try {
+        const result = await moveBanner(banner.id, direction);
+        if (!result.ok) {
+          window.alert(result.error ?? "Sıra güncellenemedi.");
         }
         router.refresh();
       } finally {
@@ -284,24 +308,26 @@ function BannerCard({ banner }: { banner: Banner }) {
 
         <div className={css.controlField}>
           <span className={css.controlLabel}>Sıra</span>
-          <div className={styles.sortForm}>
-            <input
-              value={sortValue}
-              onChange={(e) => setSortValue(e.target.value)}
-              inputMode="numeric"
-              className={styles.inputSm}
-              aria-label={`${banner.title} banner sırası`}
-            />
-            {sortValue !== String(banner.sort) && (
-              <button
-                type="button"
-                onClick={saveSort}
-                disabled={busy}
-                className={styles.btnRow}
-              >
-                Kaydet
-              </button>
-            )}
+          {/* Kategoriler sayfasındaki desen: oklarla bir üst/alt satırla yer değiştir */}
+          <div className={css.orderBtns}>
+            <button
+              type="button"
+              className={css.orderBtn}
+              disabled={busy || isFirst}
+              onClick={() => move("up")}
+              aria-label={`${banner.title} banner'ını yukarı taşı`}
+            >
+              ↑
+            </button>
+            <button
+              type="button"
+              className={css.orderBtn}
+              disabled={busy || isLast}
+              onClick={() => move("down")}
+              aria-label={`${banner.title} banner'ını aşağı taşı`}
+            >
+              ↓
+            </button>
           </div>
         </div>
 
@@ -532,7 +558,12 @@ export default function BannersTable({ banners }: { banners: Banner[] }) {
       ) : (
         <div className={css.grid}>
           {banners.map((b) => (
-            <BannerCard key={b.id} banner={b} />
+            <BannerCard
+              key={b.id}
+              banner={b}
+              isFirst={b.id === banners[0].id}
+              isLast={b.id === banners[banners.length - 1].id}
+            />
           ))}
         </div>
       )}

@@ -2939,3 +2939,43 @@ export async function moveCategory(
   if (error) throw new Error(`Sıra kaydedilemedi: ${error.message}`);
   revalidateSubcatPages();
 }
+
+
+/** Banner'ı listede bir yukarı/aşağı taşı (Kategoriler sayfasındaki desen).
+    İlk taşımada tüm banner sıraları 10'ar aralıkla normalize edilir. */
+export async function moveBanner(
+  id: string,
+  direction: "up" | "down",
+): Promise<BannerActionResult> {
+  await requireAdmin();
+  const supabase = createAdminClient();
+  const { data, error } = await supabase
+    .from("banners")
+    .select("id, sort")
+    .order("sort", { ascending: true })
+    .order("created_at", { ascending: true });
+  if (error) return { ok: false, error: bannerDbError(error, "Sıra okunamadı") };
+
+  const rows = (data ?? []) as { id: string; sort: number }[];
+  const idx = rows.findIndex((r) => r.id === id);
+  if (idx < 0) return { ok: false, error: "Banner bulunamadı." };
+  const swap = direction === "up" ? idx - 1 : idx + 1;
+  if (swap < 0 || swap >= rows.length) return { ok: true }; // zaten uçta
+
+  const sorts = rows.map((_, i) => (i + 1) * 10);
+  const tmp = sorts[idx];
+  sorts[idx] = sorts[swap];
+  sorts[swap] = tmp;
+
+  const results = await Promise.all(
+    rows.map((r, i) =>
+      supabase.from("banners").update({ sort: sorts[i] }).eq("id", r.id),
+    ),
+  );
+  const failed = results.find((r) => r.error);
+  if (failed?.error) {
+    return { ok: false, error: bannerDbError(failed.error, "Sıra kaydedilemedi") };
+  }
+  revalidateBannerPages();
+  return { ok: true };
+}

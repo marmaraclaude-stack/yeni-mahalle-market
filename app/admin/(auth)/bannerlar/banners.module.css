@@ -225,3 +225,24 @@
 .controlField--text input {
   width: 100%;
 }
+
+/* Sıra okları (Kategoriler sayfasıyla aynı dil) */
+.orderBtns {
+  display: flex;
+  gap: 4px;
+}
+.orderBtn {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--gray-200, #e5e5e5);
+  border-radius: 8px;
+  background: var(--white, #fff);
+  color: var(--gray-500, #737373);
+  font-size: 14px;
+  cursor: pointer;
+  transition: color 140ms ease, border-color 140ms ease;
+}
+.orderBtn:hover { color: var(--ink, #111); border-color: var(--gray-300, #d4d4d4); }
+.orderBtn:disabled { opacity: 0.35; cursor: default; }
