@@ -147,9 +147,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  margin-top: 14px;
-  padding-top: 14px;
-  border-top: 1px solid var(--gray-100, #f5f5f5);
+  margin-top: 12px;
   transition: opacity 180ms ease;
 }
 .subChip {
@@ -188,8 +186,6 @@
 /* --- Alt kategori düzenleyici (kart içi açılır bölüm) --- */
 .editWrap {
   margin-top: auto;
-  padding-top: 12px;
-  border-top: 1px solid var(--gray-100, #f5f5f5);
   padding-top: 10px;
 }
 .editSummary {
