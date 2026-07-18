@@ -424,6 +424,29 @@ export async function updateProduct(
   if (Object.keys(clean).length === 0) return;
 
   const supabase = createAdminClient();
+  // Kopyadan kalan "kopyasi" içeren slug, ad güncellenirken yeni addan
+  // yeniden üretilir (normal ürünlerde slug asla değişmez, URL kırılmaz).
+  if (clean.name) {
+    const { data: cur } = await supabase
+      .from("products")
+      .select("slug")
+      .eq("id", id)
+      .maybeSingle();
+    const curSlug = (cur as { slug: string } | null)?.slug ?? "";
+    if (/kopyasi/.test(curSlug)) {
+      const fresh = slugify(clean.name);
+      if (fresh && fresh !== curSlug) {
+        for (const cand of [fresh, `${fresh}-2`, `${fresh}-3`]) {
+          const { error: se } = await supabase
+            .from("products")
+            .update({ slug: cand })
+            .eq("id", id);
+          if (!se) break;
+          if (se.code !== "23505") break; // yalnız çakışmada sıradakini dene
+        }
+      }
+    }
+  }
   const { data, error } = await supabase
     .from("products")
     .update(clean)
@@ -2234,9 +2257,11 @@ export async function duplicateProduct(
   const source = src as Product;
 
   const copyName = `${source.name} (Kopyası)`;
+  // URL'de "kopyasi" GEÇMEZ: temel slug kaynak ürünün adından türetilir,
+  // çakışırsa -2, -3 ... denenir (rastgele ek son çare).
   const base =
-    slugify([source.brand ?? "", copyName, source.size_text ?? ""].join(" ")) ||
-    "urun-kopyasi";
+    slugify([source.brand ?? "", source.name, source.size_text ?? ""].join(" ")) ||
+    "urun";
 
   // Görseli storage içinde kopyala (varsa ve bizim bucket'taysa).
   let copiedImageUrl: string | null = null;
@@ -2264,7 +2289,11 @@ export async function duplicateProduct(
   let lastError = "";
   for (let attempt = 0; attempt < 3; attempt++) {
     const slug =
-      attempt === 0 ? base : `${base}-${Math.random().toString(36).slice(2, 6)}`;
+      attempt === 0
+        ? `${base}-2`
+        : attempt === 1
+          ? `${base}-3`
+          : `${base}-${Math.random().toString(36).slice(2, 6)}`;
     const { data: inserted, error } = await supabase
       .from("products")
       .insert({
