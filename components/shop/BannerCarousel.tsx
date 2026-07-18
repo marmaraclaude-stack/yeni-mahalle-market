@@ -117,6 +117,17 @@ export default function BannerCarousel({
                 className={styles.slide}
                 style={{ "--bnr-bg": bg, "--bnr-fg": fg } as CSSProperties}
               >
+                {/* Bağlantılı banner: tüm kart tıklanır (overlay link) */}
+                {b.cta_href && b.cta_href.trim() !== "" && (
+                  <a
+                    href={b.cta_href}
+                    className={styles.slideLinkOverlay}
+                    aria-label={b.title}
+                    {...(b.cta_href.startsWith("http")
+                      ? { target: "_blank", rel: "noopener noreferrer" }
+                      : {})}
+                  />
+                )}
                 <div className={styles.slideCopy}>
                   <h3 className={styles.slideTitle}>{b.title}</h3>
                   {b.subtitle && (

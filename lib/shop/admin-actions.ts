@@ -137,6 +137,8 @@ export interface CouponActionResult {
 export interface NewBannerInput {
   title: string;
   subtitle?: string;
+  /** Tıklanınca gidilecek adres: /urunler?k=... gibi site içi ya da https://... */
+  cta_href?: string;
   icon?: string; // BANNER_ICON_OPTIONS anahtarı (boş = otomatik)
   tint?: number; // CATEGORY_TINTS index (0-7)
   sort?: number;
@@ -146,6 +148,7 @@ export interface NewBannerInput {
 export interface BannerPatch {
   title?: string;
   subtitle?: string;
+  cta_href?: string;
   icon?: string; // BANNER_ICON_OPTIONS anahtarı (boş = otomatik)
   tint?: number;
   is_active?: boolean;
@@ -980,6 +983,17 @@ export async function deleteCoupon(code: string): Promise<CouponActionResult> {
 // Bannerlar
 // ------------------------------------------------------------
 
+
+/** Banner bağlantısını doğrula: boş (link yok), / ile başlayan site içi yol
+    ya da http(s) adresi. Aksi hâlde null döner (hata). */
+function normalizeBannerHref(raw: string): string | null {
+  const v = raw.trim();
+  if (v === "") return "";
+  if (v.startsWith("/")) return v;
+  if (/^https?:\/\//i.test(v)) return v;
+  return null;
+}
+
 /** banners tablosu henüz kurulmamışsa anlaşılır Türkçe mesaj üret. */
 function bannerDbError(
   error: { code?: string; message: string },
@@ -1037,12 +1051,17 @@ export async function createBanner(
 
   const supabase = createAdminClient();
   // cta_text/cta_href kolonları şemada NOT NULL default '' — göndermeyince boş kalır.
+  const href = normalizeBannerHref(input.cta_href ?? "");
+  if (href === null) {
+    return { ok: false, error: "Bağlantı / ile başlamalı ya da https:// adresi olmalı." };
+  }
   const { error } = await supabase.from("banners").insert({
     title,
     subtitle: (input.subtitle ?? "").trim(),
     icon: normalizeBannerIcon(input.icon ?? ""),
     tint,
     sort,
+    cta_href: href,
   });
   if (error) {
     return { ok: false, error: bannerDbError(error, "Banner eklenemedi") };
@@ -1066,6 +1085,13 @@ export async function updateBanner(
     clean.title = title;
   }
   if (patch.subtitle !== undefined) clean.subtitle = patch.subtitle.trim();
+  if (patch.cta_href !== undefined) {
+    const href = normalizeBannerHref(patch.cta_href);
+    if (href === null) {
+      return { ok: false, error: "Bağlantı / ile başlamalı ya da https:// adresi olmalı." };
+    }
+    clean.cta_href = href;
+  }
   if (patch.icon !== undefined) clean.icon = normalizeBannerIcon(patch.icon);
   if (patch.tint !== undefined) {
     if (!isValidTint(patch.tint)) {

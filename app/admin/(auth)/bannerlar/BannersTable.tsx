@@ -80,10 +80,13 @@ function BannerCard({ banner }: { banner: Banner }) {
   const [icon, setIcon] = useState(banner.icon);
   const [title, setTitle] = useState(banner.title);
   const [subtitle, setSubtitle] = useState(banner.subtitle);
+  const [href, setHref] = useState(banner.cta_href ?? "");
   const [, startTransition] = useTransition();
 
   const textDirty =
-    title.trim() !== banner.title || subtitle.trim() !== banner.subtitle;
+    title.trim() !== banner.title ||
+    subtitle.trim() !== banner.subtitle ||
+    href.trim() !== (banner.cta_href ?? "");
 
   function saveText() {
     if (!title.trim()) {
@@ -96,6 +99,7 @@ function BannerCard({ banner }: { banner: Banner }) {
         const result = await updateBanner(banner.id, {
           title: title.trim(),
           subtitle: subtitle.trim(),
+          cta_href: href.trim(),
         });
         if (!result.ok) {
           window.alert(result.error ?? "Metin kaydedilemedi.");
@@ -227,6 +231,18 @@ function BannerCard({ banner }: { banner: Banner }) {
             aria-label={`${banner.title} banner alt metni`}
           />
         </div>
+        <div className={`${css.controlField} ${css["controlField--text"]}`}>
+          <span className={css.controlLabel}>Bağlantı</span>
+          <input
+            value={href}
+            onChange={(e) => setHref(e.target.value)}
+            maxLength={300}
+            disabled={busy}
+            placeholder="/urunler?k=meyve-sebze (boş = tıklanmaz)"
+            className={styles.inputSm}
+            aria-label={`${banner.title} banner bağlantısı`}
+          />
+        </div>
         {textDirty && (
           <div className={css.controlField}>
             <span className={css.controlLabel}>&nbsp;</span>
@@ -351,6 +367,7 @@ export default function BannersTable({ banners }: { banners: Banner[] }) {
         const result = await createBanner({
           title,
           subtitle: String(fd.get("subtitle") ?? ""),
+          cta_href: String(fd.get("cta_href") ?? ""),
           icon: String(fd.get("icon") ?? ""),
           tint,
           sort,
@@ -423,6 +440,18 @@ export default function BannersTable({ banners }: { banners: Banner[] }) {
                 name="subtitle"
                 maxLength={120}
                 placeholder="İndirimli ürünleri kaçırma"
+                className={styles.input}
+              />
+            </div>
+            <div className={styles.field}>
+              <label className={styles.label} htmlFor="banner-href">
+                Bağlantı (tıklanınca gidilecek adres)
+              </label>
+              <input
+                id="banner-href"
+                name="cta_href"
+                maxLength={300}
+                placeholder="/urunler?k=meyve-sebze ya da https://..."
                 className={styles.input}
               />
             </div>
