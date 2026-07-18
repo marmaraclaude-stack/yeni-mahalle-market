@@ -41,7 +41,11 @@
   margin-top: 14px;
 }
 
+/* Kartlar aynı satırda EŞİT yükseklikte durur; düzenleyici bağlantısı
+   kartın en altına yaslanır. */
 .card {
+  display: flex;
+  flex-direction: column;
   background: var(--white, #fff);
   border: 1px solid var(--gray-200, #e5e5e5);
   border-radius: 16px;
@@ -180,7 +184,8 @@
 
 /* --- Alt kategori düzenleyici (kart içi açılır bölüm) --- */
 .editWrap {
-  margin-top: 12px;
+  margin-top: auto;
+  padding-top: 12px;
   border-top: 1px solid var(--gray-100, #f5f5f5);
   padding-top: 10px;
 }

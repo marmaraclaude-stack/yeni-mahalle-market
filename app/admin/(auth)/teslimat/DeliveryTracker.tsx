@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import {
   adminShareLocation,
+  setOrderDeliveryLocation,
   listActiveDeliveries,
   type DeliveryOrder,
 } from "@/lib/shop/admin-actions";
@@ -361,12 +362,16 @@ export default function DeliveryTracker({
               market={BUSINESS.geo}
               couriers={mapPins}
               orders={list
-                .filter((o) => o.courier_lat != null && o.courier_lng != null)
+                .filter(
+                  (o) =>
+                    (o.delivery_lat ?? o.courier_lat) != null &&
+                    (o.delivery_lng ?? o.courier_lng) != null,
+                )
                 .map((o) => ({
                   no: o.order_no,
                   customer: o.customer_name,
-                  lat: o.courier_lat as number,
-                  lng: o.courier_lng as number,
+                  lat: (o.delivery_lat ?? o.courier_lat) as number,
+                  lng: (o.delivery_lng ?? o.courier_lng) as number,
                 }))}
             />
           </div>
@@ -440,6 +445,79 @@ export default function DeliveryTracker({
                       >
                         <Navigation size={13} /> Yol tarifi
                       </a>
+                      {/* Teslimat konumu: cihaz konumundan ya da yapıştırılan
+                         Google Maps linki/koordinattan kaydedilir; iğne
+                         haritada anında görünür. */}
+                      <button
+                        type="button"
+                        className={styles.deliveryMini}
+                        onClick={() => {
+                          if (!navigator.geolocation) return;
+                          navigator.geolocation.getCurrentPosition(async (pos) => {
+                            try {
+                              await setOrderDeliveryLocation(
+                                o.order_no,
+                                pos.coords.latitude,
+                                pos.coords.longitude,
+                              );
+                              setList((prev) =>
+                                prev.map((x) =>
+                                  x.order_no === o.order_no
+                                    ? {
+                                        ...x,
+                                        delivery_lat: pos.coords.latitude,
+                                        delivery_lng: pos.coords.longitude,
+                                      }
+                                    : x,
+                                ),
+                              );
+                            } catch {
+                              /* sessiz */
+                            }
+                          });
+                        }}
+                        title="Bulunduğun konumu bu siparişin teslimat noktası olarak kaydet"
+                      >
+                        <MapPin size={13} />
+                        {o.delivery_lat != null ? "Konumu güncelle" : "Konumumu ata"}
+                      </button>
+                      <button
+                        type="button"
+                        className={styles.deliveryMini}
+                        onClick={async () => {
+                          const raw = window.prompt(
+                            "Google Maps linki ya da 'enlem, boylam' yapıştır:",
+                          );
+                          if (!raw) return;
+                          const m =
+                            raw.match(/@(-?\d{1,2}\.\d+),(-?\d{1,3}\.\d+)/) ||
+                            raw.match(/q=(-?\d{1,2}\.\d+),(-?\d{1,3}\.\d+)/) ||
+                            raw.match(/(-?\d{1,2}\.\d+)\s*,\s*(-?\d{1,3}\.\d+)/);
+                          if (!m) {
+                            window.alert(
+                              "Konum çözülemedi. Maps'te noktaya uzun basıp koordinatı kopyala.",
+                            );
+                            return;
+                          }
+                          const lat = Number(m[1]);
+                          const lng = Number(m[2]);
+                          try {
+                            await setOrderDeliveryLocation(o.order_no, lat, lng);
+                            setList((prev) =>
+                              prev.map((x) =>
+                                x.order_no === o.order_no
+                                  ? { ...x, delivery_lat: lat, delivery_lng: lng }
+                                  : x,
+                              ),
+                            );
+                          } catch {
+                            window.alert("Konum kaydedilemedi.");
+                          }
+                        }}
+                        title="Google Maps linkinden konum kaydet"
+                      >
+                        <MapPin size={13} /> Maps linki
+                      </button>
                       {has && (
                         <a
                           href={mapsAt(o.courier_lat!, o.courier_lng!)}

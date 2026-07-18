@@ -1529,6 +1529,8 @@ export interface DeliveryOrder {
   courier_lat: number | null;
   courier_lng: number | null;
   courier_location_at: string | null;
+  delivery_lat: number | null;
+  delivery_lng: number | null;
 }
 
 /**
@@ -1541,7 +1543,7 @@ export async function listActiveDeliveries(): Promise<DeliveryOrder[]> {
   const { data, error } = await supabase
     .from("orders")
     .select(
-      "order_no, status, customer_name, phone, address_line, address_note, courier_name, courier_phone, courier_lat, courier_lng, courier_location_at",
+      "order_no, status, customer_name, phone, address_line, address_note, courier_name, courier_phone, courier_lat, courier_lng, courier_location_at, delivery_lat, delivery_lng",
     )
     .not("status", "in", "(delivered,cancelled)")
     .order("created_at", { ascending: false });
@@ -2688,4 +2690,24 @@ export async function moveSubcat(
     throw new Error(`Sıra güncellenemedi: ${failed.error.message}`);
   }
   revalidateSubcatPages();
+}
+
+
+/** Siparişin TESLİMAT konumunu kaydet (haritada iğne olarak görünür). */
+export async function setOrderDeliveryLocation(
+  orderNo: string,
+  lat: number,
+  lng: number,
+): Promise<void> {
+  await requireAdmin();
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+    throw new Error("Geçersiz konum.");
+  }
+  const supabase = createAdminClient();
+  const { error } = await supabase
+    .from("orders")
+    .update({ delivery_lat: lat, delivery_lng: lng })
+    .eq("order_no", orderNo);
+  if (error) throw new Error(`Konum kaydedilemedi: ${error.message}`);
+  revalidatePath("/admin/teslimat");
 }
