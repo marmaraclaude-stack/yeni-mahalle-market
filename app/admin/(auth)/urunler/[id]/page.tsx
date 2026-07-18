@@ -168,8 +168,10 @@ export default async function AdminProductEditPage({
 
     let errorMessage: string | null = null;
     try {
+      const slugRaw = String(formData.get("slug") ?? "").trim();
       await updateProduct(id, {
         name,
+        ...(slugRaw ? { slug: slugRaw } : {}),
         brand: String(formData.get("brand") ?? ""),
         // Gram bazlıysa gramaj anlamsız — temizlenir (müşteri gramı kendi seçer).
         size_text: soldByWeight ? "" : String(formData.get("size_text") ?? ""),

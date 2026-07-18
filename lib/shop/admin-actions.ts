@@ -30,6 +30,8 @@ import type { ChatMessage, ChatSession } from "@/lib/supabase/types";
 /** updateProduct için düzenlenebilir alanlar — slug BİLİNÇLİ olarak yok (URL kırılmasın). */
 export interface ProductPatch {
   name?: string;
+  /** URL (slug) elle düzenleme; slugify ile normalize edilir. */
+  slug?: string;
   brand?: string;
   size_text?: string;
   description?: string;
@@ -358,6 +360,11 @@ export async function updateProduct(
     if (!name) throw new Error("Ürün adı boş olamaz.");
     clean.name = name;
   }
+  if (patch.slug !== undefined) {
+    const sg = slugify(patch.slug);
+    if (!sg) throw new Error("Geçersiz URL. Harf ve rakam kullan.");
+    clean.slug = sg;
+  }
   if (patch.brand !== undefined) clean.brand = patch.brand.trim();
   if (patch.size_text !== undefined) clean.size_text = patch.size_text.trim();
   if (patch.description !== undefined) clean.description = patch.description.trim();
@@ -426,7 +433,7 @@ export async function updateProduct(
   const supabase = createAdminClient();
   // Kopyadan kalan "kopyasi" içeren slug, ad güncellenirken yeni addan
   // yeniden üretilir (normal ürünlerde slug asla değişmez, URL kırılmaz).
-  if (clean.name) {
+  if (clean.name && clean.slug === undefined) {
     const { data: cur } = await supabase
       .from("products")
       .select("slug")
@@ -453,7 +460,13 @@ export async function updateProduct(
     .eq("id", id)
     .select("slug")
     .maybeSingle();
-  if (error) throw new Error(`Ürün güncellenemedi: ${error.message}`);
+  if (error) {
+    throw new Error(
+      error.code === "23505"
+        ? "Bu URL başka bir üründe kullanılıyor. Farklı bir URL yaz."
+        : `Ürün güncellenemedi: ${error.message}`,
+    );
+  }
   revalidateProductPages({ id, slug: (data as { slug: string } | null)?.slug });
 }
 

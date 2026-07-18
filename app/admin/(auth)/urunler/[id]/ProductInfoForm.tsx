@@ -193,6 +193,24 @@ export default function ProductInfoForm({
           />
         </div>
 
+        <div className={`${styles.field} ${styles.fieldFull}`}>
+          <label className={styles.label} htmlFor="p-slug">
+            URL
+          </label>
+          <input
+            id="p-slug"
+            name="slug"
+            defaultValue={product.slug}
+            className={styles.input}
+            placeholder="ornek-urun-adi"
+          />
+          <p className={styles.fieldHint}>
+            Ürün sayfası adresi: /urunler/&lt;URL&gt;. Küçük harf ve tire
+            kullan; kaydederken otomatik düzeltilir. Paylaşılmış eski linkler
+            değişiklikten sonra çalışmaz.
+          </p>
+        </div>
+
         <div className={styles.field}>
           <label className={styles.label} htmlFor="p-brand">
             Marka
