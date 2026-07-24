@@ -516,6 +516,9 @@ export default async function AdminProductsPage({
              varsayılan sıra. Alt küme kaydı kategori genelini bozmaz. */
           reorderable={reorderMode}
           reorderCategorySlug={reorderMode ? category : undefined}
+          /* Bir sıralama seçiliyken Sıra sütunu ham sort değeri yerine
+             salt-okunur görünen pozisyon (1,2,3…) gösterir. */
+          sortActive={Boolean(sirala)}
         />
       )}
     </>

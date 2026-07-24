@@ -127,6 +127,7 @@ function ProductRow({
   subcats,
   cats,
   reorder,
+  staticPosition,
 }: {
   product: Product;
   /** Çözümlenmiş alt kategori tanımları (kategori slug -> liste). */
@@ -135,6 +136,10 @@ function ProductRow({
   cats?: CatDTO[];
   /** Dolu ise Sıra hücresi sürükleme kolu + pozisyon kutusuna dönüşür. */
   reorder?: ReorderCtx;
+  /** Bir sıralama (fiyat/isim/yeni) etkinken: elle düzenlenemeyen, salt-okunur
+   *  görünen pozisyon. Bu modda Sıra kutusu düzenlenmez (liste zaten o ölçüte
+   *  göre dizili; ham sort değeri karıştırıyordu). */
+  staticPosition?: number;
 }) {
   const router = useRouter();
   const [price, setPrice] = useState(String(product.price));
@@ -157,13 +162,16 @@ function ProductRow({
 
   const compareInitial =
     product.compare_at_price === null ? "" : String(product.compare_at_price);
-  // Sıralama modunda sort alanı bu satırdan yönetilmez (pozisyon kutusu ve
-  // otomatik kayıt üstlenir); dirty hesabına ve kayda dahil edilmez.
+  // Sort alanı bu satırdan yalnızca "manuel sıra" modunda yönetilir. Sürükle-
+  // bırak (reorder) modunda pozisyon kutusu + otomatik kayıt üstlenir; bir
+  // sıralama (fiyat/isim/yeni) etkinken (staticPosition) Sıra salt-okunur
+  // pozisyon gösterir. Her iki durumda da sort dirty/kayda dahil edilmez.
+  const manageSortHere = !reorder && staticPosition === undefined;
   const dirty =
     parsePrice(price) !== Number(product.price) ||
     compare.trim() !== compareInitial ||
     inStock !== product.in_stock ||
-    (!reorder && sortVal.trim() !== String(product.sort));
+    (manageSortHere && sortVal.trim() !== String(product.sort));
 
   function save() {
     const parsed = parsePrice(price);
@@ -185,7 +193,7 @@ function ProductRow({
       in_stock: inStock,
       compare_at_price: parsedCompare,
     };
-    if (!reorder) {
+    if (manageSortHere) {
       const parsedSort = Math.round(Number(sortVal.trim()));
       if (sortVal.trim() === "" || !Number.isFinite(parsedSort)) {
         window.alert("Geçerli bir sıra numarası girin (tam sayı, küçük olan önce gösterilir).");
@@ -358,6 +366,21 @@ function ProductRow({
               title="Görünen pozisyon: numara yazıp Enter ile taşı, ya da satırı sürükle"
               aria-label={`${product.name} pozisyonu`}
             />
+          </span>
+        ) : staticPosition !== undefined ? (
+          /* Bir sıralama (fiyat/isim/yeni) etkin: liste zaten o ölçüte göre
+             dizili. Sıra kutusu ham sort değerini (110, 120…) düzenletmek
+             yerine yalnız görünen pozisyonu (1, 2, 3…) salt-okunur gösterir. */
+          <span
+            style={{
+              opacity: 0.5,
+              fontVariantNumeric: "tabular-nums",
+              display: "inline-block",
+              paddingLeft: 6,
+            }}
+            title="Sıralama etkinken görünen pozisyon. Sırayı elle değiştirmek için 'Sıralama: Varsayılan'a dönün."
+          >
+            {staticPosition}
           </span>
         ) : (
           <input
@@ -554,6 +577,7 @@ export default function ProductsTable({
   cats,
   reorderable = false,
   reorderCategorySlug,
+  sortActive = false,
 }: {
   products: Product[];
   chips: ChipData[];
@@ -573,6 +597,9 @@ export default function ProductsTable({
   reorderable?: boolean;
   /** Sıralama kaydında hedef kategori (alt küme birleştirmesi için şart). */
   reorderCategorySlug?: string;
+  /** Bir sıralama (fiyat/isim/yeni) etkin mi? Etkinse Sıra sütunu salt-okunur
+   *  görünen pozisyon gösterir (ham sort değeri 110,120… yerine 1,2,3…). */
+  sortActive?: boolean;
 }) {
   const router = useRouter();
   const [showForm, setShowForm] = useState(openForm);
@@ -996,6 +1023,11 @@ export default function ProductsTable({
                       product={p}
                       subcats={subcats}
                       cats={cats}
+                      staticPosition={
+                        !reorderable && sortActive
+                          ? pagination.rangeStart + i
+                          : undefined
+                      }
                       reorder={
                         reorderable
                           ? {
