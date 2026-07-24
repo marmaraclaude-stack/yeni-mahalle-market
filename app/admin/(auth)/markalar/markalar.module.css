@@ -127,7 +127,8 @@
 .listHead,
 .row {
   display: grid;
-  grid-template-columns: minmax(140px, 220px) minmax(200px, 1fr) 52px 132px;
+  grid-template-columns:
+    minmax(130px, 190px) minmax(180px, 1fr) minmax(140px, 230px) 52px 132px;
   gap: 10px;
   align-items: center;
 }
@@ -241,6 +242,7 @@
     grid-template-areas:
       "name  count"
       "prod  prod"
+      "camp  camp"
       "btns  btns";
     row-gap: 8px;
     padding: 12px;
@@ -249,6 +251,7 @@
   .row + .row { margin-top: 6px; }
   .row .input:first-child { grid-area: name; }
   .row .input:nth-child(2) { grid-area: prod; }
+  .row .input:nth-child(3) { grid-area: camp; }
   .count { grid-area: count; }
   .rowBtns { grid-area: btns; }
 }

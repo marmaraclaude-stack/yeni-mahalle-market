@@ -101,6 +101,13 @@ const CHIP_ICONS: Record<ChipData["key"], React.ReactNode> = {
   "stokta-yok": <PackageX size={14} aria-hidden />,
 };
 
+/** Sunucudan gelen çözülmüş kategori listesi (DB adları + özel kategoriler). */
+export interface CatDTO {
+  slug: string;
+  name: string;
+  tint: number;
+}
+
 /** Sürükle-bırak sıralama modunda satıra geçirilen bağlam. */
 export interface ReorderCtx {
   /** 1 tabanlı görünen pozisyon (listedeki gerçek sıra). */
@@ -118,11 +125,14 @@ export interface ReorderCtx {
 function ProductRow({
   product,
   subcats,
+  cats,
   reorder,
 }: {
   product: Product;
   /** Çözümlenmiş alt kategori tanımları (kategori slug -> liste). */
   subcats: Record<string, SubcatDTO[]>;
+  /** Çözülmüş kategori listesi (rozet adı/rengi buradan gelir). */
+  cats?: CatDTO[];
   /** Dolu ise Sıra hücresi sürükleme kolu + pozisyon kutusuna dönüşür. */
   reorder?: ReorderCtx;
 }) {
@@ -240,7 +250,9 @@ function ProductRow({
     });
   }
 
-  const category = categoryBySlug(product.category_slug);
+  const category =
+    cats?.find((c) => c.slug === product.category_slug) ??
+    categoryBySlug(product.category_slug);
   const [tintBg, tintFg] = CATEGORY_TINTS[category?.tint ?? 0];
   // Kural tabanli alt kategori etiketi (DB kolonu yok): yonetici, urunun
   // kategori gorunumunde hangi alta dustugunu gorsun. Tanimsiz slug donerse
@@ -539,6 +551,7 @@ export default function ProductsTable({
   filterSlot,
   openForm = false,
   subcats,
+  cats,
   reorderable = false,
   reorderCategorySlug,
 }: {
@@ -554,6 +567,8 @@ export default function ProductsTable({
   openForm?: boolean;
   /** Çözümlenmiş alt kategori tanımları (satır etiketleri için). */
   subcats: Record<string, SubcatDTO[]>;
+  /** Çözülmüş kategori listesi (DB adları); yoksa koddaki liste kullanılır. */
+  cats?: CatDTO[];
   /** Tek kategori görünümünde sürükle-bırak sıralama açık mı? */
   reorderable?: boolean;
   /** Sıralama kaydında hedef kategori (alt küme birleştirmesi için şart). */
@@ -812,7 +827,7 @@ export default function ProductsTable({
                   <option value="" disabled>
                     Seçin…
                   </option>
-                  {SHOP_CATEGORIES.map((c) => (
+                  {(cats ?? SHOP_CATEGORIES).map((c) => (
                     <option key={c.slug} value={c.slug}>
                       {c.name}
                     </option>
@@ -980,6 +995,7 @@ export default function ProductsTable({
                       key={p.id}
                       product={p}
                       subcats={subcats}
+                      cats={cats}
                       reorder={
                         reorderable
                           ? {

@@ -140,6 +140,17 @@ export default function ProductCard({
 
   const compareAt = product.compare_at_price;
   const discounted = compareAt !== null && compareAt > product.price;
+  // "2.si %X İndirimli" pili: 2'li paket fiyatı tekli fiyatın 2 katından
+  // ucuzsa ikinci ürünün indirimi hesaplanır (en az %5 ise gösterilir).
+  const pack2 = product.pack_prices?.["2"];
+  const packPill = (() => {
+    if (!pack2 || product.price <= 0) return null;
+    const pct = Math.round(((2 * product.price - pack2) / product.price) * 100);
+    return pct >= 5 ? `2.si %${pct} İndirimli` : null;
+  })();
+  const lactoseFree = product.name
+    .toLocaleLowerCase("tr-TR")
+    .includes("laktozsuz");
   const byWeight = isWeightBased(product);
   const weightMin = weightMinFor(product);
   // Yalnız birimi "gram" olan ürünlerde kartta EN AZ miktarın fiyatı gösterilir
@@ -187,9 +198,24 @@ export default function ProductCard({
             })
           )}
 
-          {product.in_stock && discounted && (
-            <span className={styles.badge}>İndirim</span>
-          )}
+          {/* Görsel üstü pil yığını: İndirim + 2'li kampanya + marka
+             kampanyası + Laktozsuz (Migros dili). */}
+          <span className={styles.badgeStack}>
+            {product.in_stock && discounted && (
+              <span className={styles.badge}>İndirim</span>
+            )}
+            {product.in_stock && packPill && (
+              <span className={`${styles.badge} ${styles.badgeAlt}`}>{packPill}</span>
+            )}
+            {product.in_stock && product.brand_campaign && (
+              <span className={`${styles.badge} ${styles.badgeAlt}`}>
+                {product.brand_campaign}
+              </span>
+            )}
+            {lactoseFree && (
+              <span className={`${styles.badge} ${styles.badgeInfo}`}>Laktozsuz</span>
+            )}
+          </span>
         </div>
 
         <div className={styles.cardBody}>

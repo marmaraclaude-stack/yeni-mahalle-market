@@ -23,7 +23,7 @@ import {
   unitPriceLabel,
   weightMinFor,
 } from "@/lib/shop/types";
-import { CATEGORY_TINTS, categoryBySlug } from "@/lib/shop/categories";
+import { CATEGORY_TINTS } from "@/lib/shop/categories";
 import {
   OTHER_SUB_NAME,
   OTHER_SUB_SLUG,
@@ -31,6 +31,10 @@ import {
 } from "@/lib/shop/subcategories";
 import { getSubcatsMap } from "@/lib/shop/subcats-data";
 import { getAllCategories } from "@/lib/shop/categories-data";
+import {
+  annotateBrandCampaigns,
+  getBrandCampaigns,
+} from "@/lib/shop/brand-campaigns";
 import { BUSINESS } from "@/lib/business";
 import { getCatalogVisibility, isProductVisible } from "@/lib/shop/visibility";
 import { iconFor } from "@/components/shop/ProductCard";
@@ -95,7 +99,10 @@ function nameTokens(name: string): Set<string> {
  * İlk 8 alınır; skor 0 olanlar sıralamaya girmez — 4'ten az kalırsa
  * kategori sırasından (is_featured, sort, name) tamamlanır.
  */
-async function getSimilarProducts(product: Product): Promise<Product[]> {
+async function getSimilarProducts(
+  product: Product,
+  subs: import("@/lib/shop/subcategories").SubCategory[],
+): Promise<Product[]> {
   try {
     const supabase = await createClient();
     const { data, error } = await supabase
@@ -114,11 +121,23 @@ async function getSimilarProducts(product: Product): Promise<Product[]> {
 
     const baseTokens = nameTokens(product.name);
     const baseBrand = product.brand.trim().toLocaleLowerCase("tr-TR");
+    // EN GÜÇLÜ sinyal: aynı alt kategori (börekse börek önerilir)
+    const baseSub = assignSubcategory(
+      subs,
+      product.name,
+      product.brand,
+      product.subcategory_slug,
+    );
 
     const scored = candidates.map((p, index) => {
       let score = 0;
+      if (
+        assignSubcategory(subs, p.name, p.brand, p.subcategory_slug) === baseSub
+      ) {
+        score += 8;
+      }
       const brand = p.brand.trim().toLocaleLowerCase("tr-TR");
-      if (baseBrand && brand && brand === baseBrand) score += 4;
+      if (baseBrand && brand && brand === baseBrand) score += 2;
       for (const token of nameTokens(p.name)) {
         if (baseTokens.has(token)) score += 2;
       }
@@ -166,10 +185,8 @@ async function getSimilarProducts(product: Product): Promise<Product[]> {
  */
 /** Görsel üzerine küçük bilgi çipleri (opsiyonel, kategoriye göre).
     Sadece taze kategoriler için "Günlük taze"; diğerlerinde çip yok. */
-function infoChips(categorySlug: string): { icon: typeof Leaf; label: string }[] {
-  if (categorySlug === "meyve-sebze" || categorySlug === "ekmek-firin") {
-    return [{ icon: Leaf, label: "Günlük taze" }];
-  }
+function infoChips(_categorySlug: string): { icon: typeof Leaf; label: string }[] {
+  // "Günlük taze" çipi kaldırıldı (kampanya pilleri kartlarda gösteriliyor).
   return [];
 }
 
@@ -205,15 +222,19 @@ export default async function UrunDetayPage({ params }: { params: Params }) {
   if (!product) notFound();
 
   // Admin'den pasifleştirilen kategori/alt kategori ürünleri detayda da gizli.
-  const [visibility, subcatsMap, allCats] = await Promise.all([
+  const [visibility, subcatsMap, allCats, brandCampaigns] = await Promise.all([
     getCatalogVisibility(),
     getSubcatsMap(),
     getAllCategories(),
+    getBrandCampaigns(),
   ]);
   if (!isProductVisible(product, visibility, subcatsMap)) notFound();
 
-  const similar = (await getSimilarProducts(product)).filter((p) =>
-    isProductVisible(p, visibility, subcatsMap),
+  const similar = annotateBrandCampaigns(
+    (
+      await getSimilarProducts(product, subcatsMap[product.category_slug] ?? [])
+    ).filter((p) => isProductVisible(p, visibility, subcatsMap)),
+    brandCampaigns,
   );
 
   const cat = allCats.find((c) => c.slug === product.category_slug);

@@ -18,11 +18,7 @@ import {
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import type { Product } from "@/lib/shop/types";
-import {
-  CATEGORY_TINTS,
-  SHOP_CATEGORIES,
-  categoryBySlug,
-} from "@/lib/shop/categories";
+import { CATEGORY_TINTS } from "@/lib/shop/categories";
 import {
   assignSubcategory,
   OTHER_SUB_SLUG,
@@ -30,6 +26,10 @@ import {
 } from "@/lib/shop/subcategories";
 import { getSubcatsMap } from "@/lib/shop/subcats-data";
 import { getAllCategories } from "@/lib/shop/categories-data";
+import {
+  annotateBrandCampaigns,
+  getBrandCampaigns,
+} from "@/lib/shop/brand-campaigns";
 import { specialByKey, type SpecialKey } from "@/lib/shop/specials";
 import { BUSINESS } from "@/lib/business";
 import { getShopSettings } from "@/lib/shop/settings";
@@ -73,7 +73,11 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const sp = await searchParams;
   const special = specialByKey(first(sp.ozel));
-  const cat = categoryBySlug(first(sp.k) ?? "");
+  // Kategori adı DB'den çözülür (panelden yeniden adlandırılmış olabilir);
+  // getAllCategories istek başına önbelleklidir, sayfayla tek sorguyu paylaşır.
+  const cat = (await getAllCategories()).find(
+    (c) => c.slug === (first(sp.k) ?? ""),
+  );
   return {
     title: special
       ? `${special.title} · Ürünler`
@@ -103,12 +107,14 @@ export default async function UrunlerPage({
 
   // Teslimat ayarları + katalog görünürlüğü (admin'den pasifleştirilen
   // kategori/alt kategoriler) — paralel çekilir; hata durumunda makul default.
-  const [settings, visibility, subcatsMap, allCats] = await Promise.all([
-    getShopSettings(),
-    getCatalogVisibility(),
-    getSubcatsMap(),
-    getAllCategories(),
-  ]);
+  const [settings, visibility, subcatsMap, allCats, brandCampaigns] =
+    await Promise.all([
+      getShopSettings(),
+      getCatalogVisibility(),
+      getSubcatsMap(),
+      getAllCategories(),
+      getBrandCampaigns(),
+    ]);
   const catBySlug = (slug: string) => allCats.find((c) => c.slug === slug);
   const hiddenCatList = [...visibility.inactiveCats];
   const hiddenSubList = [...visibility.hiddenSubs];
@@ -192,6 +198,9 @@ export default async function UrunlerPage({
   // Kullanıcı sıralaması — tüm görünümlere uygulanır ("Tümü"de bölüm içi sıra).
   products = sortProducts(products, sirala);
 
+  // Marka kampanya pilleri (kartlarda görsel üstü) — sunucuda işlenir.
+  products = annotateBrandCampaigns(products, brandCampaigns);
+
   // "Tümü" görünümü: ürünler sunucuda kategoriye göre gruplanır (tek sorgu)
   const showSections = !dbError && !q && !category && !special;
   const byCategory = new Map<string, Product[]>();
@@ -203,10 +212,12 @@ export default async function UrunlerPage({
     }
   }
   const sections = showSections
-    ? SHOP_CATEGORIES.map((cat) => ({
-        cat,
-        items: byCategory.get(cat.slug) ?? [],
-      })).filter((s) => s.items.length > 0)
+    ? allCats
+        .map((cat) => ({
+          cat,
+          items: byCategory.get(cat.slug) ?? [],
+        }))
+        .filter((s) => s.items.length > 0)
     : [];
 
   return (

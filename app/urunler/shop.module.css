@@ -1476,3 +1476,35 @@
 @media (prefers-reduced-motion: reduce) {
   .selMenu { animation: none; }
 }
+
+
+/* Görsel üstü pil yığını: mevcut .badge konumunu devralır, piller alt alta */
+.badgeStack {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  /* "+" butonuna değmesin: uzun pil metni buton alanından önce sarar */
+  max-width: calc(100% - 54px);
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 5px;
+  pointer-events: none;
+}
+.badgeStack .badge {
+  position: static;
+  top: auto;
+  left: auto;
+}
+/* Kampanya pili: koyu zemin (İndirim turuncusundan ayrışır) */
+.badgeAlt {
+  background: var(--ink);
+  color: var(--white);
+}
+/* Bilgi pili (Laktozsuz gibi): beyaz zemin, ince çerçeve */
+.badgeInfo {
+  background: var(--white);
+  color: var(--gray-700);
+  border: 1px solid var(--gray-200);
+}

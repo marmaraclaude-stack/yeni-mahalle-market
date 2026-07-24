@@ -59,6 +59,8 @@ export interface Product {
   /** Etiket/detay bilgileri (jsonb); null = girilmemiş. */
   details: ProductDetails | null;
   image_url: string | null;
+  /** Markaya atanmış kampanya etiketi (vitrin pili) — sunucuda eklenir. */
+  brand_campaign?: string | null;
   is_active: boolean;
   in_stock: boolean;
   is_featured: boolean;

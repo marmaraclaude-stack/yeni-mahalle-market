@@ -41,6 +41,13 @@ export interface StockChip {
   active: boolean;
 }
 
+/** Sunucudan gelen çözülmüş kategori listesi (DB adları + özel kategoriler). */
+export interface StockCat {
+  slug: string;
+  name: string;
+  tint: number;
+}
+
 /** Satır durumu: tükendi / düşük / stokta / takipsiz.
  *  Gram bazlılık isWeightBased ile (unit=kg/gram + meyve-sebze dahil). */
 function stateOf(
@@ -60,7 +67,7 @@ function gramsToKgText(grams: number): string {
 
 /** Stok satırı — gram bazlı üründe giriş KG cinsindendir (2,5 = 2500 g);
  *  adetli üründe adet. Kaydet, Ürünler'deki gibi sağdaki İşlem hücresinde. */
-function StockRowView({ row }: { row: StockRow }) {
+function StockRowView({ row, cats }: { row: StockRow; cats?: StockCat[] }) {
   const router = useRouter();
   const byWeight = isWeightBased(row);
   const initial =
@@ -74,7 +81,9 @@ function StockRowView({ row }: { row: StockRow }) {
   const [, startTransition] = useTransition();
 
   const dirty = value.trim() !== initial;
-  const cat = categoryBySlug(row.category_slug);
+  const cat =
+    cats?.find((c) => c.slug === row.category_slug) ??
+    categoryBySlug(row.category_slug);
   const [bg, fg] = CATEGORY_TINTS[cat?.tint ?? 0];
   const st = stateOf(row, byWeight);
 
@@ -246,11 +255,14 @@ function Pager({ pagination }: { pagination: StockPagination }) {
 
 export default function StockTable({
   rows,
+  cats,
   chips,
   pagination,
   filterSlot,
 }: {
   rows: StockRow[];
+  /** Çözülmüş kategori listesi (rozet adı/rengi buradan gelir). */
+  cats?: StockCat[];
   chips: StockChip[];
   pagination: StockPagination;
   filterSlot?: React.ReactNode;
@@ -310,7 +322,7 @@ export default function StockTable({
                 </thead>
                 <tbody>
                   {rows.map((r) => (
-                    <StockRowView key={r.id} row={r} />
+                    <StockRowView key={r.id} row={r} cats={cats} />
                   ))}
                 </tbody>
               </table>

@@ -4,7 +4,7 @@
 
 import { Search } from "lucide-react";
 import { listStock, type StockFilter } from "@/lib/shop/admin-actions";
-import { SHOP_CATEGORIES } from "@/lib/shop/categories";
+import { getAllCategories } from "@/lib/shop/categories-data";
 import { getSubcatsMap } from "@/lib/shop/subcats-data";
 import StockTable, { type StockPageItem } from "./StockTable";
 import styles from "../../admin.module.css";
@@ -74,7 +74,9 @@ export default async function StockPage({
 }) {
   const sp = await searchParams;
   const q = typeof sp.q === "string" ? sp.q.trim() : "";
-  const k = SHOP_CATEGORIES.some((c) => c.slug === sp.k) ? sp.k! : "";
+  // Kategori listesi DB'den çözülür (yeniden adlandırma + özel kategoriler).
+  const cats = await getAllCategories();
+  const k = cats.some((c) => c.slug === sp.k) ? sp.k! : "";
   // Alt kategori: yalnız kategori seçiliyken ve tanımlı slug'lardansa geçerli.
   const subcatsMap = await getSubcatsMap();
   const subOptions = k ? (subcatsMap[k] ?? []) : [];
@@ -146,7 +148,7 @@ export default async function StockPage({
         aria-label="Kategori"
       >
         <option value="">Tüm kategoriler</option>
-        {SHOP_CATEGORIES.map((c) => (
+        {cats.map((c) => (
           <option key={c.slug} value={c.slug}>
             {c.name}
           </option>
@@ -185,6 +187,7 @@ export default async function StockPage({
       </h1>
       <StockTable
         rows={rows}
+        cats={cats.map((c) => ({ slug: c.slug, name: c.name, tint: c.tint }))}
         chips={chips}
         pagination={pagination}
         filterSlot={filterSlot}

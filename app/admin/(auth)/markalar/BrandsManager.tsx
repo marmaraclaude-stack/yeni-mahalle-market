@@ -1,12 +1,14 @@
 "use client";
 
 // Marka yönetimi istemci bileşeni: arama, yeni marka ekleme ve satır içi
-// düzenleme (ad + üretici). Kaydet yalnız değişiklik olduğunda görünür;
-// başarılı işlem sonrası router.refresh ile liste ve sayaçlar tazelenir.
+// düzenleme (ad + üretici + kampanya pili). Kaydet yalnız değişiklik
+// olduğunda görünür; başarılı işlem sonrası router.refresh ile liste ve
+// sayaçlar tazelenir. Kampanya pili doluysa markanın tüm ürün kartlarında
+// görsel üstünde gösterilir.
 
 import { useEffect, useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { Building2, Plus, Search, Tags, Trash2 } from "lucide-react";
+import { BadgePercent, Building2, Plus, Search, Tags, Trash2 } from "lucide-react";
 import { createBrand, deleteBrand, updateBrand } from "@/lib/shop/admin-actions";
 import m from "./markalar.module.css";
 
@@ -14,6 +16,7 @@ export interface BrandItem {
   id: string;
   name: string;
   producer: string;
+  campaign: string;
   count: number;
 }
 
@@ -33,12 +36,16 @@ export default function BrandsManager({
   const [error, setError] = useState<string | null>(null);
 
   const producerCount = brands.filter((b) => b.producer.trim() !== "").length;
+  const campaignCount = brands.filter((b) => b.campaign.trim() !== "").length;
 
   const visible = useMemo(() => {
     const q = trLower(query.trim());
     if (!q) return brands;
     return brands.filter(
-      (b) => trLower(b.name).includes(q) || trLower(b.producer).includes(q),
+      (b) =>
+        trLower(b.name).includes(q) ||
+        trLower(b.producer).includes(q) ||
+        trLower(b.campaign).includes(q),
     );
   }, [brands, query]);
 
@@ -53,6 +60,12 @@ export default function BrandsManager({
           <Building2 size={14} aria-hidden />
           {producerCount} markanın üreticisi tanımlı
         </span>
+        {campaignCount > 0 && (
+          <span className={m.chip}>
+            <BadgePercent size={14} aria-hidden />
+            {campaignCount} markada kampanya pili
+          </span>
+        )}
         {unbranded > 0 && (
           <span className={`${m.chip} ${m.chipMuted}`}>
             {unbranded} ürün markasız
@@ -85,6 +98,7 @@ export default function BrandsManager({
       <div className={m.listHead} aria-hidden>
         <span>Marka</span>
         <span>Üretici / işletmeci</span>
+        <span>Kampanya pili</span>
         <span className={m.listHeadRight}>Ürün</span>
         <span />
       </div>
@@ -114,6 +128,7 @@ function AddBrandForm({
 }) {
   const [name, setName] = useState("");
   const [producer, setProducer] = useState("");
+  const [campaign, setCampaign] = useState("");
   const [pending, startTransition] = useTransition();
 
   function submit() {
@@ -121,9 +136,10 @@ function AddBrandForm({
     onError(null);
     startTransition(async () => {
       try {
-        await createBrand(name.trim(), producer.trim());
+        await createBrand(name.trim(), producer.trim(), campaign.trim());
         setName("");
         setProducer("");
+        setCampaign("");
         onDone();
       } catch (e) {
         onError(e instanceof Error ? e.message : "Marka eklenemedi.");
@@ -155,6 +171,16 @@ function AddBrandForm({
           placeholder="Üretici / işletmeci (boş bırakılabilir)"
           aria-label="Yeni markanın üreticisi"
         />
+        <input
+          className={m.input}
+          value={campaign}
+          onChange={(e) => setCampaign(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") submit();
+          }}
+          placeholder="Kampanya pili (örn. 2 Al 1 Öde)"
+          aria-label="Yeni markanın kampanya pili"
+        />
         <button
           type="button"
           className={m.addBtn}
@@ -180,6 +206,7 @@ function BrandRow({
 }) {
   const [name, setName] = useState(brand.name);
   const [producer, setProducer] = useState(brand.producer);
+  const [campaign, setCampaign] = useState(brand.campaign);
   const [pending, startTransition] = useTransition();
   const [deleting, startDelete] = useTransition();
 
@@ -191,9 +218,14 @@ function BrandRow({
   useEffect(() => {
     setProducer(brand.producer);
   }, [brand.producer]);
+  useEffect(() => {
+    setCampaign(brand.campaign);
+  }, [brand.campaign]);
 
   const dirty =
-    name.trim() !== brand.name || producer.trim() !== brand.producer;
+    name.trim() !== brand.name ||
+    producer.trim() !== brand.producer ||
+    campaign.trim() !== brand.campaign;
 
   function save() {
     if (!dirty || pending || !name.trim()) return;
@@ -203,6 +235,7 @@ function BrandRow({
         await updateBrand(brand.id, {
           name: name.trim(),
           producer: producer.trim(),
+          campaign: campaign.trim(),
         });
         onDone();
       } catch (e) {
@@ -249,6 +282,16 @@ function BrandRow({
         }}
         placeholder="Üretici / işletmeci"
         aria-label={`${brand.name} üreticisi`}
+      />
+      <input
+        className={m.input}
+        value={campaign}
+        onChange={(e) => setCampaign(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") save();
+        }}
+        placeholder="Kampanya pili (boş = yok)"
+        aria-label={`${brand.name} kampanya pili`}
       />
       <span className={m.count} title={`${brand.count} üründe kullanılıyor`}>
         {brand.count}

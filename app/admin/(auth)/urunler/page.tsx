@@ -10,9 +10,9 @@
 
 import { Search } from "lucide-react";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { SHOP_CATEGORIES } from "@/lib/shop/categories";
 import { assignSubcategory } from "@/lib/shop/subcategories";
 import { getSubcatsMap, subcatsMapToDTO } from "@/lib/shop/subcats-data";
+import { getAllCategories } from "@/lib/shop/categories-data";
 import type { Product } from "@/lib/shop/types";
 import ProductsTable, {
   type ActiveFilter,
@@ -129,6 +129,8 @@ export default async function AdminProductsPage({
   // arasindaysa gecerli; aksi halde sessizce yok sayilir (kategori degisince
   // formda kalan eski altk boylece temizlenir).
   const subcatsMap = await getSubcatsMap();
+  // Kategori listesi DB'den çözülür (yeniden adlandırma + özel kategoriler).
+  const cats = await getAllCategories();
   const subOptions = category ? (subcatsMap[category] ?? []) : [];
   const altk =
     altkRaw && subOptions.some((s) => s.slug === altkRaw) ? altkRaw : null;
@@ -333,8 +335,7 @@ export default async function AdminProductsPage({
   // Siralama filtre sayilmaz; kaldirma linklerinde korunur.
   const activeFilters: ActiveFilter[] = [];
   if (category) {
-    const catName =
-      SHOP_CATEGORIES.find((c) => c.slug === category)?.name ?? category;
+    const catName = cats.find((c) => c.slug === category)?.name ?? category;
     activeFilters.push({
       key: "k",
       label: `Kategori: ${catName}`,
@@ -399,7 +400,7 @@ export default async function AdminProductsPage({
         aria-label="Kategori filtresi"
       >
         <option value="">Tüm kategoriler</option>
-        {SHOP_CATEGORIES.map((c) => (
+        {cats.map((c) => (
           <option key={c.slug} value={c.slug}>
             {c.name}
           </option>
@@ -458,6 +459,7 @@ export default async function AdminProductsPage({
       ) : (
         <ProductsTable
           products={products}
+          cats={cats.map((c) => ({ slug: c.slug, name: c.name, tint: c.tint }))}
           subcats={subcatsMapToDTO(subcatsMap)}
           chips={chips}
           activeFilters={activeFilters}

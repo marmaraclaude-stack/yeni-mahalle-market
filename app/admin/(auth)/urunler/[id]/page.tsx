@@ -12,7 +12,7 @@ import {
 } from "@/lib/shop/admin-actions";
 import AdminBack from "../../AdminBack";
 import ProductInfoForm from "./ProductInfoForm";
-import { SHOP_CATEGORIES, CATEGORY_TINTS, categoryBySlug } from "@/lib/shop/categories";
+import { CATEGORY_TINTS } from "@/lib/shop/categories";
 import { getSubcatsMap } from "@/lib/shop/subcats-data";
 import { getAllCategories } from "@/lib/shop/categories-data";
 import type { Product } from "@/lib/shop/types";
@@ -65,7 +65,9 @@ export default async function AdminProductEditPage({
     subcatOptions[cat] = list.map((s) => ({ slug: s.slug, name: s.name }));
   }
 
-  const category = categoryBySlug(product.category_slug);
+  // Kategori adı DB'den çözülür (panelden yeniden adlandırılmış olabilir).
+  const allCats = await getAllCategories();
+  const category = allCats.find((c) => c.slug === product.category_slug);
   const [tintBg, tintFg] = CATEGORY_TINTS[category?.tint ?? 0];
 
   // Birim seçenekleri — üründe farklı bir değer varsa listeye eklenir.
@@ -269,7 +271,7 @@ export default async function AdminProductEditPage({
           <ProductInfoForm
             saveAction={saveAction}
             product={product}
-            categories={(await getAllCategories()).map((c) => ({
+            categories={allCats.map((c) => ({
               slug: c.slug,
               name: c.name,
             }))}

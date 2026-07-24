@@ -22,7 +22,7 @@ export default async function MarkalarPage() {
 
   const { data, error } = await supabase
     .from("shop_brands")
-    .select("id, name, producer");
+    .select("id, name, producer, campaign");
 
   // Marka başına ürün sayısı: brand kolonu sayfa sayfa çekilir
   // (PostgREST tek istekte en fazla 1000 satır döndürür).
@@ -45,7 +45,11 @@ export default async function MarkalarPage() {
   }
 
   const brands = ((data ?? []) as ShopBrand[])
-    .map((b) => ({ ...b, count: counts.get(b.name) ?? 0 }))
+    .map((b) => ({
+      ...b,
+      campaign: b.campaign ?? "",
+      count: counts.get(b.name) ?? 0,
+    }))
     .sort((a, b) => a.name.localeCompare(b.name, "tr"));
 
   return (
@@ -55,6 +59,8 @@ export default async function MarkalarPage() {
         Ürün düzenlemedeki marka listesi buradan gelir; marka seçilince
         &quot;Üretici / işletmeci&quot; alanı buradaki değerle otomatik dolar.
         Marka adını değiştirirsen o markadaki tüm ürünler yeni ada taşınır.
+        Kampanya pili doldurulursa markanın tüm ürün kartlarında görsel
+        üstünde gösterilir (örn. &quot;2 Al 1 Öde&quot;).
       </p>
       {error ? (
         <div className={styles.empty}>Markalar yüklenemedi: {error.message}</div>

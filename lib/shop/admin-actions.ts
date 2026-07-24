@@ -2457,6 +2457,8 @@ export interface ShopBrand {
   id: string;
   name: string;
   producer: string;
+  /** Kampanya pili metni — doluysa markanın tüm ürün kartlarında gösterilir. */
+  campaign: string;
 }
 
 function brandError(prefix: string, error: { code?: string; message: string }): Error {
@@ -2520,7 +2522,11 @@ async function applyProducerToProducts(
 }
 
 /** Yeni marka ekler; üretici verildiyse mevcut ürünlerin boş alanlarına işler. */
-export async function createBrand(name: string, producer: string): Promise<void> {
+export async function createBrand(
+  name: string,
+  producer: string,
+  campaign = "",
+): Promise<void> {
   await requireAdmin();
   const n = name.trim();
   const p = producer.trim();
@@ -2529,7 +2535,7 @@ export async function createBrand(name: string, producer: string): Promise<void>
   const supabase = createAdminClient();
   const { error } = await supabase
     .from("shop_brands")
-    .insert({ name: n, producer: p });
+    .insert({ name: n, producer: p, campaign: campaign.trim() });
   if (error) throw brandError("Marka eklenemedi", error);
 
   await applyProducerToProducts(supabase, n, p, null);
@@ -2543,7 +2549,7 @@ export async function createBrand(name: string, producer: string): Promise<void>
  */
 export async function updateBrand(
   id: string,
-  patch: { name: string; producer: string },
+  patch: { name: string; producer: string; campaign?: string },
 ): Promise<void> {
   await requireAdmin();
   const n = patch.name.trim();
@@ -2558,11 +2564,17 @@ export async function updateBrand(
     .maybeSingle();
   if (readError) throw new Error(`Marka okunamadı: ${readError.message}`);
   if (!oldRow) throw new Error("Marka bulunamadı.");
-  const old = oldRow as ShopBrand;
+  const old = oldRow as Pick<ShopBrand, "id" | "name" | "producer">;
 
+  const row: Record<string, string> = {
+    name: n,
+    producer: p,
+    updated_at: new Date().toISOString(),
+  };
+  if (patch.campaign !== undefined) row.campaign = patch.campaign.trim();
   const { error } = await supabase
     .from("shop_brands")
-    .update({ name: n, producer: p, updated_at: new Date().toISOString() })
+    .update(row)
     .eq("id", id);
   if (error) throw brandError("Marka güncellenemedi", error);
 
