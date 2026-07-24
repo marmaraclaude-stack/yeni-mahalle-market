@@ -167,10 +167,14 @@ export default async function AdminProductsPage({
   try {
     const supabase = createAdminClient();
 
-    if (altk || reorderMode) {
-      // ALT KATEGORI / SIRALAMA YOLU: kategorinin tum urunleri tek sorguyla
-      // cekilir (1000'lik tek range yeterli); altk varsa assignSubcategory ile
-      // bellekte filtrelenir. Cip sayilari ve filtreler bellekte uygulanir.
+    if (category) {
+      // KATEGORI YOLU: bir kategori seciliyken (alt kategori / arama / hizli
+      // filtre / siralama olsun olmasin) o kategorinin TUM urunleri tek
+      // sorguyla cekilir (1000'lik tek range yeterli) ve bellekte
+      // filtrelenip siralanir. Kategori sinirli oldugundan SAYFALAMA YOK:
+      // 50'lik kesme yalniz kategorisiz "Tumu" gorunumune ozeldir. Boylece
+      // siralama secince liste "50'ye dusmez", yalnizca yeniden dizilir;
+      // surukle-birak yalniz varsayilan sirada (reorderMode) aciktir.
       let subQuery = supabase
         .from("products")
         .select("*")
@@ -229,18 +233,12 @@ export default async function AdminProductsPage({
         );
       }
 
+      // Kategori görünümünde her zaman TÜM ürünler gösterilir (sayfalama yok);
+      // sıralama yalnız listeyi yeniden dizer, adedini düşürmez.
       total = filtered.length;
-      if (reorderMode) {
-        // Sıralama modu: sayfalama yok — pozisyonlar tüm kategoriyi kapsar.
-        totalPages = 1;
-        page = 1;
-        products = filtered;
-      } else {
-        totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
-        page = Math.min(requestedPage, totalPages);
-        const from = (page - 1) * PAGE_SIZE;
-        products = filtered.slice(from, from + PAGE_SIZE);
-      }
+      totalPages = 1;
+      page = 1;
+      products = filtered;
     } else {
       // MEVCUT DB SAYFALAMA YOLU (altk yokken aynen korunur).
       // Ortak k/q kosullu head:true count sorgusu.
