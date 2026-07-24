@@ -7,6 +7,9 @@ import { listStock, type StockFilter } from "@/lib/shop/admin-actions";
 import { getAllCategories } from "@/lib/shop/categories-data";
 import { getSubcatsMap } from "@/lib/shop/subcats-data";
 import StockTable, { type StockPageItem } from "./StockTable";
+import AdminSelect, {
+  type AdminSelectOption,
+} from "../urunler/AdminSelect";
 import styles from "../../admin.module.css";
 
 export const dynamic = "force-dynamic";
@@ -125,10 +128,47 @@ export default async function StockPage({
     active: filtre === key,
   }));
 
-  // Araç çubuğu — Ürünler'dekiyle aynı dil: arama + kategori + Filtrele (GET).
+  // Araç çubuğu — Ürünler'deki AdminSelect diliyle aynı: arama kutusu (küçük
+  // GET formu; kategori/alt/filtre gizli inputlarla korunur) + kategori ve alt
+  // kategori açılır menüleri (seçilince anında gidilir, ayrı "Filtrele" yok).
+  const catName = cats.find((c) => c.slug === k)?.name;
+  const catOptions: AdminSelectOption[] = [
+    {
+      key: "",
+      name: "Tüm kategoriler",
+      href: buildHref({ q, filtre }),
+      iconKey: "grid",
+      active: !k,
+    },
+    ...cats.map((c) => ({
+      key: c.slug,
+      name: c.name,
+      href: buildHref({ k: c.slug, q, filtre }),
+      active: c.slug === k,
+    })),
+  ];
+  const subName = altk
+    ? (subOptions.find((s) => s.slug === altk)?.name ?? altk)
+    : undefined;
+  const subSelectOptions: AdminSelectOption[] = [
+    {
+      key: "",
+      name: "Tüm alt kategoriler",
+      href: buildHref({ k, q, filtre }),
+      iconKey: "layers",
+      active: !altk,
+    },
+    ...subOptions.map((s) => ({
+      key: s.slug,
+      name: s.name,
+      href: buildHref({ k, altk: s.slug, q, filtre }),
+      active: s.slug === altk,
+    })),
+  ];
+
   const filterSlot = (
-    <form method="get" action="/admin/stok" className={styles.toolbarFilter}>
-      <div className={styles.searchWrap}>
+    <div className={styles.toolbarFilter}>
+      <form method="get" action="/admin/stok" className={styles.searchWrap}>
         <span className={styles.searchIcon} aria-hidden>
           <Search size={15} />
         </span>
@@ -140,44 +180,25 @@ export default async function StockPage({
           className={styles.input}
           aria-label="Ürün adında ara"
         />
-      </div>
-      <select
-        name="k"
-        defaultValue={k}
-        className={styles.select}
-        aria-label="Kategori"
-      >
-        <option value="">Tüm kategoriler</option>
-        {cats.map((c) => (
-          <option key={c.slug} value={c.slug}>
-            {c.name}
-          </option>
-        ))}
-      </select>
-      {/* Alt kategori: yalnız kategori seçiliyken (Ürünler ile aynı davranış) */}
+        {k && <input type="hidden" name="k" value={k} />}
+        {k && altk && <input type="hidden" name="altk" value={altk} />}
+        {filtre && <input type="hidden" name="filtre" value={filtre} />}
+      </form>
+      <AdminSelect
+        label="Kategori:"
+        currentName={catName ?? "Tümü"}
+        options={catOptions}
+        ariaLabel="Kategori filtresi"
+      />
       {k && subOptions.length > 0 && (
-        <select
-          name="altk"
-          defaultValue={altk}
-          className={styles.select}
-          aria-label="Alt kategori"
-        >
-          <option value="">Tüm alt kategoriler</option>
-          {subOptions.map((s) => (
-            <option key={s.slug} value={s.slug}>
-              {s.name}
-            </option>
-          ))}
-        </select>
+        <AdminSelect
+          label="Alt kategori:"
+          currentName={subName ?? "Tümü"}
+          options={subSelectOptions}
+          ariaLabel="Alt kategori filtresi"
+        />
       )}
-      {filtre && <input type="hidden" name="filtre" value={filtre} />}
-      <button
-        type="submit"
-        className={`${styles.actionBtn} ${styles["actionBtn--primary"]}`}
-      >
-        Filtrele
-      </button>
-    </form>
+    </div>
   );
 
   return (

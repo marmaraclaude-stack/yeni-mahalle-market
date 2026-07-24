@@ -20,6 +20,7 @@ import ProductsTable, {
   type PageItem,
   type PaginationData,
 } from "./ProductsTable";
+import AdminSelect, { type AdminSelectOption } from "./AdminSelect";
 import styles from "../../admin.module.css";
 
 export const dynamic = "force-dynamic";
@@ -51,6 +52,15 @@ const SORT_LABELS: Record<CatalogSort, string> = {
   "fiyat-artan": "Fiyat (artan)",
   "fiyat-azalan": "Fiyat (azalan)",
   yeni: "Yeni eklenen",
+};
+
+// AdminSelect içindeki ICONS haritasının anahtarları (fonksiyon değil string
+// taşınır — server -> client sınırında ikon bileşeni prop geçilemez).
+const SORT_ICON_KEYS: Record<CatalogSort, string> = {
+  isim: "az",
+  "fiyat-artan": "up",
+  "fiyat-azalan": "down",
+  yeni: "clock",
 };
 
 function parseSort(value: string | undefined): CatalogSort | null {
@@ -376,11 +386,66 @@ export default async function AdminProductsPage({
     items: buildPageItems(page, totalPages, hrefFor),
   };
 
-  // Arama + kategori filtresi (GET formu, sunucuda filtrelenir). Gizli input
-  // aktif hizli filtreyi tasir; sayfa parametresi tasinmaz, arama 1'den baslar.
+  // Açılır menü seçenekleri — vitrindeki SortSelect diliyle (AdminSelect).
+  // Her seçenek GET linki; seçilince anında gidilir (ayrı "Filtrele" yok).
+  // Kategori değişince altk düşer; sıralama/kategori değişince sayfa 1'e döner.
+  const catName = cats.find((c) => c.slug === category)?.name;
+  const catOptions: AdminSelectOption[] = [
+    {
+      key: "",
+      name: "Tüm kategoriler",
+      href: buildHref({ q: search, filtre, sirala }),
+      iconKey: "grid",
+      active: !category,
+    },
+    ...cats.map((c) => ({
+      key: c.slug,
+      name: c.name,
+      href: buildHref({ k: c.slug, q: search, filtre, sirala }),
+      active: c.slug === category,
+    })),
+  ];
+  const subName = altk
+    ? (subOptions.find((s) => s.slug === altk)?.name ?? altk)
+    : undefined;
+  const subSelectOptions: AdminSelectOption[] = [
+    {
+      key: "",
+      name: "Tüm alt kategoriler",
+      href: buildHref({ k: category, q: search, filtre, sirala }),
+      iconKey: "layers",
+      active: !altk,
+    },
+    ...subOptions.map((s) => ({
+      key: s.slug,
+      name: s.name,
+      href: buildHref({ k: category, altk: s.slug, q: search, filtre, sirala }),
+      active: s.slug === altk,
+    })),
+  ];
+  const sortSelectOptions: AdminSelectOption[] = [
+    {
+      key: "",
+      name: "Varsayılan",
+      href: buildHref({ k: category, altk, q: search, filtre }),
+      iconKey: "filter",
+      active: !sirala,
+    },
+    ...SORT_KEYS.map((key) => ({
+      key,
+      name: SORT_LABELS[key],
+      href: buildHref({ k: category, altk, q: search, filtre, sirala: key }),
+      iconKey: SORT_ICON_KEYS[key],
+      active: key === sirala,
+    })),
+  ];
+
+  // Arama kutusu tek başına küçük bir GET formu; gönderilince mevcut kategori/
+  // alt kategori/hızlı filtre/sıralama gizli inputlarla korunur. Kategori, alt
+  // kategori ve sıralama ise vitrin dilinde açılır menülerle anında değişir.
   const filterSlot = (
-    <form method="get" action="/admin/urunler" className={styles.toolbarFilter}>
-      <div className={styles.searchWrap}>
+    <div className={styles.toolbarFilter}>
+      <form method="get" action="/admin/urunler" className={styles.searchWrap}>
         <span className={styles.searchIcon} aria-hidden>
           <Search size={15} />
         </span>
@@ -392,55 +457,32 @@ export default async function AdminProductsPage({
           aria-label="Ürün ara"
           className={styles.input}
         />
-      </div>
-      <select
-        name="k"
-        defaultValue={category}
-        className={styles.select}
-        aria-label="Kategori filtresi"
-      >
-        <option value="">Tüm kategoriler</option>
-        {cats.map((c) => (
-          <option key={c.slug} value={c.slug}>
-            {c.name}
-          </option>
-        ))}
-      </select>
-      {/* Alt kategori: yalniz kategori seciliyken gorunur. Kategori degisirse
-          formda kalan eski altk sunucuda gecersiz sayilip yok sayilir. */}
+        {category && <input type="hidden" name="k" value={category} />}
+        {altk && <input type="hidden" name="altk" value={altk} />}
+        {filtre && <input type="hidden" name="filtre" value={filtre} />}
+        {sirala && <input type="hidden" name="sirala" value={sirala} />}
+      </form>
+      <AdminSelect
+        label="Kategori:"
+        currentName={catName ?? "Tümü"}
+        options={catOptions}
+        ariaLabel="Kategori filtresi"
+      />
       {category && subOptions.length > 0 && (
-        <select
-          name="altk"
-          defaultValue={altk ?? ""}
-          className={styles.select}
-          aria-label="Alt kategori filtresi"
-        >
-          <option value="">Tüm alt kategoriler</option>
-          {subOptions.map((s) => (
-            <option key={s.slug} value={s.slug}>
-              {s.name}
-            </option>
-          ))}
-        </select>
+        <AdminSelect
+          label="Alt kategori:"
+          currentName={subName ?? "Tümü"}
+          options={subSelectOptions}
+          ariaLabel="Alt kategori filtresi"
+        />
       )}
-      <select
-        name="sirala"
-        defaultValue={sirala ?? ""}
-        className={styles.select}
-        aria-label="Sıralama"
-      >
-        <option value="">Sıralama: Varsayılan</option>
-        {SORT_KEYS.map((key) => (
-          <option key={key} value={key}>
-            {SORT_LABELS[key]}
-          </option>
-        ))}
-      </select>
-      {filtre && <input type="hidden" name="filtre" value={filtre} />}
-      <button type="submit" className={`${styles.actionBtn} ${styles["actionBtn--primary"]}`}>
-        Filtrele
-      </button>
-    </form>
+      <AdminSelect
+        label="Sıralama:"
+        currentName={sirala ? SORT_LABELS[sirala] : "Varsayılan"}
+        options={sortSelectOptions}
+        ariaLabel="Sıralama"
+      />
+    </div>
   );
 
   return (
