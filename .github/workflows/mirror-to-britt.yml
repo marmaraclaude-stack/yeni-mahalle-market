@@ -1,0 +1,36 @@
+name: mirror-to-britt
+
+# marmaraclaude-stack/main'e her push'ta, ayni HEAD'i canli sitenin yayinlandigi
+# depoya (brittenglishwithali/Yeni-Mahalle-Market) da iter. Boylece "ikinci push"
+# elle yapilmaz; Vercel otomatik yayinlar.
+#
+# Gerekli secret: MIRROR_TOKEN -> brittenglishwithali deposuna "Contents: write"
+# yetkisi olan bir GitHub token'i (fine-grained PAT veya classic repo scope).
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  mirror:
+    # Ayna yalniz kaynak depoda calissin; kopyalanan dosya hedef depoda tetiklenmesin.
+    if: github.repository == 'marmaraclaude-stack/yeni-mahalle-market'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Mirror main to brittenglishwithali
+        env:
+          MIRROR_TOKEN: ${{ secrets.MIRROR_TOKEN }}
+        run: |
+          if [ -z "$MIRROR_TOKEN" ]; then
+            echo "MIRROR_TOKEN secret tanimli degil; ayna atlandi."
+            echo "Token eklendiginde bu is akisi calisip main'i brittenglishwithali'ye iter."
+            exit 0
+          fi
+          git push "https://x-access-token:${MIRROR_TOKEN}@github.com/brittenglishwithali/Yeni-Mahalle-Market.git" HEAD:main
+          echo "Ayna tamam: marmaraclaude-stack/main -> brittenglishwithali/main"
