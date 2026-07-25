@@ -882,7 +882,7 @@ export default function ProductsTable({
                   defaultValue="adet"
                   className={styles.select}
                 >
-                  {["adet", "kg", "gram", "paket"].map((u) => (
+                  {["adet", "kg", "gram"].map((u) => (
                     <option key={u} value={u}>
                       {u}
                     </option>
