@@ -1,0 +1,86 @@
+# =============================================================================
+# BU DOSYA BU DEPODA CALISMAZ. brittenglishwithali/Yeni-Mahalle-Market
+# deposuna kopyalanmak icindir.
+#
+# Hedef konum: .github/workflows/sync-from-marmara.yml
+#
+# NE ISE YARAR
+# marmaraclaude-stack/yeni-mahalle-market (public) deposundaki main dalini
+# duzenli olarak bu depoya ceker. Push bu deponun KENDI icine yapildigi icin
+# GitHub'in otomatik verdigi GITHUB_TOKEN yeterlidir:
+#   - Kisisel erisim token'i (PAT) uretmeye gerek yok
+#   - Secret tanimlamaya gerek yok
+#   - Token suresi dolmaz, bakim gerektirmez
+# Push sonrasi Vercel her zamanki gibi kendi webhook'uyla yayina alir.
+#
+# NEDEN TERS YON
+# Onceki cozum (marmara -> britt push) baska bir depoya yazdigi icin
+# MIRROR_TOKEN gerektiriyordu. Token tanimlanmadigi surece hicbir sey
+# yayinlanmiyordu. Bu surumde o bagimlilik tamamen ortadan kalkiyor.
+#
+# KURULUM (tek seferlik, ~1 dakika)
+#   1. brittenglishwithali/Yeni-Mahalle-Market deposunu ac
+#   2. Add file > Create new file
+#   3. Dosya adi:  .github/workflows/sync-from-marmara.yml
+#   4. Bu dosyanin ASAGIDAKI icerigini yapistir (bu aciklama blogu haric)
+#   5. Commit
+#   6. Actions sekmesi > "sync-from-marmara" > Run workflow  (ilk senkron)
+#
+# GUVENLIK NOTU
+# merge --ff-only kullanilir: yalnizca bu deponun main'i marmara main'inin
+# GERISINDEYSE ilerletilir. Britt tarafinda dogrudan yapilmis, marmara'da
+# olmayan bir commit varsa is BASARISIZ olur ve hicbir sey ezilmez.
+# Bu durumda iki taraf elle birlestirilmelidir.
+# =============================================================================
+
+name: sync-from-marmara
+
+on:
+  schedule:
+    # Her 10 dakikada bir. GitHub cron'u yogunlukta birkac dakika gecikebilir.
+    - cron: "*/10 * * * *"
+  workflow_dispatch: # Actions sekmesinden elle tetiklemek icin
+
+permissions:
+  contents: write # kendi main'ine push edebilmek icin
+
+concurrency:
+  group: sync-from-marmara
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: marmaraclaude-stack/main'i cek ve ilerlet
+        run: |
+          set -euo pipefail
+          UPSTREAM="https://github.com/marmaraclaude-stack/yeni-mahalle-market.git"
+
+          git remote add upstream "$UPSTREAM" 2>/dev/null || \
+            git remote set-url upstream "$UPSTREAM"
+          git fetch upstream main
+
+          LOCAL=$(git rev-parse HEAD)
+          REMOTE=$(git rev-parse upstream/main)
+
+          if [ "$LOCAL" = "$REMOTE" ]; then
+            echo "Zaten guncel ($LOCAL). Yapilacak bir sey yok."
+            exit 0
+          fi
+
+          # Sadece ileri sarma: britt tarafindaki ozel commit'ler asla ezilmez.
+          if ! git merge --ff-only upstream/main; then
+            echo "::error::Ileri sarma yapilamadi - bu deponun main'inde"
+            echo "::error::marmaraclaude-stack'te olmayan commit(ler) var."
+            echo "::error::Iki taraf elle birlestirilmeli. Hicbir sey degistirilmedi."
+            exit 1
+          fi
+
+          git push origin HEAD:main
+          echo "Senkron tamam: $LOCAL -> $(git rev-parse HEAD)"
+          echo "Vercel bu push ile yayina alacak."
