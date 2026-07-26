@@ -3102,3 +3102,63 @@
   line-height: 1.6;
 }
 .infoBox b { color: var(--ink); font-weight: 700; }
+
+/* --- Ürün pilleri (rozet) seçici — ürün düzenleme formu ---
+   Gruplu çip listesi: kutucuk gizli, etiketin kendisi tıklanabilir çip.
+   Seçili çip turuncu çerçeve + dolgu ile ayrışır. */
+.pillPicker {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 6px;
+}
+.pillGroup {
+  border: 1px solid var(--gray-200);
+  border-radius: 12px;
+  padding: 10px 12px 12px;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.pillGroupTitle {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--gray-500);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  padding: 0 4px;
+}
+.pillChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: 1px solid var(--gray-200);
+  border-radius: 999px;
+  background: var(--white);
+  font-size: 13.5px;
+  line-height: 1;
+  cursor: pointer;
+  user-select: none;
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+}
+.pillChip:hover { border-color: var(--gray-400); }
+/* Kutucuk görsel olarak gizli ama klavye/ekran okuyucu için erişilebilir */
+.pillChip input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+  pointer-events: none;
+}
+.pillChip:focus-within {
+  outline: 2px solid var(--orange);
+  outline-offset: 2px;
+}
+.pillChipOn {
+  border-color: var(--orange);
+  background: color-mix(in srgb, var(--orange) 10%, var(--white));
+  color: var(--ink);
+  font-weight: 600;
+}

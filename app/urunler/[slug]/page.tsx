@@ -41,6 +41,16 @@ import { iconFor } from "@/components/shop/ProductCard";
 import SiteNav from "@/components/SiteNav";
 import SiteFooter from "@/components/SiteFooter";
 import DetailActions from "./DetailActions";
+import { productPills, type PillTone } from "@/lib/shop/pills";
+
+/** Pil tonu → urun.module.css sınıf anahtarı. */
+const PILL_TONE_KEY: Record<PillTone, string> = {
+  info: "pillInfo",
+  fresh: "pillFresh",
+  cold: "pillCold",
+  alt: "pillAlt",
+  accent: "pillAccent",
+};
 import ProductInfoTabs from "./ProductInfoTabs";
 import SimilarRail from "./SimilarRail";
 import styles from "./urun.module.css";
@@ -281,6 +291,7 @@ export default async function UrunDetayPage({ params }: { params: Params }) {
 
   const unitPrice = unitPriceLabel(product);
   const chips = infoChips(product.category_slug);
+  const detailPills = productPills(product);
 
   // İndirimdeki net tasarruf (başlık fiyatı ölçeğinde).
   const saving =
@@ -449,6 +460,23 @@ export default async function UrunDetayPage({ params }: { params: Params }) {
               <h1 className={styles.title}>{product.name}</h1>
 
               {metaText && <p className={styles.meta}>{metaText}</p>}
+
+              {/* Ürün pilleri — yöneticinin seçtiği rozetler (Laktozsuz,
+                  Günlük Taze vb.). Kartta en fazla 2 tanesi görünür,
+                  burada tamamı listelenir. Pil yoksa hiçbir şey basılmaz. */}
+              {detailPills.length > 0 && (
+                <ul className={styles.pillRow}>
+                  {detailPills.map((p) => (
+                    <li
+                      key={p.key}
+                      className={`${styles.pill} ${styles[PILL_TONE_KEY[p.tone]]}`}
+                      title={p.hint}
+                    >
+                      {p.label}
+                    </li>
+                  ))}
+                </ul>
+              )}
 
               <p className={styles.priceRow}>
                 <span className={styles.price}>{formatTL(headlinePrice)}</span>

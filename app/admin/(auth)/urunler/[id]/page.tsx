@@ -70,10 +70,12 @@ export default async function AdminProductEditPage({
   const category = allCats.find((c) => c.slug === product.category_slug);
   const [tintBg, tintFg] = CATEGORY_TINTS[category?.tint ?? 0];
 
-  // Birim seçenekleri — üründe farklı bir değer varsa listeye eklenir.
-  // "gram": sabit gramajlı paket (ör. 125 g ahududu) — gram seçici DEĞİL,
-  // pakete göre fiyat + "₺X / kg" bilgisi gösterilir.
-  const units = ["adet", "kg", "gram", "paket", "ml", "litre"];
+  // Birim seçenekleri — market yalnız ADET (paketli/sayılabilir ürün) veya
+  // AĞIRLIK (kg/gram, tartıyla) satar; gramaj/hacim (500 ml, 1 L, 200 g)
+  // birim değil, size_text alanında tutulur. "paket/ml/litre/set" birimleri
+  // vitrinde "/ paket", "/ ml" gibi anlamsız etiketler doğurduğu için kaldırıldı.
+  // "gram": sabit gramajlı paket (ör. 125 g ahududu) — pakete göre fiyat + "₺X / kg".
+  const units = ["adet", "kg", "gram"];
   if (product.unit && !units.includes(product.unit)) units.push(product.unit);
 
   // ---- Inline server action'lar ----
@@ -169,6 +171,13 @@ export default async function AdminProductEditPage({
       detailsPatch = { details: hasAny ? details : null };
     }
 
+    // Ürün pilleri — bölüm formda varsa (pills_present) hiç kutu
+    // işaretlenmemiş olması "pilleri temizle" demektir.
+    const pillsPatch =
+      formData.get("pills_present") === "1"
+        ? { pills: formData.getAll("pills").map(String) }
+        : {};
+
     let errorMessage: string | null = null;
     try {
       const slugRaw = String(formData.get("slug") ?? "").trim();
@@ -188,6 +197,7 @@ export default async function AdminProductEditPage({
         sold_by_weight: soldByWeight,
         pack_prices: packPricesValue,
         ...detailsPatch,
+        ...pillsPatch,
         ...weightScale,
         is_featured: formData.get("is_featured") === "on",
         in_stock: formData.get("in_stock") === "on",

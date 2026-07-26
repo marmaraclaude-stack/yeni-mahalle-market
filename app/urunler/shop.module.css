@@ -1502,9 +1502,33 @@
   background: var(--ink);
   color: var(--white);
 }
-/* Bilgi pili (Laktozsuz gibi): beyaz zemin, ince çerçeve */
+/* Bilgi pili (Laktozsuz, Glutensiz gibi): beyaz zemin, ince çerçeve */
 .badgeInfo {
   background: var(--white);
   color: var(--gray-700);
   border: 1px solid var(--gray-200);
+}
+/* Doğallık/tazelik pili (Organik, Günlük Taze): yeşil */
+.badgeFresh {
+  background: #e7f6ec;
+  color: #16713a;
+  border: 1px solid #bfe5cc;
+}
+/* Soğuk zincir pili (Dondurulmuş): buz mavisi */
+.badgeCold {
+  background: #e8f2fb;
+  color: #14598f;
+  border: 1px solid #c2ddf3;
+}
+@media (prefers-color-scheme: dark) {
+  .badgeFresh {
+    background: #10321f;
+    color: #7fd6a1;
+    border-color: #1d5334;
+  }
+  .badgeCold {
+    background: #0f2a3f;
+    color: #8ec8f0;
+    border-color: #1b4665;
+  }
 }

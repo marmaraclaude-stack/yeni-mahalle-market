@@ -18,6 +18,7 @@ import {
   weightMinFor,
 } from "@/lib/shop/types";
 import { CATEGORY_TINTS, categoryBySlug } from "@/lib/shop/categories";
+import { productPills, type PillTone } from "@/lib/shop/pills";
 import AddToCartButton from "@/components/shop/AddToCartButton";
 import {
   Carrot,
@@ -128,6 +129,15 @@ export function iconFor(name: string): LucideIcon {
   return CATEGORY_ICONS[name] ?? ShoppingBasket;
 }
 
+/** Pil tonu → CSS modülü sınıfı (dinamik anahtar yerine açık eşleme). */
+const PILL_TONE_CLASS: Record<PillTone, string> = {
+  info: styles.badgeInfo,
+  fresh: styles.badgeFresh,
+  cold: styles.badgeCold,
+  alt: styles.badgeAlt,
+  accent: styles.badge,
+};
+
 export default function ProductCard({
   product,
   variant = "grid",
@@ -148,9 +158,9 @@ export default function ProductCard({
     const pct = Math.round(((2 * product.price - pack2) / product.price) * 100);
     return pct >= 5 ? `2.si %${pct} İndirimli` : null;
   })();
-  const lactoseFree = product.name
-    .toLocaleLowerCase("tr-TR")
-    .includes("laktozsuz");
+  // Yöneticinin seçtiği ürün pilleri. Kart dar olduğu için en fazla 2 tanesi
+  // gösterilir (katalog sırasına göre); tamamı ürün detay sayfasında çıkar.
+  const pills = productPills(product).slice(0, 2);
   const byWeight = isWeightBased(product);
   const weightMin = weightMinFor(product);
   // Yalnız birimi "gram" olan ürünlerde kartta EN AZ miktarın fiyatı gösterilir
@@ -212,9 +222,11 @@ export default function ProductCard({
                 {product.brand_campaign}
               </span>
             )}
-            {lactoseFree && (
-              <span className={`${styles.badge} ${styles.badgeInfo}`}>Laktozsuz</span>
-            )}
+            {pills.map((p) => (
+              <span key={p.key} className={`${styles.badge} ${PILL_TONE_CLASS[p.tone]}`}>
+                {p.label}
+              </span>
+            ))}
           </span>
         </div>
 

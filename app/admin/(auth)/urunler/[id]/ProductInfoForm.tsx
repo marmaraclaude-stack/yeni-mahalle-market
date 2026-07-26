@@ -8,6 +8,7 @@
 import Link from "next/link";
 import { useRef, useState } from "react";
 import { formatGrams, isWeightBased, type Product } from "@/lib/shop/types";
+import { pillsByGroup } from "@/lib/shop/pills";
 import styles from "../../../admin.module.css";
 
 interface Props {
@@ -51,6 +52,7 @@ export default function ProductInfoForm({
   subcats,
 }: Props) {
   const [byWeight, setByWeight] = useState(product.sold_by_weight);
+  const [pills, setPills] = useState<string[]>(product.pills ?? []);
   const [brand, setBrand] = useState(product.brand ?? "");
   // Marka arama kutusu (combobox): yazarak süz, listeden seç.
   const [brandQuery, setBrandQuery] = useState(product.brand ?? "");
@@ -558,6 +560,55 @@ export default function ProductInfoForm({
             defaultValue={product.description}
             className={styles.textarea}
           />
+        </div>
+
+        {/* Ürün pilleri (rozetler) — TÜM kategorilerde. Kartta ve ürün
+            sayfasında rozet olarak çıkar. Zorunlu değil: yalnız müşteriye
+            gerçekten bir şey söyleyen ürünlerde işaretlenir. */}
+        <div className={`${styles.field} ${styles.fieldFull}`}>
+          <label className={styles.label}>
+            Ürün pilleri{" "}
+            <span className={styles.hint}>
+              (kartta ve ürün sayfasında rozet olarak görünür — birden fazla
+              seçebilirsiniz, boş bırakmak serbesttir)
+            </span>
+          </label>
+          {/* Hiç kutu işaretlenmezse tarayıcı bu alanı hiç göndermez; gizli
+              alan sayesinde sunucu "pilleri temizle" ile "form bu bölümü
+              içermiyor" durumunu ayırt edebilir. */}
+          <input type="hidden" name="pills_present" value="1" />
+          <div className={styles.pillPicker}>
+            {pillsByGroup().map(({ group, items }) => (
+              <fieldset key={group} className={styles.pillGroup}>
+                <legend className={styles.pillGroupTitle}>{group}</legend>
+                {items.map((p) => {
+                  const on = pills.includes(p.key);
+                  return (
+                    <label
+                      key={p.key}
+                      className={`${styles.pillChip}${on ? ` ${styles.pillChipOn}` : ""}`}
+                      title={p.hint}
+                    >
+                      <input
+                        type="checkbox"
+                        name="pills"
+                        value={p.key}
+                        checked={on}
+                        onChange={(e) =>
+                          setPills((prev) =>
+                            e.target.checked
+                              ? [...prev, p.key]
+                              : prev.filter((k) => k !== p.key),
+                          )
+                        }
+                      />
+                      {p.label}
+                    </label>
+                  );
+                })}
+              </fieldset>
+            ))}
+          </div>
         </div>
 
         {/* Etiket bilgileri — meyve-sebze DIŞINDAKİ kategorilerde (şarküteri

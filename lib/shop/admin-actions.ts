@@ -16,6 +16,7 @@ import { SHOP_CATEGORIES, categoryBySlug } from "@/lib/shop/categories";
 import { assignSubcategory, defaultSubcatsFor } from "@/lib/shop/subcategories";
 import { getSubcatsMap } from "@/lib/shop/subcats-data";
 import { BANNER_ICONS } from "@/lib/shop/icons";
+import { PILLS } from "@/lib/shop/pills";
 import type {
   Courier,
   OrderStatus,
@@ -62,6 +63,8 @@ export interface ProductPatch {
   pack_prices?: Record<string, number> | null;
   /** Etiket/detay bilgileri (jsonb) — null: temizle, undefined: dokunma. */
   details?: import("./types").ProductDetails | null;
+  /** Rozet anahtarları — katalog dışı anahtarlar kayıtta elenir. */
+  pills?: string[];
   in_stock?: boolean;
   is_active?: boolean;
   is_featured?: boolean;
@@ -438,6 +441,11 @@ export async function updateProduct(
       if (Object.keys(acc).length > 0) cleaned = acc;
     }
     clean.pack_prices = cleaned;
+  }
+  if (patch.pills !== undefined) {
+    // Yalnız katalogdaki anahtarlar yazılır; tekrarlar elenir, sıra sabitlenir.
+    const wanted = new Set(patch.pills);
+    clean.pills = PILLS.filter((d) => wanted.has(d.key)).map((d) => d.key);
   }
   if (patch.in_stock !== undefined) clean.in_stock = patch.in_stock;
   if (patch.is_active !== undefined) clean.is_active = patch.is_active;
