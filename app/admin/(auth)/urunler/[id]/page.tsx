@@ -171,6 +171,13 @@ export default async function AdminProductEditPage({
       detailsPatch = { details: hasAny ? details : null };
     }
 
+    // Ürün pilleri — bölüm formda varsa (pills_present) hiç kutu
+    // işaretlenmemiş olması "pilleri temizle" demektir.
+    const pillsPatch =
+      formData.get("pills_present") === "1"
+        ? { pills: formData.getAll("pills").map(String) }
+        : {};
+
     let errorMessage: string | null = null;
     try {
       const slugRaw = String(formData.get("slug") ?? "").trim();
@@ -190,6 +197,7 @@ export default async function AdminProductEditPage({
         sold_by_weight: soldByWeight,
         pack_prices: packPricesValue,
         ...detailsPatch,
+        ...pillsPatch,
         ...weightScale,
         is_featured: formData.get("is_featured") === "on",
         in_stock: formData.get("in_stock") === "on",

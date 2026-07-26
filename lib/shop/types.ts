@@ -54,6 +54,8 @@ export interface Product {
   weight_step_grams: number;
   /** Adet ürünlerde paket fiyatları (toplu alım indirimi); null = yok. */
   pack_prices: PackPrices | null;
+  /** Rozet anahtarları (lib/shop/pills.ts kataloğu); boş dizi = pil yok. */
+  pills: string[];
   /** Stok adedi (adetli üründe adet, gram bazlıda GRAM). null = takip yok. */
   stock_qty: number | null;
   /** Etiket/detay bilgileri (jsonb); null = girilmemiş. */
